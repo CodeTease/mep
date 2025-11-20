@@ -1,6 +1,6 @@
 # Mep: Minimalist CLI Prompt
 
-**Mep** is a minimalist and zero-dependency library for creating interactive command-line prompts in Node.js. (The name "Mep" is purely an identifier and not an acronym). It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation.
+**Mep** is a minimalist and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation.
 
 ## Features
 
@@ -13,16 +13,16 @@
 ## Installation
 
 ```bash
-npm install mep
+npm install mepcli
 # or
-yarn add mep
+yarn add mepcli
 ```
 
 ## Usage Example
 
 Mep provides a static class facade, `MepCLI`, for all interactions.
 ```javascript
-import { MepCLI } from 'mep';
+import { MepCLI } from 'mepcli';
 
 async function setup() {
     // Text input with validation and cursor support

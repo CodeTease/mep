@@ -1,5 +1,5 @@
 {
-  "name": "mep",
+  "name": "mepcli",
   "version": "0.1.0",
   "description": "Zero-dependency, minimalist interactive CLI prompt for Node.js",
   "repository": {
