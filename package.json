@@ -1,0 +1,37 @@
+{
+  "name": "mep",
+  "version": "0.1.0",
+  "description": "Zero-dependency, minimalist interactive CLI prompt for Node.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeTease/mep.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "example.ts"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "ts-node example.ts"
+  },
+  "keywords": [
+    "cli",
+    "prompt",
+    "inquirer",
+    "interactive",
+    "zero-dependency",
+    "codetease"
+  ],
+  "author": "CodeTease",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
