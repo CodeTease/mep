@@ -1,4 +1,4 @@
-import { MepCLI } from 'mepcli'; // Or 'mepcli' if installed via NPM
+import { MepCLI } from './src'; // Or 'mepcli' if installed via NPM
 
 /**
  * Runs a comprehensive demo showcasing all MepCLI prompt types and utilities.
