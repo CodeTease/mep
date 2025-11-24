@@ -105,6 +105,7 @@ class TextPrompt extends Prompt<string, TextOptions> {
     private errorMsg: string = '';
     private cursor: number = 0;
     private hasTyped: boolean = false;
+    private renderLines: number = 1;
 
     constructor(options: TextOptions) {
         super(options);
@@ -117,64 +118,109 @@ class TextPrompt extends Prompt<string, TextOptions> {
         this.print(ANSI.SHOW_CURSOR);
 
         if (!firstRender) {
-             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-             if (this.errorMsg) {
-                 this.print(ANSI.UP + ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+             // Clear previous lines
+             for (let i = 0; i < this.renderLines; i++) {
+                 this.print(ANSI.ERASE_LINE);
+                 if (i < this.renderLines - 1) this.print(ANSI.UP);
              }
+             this.print(ANSI.CURSOR_LEFT);
         }
         
+        let output = '';
+        
         // 1. Render the Prompt Message
-        this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
         const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
-        this.print(`${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} `);
+        const multilineHint = this.options.multiline ? ` ${MepCLI.theme.muted}(Press Ctrl+D to submit)${ANSI.RESET}` : '';
+        output += `${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET}${multilineHint} `;
 
         // 2. Render the Value or Placeholder
+        let displayValue = '';
         if (!this.value && this.options.placeholder && !this.errorMsg && !this.hasTyped) {
-            this.print(`${MepCLI.theme.muted}${this.options.placeholder}${ANSI.RESET}`);
-            // Move cursor back to start so typing overwrites placeholder visually
-            this.print(`\x1b[${this.options.placeholder.length}D`);
+            displayValue = `${MepCLI.theme.muted}${this.options.placeholder}${ANSI.RESET}`;
         } else {
-            const displayValue = this.options.isPassword ? '*'.repeat(this.value.length) : this.value;
-            this.print(`${MepCLI.theme.main}${displayValue}${ANSI.RESET}`);
+            displayValue = this.options.isPassword ? '*'.repeat(this.value.length) : this.value;
+            displayValue = `${MepCLI.theme.main}${displayValue}${ANSI.RESET}`;
         }
-
+        
+        output += displayValue;
+        
         // 3. Handle Error Message
         if (this.errorMsg) {
-            this.print(`\n${ANSI.ERASE_LINE}${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
-            this.print(ANSI.UP); // Go back to input line
-            
-            // Re-calculate position to end of input
-            const promptLen = this.options.message.length + 3; // Icon + 2 spaces
-            const valLen = this.value.length; 
-            
-            // Move to absolute start of line, then move right to end of string
-            this.print(`\x1b[1000D\x1b[${promptLen + valLen}C`);
+             output += `\n${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
+        
+        this.print(output);
+        
+        // Calculate new render lines count
+        const valueLines = (this.value || '').split('\n').length;
+        const errorLines = this.errorMsg ? 1 : 0;
+        // Prompt line is always at least 1, but if value has newlines, it grows
+        // Actually, prompt + value are concatenated. Newlines in value make it multi-line.
+        // We assume prompt message itself doesn't have newlines for simplicity.
+        this.renderLines = Math.max(1, valueLines) + errorLines;
 
         // 4. Position Cursor Logic
-        // At this point, the physical cursor is at the END of the value string.
-        // We need to move it LEFT by (length - cursor_index)
-        const diff = this.value.length - this.cursor;
-        if (diff > 0) {
-            this.print(`\x1b[${diff}D`);
+        // We just printed everything. Cursor is at the end.
+        // We need to move it back to `this.cursor` position.
+        
+        // Calculate cursor position (row, col) relative to start of value
+        const valueUntilCursor = this.value.slice(0, this.cursor);
+        const cursorRows = valueUntilCursor.split('\n').length - 1;
+        const lastLineIndex = valueUntilCursor.lastIndexOf('\n');
+        const cursorCol = lastLineIndex === -1 ? valueUntilCursor.length : valueUntilCursor.length - lastLineIndex - 1;
+
+        // Total lines printed
+        const totalRows = (this.value || '').split('\n').length;
+        
+        // Move up from bottom
+        const linesToMoveUp = (totalRows - 1) - cursorRows + errorLines;
+        if (linesToMoveUp > 0) {
+            this.print(`\x1b[${linesToMoveUp}A`);
+        }
+        
+        this.print(ANSI.CURSOR_LEFT); // Go to start of line
+        
+        // If on first line, we need to account for prompt length
+        if (cursorRows === 0) {
+             const promptLen = 2 + this.options.message.length + 1 + (this.options.multiline ? 25 : 0); // approx
+             // Actually, safer to just move right by correct amount
+             // But we have ANSI codes in prompt string, so length is tricky.
+             // Simpler approach:
+             // 1. Move to start of line
+             // 2. Move right by prompt length (visual length) + cursorCol
+             
+             // Strip ANSI for length calc
+             const stripAnsi = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '');
+             const promptStr = `${icon} ${MepCLI.theme.title}${this.options.message} ${multilineHint} `;
+             const promptVisualLen = stripAnsi(promptStr).length;
+             
+             if (promptVisualLen + cursorCol > 0) {
+                 this.print(`\x1b[${promptVisualLen + cursorCol}C`);
+             }
+        } else {
+            if (cursorCol > 0) {
+                this.print(`\x1b[${cursorCol}C`);
+            }
         }
     }
 
     protected handleInput(char: string) {
         // Enter
         if (char === '\r' || char === '\n') {
-            if (this.options.validate) {
-                const validationResult = this.options.validate(this.value);
-                if (typeof validationResult === 'string' && validationResult.length > 0) {
-                    this.errorMsg = validationResult;
-                    this.render(false);
-                    return;
-                }
+            if (this.options.multiline) {
+                this.value = this.value.slice(0, this.cursor) + '\n' + this.value.slice(this.cursor);
+                this.cursor++;
+                this.render(false);
+                return;
             }
-            if (this.errorMsg) {
-                this.print(`\n${ANSI.ERASE_LINE}${ANSI.UP}`);
-            }
-            this.submit(this.value);
+
+            this.validateAndSubmit();
+            return;
+        }
+        
+        // Ctrl+D (EOF) or Ctrl+S for Submit in Multiline
+        if (this.options.multiline && (char === '\u0004' || char === '\u0013')) {
+            this.validateAndSubmit();
             return;
         }
 
@@ -228,12 +274,68 @@ class TextPrompt extends Prompt<string, TextOptions> {
             this.render(false);
         }
     }
+
+    private validateAndSubmit() {
+        if (this.options.validate) {
+            const result = this.options.validate(this.value);
+            
+            // Handle Promise validation
+            if (result instanceof Promise) {
+                // Show loading state
+                this.print(`\n${ANSI.ERASE_LINE}${MepCLI.theme.main}Validating...${ANSI.RESET}`);
+                this.print(ANSI.UP);
+
+                result.then(valid => {
+                     // Clear loading message
+                     this.print(`\n${ANSI.ERASE_LINE}`);
+                     this.print(ANSI.UP);
+                     
+                     if (typeof valid === 'string' && valid.length > 0) {
+                         this.errorMsg = valid;
+                         this.render(false);
+                     } else if (valid === false) {
+                         this.errorMsg = 'Invalid input';
+                         this.render(false);
+                     } else {
+                        if (this.errorMsg) {
+                            this.print(`\n${ANSI.ERASE_LINE}${ANSI.UP}`);
+                        }
+                         this.submit(this.value);
+                     }
+                }).catch(err => {
+                     this.print(`\n${ANSI.ERASE_LINE}`);
+                     this.print(ANSI.UP);
+                     this.errorMsg = err.message || 'Validation failed';
+                     this.render(false);
+                });
+                return;
+            }
+
+            // Handle Sync validation
+            if (typeof result === 'string' && result.length > 0) {
+                this.errorMsg = result;
+                this.render(false);
+                return;
+            }
+            if (result === false) {
+                 this.errorMsg = 'Invalid input';
+                 this.render(false);
+                 return;
+            }
+        }
+        if (this.errorMsg) {
+            this.print(`\n${ANSI.ERASE_LINE}${ANSI.UP}`);
+        }
+        this.submit(this.value);
+    }
 }
 
 // --- Implementation: Select Prompt ---
 class SelectPrompt extends Prompt<any, SelectOptions> {
     private selectedIndex: number = 0;
     private searchBuffer: string = '';
+    private scrollTop: number = 0;
+    private readonly pageSize: number = 7;
 
     constructor(options: SelectOptions) {
         super(options);
@@ -285,6 +387,17 @@ class SelectPrompt extends Prompt<any, SelectOptions> {
         let output = '';
         const choices = this.getFilteredChoices();
         
+        // Adjust Scroll Top
+        if (this.selectedIndex < this.scrollTop) {
+            this.scrollTop = this.selectedIndex;
+        } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
+            this.scrollTop = this.selectedIndex - this.pageSize + 1;
+        }
+        // Handle Filtering Edge Case: if list shrinks, scrollTop might be too high
+        if (this.scrollTop > choices.length - 1) {
+            this.scrollTop = Math.max(0, choices.length - this.pageSize);
+        }
+
         // Header
         const searchStr = this.searchBuffer ? ` ${MepCLI.theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
         output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.success}?${ANSI.RESET} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
@@ -292,12 +405,15 @@ class SelectPrompt extends Prompt<any, SelectOptions> {
         if (choices.length === 0) {
             output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}  ${MepCLI.theme.muted}No results found${ANSI.RESET}\n`;
         } else {
-             choices.forEach((choice, index) => {
+             const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+             
+             visibleChoices.forEach((choice, index) => {
+                const actualIndex = this.scrollTop + index;
                 output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`;
                 if (this.isSeparator(choice)) {
                     output += `  ${ANSI.DIM}${(choice as any).text || '────────'}${ANSI.RESET}\n`;
                 } else {
-                    if (index === this.selectedIndex) {
+                    if (actualIndex === this.selectedIndex) {
                         output += `${MepCLI.theme.main}❯ ${(choice as any).title}${ANSI.RESET}\n`;
                     } else {
                         output += `  ${(choice as any).title}\n`;
@@ -309,7 +425,8 @@ class SelectPrompt extends Prompt<any, SelectOptions> {
         this.print(output);
 
         // Clear remaining lines if list shrunk
-        const currentHeight = choices.length + 1 + (choices.length === 0 ? 1 : 0);
+        const visibleCount = Math.min(choices.length, this.pageSize);
+        const currentHeight = visibleCount + 1 + (choices.length === 0 ? 1 : 0);
         const linesToClear = this.lastRenderHeight - currentHeight;
         if (linesToClear > 0) {
             for (let i = 0; i < linesToClear; i++) {

@@ -17,8 +17,9 @@ export interface BaseOptions {
 export interface TextOptions extends BaseOptions {
     placeholder?: string;
     initial?: string;
-    validate?: (value: string) => string | boolean;
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
     isPassword?: boolean;
+    multiline?: boolean;
 }
 
 export interface Separator {
