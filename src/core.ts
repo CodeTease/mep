@@ -1,5 +1,5 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions } from './types';
 
 /**
  * Abstract base class for all prompts.
@@ -104,6 +104,7 @@ abstract class Prompt<T, O> {
 class TextPrompt extends Prompt<string, TextOptions> {
     private errorMsg: string = '';
     private cursor: number = 0;
+    private hasTyped: boolean = false;
 
     constructor(options: TextOptions) {
         super(options);
@@ -124,22 +125,22 @@ class TextPrompt extends Prompt<string, TextOptions> {
         
         // 1. Render the Prompt Message
         this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-        const icon = this.errorMsg ? `${ANSI.FG_RED}✖` : `${ANSI.FG_GREEN}?`;
-        this.print(`${icon} ${ANSI.BOLD}${this.options.message}${ANSI.RESET} `);
+        const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
+        this.print(`${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} `);
 
         // 2. Render the Value or Placeholder
-        if (!this.value && this.options.placeholder && !this.errorMsg) {
-            this.print(`${ANSI.FG_GRAY}${this.options.placeholder}${ANSI.RESET}`);
+        if (!this.value && this.options.placeholder && !this.errorMsg && !this.hasTyped) {
+            this.print(`${MepCLI.theme.muted}${this.options.placeholder}${ANSI.RESET}`);
             // Move cursor back to start so typing overwrites placeholder visually
             this.print(`\x1b[${this.options.placeholder.length}D`);
         } else {
             const displayValue = this.options.isPassword ? '*'.repeat(this.value.length) : this.value;
-            this.print(`${ANSI.FG_CYAN}${displayValue}${ANSI.RESET}`);
+            this.print(`${MepCLI.theme.main}${displayValue}${ANSI.RESET}`);
         }
 
         // 3. Handle Error Message
         if (this.errorMsg) {
-            this.print(`\n${ANSI.ERASE_LINE}${ANSI.FG_RED}>> ${this.errorMsg}${ANSI.RESET}`);
+            this.print(`\n${ANSI.ERASE_LINE}${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
             this.print(ANSI.UP); // Go back to input line
             
             // Re-calculate position to end of input
@@ -179,6 +180,7 @@ class TextPrompt extends Prompt<string, TextOptions> {
 
         // Backspace
         if (char === '\u0008' || char === '\x7f') { 
+            this.hasTyped = true;
             if (this.cursor > 0) {
                 this.value = this.value.slice(0, this.cursor - 1) + this.value.slice(this.cursor);
                 this.cursor--;
@@ -208,6 +210,7 @@ class TextPrompt extends Prompt<string, TextOptions> {
 
         // Delete key
         if (char === '\u001b[3~') {
+             this.hasTyped = true;
              if (this.cursor < this.value.length) {
                  this.value = this.value.slice(0, this.cursor) + this.value.slice(this.cursor + 1);
                  this.errorMsg = '';
@@ -218,6 +221,7 @@ class TextPrompt extends Prompt<string, TextOptions> {
 
         // Regular Typing
         if (char.length === 1 && !/^[\x00-\x1F]/.test(char)) {
+            this.hasTyped = true;
             this.value = this.value.slice(0, this.cursor) + char + this.value.slice(this.cursor);
             this.cursor++;
             this.errorMsg = '';
@@ -229,47 +233,149 @@ class TextPrompt extends Prompt<string, TextOptions> {
 // --- Implementation: Select Prompt ---
 class SelectPrompt extends Prompt<any, SelectOptions> {
     private selectedIndex: number = 0;
+    private searchBuffer: string = '';
 
     constructor(options: SelectOptions) {
         super(options);
+        // Find first non-separator index
+        this.selectedIndex = this.findNextSelectableIndex(-1, 1);
     }
 
-    protected render(firstRender: boolean) {
-        // Ensure cursor is HIDDEN for menus
-        this.print(ANSI.HIDE_CURSOR);
+    private isSeparator(item: any): boolean {
+        return item && item.separator === true;
+    }
 
-        if (!firstRender) {
-            this.print(`\x1b[${this.options.choices.length + 1}A`);
+    private findNextSelectableIndex(currentIndex: number, direction: 1 | -1): number {
+        let nextIndex = currentIndex + direction;
+        const choices = this.getFilteredChoices();
+        
+        // Loop around logic
+        if (nextIndex < 0) nextIndex = choices.length - 1;
+        if (nextIndex >= choices.length) nextIndex = 0;
+
+        if (choices.length === 0) return 0;
+
+        // Safety check to prevent infinite loop if all are separators (shouldn't happen in practice)
+        let count = 0;
+        while (this.isSeparator(choices[nextIndex]) && count < choices.length) {
+            nextIndex += direction;
+            if (nextIndex < 0) nextIndex = choices.length - 1;
+            if (nextIndex >= choices.length) nextIndex = 0;
+            count++;
+        }
+        return nextIndex;
+    }
+    
+    private getFilteredChoices() {
+        if (!this.searchBuffer) return this.options.choices;
+        return this.options.choices.filter(c => {
+            if (this.isSeparator(c)) return false; // Hide separators when searching
+            return (c as any).title.toLowerCase().includes(this.searchBuffer.toLowerCase());
+        });
+    }
+    
+    // Custom render to handle variable height clearing
+    private lastRenderHeight: number = 0;
+    
+    protected renderWrapper(firstRender: boolean) {
+        if (!firstRender && this.lastRenderHeight > 0) {
+            this.print(`\x1b[${this.lastRenderHeight}A`);
+        }
+        
+        let output = '';
+        const choices = this.getFilteredChoices();
+        
+        // Header
+        const searchStr = this.searchBuffer ? ` ${MepCLI.theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
+        output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.success}?${ANSI.RESET} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
+        
+        if (choices.length === 0) {
+            output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}  ${MepCLI.theme.muted}No results found${ANSI.RESET}\n`;
+        } else {
+             choices.forEach((choice, index) => {
+                output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`;
+                if (this.isSeparator(choice)) {
+                    output += `  ${ANSI.DIM}${(choice as any).text || '────────'}${ANSI.RESET}\n`;
+                } else {
+                    if (index === this.selectedIndex) {
+                        output += `${MepCLI.theme.main}❯ ${(choice as any).title}${ANSI.RESET}\n`;
+                    } else {
+                        output += `  ${(choice as any).title}\n`;
+                    }
+                }
+            });
+        }
+        
+        this.print(output);
+
+        // Clear remaining lines if list shrunk
+        const currentHeight = choices.length + 1 + (choices.length === 0 ? 1 : 0);
+        const linesToClear = this.lastRenderHeight - currentHeight;
+        if (linesToClear > 0) {
+            for (let i = 0; i < linesToClear; i++) {
+                this.print(`${ANSI.ERASE_LINE}\n`);
+            }
+            this.print(`\x1b[${linesToClear}A`); // Move back up
         }
 
-        this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
-        this.print(`${ANSI.FG_GREEN}?${ANSI.RESET} ${ANSI.BOLD}${this.options.message}${ANSI.RESET}\n`);
-
-        this.options.choices.forEach((choice, index) => {
-            this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
-            if (index === this.selectedIndex) {
-                this.print(`${ANSI.FG_CYAN}❯ ${choice.title}${ANSI.RESET}\n`);
-            } else {
-                this.print(`  ${choice.title}\n`);
-            }
-        });
+        this.lastRenderHeight = currentHeight;
+    }
+    
+    protected render(firstRender: boolean) {
+        this.print(ANSI.HIDE_CURSOR);
+        this.renderWrapper(firstRender);
     }
 
     protected handleInput(char: string) {
+        const choices = this.getFilteredChoices();
+
         if (char === '\r' || char === '\n') {
+            if (choices.length === 0) {
+                this.searchBuffer = '';
+                this.selectedIndex = this.findNextSelectableIndex(-1, 1);
+                this.render(false);
+                return;
+            }
+
+            if (this.isSeparator(choices[this.selectedIndex])) return;
+            
             this.cleanup();
-            this.print(`\x1b[${this.options.choices.length - this.selectedIndex}B`); 
             this.print(ANSI.SHOW_CURSOR);
-            if ((this as any)._resolve) (this as any)._resolve(this.options.choices[this.selectedIndex].value);
+            if ((this as any)._resolve) (this as any)._resolve((choices[this.selectedIndex] as any).value);
             return;
         }
 
         if (char === '\u001b[A') { // Up
-            this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.choices.length - 1;
-            this.render(false);
+            if (choices.length > 0) {
+                this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, -1);
+                this.render(false);
+            }
+            return;
         }
         if (char === '\u001b[B') { // Down
-            this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
+            if (choices.length > 0) {
+                this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, 1);
+                this.render(false);
+            }
+            return;
+        }
+        
+        // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            if (this.searchBuffer.length > 0) {
+                this.searchBuffer = this.searchBuffer.slice(0, -1);
+                this.selectedIndex = 0; // Reset selection
+                this.selectedIndex = this.findNextSelectableIndex(-1, 1);
+                this.render(false);
+            }
+            return;
+        }
+
+        // Typing
+         if (char.length === 1 && !/^[\x00-\x1F]/.test(char)) {
+            this.searchBuffer += char;
+            this.selectedIndex = 0; // Reset selection
+             this.selectedIndex = this.findNextSelectableIndex(-1, 1);
             this.render(false);
         }
     }
@@ -296,26 +402,26 @@ class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
         }
 
         this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
-        const icon = this.errorMsg ? `${ANSI.FG_RED}✖` : `${ANSI.FG_GREEN}?`;
-        this.print(`${icon} ${ANSI.BOLD}${this.options.message}${ANSI.RESET} ${ANSI.FG_GRAY}(Press <space> to select, <enter> to confirm)${ANSI.RESET}\n`);
+        const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
+        this.print(`${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} ${MepCLI.theme.muted}(Press <space> to select, <enter> to confirm)${ANSI.RESET}\n`);
 
         this.options.choices.forEach((choice, index) => {
             this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
-            const cursor = index === this.selectedIndex ? `${ANSI.FG_CYAN}❯${ANSI.RESET}` : ' ';
+            const cursor = index === this.selectedIndex ? `${MepCLI.theme.main}❯${ANSI.RESET}` : ' ';
             const isChecked = this.checkedState[index];
             const checkbox = isChecked 
-                ? `${ANSI.FG_GREEN}◉${ANSI.RESET}` 
-                : `${ANSI.FG_GRAY}◯${ANSI.RESET}`;
+                ? `${MepCLI.theme.success}◉${ANSI.RESET}` 
+                : `${MepCLI.theme.muted}◯${ANSI.RESET}`;
             
             const title = index === this.selectedIndex 
-                ? `${ANSI.FG_CYAN}${choice.title}${ANSI.RESET}` 
+                ? `${MepCLI.theme.main}${choice.title}${ANSI.RESET}` 
                 : choice.title;
 
             this.print(`${cursor} ${checkbox} ${title}\n`);
         });
 
         if (this.errorMsg) {
-            this.print(`${ANSI.ERASE_LINE}${ANSI.FG_RED}>> ${this.errorMsg}${ANSI.RESET}`);
+            this.print(`${ANSI.ERASE_LINE}${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
         } else if (!firstRender) {
              this.print(`${ANSI.ERASE_LINE}`); 
         }
@@ -390,9 +496,9 @@ class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
             this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
         }
         const hint = this.value ? `${ANSI.BOLD}Yes${ANSI.RESET}/no` : `yes/${ANSI.BOLD}No${ANSI.RESET}`;
-        this.print(`${ANSI.FG_GREEN}?${ANSI.RESET} ${ANSI.BOLD}${this.options.message}${ANSI.RESET} ${ANSI.FG_GRAY}(${hint})${ANSI.RESET} `);
+        this.print(`${MepCLI.theme.success}?${ANSI.RESET} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} ${MepCLI.theme.muted}(${hint})${ANSI.RESET} `);
         const text = this.value ? 'Yes' : 'No';
-        this.print(`${ANSI.FG_CYAN}${text}${ANSI.RESET}\x1b[${text.length}D`);
+        this.print(`${MepCLI.theme.main}${text}${ANSI.RESET}\x1b[${text.length}D`);
     }
 
     protected handleInput(char: string) {
@@ -406,10 +512,230 @@ class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
     }
 }
 
+// --- Implementation: Toggle Prompt ---
+class TogglePrompt extends Prompt<boolean, ToggleOptions> {
+    constructor(options: ToggleOptions) {
+        super(options);
+        this.value = options.initial ?? false;
+    }
+
+    protected render(firstRender: boolean) {
+        this.print(ANSI.HIDE_CURSOR);
+        if (!firstRender) {
+            this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
+        }
+
+        const activeText = this.options.activeText || 'ON';
+        const inactiveText = this.options.inactiveText || 'OFF';
+
+        let toggleDisplay = '';
+        if (this.value) {
+            toggleDisplay = `${MepCLI.theme.main}[${ANSI.BOLD}${activeText}${ANSI.RESET}${MepCLI.theme.main}]${ANSI.RESET}  ${MepCLI.theme.muted}${inactiveText}${ANSI.RESET}`;
+        } else {
+            toggleDisplay = `${MepCLI.theme.muted}${activeText}${ANSI.RESET}  ${MepCLI.theme.main}[${ANSI.BOLD}${inactiveText}${ANSI.RESET}${MepCLI.theme.main}]${ANSI.RESET}`;
+        }
+
+        this.print(`${MepCLI.theme.success}?${ANSI.RESET} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} ${toggleDisplay}`);
+        this.print(`\x1b[${toggleDisplay.length}D`); // Move back is not really needed as we hide cursor, but kept for consistency
+    }
+
+    protected handleInput(char: string) {
+        if (char === '\r' || char === '\n') {
+            this.submit(this.value);
+            return;
+        }
+        if (char === '\u001b[D' || char === '\u001b[C' || char === 'h' || char === 'l') { // Left/Right
+            this.value = !this.value;
+            this.render(false);
+        }
+        if (char === ' ') {
+            this.value = !this.value;
+            this.render(false);
+        }
+    }
+}
+
+// --- Implementation: Number Prompt ---
+class NumberPrompt extends Prompt<number, NumberOptions> {
+    private cursor: number = 0;
+    private stringValue: string;
+    private errorMsg: string = '';
+
+    constructor(options: NumberOptions) {
+        super(options);
+        this.value = options.initial ?? 0;
+        this.stringValue = this.value.toString();
+        this.cursor = this.stringValue.length;
+    }
+
+    protected render(firstRender: boolean) {
+        this.print(ANSI.SHOW_CURSOR);
+
+        if (!firstRender) {
+             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+             if (this.errorMsg) {
+                 this.print(ANSI.UP + ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+             }
+        }
+        
+        // 1. Render the Prompt Message
+        this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+        const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
+        this.print(`${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} `);
+
+        // 2. Render the Value
+        this.print(`${MepCLI.theme.main}${this.stringValue}${ANSI.RESET}`);
+
+        // 3. Handle Error Message
+        if (this.errorMsg) {
+            this.print(`\n${ANSI.ERASE_LINE}${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
+            this.print(ANSI.UP); 
+            
+            const promptLen = this.options.message.length + 3;
+            const valLen = this.stringValue.length; 
+            this.print(`\x1b[1000D\x1b[${promptLen + valLen}C`);
+        }
+
+        // 4. Position Cursor
+        const diff = this.stringValue.length - this.cursor;
+        if (diff > 0) {
+            this.print(`\x1b[${diff}D`);
+        }
+    }
+
+    protected handleInput(char: string) {
+        // Enter
+        if (char === '\r' || char === '\n') {
+            const num = parseFloat(this.stringValue);
+            if (isNaN(num)) {
+                this.errorMsg = 'Please enter a valid number.';
+                this.render(false);
+                return;
+            }
+            if (this.options.min !== undefined && num < this.options.min) {
+                 this.errorMsg = `Minimum value is ${this.options.min}`;
+                 this.render(false);
+                 return;
+            }
+             if (this.options.max !== undefined && num > this.options.max) {
+                 this.errorMsg = `Maximum value is ${this.options.max}`;
+                 this.render(false);
+                 return;
+            }
+
+            if (this.errorMsg) {
+                this.print(`\n${ANSI.ERASE_LINE}${ANSI.UP}`);
+            }
+            this.submit(num);
+            return;
+        }
+        
+        // Up Arrow (Increment)
+        if (char === '\u001b[A') {
+            let num = parseFloat(this.stringValue) || 0;
+            num += (this.options.step ?? 1);
+            if (this.options.max !== undefined && num > this.options.max) num = this.options.max;
+            this.stringValue = num.toString();
+            this.cursor = this.stringValue.length;
+            this.errorMsg = '';
+            this.render(false);
+            return;
+        }
+
+        // Down Arrow (Decrement)
+        if (char === '\u001b[B') {
+            let num = parseFloat(this.stringValue) || 0;
+            num -= (this.options.step ?? 1);
+            if (this.options.min !== undefined && num < this.options.min) num = this.options.min;
+            this.stringValue = num.toString();
+            this.cursor = this.stringValue.length;
+            this.errorMsg = '';
+            this.render(false);
+            return;
+        }
+
+        // Backspace
+        if (char === '\u0008' || char === '\x7f') { 
+            if (this.cursor > 0) {
+                this.stringValue = this.stringValue.slice(0, this.cursor - 1) + this.stringValue.slice(this.cursor);
+                this.cursor--;
+                this.errorMsg = '';
+                this.render(false);
+            }
+            return;
+        }
+
+        // Arrow Left
+        if (char === '\u001b[D') {
+            if (this.cursor > 0) {
+                this.cursor--;
+                this.render(false);
+            }
+            return;
+        }
+
+        // Arrow Right
+        if (char === '\u001b[C') {
+            if (this.cursor < this.stringValue.length) {
+                this.cursor++;
+                this.render(false);
+            }
+            return;
+        }
+        
+        // Numeric Input (and . and -)
+        if (/^[0-9.\-]$/.test(char)) {
+             if (char === '-' && (this.cursor !== 0 || this.stringValue.includes('-'))) return;
+             if (char === '.' && this.stringValue.includes('.')) return;
+
+             this.stringValue = this.stringValue.slice(0, this.cursor) + char + this.stringValue.slice(this.cursor);
+             this.cursor++;
+             this.errorMsg = '';
+             this.render(false);
+        }
+    }
+}
+
 /**
  * Public Facade for MepCLI
  */
 export class MepCLI {
+    public static theme: ThemeConfig = {
+        main: ANSI.FG_CYAN,
+        success: ANSI.FG_GREEN,
+        error: ANSI.FG_RED,
+        muted: ANSI.FG_GRAY,
+        title: ANSI.RESET
+    };
+
+    /**
+     * Shows a spinner while a promise is pending.
+     */
+    static async spin<T>(message: string, taskPromise: Promise<T>): Promise<T> {
+        const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+        let i = 0;
+        
+        process.stdout.write(ANSI.HIDE_CURSOR);
+        
+        const interval = setInterval(() => {
+            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.main}${frames[i]}${ANSI.RESET} ${message}`);
+            i = (i + 1) % frames.length;
+        }, 80);
+
+        try {
+            const result = await taskPromise;
+            clearInterval(interval);
+            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.success}✔${ANSI.RESET} ${message}\n`);
+            process.stdout.write(ANSI.SHOW_CURSOR);
+            return result;
+        } catch (error) {
+            clearInterval(interval);
+            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.error}✖${ANSI.RESET} ${message}\n`);
+            process.stdout.write(ANSI.SHOW_CURSOR);
+            throw error;
+        }
+    }
+
     static text(options: TextOptions): Promise<string> {
         return new TextPrompt(options).run();
     }
@@ -428,5 +754,13 @@ export class MepCLI {
 
     static password(options: TextOptions): Promise<string> {
         return new TextPrompt({ ...options, isPassword: true }).run();
+    }
+    
+    static number(options: NumberOptions): Promise<number> {
+        return new NumberPrompt(options).run();
+    }
+    
+    static toggle(options: ToggleOptions): Promise<boolean> {
+        return new TogglePrompt(options).run();
     }
 }
