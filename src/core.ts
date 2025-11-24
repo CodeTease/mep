@@ -1,5 +1,7 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions } from './types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Abstract base class for all prompts.
@@ -98,6 +100,20 @@ abstract class Prompt<T, O> {
         this.print('\n'); 
         if (this._resolve) this._resolve(result);
     }
+
+    // Helper to check for arrow keys including application mode
+    protected isUp(char: string): boolean {
+        return char === '\u001b[A' || char === '\u001bOA';
+    }
+    protected isDown(char: string): boolean {
+        return char === '\u001b[B' || char === '\u001bOB';
+    }
+    protected isRight(char: string): boolean {
+        return char === '\u001b[C' || char === '\u001bOC';
+    }
+    protected isLeft(char: string): boolean {
+        return char === '\u001b[D' || char === '\u001bOD';
+    }
 }
 
 // --- Implementation: Text Prompt ---
@@ -119,7 +135,6 @@ class TextPrompt extends Prompt<string, TextOptions> {
 
         if (!firstRender) {
              // Clear previous lines
-             // Note: renderLines now represents visual wrapped lines
              for (let i = 0; i < this.renderLines; i++) {
                  this.print(ANSI.ERASE_LINE);
                  if (i < this.renderLines - 1) this.print(ANSI.UP);
@@ -185,7 +200,6 @@ class TextPrompt extends Prompt<string, TextOptions> {
         }
         
         // Add Value (Character by character to handle wrapping and cursor tracking accurately)
-        // Note: This doesn't handle multi-width chars perfectly, but handles wrapping better than before
         const valueLen = rawValue.length;
         
         // If placeholder, we treat it as value for render height, but cursor is at 0
@@ -219,11 +233,6 @@ class TextPrompt extends Prompt<string, TextOptions> {
         
         // If placeholder, cursor is at start of value
         if (isPlaceholder) {
-            // Re-calc cursor position as if it's at index 0 of value
-            // Which is effectively where prompt ends
-            // We already updated currentCol/Line for prompt above, but loop continued for placeholder
-            // So we need to recalculate or store prompt end state
-            // Let's just use prompt end state:
             let pCol = promptVisualLen;
             let pRow = 0;
             while (pCol >= cols) {
@@ -235,18 +244,10 @@ class TextPrompt extends Prompt<string, TextOptions> {
         }
 
         // Final height
-        // If we are at col 0 of a new line (e.g. just wrapped or \n), we count that line
-        // currentVisualLine is 0-indexed index of the line we are on.
-        // Total lines = currentVisualLine + 1 + errorLines
-        
-        // Special case: if input ends with \n, we are on a new empty line
         const totalValueRows = currentVisualLine + 1; 
         this.renderLines = totalValueRows + errorVisualLines;
 
         // 5. Position Cursor Logic
-        // We are currently at the end of output.
-        // End row relative to start: this.renderLines - 1
-        
         const endRow = this.renderLines - 1;
         
         // Move up to cursor row
@@ -295,7 +296,7 @@ class TextPrompt extends Prompt<string, TextOptions> {
         }
 
         // Arrow Left
-        if (char === '\u001b[D') {
+        if (this.isLeft(char)) {
             if (this.cursor > 0) {
                 this.cursor--;
                 this.render(false);
@@ -304,7 +305,7 @@ class TextPrompt extends Prompt<string, TextOptions> {
         }
 
         // Arrow Right
-        if (char === '\u001b[C') {
+        if (this.isRight(char)) {
             if (this.cursor < this.value.length) {
                 this.cursor++;
                 this.render(false);
@@ -520,14 +521,14 @@ class SelectPrompt extends Prompt<any, SelectOptions> {
             return;
         }
 
-        if (char === '\u001b[A') { // Up
+        if (this.isUp(char)) { // Up
             if (choices.length > 0) {
                 this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, -1);
                 this.render(false);
             }
             return;
         }
-        if (char === '\u001b[B') { // Down
+        if (this.isDown(char)) { // Down
             if (choices.length > 0) {
                 this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, 1);
                 this.render(false);
@@ -643,12 +644,12 @@ class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
             this.render(false);
         }
 
-        if (char === '\u001b[A') { // Up
+        if (this.isUp(char)) { // Up
             this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.choices.length - 1;
             this.errorMsg = '';
             this.render(false);
         }
-        if (char === '\u001b[B') { // Down
+        if (this.isDown(char)) { // Down
             this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
             this.errorMsg = '';
             this.render(false);
@@ -719,7 +720,7 @@ class TogglePrompt extends Prompt<boolean, ToggleOptions> {
             this.submit(this.value);
             return;
         }
-        if (char === '\u001b[D' || char === '\u001b[C' || char === 'h' || char === 'l') { // Left/Right
+        if (this.isLeft(char) || this.isRight(char) || char === 'h' || char === 'l') { // Left/Right
             this.value = !this.value;
             this.render(false);
         }
@@ -806,7 +807,7 @@ class NumberPrompt extends Prompt<number, NumberOptions> {
         }
         
         // Up Arrow (Increment)
-        if (char === '\u001b[A') {
+        if (this.isUp(char)) {
             let num = parseFloat(this.stringValue) || 0;
             num += (this.options.step ?? 1);
             if (this.options.max !== undefined && num > this.options.max) num = this.options.max;
@@ -818,7 +819,7 @@ class NumberPrompt extends Prompt<number, NumberOptions> {
         }
 
         // Down Arrow (Decrement)
-        if (char === '\u001b[B') {
+        if (this.isDown(char)) {
             let num = parseFloat(this.stringValue) || 0;
             num -= (this.options.step ?? 1);
             if (this.options.min !== undefined && num < this.options.min) num = this.options.min;
@@ -841,7 +842,7 @@ class NumberPrompt extends Prompt<number, NumberOptions> {
         }
 
         // Arrow Left
-        if (char === '\u001b[D') {
+        if (this.isLeft(char)) {
             if (this.cursor > 0) {
                 this.cursor--;
                 this.render(false);
@@ -850,7 +851,7 @@ class NumberPrompt extends Prompt<number, NumberOptions> {
         }
 
         // Arrow Right
-        if (char === '\u001b[C') {
+        if (this.isRight(char)) {
             if (this.cursor < this.stringValue.length) {
                 this.cursor++;
                 this.render(false);
@@ -873,6 +874,614 @@ class NumberPrompt extends Prompt<number, NumberOptions> {
              this.cursor += char.length;
              this.errorMsg = '';
              this.render(false);
+        }
+    }
+}
+
+// --- Implementation: List Prompt ---
+class ListPrompt extends Prompt<string[], ListOptions> {
+    private currentInput: string = '';
+    private errorMsg: string = '';
+
+    constructor(options: ListOptions) {
+        super(options);
+        this.value = options.initial || [];
+    }
+
+    protected render(firstRender: boolean) {
+        this.print(ANSI.SHOW_CURSOR);
+
+        if (!firstRender) {
+             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+             if (this.errorMsg) {
+                 this.print(ANSI.UP + ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+             }
+        }
+        
+        const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
+        this.print(`${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} `);
+
+        // Render Tags
+        if (this.value.length > 0) {
+            this.value.forEach((tag: string) => {
+                this.print(`${MepCLI.theme.main}[${tag}]${ANSI.RESET} `);
+            });
+        }
+
+        // Render Current Input
+        this.print(`${this.currentInput}`);
+
+        if (this.errorMsg) {
+             this.print(`\n${ANSI.ERASE_LINE}${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
+             this.print(ANSI.UP);
+             // Return cursor
+             const promptLen = this.options.message.length + 3;
+             let tagsLen = 0;
+             this.value.forEach((tag: string) => tagsLen += tag.length + 3); // [tag] + space
+             const inputLen = this.currentInput.length;
+             this.print(`\x1b[1000D\x1b[${promptLen + tagsLen + inputLen}C`);
+        }
+    }
+
+    protected handleInput(char: string) {
+        if (char === '\r' || char === '\n') {
+            if (this.currentInput.trim()) {
+                this.value.push(this.currentInput.trim());
+                this.currentInput = '';
+                this.errorMsg = '';
+                this.render(false);
+            } else {
+                // Done if input is empty
+                 if (this.options.validate) {
+                    const result = this.options.validate(this.value);
+                    if (result !== true) {
+                        this.errorMsg = typeof result === 'string' ? result : 'Invalid input';
+                        this.render(false);
+                        return;
+                    }
+                }
+                this.submit(this.value);
+            }
+            return;
+        }
+
+        if (char === '\u0008' || char === '\x7f') { // Backspace
+            if (this.currentInput.length > 0) {
+                this.currentInput = this.currentInput.slice(0, -1);
+                this.render(false);
+            } else if (this.value.length > 0) {
+                this.value.pop();
+                this.render(false);
+            }
+            return;
+        }
+
+        if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
+            this.currentInput += char;
+            this.render(false);
+        }
+    }
+}
+
+// --- Implementation: Slider Prompt ---
+class SliderPrompt extends Prompt<number, SliderOptions> {
+    constructor(options: SliderOptions) {
+        super(options);
+        this.value = options.initial ?? options.min;
+    }
+
+    protected render(firstRender: boolean) {
+        this.print(ANSI.HIDE_CURSOR);
+        if (!firstRender) {
+             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+        }
+
+        const width = 20;
+        const range = this.options.max - this.options.min;
+        const ratio = (this.value - this.options.min) / range;
+        const pos = Math.round(ratio * width);
+        
+        let bar = '';
+        for (let i = 0; i <= width; i++) {
+            if (i === pos) bar += `${MepCLI.theme.main}O${ANSI.RESET}`;
+            else bar += '─';
+        }
+
+        const unit = this.options.unit || '';
+        this.print(`${MepCLI.theme.success}?${ANSI.RESET} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} [${bar}] ${this.value}${unit}`);
+    }
+
+    protected handleInput(char: string) {
+        if (char === '\r' || char === '\n') {
+            this.submit(this.value);
+            return;
+        }
+        
+        const step = this.options.step || 1;
+
+        if (this.isLeft(char)) { // Left
+            this.value = Math.max(this.options.min, this.value - step);
+            this.render(false);
+        }
+        if (this.isRight(char)) { // Right
+            this.value = Math.min(this.options.max, this.value + step);
+            this.render(false);
+        }
+    }
+}
+
+// --- Implementation: Date Prompt ---
+class DatePrompt extends Prompt<Date, DateOptions> {
+    private selectedField: number = 0; // 0: Year, 1: Month, 2: Day, 3: Hour, 4: Minute
+    private errorMsg: string = '';
+    private inputBuffer: string = '';
+
+    constructor(options: DateOptions) {
+        super(options);
+        this.value = options.initial || new Date();
+    }
+
+    protected render(firstRender: boolean) {
+        this.print(ANSI.HIDE_CURSOR);
+        if (!firstRender) {
+            this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+             if (this.errorMsg) {
+                 this.print(ANSI.UP + ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
+             }
+        }
+
+        const y = this.value.getFullYear();
+        const m = (this.value.getMonth() + 1).toString().padStart(2, '0');
+        const d = this.value.getDate().toString().padStart(2, '0');
+        const h = this.value.getHours().toString().padStart(2, '0');
+        const min = this.value.getMinutes().toString().padStart(2, '0');
+
+        const fields = [y, m, d, h, min];
+        const display = fields.map((val, i) => {
+            if (i === this.selectedField) return `${MepCLI.theme.main}${ANSI.UNDERLINE}${val}${ANSI.RESET}`;
+            return val;
+        });
+        
+        const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
+        const dateStr = `${display[0]}-${display[1]}-${display[2]} ${display[3]}:${display[4]}`;
+        this.print(`${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} ${dateStr} ${MepCLI.theme.muted}(Use arrows or type)${ANSI.RESET}`);
+
+        if (this.errorMsg) {
+            this.print(`\n${ANSI.ERASE_LINE}${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
+            this.print(ANSI.UP); 
+            // restore cursor pos logic isn't needed as we are on one line mostly, but for consistency:
+             const promptLen = this.options.message.length + 3; // roughly
+             this.print(`\x1b[1000D\x1b[${promptLen + 15}C`); // approx move back
+        }
+    }
+
+    protected handleInput(char: string) {
+        if (char === '\r' || char === '\n') {
+            this.submit(this.value);
+            return;
+        }
+
+        if (this.isLeft(char)) { // Left
+            this.selectedField = Math.max(0, this.selectedField - 1);
+            this.inputBuffer = ''; // Reset buffer on move
+            this.errorMsg = '';
+            this.render(false);
+            return;
+        }
+        if (this.isRight(char)) { // Right
+            this.selectedField = Math.min(4, this.selectedField + 1);
+            this.inputBuffer = ''; // Reset buffer on move
+            this.errorMsg = '';
+            this.render(false);
+            return;
+        }
+
+        // Support numeric input
+        if (/^\d$/.test(char)) {
+            const maxLen = this.selectedField === 0 ? 4 : 2;
+            let nextBuffer = this.inputBuffer + char;
+            
+            // If we exceed max length, reset to just the new char (assuming user is starting a new number)
+            // Or better: try to parse.
+            
+            // Logic: 
+            // 1. Try appending.
+            // 2. Validate.
+            // 3. If valid, keep.
+            // 4. If invalid (e.g. Month 13), assume new start -> set buffer to just char.
+            
+            // However, we must respect field limits first.
+            if (nextBuffer.length > maxLen) {
+                nextBuffer = char;
+            }
+
+            const val = parseInt(nextBuffer, 10);
+            let valid = true;
+            
+            // Pre-validation to decide if we should append or reset
+            if (this.selectedField === 1 && (val < 1 || val > 12)) valid = false; // Month
+            if (this.selectedField === 2 && (val < 1 || val > 31)) valid = false; // Day (rough check)
+            if (this.selectedField === 3 && (val > 23)) valid = false; // Hour
+            if (this.selectedField === 4 && (val > 59)) valid = false; // Minute
+
+            if (!valid) {
+                // If appending made it invalid (e.g. was '1', typed '3' -> '13' invalid month),
+                // treat '3' as the start of a new number.
+                nextBuffer = char;
+            }
+
+            this.inputBuffer = nextBuffer;
+            const finalVal = parseInt(this.inputBuffer, 10);
+
+            const d = new Date(this.value);
+            
+            if (this.selectedField === 0) {
+                 // Year is special, we just set it. 
+                 d.setFullYear(finalVal);
+            }
+            else if (this.selectedField === 1) d.setMonth(Math.max(0, Math.min(11, finalVal - 1)));
+            else if (this.selectedField === 2) d.setDate(Math.max(1, Math.min(31, finalVal)));
+            else if (this.selectedField === 3) d.setHours(Math.max(0, Math.min(23, finalVal)));
+            else if (this.selectedField === 4) d.setMinutes(Math.max(0, Math.min(59, finalVal)));
+            
+            this.value = d;
+            this.errorMsg = '';
+            this.render(false);
+            return;
+        }
+
+        // Support standard and application cursor keys
+        const isUp = this.isUp(char);
+        const isDown = this.isDown(char);
+
+        if (isUp || isDown) {
+            this.inputBuffer = ''; // Reset buffer on arrow move
+            const dir = isUp ? 1 : -1;
+            const d = new Date(this.value);
+            
+            switch (this.selectedField) {
+                case 0: d.setFullYear(d.getFullYear() + dir); break;
+                case 1: d.setMonth(d.getMonth() + dir); break;
+                case 2: d.setDate(d.getDate() + dir); break;
+                case 3: d.setHours(d.getHours() + dir); break;
+                case 4: d.setMinutes(d.getMinutes() + dir); break;
+            }
+
+            let valid = true;
+            if (this.options.min && d < this.options.min) {
+                 this.errorMsg = 'Date cannot be before minimum allowed.';
+                 valid = false;
+            }
+            if (this.options.max && d > this.options.max) {
+                 this.errorMsg = 'Date cannot be after maximum allowed.';
+                 valid = false;
+            }
+
+            if (valid) {
+                this.value = d;
+                this.errorMsg = '';
+            }
+            this.render(false);
+        }
+    }
+}
+
+// --- Implementation: File Prompt ---
+class FilePrompt extends Prompt<string, FileOptions> {
+    private input: string = '';
+    private cursor: number = 0;
+    private suggestions: string[] = [];
+    private selectedSuggestion: number = -1;
+    private errorMsg: string = '';
+
+    constructor(options: FileOptions) {
+        super(options);
+        this.input = options.basePath || '';
+        this.cursor = this.input.length;
+    }
+
+    private updateSuggestions() {
+        try {
+            const dir = path.dirname(this.input) || '.';
+            const partial = path.basename(this.input);
+            
+            if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+                const files = fs.readdirSync(dir);
+                this.suggestions = files
+                    .filter(f => f.startsWith(partial))
+                    .filter(f => {
+                         const fullPath = path.join(dir, f);
+                         const isDir = fs.statSync(fullPath).isDirectory();
+                         if (this.options.onlyDirectories && !isDir) return false;
+                         if (this.options.extensions && !isDir) {
+                             return this.options.extensions.some(ext => f.endsWith(ext));
+                         }
+                         return true;
+                    })
+                    .map(f => {
+                        const fullPath = path.join(dir, f);
+                        if (fs.statSync(fullPath).isDirectory()) return f + '/';
+                        return f;
+                    });
+            } else {
+                this.suggestions = [];
+            }
+        } catch (e) {
+            this.suggestions = [];
+        }
+        this.selectedSuggestion = -1;
+    }
+
+    protected render(firstRender: boolean) {
+        this.print(ANSI.SHOW_CURSOR);
+
+        if (!firstRender) {
+             // Clear input line + suggestions
+             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT); // Input line
+             // We need to track how many lines suggestions took
+             // For now assume simple clear, or use ANSI.ERASE_DOWN if at bottom?
+             // Safer to move up and clear
+             this.print(ANSI.ERASE_DOWN);
+        }
+        
+        const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
+        this.print(`${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET} ${this.input}`);
+
+        if (this.suggestions.length > 0) {
+            this.print('\n');
+            const maxShow = 5;
+            this.suggestions.slice(0, maxShow).forEach((s, i) => {
+                if (i === this.selectedSuggestion) {
+                     this.print(`${MepCLI.theme.main}❯ ${s}${ANSI.RESET}\n`);
+                } else {
+                     this.print(`  ${s}\n`);
+                }
+            });
+            if (this.suggestions.length > maxShow) {
+                this.print(`  ...and ${this.suggestions.length - maxShow} more\n`);
+            }
+            // Move cursor back to input line
+            const lines = Math.min(this.suggestions.length, maxShow) + (this.suggestions.length > maxShow ? 2 : 1);
+            this.print(`\x1b[${lines}A`);
+            const inputLen = this.options.message.length + 3 + this.input.length;
+            this.print(`\x1b[${inputLen}C`);
+        }
+    }
+
+    protected handleInput(char: string) {
+        if (char === '\t') { // Tab
+            if (this.suggestions.length === 1) {
+                const dir = path.dirname(this.input);
+                this.input = path.join(dir === '.' ? '' : dir, this.suggestions[0]);
+                this.cursor = this.input.length;
+                this.suggestions = [];
+                this.render(false);
+            } else if (this.suggestions.length > 1) {
+                // Cycle or show? For now cycle if selected
+                if (this.selectedSuggestion !== -1) {
+                     const dir = path.dirname(this.input);
+                     this.input = path.join(dir === '.' ? '' : dir, this.suggestions[this.selectedSuggestion]);
+                     this.cursor = this.input.length;
+                     this.suggestions = [];
+                     this.render(false);
+                } else {
+                     // Just show suggestions (already done in render loop usually, but update logic ensures it)
+                     this.updateSuggestions();
+                     this.render(false);
+                }
+            } else {
+                this.updateSuggestions();
+                this.render(false);
+            }
+            return;
+        }
+
+        if (char === '\r' || char === '\n') {
+            if (this.selectedSuggestion !== -1) {
+                 const dir = path.dirname(this.input);
+                 this.input = path.join(dir === '.' ? '' : dir, this.suggestions[this.selectedSuggestion]);
+                 this.cursor = this.input.length;
+                 this.suggestions = [];
+                 this.selectedSuggestion = -1;
+                 this.render(false);
+            } else {
+                this.submit(this.input);
+            }
+            return;
+        }
+
+        if (this.isDown(char)) { // Down
+            if (this.suggestions.length > 0) {
+                this.selectedSuggestion = (this.selectedSuggestion + 1) % Math.min(this.suggestions.length, 5);
+                this.render(false);
+            }
+            return;
+        }
+         if (this.isUp(char)) { // Up
+            if (this.suggestions.length > 0) {
+                this.selectedSuggestion = (this.selectedSuggestion - 1 + Math.min(this.suggestions.length, 5)) % Math.min(this.suggestions.length, 5);
+                this.render(false);
+            }
+            return;
+        }
+
+        if (char === '\u0008' || char === '\x7f') { // Backspace
+             if (this.input.length > 0) {
+                 this.input = this.input.slice(0, -1);
+                 this.updateSuggestions();
+                 this.render(false);
+             }
+             return;
+        }
+
+        if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
+            this.input += char;
+            this.updateSuggestions();
+            this.render(false);
+        }
+    }
+}
+
+// --- Implementation: MultiSelect Prompt ---
+class MultiSelectPrompt extends Prompt<any[], MultiSelectOptions> {
+    private selectedIndex: number = 0;
+    private checkedState: boolean[];
+    private searchBuffer: string = '';
+    private scrollTop: number = 0;
+    private readonly pageSize: number = 7;
+    private errorMsg: string = '';
+
+    constructor(options: MultiSelectOptions) {
+        super(options);
+        this.checkedState = options.choices.map(c => !!c.selected);
+        this.selectedIndex = 0;
+    }
+
+    private getFilteredChoices() {
+        if (!this.searchBuffer) return this.options.choices.map((c, i) => ({ ...c, originalIndex: i }));
+        return this.options.choices
+            .map((c, i) => ({ ...c, originalIndex: i }))
+            .filter(c => c.title.toLowerCase().includes(this.searchBuffer.toLowerCase()));
+    }
+
+    protected render(firstRender: boolean) {
+        this.print(ANSI.HIDE_CURSOR);
+        
+        // This is tricky because height changes with filter.
+        // Simplified clearing:
+        if (!firstRender) {
+             this.print(ANSI.ERASE_DOWN); // Clear everything below cursor
+             // But we need to move cursor up to start of prompt
+             // We can store last height?
+        }
+        
+        // Wait, standard render loop usually assumes fixed position or we manually handle it.
+        // Let's use ERASE_LINE + UP loop like SelectPrompt but simpler since we have full screen control in a way
+        // Actually, let's just clear screen? No, that's bad.
+        // Let's stick to SelectPrompt's strategy.
+        
+        if (!firstRender) {
+             // Hack: Just clear last 10 lines to be safe? No.
+             // We will implement proper tracking later if needed, for now standard clear
+             // Let's re-use SelectPrompt logic structure if possible, but distinct implementation here.
+             
+             // Simplest: Always move to top of prompt and erase down.
+             // Assuming we track how many lines we printed.
+        }
+
+        // ... Implementation detail: use a simpler clear strategy:
+        // Move to start of prompt line (we need to track lines printed in previous frame)
+        if ((this as any).lastRenderLines) {
+            this.print(`\x1b[${(this as any).lastRenderLines}A`);
+            this.print(ANSI.ERASE_DOWN);
+        }
+
+        let output = '';
+        const choices = this.getFilteredChoices();
+
+        // Adjust Scroll
+        if (this.selectedIndex < this.scrollTop) {
+            this.scrollTop = this.selectedIndex;
+        } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
+            this.scrollTop = this.selectedIndex - this.pageSize + 1;
+        }
+        if (this.scrollTop > choices.length - 1) {
+            this.scrollTop = Math.max(0, choices.length - this.pageSize);
+        }
+
+        const icon = this.errorMsg ? `${MepCLI.theme.error}✖` : `${MepCLI.theme.success}?`;
+        const searchStr = this.searchBuffer ? ` ${MepCLI.theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
+        output += `${icon} ${ANSI.BOLD}${MepCLI.theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
+        
+        if (choices.length === 0) {
+            output += `  ${MepCLI.theme.muted}No results found${ANSI.RESET}\n`;
+        } else {
+             const visible = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+             visible.forEach((choice, index) => {
+                 const actualIndex = this.scrollTop + index;
+                 const cursor = actualIndex === this.selectedIndex ? `${MepCLI.theme.main}❯${ANSI.RESET}` : ' ';
+                 const isChecked = this.checkedState[choice.originalIndex];
+                 const checkbox = isChecked 
+                    ? `${MepCLI.theme.success}◉${ANSI.RESET}` 
+                    : `${MepCLI.theme.muted}◯${ANSI.RESET}`;
+                 
+                 output += `${cursor} ${checkbox} ${choice.title}\n`;
+             });
+        }
+        
+        if (this.errorMsg) {
+             output += `${MepCLI.theme.error}>> ${this.errorMsg}${ANSI.RESET}\n`;
+        }
+
+        this.print(output);
+        
+        // Count lines
+        const lines = 1 + (choices.length === 0 ? 1 : Math.min(choices.length, this.pageSize)) + (this.errorMsg ? 1 : 0);
+        (this as any).lastRenderLines = lines;
+    }
+
+    protected handleInput(char: string) {
+        const choices = this.getFilteredChoices();
+
+        if (char === '\r' || char === '\n') {
+            const selectedCount = this.checkedState.filter(Boolean).length;
+            const { min = 0, max } = this.options;
+             if (selectedCount < min) {
+                this.errorMsg = `Select at least ${min}.`;
+                this.render(false);
+                return;
+            }
+            if (max && selectedCount > max) {
+                this.errorMsg = `Max ${max} allowed.`;
+                this.render(false);
+                return;
+            }
+            
+             const results = this.options.choices
+                .filter((_, i) => this.checkedState[i])
+                .map(c => c.value);
+            this.submit(results);
+            return;
+        }
+
+        if (char === ' ') {
+            if (choices.length > 0) {
+                const choice = choices[this.selectedIndex];
+                const originalIndex = choice.originalIndex;
+                this.checkedState[originalIndex] = !this.checkedState[originalIndex];
+                this.render(false);
+            }
+            return;
+        }
+
+        if (this.isUp(char)) { // Up
+             if (choices.length > 0) {
+                 this.selectedIndex = (this.selectedIndex - 1 + choices.length) % choices.length;
+                 this.render(false);
+             }
+             return;
+        }
+        if (this.isDown(char)) { // Down
+             if (choices.length > 0) {
+                 this.selectedIndex = (this.selectedIndex + 1) % choices.length;
+                 this.render(false);
+             }
+             return;
+        }
+
+        if (char === '\u0008' || char === '\x7f') { // Backspace
+             if (this.searchBuffer.length > 0) {
+                 this.searchBuffer = this.searchBuffer.slice(0, -1);
+                 this.selectedIndex = 0;
+                 this.render(false);
+             }
+             return;
+        }
+
+        if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
+            this.searchBuffer += char;
+            this.selectedIndex = 0;
+            this.render(false);
         }
     }
 }
@@ -943,5 +1552,25 @@ export class MepCLI {
     
     static toggle(options: ToggleOptions): Promise<boolean> {
         return new TogglePrompt(options).run();
+    }
+
+    static list(options: ListOptions): Promise<string[]> {
+        return new ListPrompt(options).run();
+    }
+
+    static slider(options: SliderOptions): Promise<number> {
+        return new SliderPrompt(options).run();
+    }
+
+    static date(options: DateOptions): Promise<Date> {
+        return new DatePrompt(options).run();
+    }
+
+    static file(options: FileOptions): Promise<string> {
+        return new FilePrompt(options).run();
+    }
+
+    static multiSelect(options: MultiSelectOptions): Promise<any[]> {
+        return new MultiSelectPrompt(options).run();
     }
 }

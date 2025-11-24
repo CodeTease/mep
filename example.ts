@@ -3,11 +3,12 @@ import { MepCLI } from './src'; // Or 'mepcli' if installed via NPM
 /**
  * Runs a comprehensive demo showcasing all MepCLI prompt types and utilities.
  * This demonstrates all core functionalities including Text, Password, Select,
- * Checkbox, Number, Toggle, Confirm, and the Spin utility.
+ * Checkbox, Number, Toggle, Confirm, List, Slider, Date, File, MultiSelect,
+ * and the Spin utility.
  */
 async function runComprehensiveDemo() {
     console.clear();
-    console.log("--- MepCLI Comprehensive Demo (All 7 Prompts + Spin Utility) ---\n");
+    console.log("--- MepCLI Comprehensive Demo (All 12 Prompts + Spin Utility) ---\n");
 
     try {
         // --- 1. Text Prompt (Input with Validation and initial value) ---
@@ -76,16 +77,67 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n✅ Toggle Result: HTTPS enabled: ${isSecure}`);
 
-        // --- 7. Confirm Prompt (Simple Yes/No) ---
+        // --- 7. List / Tags Input (New) ---
+        const keywords = await MepCLI.list({
+            message: "Enter keywords for package.json (Enter to add, Backspace to remove):",
+            initial: ["cli", "mep"],
+            validate: (tags) => tags.length > 0 || "Please add at least one keyword."
+        });
+        console.log(`\n✅ List Result: Keywords: [${keywords.join(', ')}]`);
+
+        // --- 8. Slider / Scale (New) ---
+        const brightness = await MepCLI.slider({
+            message: "Set initial brightness:",
+            min: 0,
+            max: 100,
+            initial: 80,
+            step: 5,
+            unit: "%"
+        });
+        console.log(`\n✅ Slider Result: Brightness: ${brightness}%`);
+
+        // --- 9. Date / Time Picker (New) ---
+        // We capture 'now' once to ensure initial >= min
+        const now = new Date();
+        const releaseDate = await MepCLI.date({
+            message: "Schedule release date:",
+            initial: now,
+            min: now // Cannot be in the past
+        });
+        console.log(`\n✅ Date Result: Release set for: ${releaseDate.toLocaleString()}`);
+
+        // --- 10. File Path Selector (New) ---
+        const configPath = await MepCLI.file({
+            message: "Select configuration file (Tab to autocomplete):",
+            basePath: process.cwd()
+        });
+        console.log(`\n✅ File Result: Path: ${configPath}`);
+
+        // --- 11. Multi-Select Autocomplete (New) ---
+        const linters = await MepCLI.multiSelect({
+            message: "Select linters to install (Type to search, Space to select):",
+            choices: [
+                { title: "ESLint", value: "eslint", selected: true },
+                { title: "Prettier", value: "prettier" },
+                { title: "Stylelint", value: "stylelint" },
+                { title: "TSLint (Deprecated)", value: "tslint" },
+                { title: "JSHint", value: "jshint" },
+                { title: "StandardJS", value: "standard" }
+            ],
+            min: 1
+        });
+        console.log(`\n✅ MultiSelect Result: Linters: [${linters.join(', ')}]`);
+
+        // --- 12. Confirm Prompt (Simple Yes/No) ---
         const proceed = await MepCLI.confirm({
             message: "Ready to deploy the project now?",
             initial: true
         });
         console.log(`\n✅ Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
-        // --- 8. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 13. Spin Utility (Loading/Async Task Indicator) ---
         await MepCLI.spin(
-            "Finalizing configuration and deploying to Teaserverse...",
+            "Finalizing configuration and deploying...",
             new Promise(resolve => setTimeout(resolve, 1500)) // Simulates a 1.5 second async task
         );
         console.log("\n--- Deployment successful! All MepCLI features demonstrated! ---");

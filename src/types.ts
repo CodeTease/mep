@@ -65,3 +65,35 @@ export interface ToggleOptions extends BaseOptions {
     activeText?: string;
     inactiveText?: string;
 }
+
+// --- New Types ---
+
+export interface ListOptions extends BaseOptions {
+    placeholder?: string;
+    initial?: string[];
+    validate?: (value: string[]) => string | boolean | Promise<string | boolean>;
+}
+
+export interface SliderOptions extends BaseOptions {
+    min: number;
+    max: number;
+    initial?: number;
+    step?: number;
+    unit?: string;
+}
+
+export interface DateOptions extends BaseOptions {
+    initial?: Date;
+    min?: Date;
+    max?: Date;
+}
+
+export interface FileOptions extends BaseOptions {
+    basePath?: string;
+    extensions?: string[];
+    onlyDirectories?: boolean;
+}
+
+export interface MultiSelectOptions extends CheckboxOptions {
+    // Inherits choices, min, max
+}
