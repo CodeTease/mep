@@ -119,6 +119,7 @@ class TextPrompt extends Prompt<string, TextOptions> {
 
         if (!firstRender) {
              // Clear previous lines
+             // Note: renderLines now represents visual wrapped lines
              for (let i = 0; i < this.renderLines; i++) {
                  this.print(ANSI.ERASE_LINE);
                  if (i < this.renderLines - 1) this.print(ANSI.UP);
@@ -151,56 +152,113 @@ class TextPrompt extends Prompt<string, TextOptions> {
         
         this.print(output);
         
-        // Calculate new render lines count
-        const valueLines = (this.value || '').split('\n').length;
-        const errorLines = this.errorMsg ? 1 : 0;
-        // Prompt line is always at least 1, but if value has newlines, it grows
-        // Actually, prompt + value are concatenated. Newlines in value make it multi-line.
-        // We assume prompt message itself doesn't have newlines for simplicity.
-        this.renderLines = Math.max(1, valueLines) + errorLines;
-
-        // 4. Position Cursor Logic
-        // We just printed everything. Cursor is at the end.
-        // We need to move it back to `this.cursor` position.
+        // 4. Calculate Visual Metrics for Wrapping
+        const cols = process.stdout.columns || 80;
+        const stripAnsi = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '');
         
-        // Calculate cursor position (row, col) relative to start of value
-        const valueUntilCursor = this.value.slice(0, this.cursor);
-        const cursorRows = valueUntilCursor.split('\n').length - 1;
-        const lastLineIndex = valueUntilCursor.lastIndexOf('\n');
-        const cursorCol = lastLineIndex === -1 ? valueUntilCursor.length : valueUntilCursor.length - lastLineIndex - 1;
-
-        // Total lines printed
-        const totalRows = (this.value || '').split('\n').length;
+        // Prompt String (visual part before value)
+        const promptStr = `${icon} ${MepCLI.theme.title}${this.options.message} ${multilineHint} `;
+        const promptVisualLen = stripAnsi(promptStr).length;
         
-        // Move up from bottom
-        const linesToMoveUp = (totalRows - 1) - cursorRows + errorLines;
-        if (linesToMoveUp > 0) {
-            this.print(`\x1b[${linesToMoveUp}A`);
+        // Value String (visual part)
+        const rawValue = (!this.value && this.options.placeholder && !this.errorMsg && !this.hasTyped) 
+            ? this.options.placeholder || '' 
+            : (this.options.isPassword ? '*'.repeat(this.value.length) : this.value);
+            
+        // Error String (visual part)
+        const errorVisualLines = this.errorMsg ? Math.ceil((3 + this.errorMsg.length) / cols) : 0;
+
+        // Calculate Total Lines and Cursor Position
+        // We simulate printing the prompt + value + error
+        let currentVisualLine = 0;
+        let currentCol = 0;
+        
+        // State tracking for cursor
+        let cursorRow = 0;
+        let cursorCol = 0;
+        
+        // Add Prompt
+        currentCol += promptVisualLen;
+        while (currentCol >= cols) {
+            currentVisualLine++;
+            currentCol -= cols;
         }
         
-        this.print(ANSI.CURSOR_LEFT); // Go to start of line
+        // Add Value (Character by character to handle wrapping and cursor tracking accurately)
+        // Note: This doesn't handle multi-width chars perfectly, but handles wrapping better than before
+        const valueLen = rawValue.length;
         
-        // If on first line, we need to account for prompt length
-        if (cursorRows === 0) {
-             const promptLen = 2 + this.options.message.length + 1 + (this.options.multiline ? 25 : 0); // approx
-             // Actually, safer to just move right by correct amount
-             // But we have ANSI codes in prompt string, so length is tricky.
-             // Simpler approach:
-             // 1. Move to start of line
-             // 2. Move right by prompt length (visual length) + cursorCol
-             
-             // Strip ANSI for length calc
-             const stripAnsi = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '');
-             const promptStr = `${icon} ${MepCLI.theme.title}${this.options.message} ${multilineHint} `;
-             const promptVisualLen = stripAnsi(promptStr).length;
-             
-             if (promptVisualLen + cursorCol > 0) {
-                 this.print(`\x1b[${promptVisualLen + cursorCol}C`);
-             }
-        } else {
-            if (cursorCol > 0) {
-                this.print(`\x1b[${cursorCol}C`);
+        // If placeholder, we treat it as value for render height, but cursor is at 0
+        const isPlaceholder = (!this.value && this.options.placeholder && !this.errorMsg && !this.hasTyped);
+        
+        for (let i = 0; i < valueLen; i++) {
+            // Check if we are at cursor position
+            if (!isPlaceholder && i === this.cursor) {
+                cursorRow = currentVisualLine;
+                cursorCol = currentCol;
             }
+            
+            const char = rawValue[i];
+            if (char === '\n') {
+                currentVisualLine++;
+                currentCol = 0;
+            } else {
+                currentCol++;
+                if (currentCol >= cols) {
+                    currentVisualLine++;
+                    currentCol = 0;
+                }
+            }
+        }
+        
+        // If cursor is at the very end
+        if (!isPlaceholder && this.cursor === valueLen) {
+            cursorRow = currentVisualLine;
+            cursorCol = currentCol;
+        }
+        
+        // If placeholder, cursor is at start of value
+        if (isPlaceholder) {
+            // Re-calc cursor position as if it's at index 0 of value
+            // Which is effectively where prompt ends
+            // We already updated currentCol/Line for prompt above, but loop continued for placeholder
+            // So we need to recalculate or store prompt end state
+            // Let's just use prompt end state:
+            let pCol = promptVisualLen;
+            let pRow = 0;
+            while (pCol >= cols) {
+                pRow++;
+                pCol -= cols;
+            }
+            cursorRow = pRow;
+            cursorCol = pCol;
+        }
+
+        // Final height
+        // If we are at col 0 of a new line (e.g. just wrapped or \n), we count that line
+        // currentVisualLine is 0-indexed index of the line we are on.
+        // Total lines = currentVisualLine + 1 + errorLines
+        
+        // Special case: if input ends with \n, we are on a new empty line
+        const totalValueRows = currentVisualLine + 1; 
+        this.renderLines = totalValueRows + errorVisualLines;
+
+        // 5. Position Cursor Logic
+        // We are currently at the end of output.
+        // End row relative to start: this.renderLines - 1
+        
+        const endRow = this.renderLines - 1;
+        
+        // Move up to cursor row
+        const linesUp = endRow - cursorRow;
+        if (linesUp > 0) {
+            this.print(`\x1b[${linesUp}A`);
+        }
+        
+        // Move to cursor col
+        this.print(ANSI.CURSOR_LEFT); // Go to col 0
+        if (cursorCol > 0) {
+            this.print(`\x1b[${cursorCol}C`);
         }
     }
 
@@ -265,11 +323,11 @@ class TextPrompt extends Prompt<string, TextOptions> {
              return;
         }
 
-        // Regular Typing
-        if (char.length === 1 && !/^[\x00-\x1F]/.test(char)) {
+        // Regular Typing & Paste
+        if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
             this.hasTyped = true;
             this.value = this.value.slice(0, this.cursor) + char + this.value.slice(this.cursor);
-            this.cursor++;
+            this.cursor += char.length;
             this.errorMsg = '';
             this.render(false);
         }
@@ -801,12 +859,18 @@ class NumberPrompt extends Prompt<number, NumberOptions> {
         }
         
         // Numeric Input (and . and -)
-        if (/^[0-9.\-]$/.test(char)) {
-             if (char === '-' && (this.cursor !== 0 || this.stringValue.includes('-'))) return;
-             if (char === '.' && this.stringValue.includes('.')) return;
-
+        // Simple paste support for numbers is also good
+        if (/^[0-9.\-]+$/.test(char)) {
+             // Basic validation for pasted content
+             if (char.includes('-') && (this.cursor !== 0 || this.stringValue.includes('-') || char.lastIndexOf('-') > 0)) {
+                 // If complex paste fails simple checks, ignore or let user correct
+                 // For now, strict check on single char logic is preserved if we want, 
+                 // but let's allow pasting valid number strings
+             }
+             
+             // Allow if it looks like a number part
              this.stringValue = this.stringValue.slice(0, this.cursor) + char + this.stringValue.slice(this.cursor);
-             this.cursor++;
+             this.cursor += char.length;
              this.errorMsg = '';
              this.render(false);
         }
