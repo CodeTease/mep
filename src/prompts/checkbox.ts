@@ -1,17 +1,17 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { CheckboxOptions } from '../types';
+import type { CheckboxOptions } from '../types';
 
 // --- Implementation: Checkbox Prompt ---
-export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
+export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
     private selectedIndex: number = 0;
     private checkedState: boolean[];
     private errorMsg: string = '';
 
-    constructor(options: CheckboxOptions) {
+    constructor(options: CheckboxOptions<V>) {
         super(options);
-        this.checkedState = options.choices.map(c => !!c.selected);
+        this.checkedState = options.choices.map((c) => !!c.selected);
     }
 
     protected render(firstRender: boolean) {
@@ -25,19 +25,17 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
 
         this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
         const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
-        this.print(`${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Press <space> to select, <enter> to confirm)${ANSI.RESET}\n`);
+        this.print(
+            `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Press <space> to select, <enter> to confirm)${ANSI.RESET}\n`,
+        );
 
         this.options.choices.forEach((choice, index) => {
             this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
             const cursor = index === this.selectedIndex ? `${theme.main}❯${ANSI.RESET}` : ' ';
             const isChecked = this.checkedState[index];
-            const checkbox = isChecked 
-                ? `${theme.success}◉${ANSI.RESET}` 
-                : `${theme.muted}◯${ANSI.RESET}`;
-            
-            const title = index === this.selectedIndex 
-                ? `${theme.main}${choice.title}${ANSI.RESET}` 
-                : choice.title;
+            const checkbox = isChecked ? `${theme.success}◉${ANSI.RESET}` : `${theme.muted}◯${ANSI.RESET}`;
+
+            const title = index === this.selectedIndex ? `${theme.main}${choice.title}${ANSI.RESET}` : choice.title;
 
             this.print(`${cursor} ${checkbox} ${title}\n`);
         });
@@ -45,7 +43,7 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
         if (this.errorMsg) {
             this.print(`${ANSI.ERASE_LINE}${theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
         } else if (!firstRender) {
-             this.print(`${ANSI.ERASE_LINE}`); 
+            this.print(`${ANSI.ERASE_LINE}`);
         }
     }
 
@@ -67,11 +65,9 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
 
             this.cleanup();
             this.print(ANSI.SHOW_CURSOR + '\n');
-            
-            const results = this.options.choices
-                .filter((_, i) => this.checkedState[i])
-                .map(c => c.value);
-                
+
+            const results = this.options.choices.filter((_, i) => this.checkedState[i]).map((c) => c.value);
+
             if ((this as any)._resolve) (this as any)._resolve(results);
             return;
         }
@@ -90,12 +86,14 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
             this.render(false);
         }
 
-        if (this.isUp(char)) { // Up
+        if (this.isUp(char)) {
+            // Up
             this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.choices.length - 1;
             this.errorMsg = '';
             this.render(false);
         }
-        if (this.isDown(char)) { // Down
+        if (this.isDown(char)) {
+            // Down
             this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
             this.errorMsg = '';
             this.render(false);
