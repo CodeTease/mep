@@ -4,13 +4,13 @@ import { theme } from '../theme';
 import { SelectOptions } from '../types';
 
 // --- Implementation: Select Prompt ---
-export class SelectPrompt extends Prompt<any, SelectOptions> {
+export class SelectPrompt<V> extends Prompt<any, SelectOptions<V>> {
     private selectedIndex: number = 0;
     private searchBuffer: string = '';
     private scrollTop: number = 0;
     private readonly pageSize: number = 7;
 
-    constructor(options: SelectOptions) {
+    constructor(options: SelectOptions<V>) {
         super(options);
         // Find first non-separator index
         this.selectedIndex = this.findNextSelectableIndex(-1, 1);
