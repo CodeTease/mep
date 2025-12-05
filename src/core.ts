@@ -51,11 +51,11 @@ export class MepCLI {
         return new TextPrompt(options).run();
     }
 
-    static select(options: SelectOptions): Promise<any> {
+    static select<const V>(options: SelectOptions<V>): Promise<V> {
         return new SelectPrompt(options).run();
     }
 
-    static checkbox(options: CheckboxOptions): Promise<any[]> {
+    static checkbox<const V>(options: CheckboxOptions<V>): Promise<V[]> {
         return new CheckboxPrompt(options).run();
     }
 
@@ -91,7 +91,7 @@ export class MepCLI {
         return new FilePrompt(options).run();
     }
 
-    static multiSelect(options: MultiSelectOptions): Promise<any[]> {
+    static multiSelect<const V>(options: MultiSelectOptions<V>): Promise<V[]> {
         return new MultiSelectPrompt(options).run();
     }
 }

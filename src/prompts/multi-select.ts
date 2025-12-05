@@ -4,7 +4,7 @@ import { theme } from '../theme';
 import { MultiSelectOptions } from '../types';
 
 // --- Implementation: MultiSelect Prompt ---
-export class MultiSelectPrompt extends Prompt<any[], MultiSelectOptions> {
+export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
     private selectedIndex: number = 0;
     private checkedState: boolean[];
     private searchBuffer: string = '';
@@ -12,7 +12,7 @@ export class MultiSelectPrompt extends Prompt<any[], MultiSelectOptions> {
     private readonly pageSize: number = 7;
     private errorMsg: string = '';
 
-    constructor(options: MultiSelectOptions) {
+    constructor(options: MultiSelectOptions<V>) {
         super(options);
         this.checkedState = options.choices.map(c => !!c.selected);
         this.selectedIndex = 0;

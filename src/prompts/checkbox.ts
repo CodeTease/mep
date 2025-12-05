@@ -4,12 +4,12 @@ import { theme } from '../theme';
 import { CheckboxOptions } from '../types';
 
 // --- Implementation: Checkbox Prompt ---
-export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
+export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
     private selectedIndex: number = 0;
     private checkedState: boolean[];
     private errorMsg: string = '';
 
-    constructor(options: CheckboxOptions) {
+    constructor(options: CheckboxOptions<V>) {
         super(options);
         this.checkedState = options.choices.map(c => !!c.selected);
     }
