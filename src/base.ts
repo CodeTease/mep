@@ -1,4 +1,6 @@
 import { ANSI } from './ansi';
+import { InputParser } from './input';
+import { detectCapabilities, stringWidth, stripAnsi } from './utils';
 
 /**
  * Abstract base class for all prompts.
@@ -12,15 +14,23 @@ export abstract class Prompt<T, O> {
     protected stdout: NodeJS.WriteStream;
     private _resolve?: (value: T | PromiseLike<T>) => void;
     private _reject?: (reason?: any) => void;
+    private _inputParser: InputParser;
+    private _onKeyHandler?: (char: string, key: Buffer) => void;
     private _onDataHandler?: (chunk: Buffer) => void;
 
     // Smart Cursor State
     protected lastRenderHeight: number = 0;
+    protected lastRenderLines: string[] = [];
+
+    // Capabilities
+    protected capabilities: ReturnType<typeof detectCapabilities>;
 
     constructor(options: O) {
         this.options = options;
         this.stdin = process.stdin;
         this.stdout = process.stdout;
+        this._inputParser = new InputParser();
+        this.capabilities = detectCapabilities();
     }
 
     /**
@@ -57,12 +67,15 @@ export abstract class Prompt<T, O> {
 
             // Initial render: Default to hidden cursor (good for menus)
             // Subclasses like TextPrompt will explicitly show it if needed.
+            if (this.capabilities.isCI) {
+                 // In CI, maybe don't hide cursor or do nothing?
+                 // But for now follow standard flow.
+            }
             this.print(ANSI.HIDE_CURSOR);
             this.render(true);
 
-            this._onDataHandler = (buffer: Buffer) => {
-                const char = buffer.toString();
-
+            // Setup Input Parser Listeners
+            this._onKeyHandler = (char: string, buffer: Buffer) => {
                 // Global Exit Handler (Ctrl+C)
                 if (char === '\u0003') {
                     this.cleanup();
@@ -70,8 +83,13 @@ export abstract class Prompt<T, O> {
                     if (this._reject) this._reject(new Error('User force closed'));
                     return;
                 }
-
                 this.handleInput(char, buffer);
+            };
+
+            this._inputParser.on('keypress', this._onKeyHandler);
+
+            this._onDataHandler = (buffer: Buffer) => {
+                this._inputParser.feed(buffer);
             };
 
             this.stdin.on('data', this._onDataHandler);
@@ -84,6 +102,9 @@ export abstract class Prompt<T, O> {
     protected cleanup() {
         if (this._onDataHandler) {
             this.stdin.removeListener('data', this._onDataHandler);
+        }
+        if (this._onKeyHandler) {
+            this._inputParser.removeListener('keypress', this._onKeyHandler);
         }
         if (typeof this.stdin.setRawMode === 'function') {
             this.stdin.setRawMode(false);
@@ -104,209 +125,283 @@ export abstract class Prompt<T, O> {
     // --- Rendering Utilities ---
 
     /**
-     * Double Buffering Render Method.
-     * Takes the full content string, calculates height, moves cursor up,
-     * writes content, and clears remaining lines.
+     * Render Method with Diffing (Virtual DOM for CLI).
+     * Calculates new lines, compares with old lines, and updates only changed parts.
      */
     protected renderFrame(content: string) {
-        // 1. Move Cursor Up
-        if (this.lastRenderHeight > 1) {
-            this.print(`\x1b[${this.lastRenderHeight - 1}A`);
-        }
-        // Always move to start of line
-        this.print(ANSI.CURSOR_LEFT);
-
-        // 2. Prepare content and calculate height
         // Ensure lines are truncated to terminal width
         const width = this.stdout.columns || 80;
-        const lines = content.split('\n');
+        const rawLines = content.split('\n');
         
-        let finalOutput = '';
-        let newHeight = 0;
+        // Truncate each line and prepare the new buffer
+        const newLines = rawLines.map(line => this.truncate(line, width));
 
-        for (const line of lines) {
-            const truncated = this.truncate(line, width);
-            finalOutput += truncated + '\n'; // Add newline for each line
-            newHeight++;
+        // Cursor logic:
+        // We assume the cursor is currently at the END of the last rendered frame.
+        // But to diff, it's easier to always reset to the top of the frame first.
+        
+        // 1. Move Cursor to Top of the Frame
+        if (this.lastRenderHeight > 0) {
+            this.print(`\x1b[${this.lastRenderHeight}A`); // Move up N lines
+            // Actually, if last height was 1 (just one line), we move up 1 line?
+            // "A\n" -> 2 lines. Cursor at bottom.
+            // If we move up, we are at top.
+            
+            // Wait, if lastRenderHeight includes the "current line" which is usually empty if we printed with newlines?
+            // Let's stick to: we printed N lines. Cursor is at line N+1 (start).
+            // To go to line 1, we move up N lines.
+             this.print(`\x1b[${this.lastRenderHeight}A`);
         }
-        // Remove the last newline added by the loop if necessary, 
-        // but typically prompt output ends with newline for clean separation?
-        // Actually, typically we just join by \n.
-        // Wait, if I split by \n, and join by \n, I get back the string.
-        // But `truncate` might change the visual string.
-        
-        // Let's rebuild the string properly.
-        finalOutput = lines.map(line => this.truncate(line, width)).join('\n');
-        // If the original content ended with \n (which it often does implicitly or explicitly),
-        // split will create an empty string at the end.
-        // E.g. "A\nB\n" -> ["A", "B", ""].
-        // If we map and join, we get "A\nB\n". Correct.
-        // But height calculation needs to be careful.
-        
-        // Re-calculating height based on wrapped lines?
-        // No, we are TRUNCATING, so 1 logical line = 1 physical line.
-        // Unless we decide to wrap. The instructions said "Cut off" (Truncation).
-        // So height = number of lines.
-        
-        // Wait, does split include the empty string at the end?
-        // "a\n".split('\n') -> ['a', '']
-        // Height should be the number of visual lines.
-        // If content is "Header\nOption1\nOption2", height is 3.
-        // If content is "Header\nOption1\nOption2\n", height is 4 (last line empty).
-        // Usually we don't want the last empty line to count as a "line used" if it's just the cursor sitting there?
-        // But if we print it, it takes space.
-        
-        // Let's check how prompts construct strings.
-        // SelectPrompt: "Header\nItem\nItem\n"
-        // This prints 3 lines of text and moves cursor to next line.
-        // So strictly speaking it occupies 3 lines + 1 partial line (cursor).
-        // But if we print "Header\nItem\nItem", it occupies 3 lines.
-        
-        // Let's assume content does NOT have a trailing newline unless intended.
-        // But typical usage: output += `... \n`
-        
-        // If I print "A\nB\n", the cursor is on the line AFTER B.
-        // That line is visually empty but it is the "current line".
-        // If I move UP by height, I need to account for where the cursor ended up.
-        
-        // If I write "A\nB", cursor is at end of B. Height is 2.
-        // Moving up 2 lines puts me at start of A (if I also carriage return).
-        // \x1b[2A moves up 2 lines.
-        
-        // If I write "A\nB\n", cursor is on line 3 (empty).
-        // To go to start of A, I need to move up 2 lines? No.
-        // Line 1: A
-        // Line 2: B
-        // Line 3: (cursor here)
-        // Up 1 -> Line 2. Up 2 -> Line 1.
-        // So if there are 2 newlines, I need to go up 2 lines.
-        
-        newHeight = 0;
-        // We count how many newlines are in the final output?
-        // Or simpler: count lines in the array.
-        // But be careful with trailing empty string from split.
-        
-        // Let's strip the last newline from content before splitting if it exists
-        // to avoid counting an empty line that doesn't really have content, 
-        // UNLESS we want that empty line.
-        // Actually, if we use `console.log` it adds newline. `stdout.write` does not.
-        
-        // Let's just process lines.
-        
-        this.print(ANSI.CURSOR_LEFT); // Ensure we are at column 0 before writing?
-        // Actually `renderFrame` assumes we are at the start of where we want to write 
-        // (after moving up).
-        
-        this.print(finalOutput);
+        this.print(ANSI.CURSOR_LEFT);
 
-        // Calculate lines produced.
-        // A string with N '\n' produces N+1 lines effectively? 
-        // Or rather, it moves the cursor down N times.
-        // "A" -> 0 newlines. Cursor on same line. Height 1? 
-        // If I want to clear it, I clear 1 line.
-        // If I write "A\n", cursor on next line. Height 2?
+        // 2. Diff and Render
+        // We iterate through newLines.
+        // For each line, check if it matches lastRenderLines[i].
         
-        // Let's define height as "number of rows occupied on screen".
-        // "A" occupies 1 row.
-        // "A\nB" occupies 2 rows.
-        // "A\n" occupies 2 rows (one with A, one empty where cursor sits).
-        
-        // So height = (number of \n) + 1.
-        // "A" -> split -> ["A"] -> len 1. Height 1.
-        // "A\nB" -> split -> ["A", "B"] -> len 2. Height 2.
-        // "A\n" -> split -> ["A", ""] -> len 2. Height 2.
-        
-        newHeight = finalOutput.split('\n').length;
-        
-        // 3. Clear remaining lines
-        if (newHeight < this.lastRenderHeight) {
-             const diff = this.lastRenderHeight - newHeight;
-             // We are currently at the end of the new output.
-             // If new output is shorter, we have 'diff' lines of garbage below us.
-             this.print(ANSI.ERASE_DOWN); 
+        for (let i = 0; i < newLines.length; i++) {
+            const newLine = newLines[i];
+            const oldLine = this.lastRenderLines[i];
+
+            if (newLine !== oldLine) {
+                // Move to this line if not already there?
+                // We are writing sequentially, so after writing line i-1 (or skipping it),
+                // the cursor might not be at the start of line i if we skipped.
+                
+                // Strategy:
+                // If we skipped lines, we need to jump down.
+                // But simpler: just move cursor to line i relative to top.
+                // \x1b[<N>B moves down N lines.
+                // But we are processing sequentially.
+                
+                // If we are at line 0 (Top).
+                // Process line 0. 
+                // If changed, write it + \n (or clear line + write).
+                // If unchanged, move cursor down 1 line.
+                
+                // Wait, if we use \n at end of write, cursor moves down.
+                // If we skip writing, we must manually move down.
+                
+                this.print(ANSI.ERASE_LINE); // Clear current line
+                this.print(newLine);
+            }
+            
+            // Prepare for next line
+            if (i < newLines.length - 1) {
+                // If we wrote something, we are at end of line (maybe wrapped?).
+                // Since we truncate, we are not wrapped.
+                // But we didn't print \n yet if we just printed newLine.
+                // To move to next line start:
+                this.print('\n'); 
+            }
         }
-        
-        this.lastRenderHeight = newHeight;
+
+        // 3. Clear remaining lines if new output is shorter
+        if (newLines.length < this.lastRenderLines.length) {
+             // We are at the last line of new output.
+             // BUG FIX: If the last line was unchanged, we skipped printing.
+             // The cursor is currently at the START of that line (or end of previous).
+             // We need to ensure we move to the NEXT line (or end of current) before clearing down.
+             
+             // If we just finished loop `i = newLines.length - 1`, we are theoretically at the end of the content.
+             // However, since we might have skipped the last line, we need to be careful.
+             
+             // Let's force move to the end of the visual content we just defined.
+             // Actually, simplest way: Just move cursor to start of line N (where N = newLines.length).
+             // Currently we are at line newLines.length - 1.
+             // We need to move down 1 line?
+             
+             // If newLines has 1 line. Loop runs 0.
+             // If skipped, we are at start of line 0.
+             // We need to be at line 1 to clear from there down.
+             // But we didn't print \n.
+             
+             // So: move cursor to (newLines.length) relative to top.
+             // We started at Top.
+             // We iterated newLines.
+             // We injected \n between lines.
+             // The cursor is implicitly tracking where we are.
+             // IF we skipped, we are physically at start of line `i`.
+             // We need to move over it.
+             
+             // Fix: After the loop, explicitly move to the line AFTER the last line.
+             // Since we know where we started (Top), we can just jump to line `newLines.length`.
+             // But we are in relative movement land.
+             
+             // Let's calculate where we *should* be: End of content.
+             // If we just rendered N lines, we want to be at line N+1 (conceptually) to clear below?
+             // Or just at the start of line N+1?
+             
+             // If we have 2 lines. 
+             // Line 0. \n. Line 1.
+             // Cursor is at end of Line 1.
+             // If we skipped Line 1, cursor is at start of Line 1.
+             // We want to clear everything BELOW Line 1.
+             // So we should be at start of Line 2.
+             
+             // Logic:
+             // 1. We are currently at the cursor position after processing `newLines`.
+             //    If last line was skipped, we are at start of last line.
+             //    If last line was written, we are at end of last line.
+             // 2. We want to erase from the line *following* the last valid line.
+             
+             // We can just calculate the difference and move down if needed.
+             // But simpler: Move cursor to the conceptual "end" of the new frame.
+             // If we processed `newLines.length` lines.
+             // We want to be at row `newLines.length` (0-indexed) to start clearing?
+             // No, rows are 0 to N-1.
+             // We want to clear starting from row N.
+             
+             // Since we can't easily query cursor pos, let's use the fact we reset to Top.
+             // We can move to row N relative to current? 
+             // Wait, `ERASE_DOWN` clears from cursor to end of screen.
+             // If we are at start of Line 1 (and it's valid), `ERASE_DOWN` deletes Line 1!
+             // So we MUST be past Line 1.
+             
+             // If we skipped the last line, we must strictly move past it.
+             // How? `\x1b[1B` (Down).
+             
+             // But we don't track if we skipped the last line explicitly outside the loop.
+             // Let's just track `currentLineIndex`.
+             
+             // Alternate robust approach:
+             // After loop, we forcefully move cursor to `newLines.length` lines down from Top.
+             // We are currently at some unknown state (Start or End of last line).
+             // BUT we can just move UP to Top again and then move DOWN N lines.
+             // That feels safe.
+             
+             // Reset to top of frame (which we are already inside/near).
+             // But we don't know exactly where we are relative to top anymore.
+             
+             // Let's rely on the loop index.
+             // If loop finished, `i` was `newLines.length`.
+             // If `newLines.length > 0`.
+             // If we skipped the last line (index `len-1`), we are at start of it.
+             // If we wrote it, we are at end of it.
+             
+             // If we skipped, we need `\x1b[1B`.
+             // If we wrote, we are at end. `ERASE_DOWN` from end of line clears rest of line + below.
+             // BUT we want to clear BELOW.
+             // `ERASE_DOWN` (J=0) clears from cursor to end of screen.
+             // If at end of line, it clears rest of that line (nothing) and lines below. Correct.
+             
+             // So the issue is ONLY when we skipped the last line.
+             const lastLineIdx = newLines.length - 1;
+             if (lastLineIdx >= 0 && newLines[lastLineIdx] === this.lastRenderLines[lastLineIdx]) {
+                 // We skipped the last line. Move down 1 line to ensure we don't delete it.
+                 // Also move to start (CR) to be safe?
+                 this.print('\n'); 
+                 // Wait, \n moves down AND to start usually. 
+                 // But strictly \n is Line Feed (Down). \r is Carriage Return (Left).
+                 // Console usually treats \n as \r\n in cooked mode, but in raw mode?
+                 // We are in raw mode.
+                 // We likely need \r\n or explicit movement.
+                 // Let's just use \x1b[1B (Down) and \r (Left).
+                 // Actually, if we use `\n` in loop, we rely on it working.
+                 // Let's assume `\x1b[1B` is safer for "just move down".
+                 // But wait, if we are at start of line, `1B` puts us at start of next line.
+                 // `ERASE_DOWN` there is perfect.
+                 this.print('\x1b[1B'); 
+                 this.print('\r'); // Move to start
+             } else {
+                 // We wrote the last line. We are at the end of it.
+                 // `ERASE_DOWN` will clear lines below.
+                 // BUT if we want to clear the REST of the screen cleanly starting from next line...
+                 // It's mostly fine.
+                 
+                 // However, there is a subtle case: 
+                 // If we wrote the line, we are at the end of it.
+                 // If we call ERASE_DOWN, it keeps current line intact (from cursor onwards, which is empty).
+                 // And clears below.
+                 // This is correct.
+                 
+                 // EXCEPT: If the old screen had MORE lines, we want to clear them.
+                 // If we are at end of Line N-1.
+                 // Line N exists in old screen.
+                 // ERASE_DOWN clears Line N etc.
+                 // Correct.
+             }
+
+             this.print(ANSI.ERASE_DOWN);
+        }
+
+        // Update state
+        this.lastRenderLines = newLines;
+        this.lastRenderHeight = newLines.length;
     }
 
     protected stripAnsi(str: string): string {
-         return str.replace(/\x1b\[[0-9;]*m/g, '');
+         return stripAnsi(str);
     }
 
     protected truncate(str: string, width: number): string {
-        const stripped = this.stripAnsi(str);
-        if (stripped.length <= width) {
+        const visualWidth = stringWidth(str);
+        if (visualWidth <= width) {
             return str;
         }
 
-        // We need to truncate but preserve ANSI codes? 
-        // That's hard. 
-        // For now, simpler truncation: 
-        // If we assume ANSI codes don't take space, we iterate chars and count visual length.
-        
-        // Simple heuristic: If string is too long, cut it.
-        // But blindly cutting might cut in the middle of an ANSI code.
-        // Given constraints ("No dependency"), a robust ANSI-aware truncate is complex.
-        // However, most lines in CLI are: indent + icon + text.
-        // Text is at the end.
-        // So cutting off the end usually is fine, provided we reset color at the end.
-        
-        // Strategy:
-        // 1. Calculate visual width.
-        // 2. If > width, cut at (width - 3) and add "...".
-        // 3. Append ANSI.RESET to be safe.
-        
-        // To do this safely without complex parsing:
-        // Just slice the string? No, that counts invisible chars.
-        
-        // Let's implement a basic loop.
-        let visualLength = 0;
+        // Heuristic truncation using stringWidth
+        // We iterate and sum width until we hit limit - 3
+        let currentWidth = 0;
         let cutIndex = 0;
-        let isAnsi = false;
         
+        // We need to iterate by Code Point or Grapheme to be safe?
+        // Let's use simple char iteration for speed, but respect ANSI.
+        // Actually, reusing the logic from stringWidth might be best but 
+        // we need the index.
+        
+        let inAnsi = false;
         for (let i = 0; i < str.length; i++) {
-            if (str[i] === '\x1b') {
-                isAnsi = true;
+            const code = str.charCodeAt(i);
+             if (str[i] === '\x1b') {
+                inAnsi = true;
             }
             
-            if (isAnsi) {
-                // CSI sequences end with a byte between 0x40 (@) and 0x7E (~)
-                if (str[i] >= '@' && str[i] <= '~') { 
-                     isAnsi = false;
+            if (inAnsi) {
+                 if ((str[i] >= '@' && str[i] <= '~') || (str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')) {
+                    inAnsi = false;
                 }
-                // Continue to next char, don't count visual
             } else {
-                visualLength++;
+                 // Width check
+                 // Handle surrogates roughly (we don't need perfect width here during loop, just enough to stop)
+                 // But wait, we imported `stringWidth`.
+                 // We can't easily use `stringWidth` incrementally without re-parsing.
+                 // Let's just trust the loop for cut index.
+                 
+                 // Re-implement basic width logic here for the cut index finding
+                let charWidth = 1;
+                 
+                let cp = code;
+                if (code >= 0xD800 && code <= 0xDBFF && i + 1 < str.length) {
+                    const next = str.charCodeAt(i + 1);
+                    if (next >= 0xDC00 && next <= 0xDFFF) {
+                        cp = (code - 0xD800) * 0x400 + (next - 0xDC00) + 0x10000;
+                        // i is incremented in main loop but we need to skip next char
+                        // We'll handle i increment in the loop
+                    }
+                }
+                
+                // Check range (simplified or call helper)
+                // We don't have isWideCodePoint exported. 
+                // But generally, we can just say:
+                if (cp >= 0x1100) { // Quick check for potentially wide
+                     // It's acceptable to be slightly aggressive on wide chars for truncation
+                     charWidth = 2;
+                }
+                
+                if (currentWidth + charWidth > width - 3) {
+                    cutIndex = i;
+                    break;
+                }
+                currentWidth += charWidth;
+                
+                if (cp > 0xFFFF) {
+                     i++; // Skip low surrogate
+                }
             }
-            
-            if (visualLength > width - 3) {
-                cutIndex = i; // This is roughly where we want to stop to leave room for ...
-                // But we should verify if we are in ANSI.
-                // This simple parser is flaky for complex codes like colors
-                // \x1b[31m is easy.
-                // But generally, if we exceed width, we just want to stop.
-                break;
-            }
-            
             cutIndex = i + 1;
         }
-        
-        if (visualLength > width - 3) {
-             // We stopped early.
-             // We take the substring up to cutIndex.
-             // But we must ensure we didn't cut inside an ANSI sequence.
-             // Since we only increment visualLength when !isAnsi, 
-             // and we break immediately when visualLength hits limit,
-             // we might be in 'text' mode.
-             
-             // What if the string has tons of ANSI at the end? 
-             // We might cut before them? That's fine, they wouldn't be seen/apply anyway? 
-             // Except Reset.
-             
-             return str.substring(0, cutIndex) + '...' + ANSI.RESET;
-        }
-        
-        return str;
+
+        return str.substring(0, cutIndex) + '...' + ANSI.RESET;
     }
 
     // Helper to check for arrow keys including application mode
