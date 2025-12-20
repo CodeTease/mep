@@ -11,11 +11,6 @@ export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
     }
 
     protected render(firstRender: boolean) {
-        this.print(ANSI.HIDE_CURSOR);
-        if (!firstRender) {
-            this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
-        }
-
         const activeText = this.options.activeText || 'ON';
         const inactiveText = this.options.inactiveText || 'OFF';
 
@@ -26,8 +21,9 @@ export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
             toggleDisplay = `${theme.muted}${activeText}${ANSI.RESET}  ${theme.main}[${ANSI.BOLD}${inactiveText}${ANSI.RESET}${theme.main}]${ANSI.RESET}`;
         }
 
-        this.print(`${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${toggleDisplay}`);
-        this.print(`\x1b[${toggleDisplay.length}D`); // Move back is not really needed as we hide cursor, but kept for consistency
+        const output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${toggleDisplay}`;
+        
+        this.renderFrame(output);
     }
 
     protected handleInput(char: string) {

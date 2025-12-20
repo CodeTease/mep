@@ -26,37 +26,6 @@ export class MultiSelectPrompt extends Prompt<any[], MultiSelectOptions> {
     }
 
     protected render(firstRender: boolean) {
-        this.print(ANSI.HIDE_CURSOR);
-        
-        // This is tricky because height changes with filter.
-        // Simplified clearing:
-        if (!firstRender) {
-             this.print(ANSI.ERASE_DOWN); // Clear everything below cursor
-             // But we need to move cursor up to start of prompt
-             // We can store last height?
-        }
-        
-        // Wait, standard render loop usually assumes fixed position or we manually handle it.
-        // Let's use ERASE_LINE + UP loop like SelectPrompt but simpler since we have full screen control in a way
-        // Actually, let's just clear screen? No, that's bad.
-        // Let's stick to SelectPrompt's strategy.
-        
-        if (!firstRender) {
-             // Hack: Just clear last 10 lines to be safe? No.
-             // We will implement proper tracking later if needed, for now standard clear
-             // Let's re-use SelectPrompt logic structure if possible, but distinct implementation here.
-             
-             // Simplest: Always move to top of prompt and erase down.
-             // Assuming we track how many lines we printed.
-        }
-
-        // ... Implementation detail: use a simpler clear strategy:
-        // Move to start of prompt line (we need to track lines printed in previous frame)
-        if ((this as any).lastRenderLines) {
-            this.print(`\x1b[${(this as any).lastRenderLines}A`);
-            this.print(ANSI.ERASE_DOWN);
-        }
-
         let output = '';
         const choices = this.getFilteredChoices();
 
@@ -75,10 +44,12 @@ export class MultiSelectPrompt extends Prompt<any[], MultiSelectOptions> {
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
         
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}\n`;
+            output += `  ${theme.muted}No results found${ANSI.RESET}`; // No newline at end
         } else {
              const visible = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
              visible.forEach((choice, index) => {
+                 if (index > 0) output += '\n';
+                 
                  const actualIndex = this.scrollTop + index;
                  const cursor = actualIndex === this.selectedIndex ? `${theme.main}❯${ANSI.RESET}` : ' ';
                  const isChecked = this.checkedState[choice.originalIndex];
@@ -86,19 +57,15 @@ export class MultiSelectPrompt extends Prompt<any[], MultiSelectOptions> {
                     ? `${theme.success}◉${ANSI.RESET}` 
                     : `${theme.muted}◯${ANSI.RESET}`;
                  
-                 output += `${cursor} ${checkbox} ${choice.title}\n`;
+                 output += `${cursor} ${checkbox} ${choice.title}`;
              });
         }
         
         if (this.errorMsg) {
-             output += `${theme.error}>> ${this.errorMsg}${ANSI.RESET}\n`;
+             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
 
-        this.print(output);
-        
-        // Count lines
-        const lines = 1 + (choices.length === 0 ? 1 : Math.min(choices.length, this.pageSize)) + (this.errorMsg ? 1 : 0);
-        (this as any).lastRenderLines = lines;
+        this.renderFrame(output);
     }
 
     protected handleInput(char: string) {

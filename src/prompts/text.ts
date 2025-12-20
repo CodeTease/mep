@@ -8,7 +8,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
     private errorMsg: string = '';
     private cursor: number = 0;
     private hasTyped: boolean = false;
-    private renderLines: number = 1;
+    // renderLines removed as renderFrame handles logic
 
     constructor(options: TextOptions) {
         super(options);
@@ -17,136 +17,173 @@ export class TextPrompt extends Prompt<string, TextOptions> {
     }
 
     protected render(firstRender: boolean) {
-        // TextPrompt needs the cursor visible!
-        this.print(ANSI.SHOW_CURSOR);
-
-        if (!firstRender) {
-             // Clear previous lines
-             for (let i = 0; i < this.renderLines; i++) {
-                 this.print(ANSI.ERASE_LINE);
-                 if (i < this.renderLines - 1) this.print(ANSI.UP);
-             }
-             this.print(ANSI.CURSOR_LEFT);
-        }
+        // Calculate available width
+        const cols = process.stdout.columns || 80;
         
-        let output = '';
-        
-        // 1. Render the Prompt Message
+        // 1. Prepare Prompt Label
         const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
-        const multilineHint = this.options.multiline ? ` ${theme.muted}(Press Ctrl+D to submit)${ANSI.RESET}` : '';
-        output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${multilineHint} `;
+        const hint = this.options.multiline ? ` ${theme.muted}(Press Ctrl+D to submit)${ANSI.RESET}` : '';
+        const prefix = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${hint} `;
+        
+        // We need visual length of prefix to calculate available space for input on the first line
+        const prefixVisualLen = this.stripAnsi(prefix).length;
 
-        // 2. Render the Value or Placeholder
-        let displayValue = '';
+        // 2. Prepare Value Display
+        let displayValueLines: string[] = [];
+        let cursorRelativeRow = 0;
+        let cursorRelativeCol = 0;
+
         if (!this.value && this.options.placeholder && !this.errorMsg && !this.hasTyped) {
-            displayValue = `${theme.muted}${this.options.placeholder}${ANSI.RESET}`;
+            // Placeholder case
+            const placeholder = `${theme.muted}${this.options.placeholder}${ANSI.RESET}`;
+            // If placeholder is too long, we might need to truncate it too, but simpler to just show it.
+            // But cursor stays at position 0 (start).
+            displayValueLines = [placeholder];
+            // Cursor is at 0,0 relative to value start
+            cursorRelativeRow = 0;
+            cursorRelativeCol = 0;
         } else {
-            displayValue = this.options.isPassword ? '*'.repeat(this.value.length) : this.value;
-            displayValue = `${theme.main}${displayValue}${ANSI.RESET}`;
+            const rawValue = this.options.isPassword ? '*'.repeat(this.value.length) : this.value;
+            
+            // Split by lines (for multiline support)
+            // If empty, lines = [""]
+            const lines = rawValue.split('\n');
+            
+            // Determine which line the cursor is on
+            let charCount = 0;
+            let cursorLineIndex = 0;
+            let cursorColIndex = this.cursor;
+
+            for (let i = 0; i < lines.length; i++) {
+                // length + 1 for newline
+                if (charCount + lines[i].length >= this.cursor) {
+                    cursorLineIndex = i;
+                    cursorColIndex = this.cursor - charCount;
+                    break;
+                }
+                charCount += lines[i].length + 1;
+            }
+            // Edge case: cursor at end of last line
+            if (this.cursor === rawValue.length && lines.length > 0) {
+                 cursorLineIndex = lines.length - 1;
+                 cursorColIndex = lines[lines.length - 1].length;
+            } else if (lines.length === 0) { // Should not happen with split('') on empty string -> ['']
+                 cursorLineIndex = 0;
+                 cursorColIndex = 0;
+            }
+
+            cursorRelativeRow = cursorLineIndex;
+            
+            // Process each line for horizontal scrolling/truncation
+            lines.forEach((line: string, idx: number) => {
+                const isCursorLine = idx === cursorLineIndex;
+                const linePrefixLen = (idx === 0) ? prefixVisualLen : 0; 
+                // Available width for this line's content
+                // We reserve 1 char at end to avoid auto-wrap issues if we hit edge exactly?
+                // renderFrame truncates at `cols`, so we have `cols - linePrefixLen`.
+                const maxContentLen = Math.max(10, cols - linePrefixLen - 1); // -1 safety
+                
+                let visibleLine = line;
+                
+                if (isCursorLine) {
+                    // Scroll logic to keep cursor visible
+                    // cursorColIndex is where the cursor is *within this line*
+                    
+                    if (visibleLine.length > maxContentLen) {
+                        // Calculate window
+                        let start = 0;
+                        if (cursorColIndex > maxContentLen) {
+                            // Scroll so cursor is roughly at end
+                            start = cursorColIndex - maxContentLen + 3; // +3 context
+                        }
+                        // Ensure we don't scroll past end? No, cursor can be at end.
+                        
+                        // We also need to cap start if line is huge but cursor is at start?
+                        // No, if cursor is at start, start=0.
+                        
+                        // If we scroll, we prepend '...'
+                        if (start > 0) {
+                            visibleLine = '...' + visibleLine.slice(start);
+                            // Adjust cursor position
+                            // We removed `start` chars, but added 3 chars '...'
+                            // So visual cursor pos = cursorColIndex - start + 3
+                            cursorRelativeCol = cursorColIndex - start + 3;
+                        } else {
+                            // Just truncate end if too long
+                            // But wait, if cursor is at end, we need to scroll.
+                            // The logic above handles `cursorColIndex > maxContentLen`.
+                            // If `cursorColIndex <= maxContentLen` but `line.length > maxContentLen`,
+                            // we just truncate the tail.
+                            // `renderFrame` would do it, but we can do it explicitly.
+                            visibleLine = visibleLine.slice(0, maxContentLen);
+                             cursorRelativeCol = cursorColIndex;
+                        }
+                    } else {
+                         cursorRelativeCol = cursorColIndex;
+                    }
+                } else {
+                    // Non-active line: simple truncate
+                     if (visibleLine.length > maxContentLen) {
+                         visibleLine = visibleLine.slice(0, maxContentLen - 3) + '...';
+                     }
+                }
+                
+                displayValueLines.push(theme.main + visibleLine + ANSI.RESET);
+            });
         }
         
-        output += displayValue;
+        // 3. Assemble Output
+        let output = '';
+        displayValueLines.forEach((lineStr, idx) => {
+             if (idx === 0) {
+                 output += prefix + lineStr;
+             } else {
+                 output += '\n' + lineStr;
+             }
+        });
         
-        // 3. Handle Error Message
         if (this.errorMsg) {
              output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
         
-        this.print(output);
+        // 4. Render Frame
+        this.renderFrame(output);
         
-        // 4. Calculate Visual Metrics for Wrapping
-        const cols = process.stdout.columns || 80;
-        const stripAnsi = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '');
-        
-        // Prompt String (visual part before value)
-        const promptStr = `${icon} ${theme.title}${this.options.message} ${multilineHint} `;
-        const promptVisualLen = stripAnsi(promptStr).length;
-        
-        // Value String (visual part)
-        const rawValue = (!this.value && this.options.placeholder && !this.errorMsg && !this.hasTyped) 
-            ? this.options.placeholder || '' 
-            : (this.options.isPassword ? '*'.repeat(this.value.length) : this.value);
-            
-        // Error String (visual part)
-        const errorVisualLines = this.errorMsg ? Math.ceil((3 + this.errorMsg.length) / cols) : 0;
+        this.print(ANSI.SHOW_CURSOR);
 
-        // Calculate Total Lines and Cursor Position
-        // We simulate printing the prompt + value + error
-        let currentVisualLine = 0;
-        let currentCol = 0;
+        // 5. Move Cursor to Correct Position
+        // We are currently at the bottom-left (or end of last line) after renderFrame + write.
+        // Actually, renderFrame writes content.
+        // If content has N lines, we are at line N.
         
-        // State tracking for cursor
-        let cursorRow = 0;
-        let cursorCol = 0;
+        // If errorMsg exists, it's an extra line at the end.
+        const errorOffset = this.errorMsg ? 1 : 0;
+        const totalRows = displayValueLines.length + errorOffset;
         
-        // Add Prompt
-        currentCol += promptVisualLen;
-        while (currentCol >= cols) {
-            currentVisualLine++;
-            currentCol -= cols;
-        }
+        // We want to be at `cursorRelativeRow` (0-indexed from start of value)
+        // Current position is after printing `totalRows`.
+        // So we need to move UP by (totalRows - 1 - cursorRelativeRow).
         
-        // Add Value (Character by character to handle wrapping and cursor tracking accurately)
-        const valueLen = rawValue.length;
-        
-        // If placeholder, we treat it as value for render height, but cursor is at 0
-        const isPlaceholder = (!this.value && this.options.placeholder && !this.errorMsg && !this.hasTyped);
-        
-        for (let i = 0; i < valueLen; i++) {
-            // Check if we are at cursor position
-            if (!isPlaceholder && i === this.cursor) {
-                cursorRow = currentVisualLine;
-                cursorCol = currentCol;
-            }
-            
-            const char = rawValue[i];
-            if (char === '\n') {
-                currentVisualLine++;
-                currentCol = 0;
-            } else {
-                currentCol++;
-                if (currentCol >= cols) {
-                    currentVisualLine++;
-                    currentCol = 0;
-                }
-            }
-        }
-        
-        // If cursor is at the very end
-        if (!isPlaceholder && this.cursor === valueLen) {
-            cursorRow = currentVisualLine;
-            cursorCol = currentCol;
-        }
-        
-        // If placeholder, cursor is at start of value
-        if (isPlaceholder) {
-            let pCol = promptVisualLen;
-            let pRow = 0;
-            while (pCol >= cols) {
-                pRow++;
-                pCol -= cols;
-            }
-            cursorRow = pRow;
-            cursorCol = pCol;
-        }
-
-        // Final height
-        const totalValueRows = currentVisualLine + 1; 
-        this.renderLines = totalValueRows + errorVisualLines;
-
-        // 5. Position Cursor Logic
-        const endRow = this.renderLines - 1;
-        
-        // Move up to cursor row
-        const linesUp = endRow - cursorRow;
+        const linesUp = (totalRows - 1) - cursorRelativeRow;
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
         
-        // Move to cursor col
-        this.print(ANSI.CURSOR_LEFT); // Go to col 0
-        if (cursorCol > 0) {
-            this.print(`\x1b[${cursorCol}C`);
+        // Horizontal move
+        // Row 0 has prefix. Other rows start at 0?
+        // Wait, line 0 is `prefix + value`.
+        // Other lines are just `value` (in my construction above).
+        
+        let targetCol = 0;
+        if (cursorRelativeRow === 0) {
+             targetCol = prefixVisualLen + cursorRelativeCol;
+        } else {
+             targetCol = cursorRelativeCol;
+        }
+        
+        this.print(ANSI.CURSOR_LEFT); // Go to start
+        if (targetCol > 0) {
+            this.print(`\x1b[${targetCol}C`);
         }
     }
 
@@ -228,14 +265,18 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             // Handle Promise validation
             if (result instanceof Promise) {
                 // Show loading state
-                this.print(`\n${ANSI.ERASE_LINE}${theme.main}Validating...${ANSI.RESET}`);
-                this.print(ANSI.UP);
+                // With renderFrame, we can just render a loading state
+                // But we need to keep the input visible ideally, or just a spinner?
+                // The original code printed "Validating..."
+                
+                // Let's print a temporary message below?
+                // Or just use errorMsg slot for status?
+                // Using errorMsg slot is easiest with the current renderFrame setup.
+                
+                this.errorMsg = 'Validating...';
+                this.render(false);
 
                 result.then(valid => {
-                     // Clear loading message
-                     this.print(`\n${ANSI.ERASE_LINE}`);
-                     this.print(ANSI.UP);
-                     
                      if (typeof valid === 'string' && valid.length > 0) {
                          this.errorMsg = valid;
                          this.render(false);
@@ -243,14 +284,11 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                          this.errorMsg = 'Invalid input';
                          this.render(false);
                      } else {
-                        if (this.errorMsg) {
-                            this.print(`\n${ANSI.ERASE_LINE}${ANSI.UP}`);
-                        }
-                         this.submit(this.value);
+                        this.errorMsg = '';
+                        this.render(false); // Clear error message
+                        this.submit(this.value);
                      }
                 }).catch(err => {
-                     this.print(`\n${ANSI.ERASE_LINE}`);
-                     this.print(ANSI.UP);
                      this.errorMsg = err.message || 'Validation failed';
                      this.render(false);
                 });
@@ -269,9 +307,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                  return;
             }
         }
-        if (this.errorMsg) {
-            this.print(`\n${ANSI.ERASE_LINE}${ANSI.UP}`);
-        }
+        
         this.submit(this.value);
     }
 }

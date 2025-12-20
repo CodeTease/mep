@@ -11,11 +11,6 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
     }
 
     protected render(firstRender: boolean) {
-        this.print(ANSI.HIDE_CURSOR);
-        if (!firstRender) {
-             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-        }
-
         const width = 20;
         const range = this.options.max - this.options.min;
         const ratio = (this.value - this.options.min) / range;
@@ -28,7 +23,9 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
         }
 
         const unit = this.options.unit || '';
-        this.print(`${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} [${bar}] ${this.value}${unit}`);
+        const output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} [${bar}] ${this.value}${unit}`;
+        
+        this.renderFrame(output);
     }
 
     protected handleInput(char: string) {
@@ -41,10 +38,14 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
 
         if (this.isLeft(char)) { // Left
             this.value = Math.max(this.options.min, this.value - step);
+             // Round to avoid float errors
+            this.value = Math.round(this.value * 10000) / 10000;
             this.render(false);
         }
         if (this.isRight(char)) { // Right
             this.value = Math.min(this.options.max, this.value + step);
+             // Round to avoid float errors
+            this.value = Math.round(this.value * 10000) / 10000;
             this.render(false);
         }
     }

@@ -30,16 +30,23 @@ export class FilePrompt extends Prompt<string, FileOptions> {
                     .filter(f => f.startsWith(partial))
                     .filter(f => {
                          const fullPath = path.join(dir, f);
-                         const isDir = fs.statSync(fullPath).isDirectory();
-                         if (this.options.onlyDirectories && !isDir) return false;
-                         if (this.options.extensions && !isDir) {
-                             return this.options.extensions.some(ext => f.endsWith(ext));
+                         // Handle errors if file doesn't exist or permission denied
+                         try {
+                             const isDir = fs.statSync(fullPath).isDirectory();
+                             if (this.options.onlyDirectories && !isDir) return false;
+                             if (this.options.extensions && !isDir) {
+                                 return this.options.extensions.some(ext => f.endsWith(ext));
+                             }
+                             return true;
+                         } catch (e) {
+                             return false;
                          }
-                         return true;
                     })
                     .map(f => {
                         const fullPath = path.join(dir, f);
-                        if (fs.statSync(fullPath).isDirectory()) return f + '/';
+                        try {
+                            if (fs.statSync(fullPath).isDirectory()) return f + '/';
+                        } catch (e) { /* ignore */ }
                         return f;
                     });
             } else {
@@ -52,39 +59,56 @@ export class FilePrompt extends Prompt<string, FileOptions> {
     }
 
     protected render(firstRender: boolean) {
-        this.print(ANSI.SHOW_CURSOR);
-
-        if (!firstRender) {
-             // Clear input line + suggestions
-             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT); // Input line
-             // We need to track how many lines suggestions took
-             // For now assume simple clear, or use ANSI.ERASE_DOWN if at bottom?
-             // Safer to move up and clear
-             this.print(ANSI.ERASE_DOWN);
-        }
-        
+        // Construct string
         const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
-        this.print(`${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${this.input}`);
+        let output = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${this.input}`;
 
+        // Suggestions
         if (this.suggestions.length > 0) {
-            this.print('\n');
+            output += '\n'; // Separate input from suggestions
             const maxShow = 5;
-            this.suggestions.slice(0, maxShow).forEach((s, i) => {
+            const displayed = this.suggestions.slice(0, maxShow);
+            
+            displayed.forEach((s, i) => {
+                if (i > 0) output += '\n';
                 if (i === this.selectedSuggestion) {
-                     this.print(`${theme.main}❯ ${s}${ANSI.RESET}\n`);
+                     output += `${theme.main}❯ ${s}${ANSI.RESET}`;
                 } else {
-                     this.print(`  ${s}\n`);
+                     output += `  ${s}`;
                 }
             });
             if (this.suggestions.length > maxShow) {
-                this.print(`  ...and ${this.suggestions.length - maxShow} more\n`);
+                output += `\n  ...and ${this.suggestions.length - maxShow} more`;
             }
-            // Move cursor back to input line
-            const lines = Math.min(this.suggestions.length, maxShow) + (this.suggestions.length > maxShow ? 2 : 1);
-            this.print(`\x1b[${lines}A`);
-            const inputLen = this.options.message.length + 3 + this.input.length;
-            this.print(`\x1b[${inputLen}C`);
         }
+        
+        this.renderFrame(output);
+        this.print(ANSI.SHOW_CURSOR);
+
+        // Restore Cursor Logic
+        // We need to move up to the input line if we printed suggestions.
+        // The input line is always the first line (index 0).
+        // So we move up by (totalLines - 1).
+        
+        const totalLines = this.lastRenderHeight; // renderFrame sets this
+        if (totalLines > 1) {
+            this.print(`\x1b[${totalLines - 1}A`);
+        }
+        
+        // Move right
+        const prefix = `${icon} ${theme.title}${this.options.message} `;
+        const prefixLen = this.stripAnsi(prefix).length;
+        // Cursor is usually at the end of input unless we add backspace support etc.
+        // The cursor property tracks it, but my handleInput simplified it.
+        // Let's rely on this.input.length for now since handleInput appends.
+        // Ah, handleInput logic below supports cursor pos theoretically but I only see appending?
+        // Actually handleInput doesn't support left/right in the original code, it supports down/up for suggestions.
+        // So cursor is always at end.
+        
+        const targetCol = prefixLen + this.input.length;
+        
+        this.print(ANSI.CURSOR_LEFT);
+        if (targetCol > 0) this.print(`\x1b[${targetCol}C`);
     }
 
     protected handleInput(char: string) {

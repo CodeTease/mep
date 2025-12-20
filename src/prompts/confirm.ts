@@ -11,16 +11,13 @@ export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
     }
 
     protected render(firstRender: boolean) {
-        // Hide cursor for confirm, user just hits Y/N or Enter
-        this.print(ANSI.HIDE_CURSOR);
-
-        if (!firstRender) {
-            this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
-        }
+        // Prepare content
         const hint = this.value ? `${ANSI.BOLD}Yes${ANSI.RESET}/no` : `yes/${ANSI.BOLD}No${ANSI.RESET}`;
-        this.print(`${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(${hint})${ANSI.RESET} `);
+        let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(${hint})${ANSI.RESET} `;
         const text = this.value ? 'Yes' : 'No';
-        this.print(`${theme.main}${text}${ANSI.RESET}\x1b[${text.length}D`);
+        output += `${theme.main}${text}${ANSI.RESET}`;
+
+        this.renderFrame(output);
     }
 
     protected handleInput(char: string) {
@@ -31,5 +28,11 @@ export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
         }
         if (c === 'y') { this.value = true; this.render(false); }
         if (c === 'n') { this.value = false; this.render(false); }
+        
+        // Allow left/right to toggle as well for better UX
+         if (this.isLeft(char) || this.isRight(char)) {
+            this.value = !this.value;
+            this.render(false);
+        }
     }
 }

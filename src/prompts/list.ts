@@ -14,37 +14,45 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
     }
 
     protected render(firstRender: boolean) {
-        this.print(ANSI.SHOW_CURSOR);
-
-        if (!firstRender) {
-             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-             if (this.errorMsg) {
-                 this.print(ANSI.UP + ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-             }
-        }
-        
+        // Prepare content
         const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
-        this.print(`${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `);
+        let mainLine = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
 
         // Render Tags
         if (this.value.length > 0) {
             this.value.forEach((tag: string) => {
-                this.print(`${theme.main}[${tag}]${ANSI.RESET} `);
+                mainLine += `${theme.main}[${tag}]${ANSI.RESET} `;
             });
         }
 
         // Render Current Input
-        this.print(`${this.currentInput}`);
+        mainLine += `${this.currentInput}`;
 
+        let output = mainLine;
         if (this.errorMsg) {
-             this.print(`\n${ANSI.ERASE_LINE}${theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
-             this.print(ANSI.UP);
-             // Return cursor
-             const promptLen = this.options.message.length + 3;
-             let tagsLen = 0;
-             this.value.forEach((tag: string) => tagsLen += tag.length + 3); // [tag] + space
-             const inputLen = this.currentInput.length;
-             this.print(`\x1b[1000D\x1b[${promptLen + tagsLen + inputLen}C`);
+             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+        }
+        
+        // Use Double Buffering
+        this.renderFrame(output);
+        
+        this.print(ANSI.SHOW_CURSOR);
+
+        // If we printed an error, the cursor is at the end of the error line.
+        // We need to move it back to the end of the input line.
+        if (this.errorMsg) {
+            // Move up one line (since error is always on the next line in this simple implementation)
+            this.print(ANSI.UP);
+            
+            // Move to the correct column.
+            // We need to calculate visual length of mainLine to place cursor correctly.
+            // stripAnsi is available in base class now.
+            const visualLength = this.stripAnsi(mainLine).length;
+            
+            this.print(ANSI.CURSOR_LEFT); // Go to start
+            if (visualLength > 0) {
+                this.print(`\x1b[${visualLength}C`);
+            }
         }
     }
 

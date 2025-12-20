@@ -5,49 +5,47 @@ import { NumberOptions } from '../types';
 
 // --- Implementation: Number Prompt ---
 export class NumberPrompt extends Prompt<number, NumberOptions> {
+    private stringValue: string = '';
     private cursor: number = 0;
-    private stringValue: string;
     private errorMsg: string = '';
 
     constructor(options: NumberOptions) {
         super(options);
-        this.value = options.initial ?? 0;
-        this.stringValue = this.value.toString();
+        // We work with string for editing, but value property stores the parsed number ultimately
+        // Initialize stringValue from initial
+        this.stringValue = options.initial !== undefined ? options.initial.toString() : '';
         this.cursor = this.stringValue.length;
     }
 
     protected render(firstRender: boolean) {
-        this.print(ANSI.SHOW_CURSOR);
+        // Prepare content
+        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        // Prefix
+        let output = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
+        // Value
+        output += `${theme.main}${this.stringValue}${ANSI.RESET}`;
 
-        if (!firstRender) {
-             this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-             if (this.errorMsg) {
-                 this.print(ANSI.UP + ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-             }
+        if (this.errorMsg) {
+             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
         
-        // 1. Render the Prompt Message
-        this.print(ANSI.ERASE_LINE + ANSI.CURSOR_LEFT);
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
-        this.print(`${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `);
+        this.renderFrame(output);
+        this.print(ANSI.SHOW_CURSOR);
 
-        // 2. Render the Value
-        this.print(`${theme.main}${this.stringValue}${ANSI.RESET}`);
-
-        // 3. Handle Error Message
+        // Restore cursor position
+        // If errorMsg, we are on the line below the input.
         if (this.errorMsg) {
-            this.print(`\n${ANSI.ERASE_LINE}${theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
-            this.print(ANSI.UP); 
-            
-            const promptLen = this.options.message.length + 3;
-            const valLen = this.stringValue.length; 
-            this.print(`\x1b[1000D\x1b[${promptLen + valLen}C`);
+            this.print(ANSI.UP);
         }
 
-        // 4. Position Cursor
-        const diff = this.stringValue.length - this.cursor;
-        if (diff > 0) {
-            this.print(`\x1b[${diff}D`);
+        // Calculate visual offset
+        const prefix = `${icon} ${theme.title}${this.options.message} `;
+        const prefixLen = this.stripAnsi(prefix).length;
+        const targetCol = prefixLen + this.cursor;
+
+        this.print(ANSI.CURSOR_LEFT);
+        if (targetCol > 0) {
+            this.print(`\x1b[${targetCol}C`);
         }
     }
 
@@ -55,7 +53,9 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         // Enter
         if (char === '\r' || char === '\n') {
             const num = parseFloat(this.stringValue);
-            if (isNaN(num)) {
+            if (this.stringValue.trim() === '' || isNaN(num)) {
+                 // Check if empty is allowed? 
+                 // If not required? Assuming required for number prompt usually
                 this.errorMsg = 'Please enter a valid number.';
                 this.render(false);
                 return;
@@ -71,9 +71,6 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
                  return;
             }
 
-            if (this.errorMsg) {
-                this.print(`\n${ANSI.ERASE_LINE}${ANSI.UP}`);
-            }
             this.submit(num);
             return;
         }
@@ -83,6 +80,9 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
             let num = parseFloat(this.stringValue) || 0;
             num += (this.options.step ?? 1);
             if (this.options.max !== undefined && num > this.options.max) num = this.options.max;
+            // Round to avoid float errors
+            num = Math.round(num * 10000) / 10000;
+            
             this.stringValue = num.toString();
             this.cursor = this.stringValue.length;
             this.errorMsg = '';
@@ -95,6 +95,9 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
             let num = parseFloat(this.stringValue) || 0;
             num -= (this.options.step ?? 1);
             if (this.options.min !== undefined && num < this.options.min) num = this.options.min;
+             // Round to avoid float errors
+            num = Math.round(num * 10000) / 10000;
+
             this.stringValue = num.toString();
             this.cursor = this.stringValue.length;
             this.errorMsg = '';
@@ -132,15 +135,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         }
         
         // Numeric Input (and . and -)
-        // Simple paste support for numbers is also good
         if (/^[0-9.\-]+$/.test(char)) {
-             // Basic validation for pasted content
-             if (char.includes('-') && (this.cursor !== 0 || this.stringValue.includes('-') || char.lastIndexOf('-') > 0)) {
-                 // If complex paste fails simple checks, ignore or let user correct
-                 // For now, strict check on single char logic is preserved if we want, 
-                 // but let's allow pasting valid number strings
-             }
-             
              // Allow if it looks like a number part
              this.stringValue = this.stringValue.slice(0, this.cursor) + char + this.stringValue.slice(this.cursor);
              this.cursor += char.length;

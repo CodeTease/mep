@@ -8,6 +8,9 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
     private selectedIndex: number = 0;
     private checkedState: boolean[];
     private errorMsg: string = '';
+    // Pagination state (added for consistency and performance)
+    private scrollTop: number = 0;
+    private readonly pageSize: number = 10; 
 
     constructor(options: CheckboxOptions) {
         super(options);
@@ -15,38 +18,59 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
     }
 
     protected render(firstRender: boolean) {
-        // Ensure cursor is HIDDEN for menus
-        this.print(ANSI.HIDE_CURSOR);
-
-        if (!firstRender) {
-            const extraLines = this.errorMsg ? 1 : 0;
-            this.print(`\x1b[${this.options.choices.length + 1 + extraLines}A`);
+        // Adjust Scroll Top
+        if (this.selectedIndex < this.scrollTop) {
+            this.scrollTop = this.selectedIndex;
+        } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
+            this.scrollTop = this.selectedIndex - this.pageSize + 1;
+        }
+        
+        // Ensure we don't scroll past bounds if list is small
+        if (this.options.choices.length <= this.pageSize) {
+             this.scrollTop = 0;
         }
 
-        this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
+        let output = '';
+        
+        // Header
         const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
-        this.print(`${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Press <space> to select, <enter> to confirm)${ANSI.RESET}\n`);
+        output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Press <space> to select, <enter> to confirm)${ANSI.RESET}`;
 
-        this.options.choices.forEach((choice, index) => {
-            this.print(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
-            const cursor = index === this.selectedIndex ? `${theme.main}❯${ANSI.RESET}` : ' ';
-            const isChecked = this.checkedState[index];
+        // List
+        const choices = this.options.choices;
+        const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+        
+        visibleChoices.forEach((choice, index) => {
+            const actualIndex = this.scrollTop + index;
+            output += '\n'; // New line for each item
+            
+            const cursor = actualIndex === this.selectedIndex ? `${theme.main}❯${ANSI.RESET}` : ' ';
+            const isChecked = this.checkedState[actualIndex];
             const checkbox = isChecked 
                 ? `${theme.success}◉${ANSI.RESET}` 
                 : `${theme.muted}◯${ANSI.RESET}`;
             
-            const title = index === this.selectedIndex 
+            const title = actualIndex === this.selectedIndex 
                 ? `${theme.main}${choice.title}${ANSI.RESET}` 
                 : choice.title;
 
-            this.print(`${cursor} ${checkbox} ${title}\n`);
+            output += `${cursor} ${checkbox} ${title}`;
         });
+        
+        // Indication of more items
+        if (choices.length > this.pageSize) {
+             const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
+             // Maybe add this to the header or footer?
+             // Let's add it to footer or header. Adding to header is cleaner.
+             // But I already wrote header.
+             // Let's just append it at the bottom if I want, or ignore for now to keep UI minimal.
+        }
 
         if (this.errorMsg) {
-            this.print(`${ANSI.ERASE_LINE}${theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
-        } else if (!firstRender) {
-             this.print(`${ANSI.ERASE_LINE}`); 
+            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
+        
+        this.renderFrame(output);
     }
 
     protected handleInput(char: string) {
@@ -66,7 +90,10 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
             }
 
             this.cleanup();
-            this.print(ANSI.SHOW_CURSOR + '\n');
+            // renderFrame cleans up lines, but doesn't print the final state "persisted" if we want to show the result?
+            // Usually we clear the prompt or show a summary.
+            // MepCLI seems to submit and let the caller decide or just print newline.
+            // Base `submit` prints newline.
             
             const results = this.options.choices
                 .filter((_, i) => this.checkedState[i])

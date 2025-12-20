@@ -49,14 +49,7 @@ export class SelectPrompt extends Prompt<any, SelectOptions> {
         });
     }
     
-    // Custom render to handle variable height clearing
-    private lastRenderHeight: number = 0;
-    
-    protected renderWrapper(firstRender: boolean) {
-        if (!firstRender && this.lastRenderHeight > 0) {
-            this.print(`\x1b[${this.lastRenderHeight}A`);
-        }
-        
+    protected render(firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
         
@@ -73,47 +66,35 @@ export class SelectPrompt extends Prompt<any, SelectOptions> {
 
         // Header
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
-        output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
+        // Note: We avoid ERASE_LINE here because renderFrame handles full redraw
+        output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
         
         if (choices.length === 0) {
-            output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}  ${theme.muted}No results found${ANSI.RESET}\n`;
+            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
+            // We can omit newline at the very end if we want, but usually it's better to be consistent.
+            // renderFrame adds newline via truncate logic? No, it joins.
+            // So if I want a line break, I must add it.
         } else {
              const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
              
              visibleChoices.forEach((choice, index) => {
                 const actualIndex = this.scrollTop + index;
-                output += `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`;
+                if (index > 0) output += '\n'; // Separator between items
+
                 if (this.isSeparator(choice)) {
-                    output += `  ${ANSI.DIM}${(choice as any).text || '────────'}${ANSI.RESET}\n`;
+                    output += `  ${ANSI.DIM}${(choice as any).text || '────────'}${ANSI.RESET}`;
                 } else {
                     if (actualIndex === this.selectedIndex) {
-                        output += `${theme.main}❯ ${(choice as any).title}${ANSI.RESET}\n`;
+                        output += `${theme.main}❯ ${(choice as any).title}${ANSI.RESET}`;
                     } else {
-                        output += `  ${(choice as any).title}\n`;
+                        output += `  ${(choice as any).title}`;
                     }
                 }
             });
         }
         
-        this.print(output);
-
-        // Clear remaining lines if list shrunk
-        const visibleCount = Math.min(choices.length, this.pageSize);
-        const currentHeight = visibleCount + 1 + (choices.length === 0 ? 1 : 0);
-        const linesToClear = this.lastRenderHeight - currentHeight;
-        if (linesToClear > 0) {
-            for (let i = 0; i < linesToClear; i++) {
-                this.print(`${ANSI.ERASE_LINE}\n`);
-            }
-            this.print(`\x1b[${linesToClear}A`); // Move back up
-        }
-
-        this.lastRenderHeight = currentHeight;
-    }
-    
-    protected render(firstRender: boolean) {
-        this.print(ANSI.HIDE_CURSOR);
-        this.renderWrapper(firstRender);
+        // No manual printing. Pass to renderFrame.
+        this.renderFrame(output);
     }
 
     protected handleInput(char: string) {
@@ -130,7 +111,7 @@ export class SelectPrompt extends Prompt<any, SelectOptions> {
             if (this.isSeparator(choices[this.selectedIndex])) return;
             
             this.cleanup();
-            this.print(ANSI.SHOW_CURSOR);
+            // Cursor is shown by cleanup
             if ((this as any)._resolve) (this as any)._resolve((choices[this.selectedIndex] as any).value);
             return;
         }
