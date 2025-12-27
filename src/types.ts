@@ -27,23 +27,23 @@ export interface Separator {
     text?: string;
 }
 
-export interface SelectChoice {
+export interface SelectChoice<V> {
     title: string;
-    value: any;
+    value: V;
     description?: string; // Optional hint
 }
 
-export interface SelectOptions extends BaseOptions {
-    choices: (SelectChoice | Separator)[];
+export interface SelectOptions<V> extends BaseOptions {
+    choices: (SelectChoice<V> | Separator)[];
 }
 
 // --- Checkbox Types ---
-export interface CheckboxChoice extends SelectChoice {
+export interface CheckboxChoice<V> extends SelectChoice<V> {
     selected?: boolean; // Default checked state
 }
 
-export interface CheckboxOptions extends BaseOptions {
-    choices: CheckboxChoice[];
+export interface CheckboxOptions<V> extends BaseOptions {
+    choices: CheckboxChoice<V>[];
     min?: number; // Minimum selections required (optional)
     max?: number; // Maximum selections allowed (optional)
 }
@@ -94,6 +94,6 @@ export interface FileOptions extends BaseOptions {
     onlyDirectories?: boolean;
 }
 
-export interface MultiSelectOptions extends CheckboxOptions {
+export interface MultiSelectOptions<V> extends CheckboxOptions<V> {
     // Inherits choices, min, max
 }

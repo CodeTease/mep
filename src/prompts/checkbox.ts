@@ -4,7 +4,7 @@ import { theme } from '../theme';
 import { CheckboxOptions } from '../types';
 
 // --- Implementation: Checkbox Prompt ---
-export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
+export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
     private selectedIndex: number = 0;
     private checkedState: boolean[];
     private errorMsg: string = '';
@@ -12,7 +12,7 @@ export class CheckboxPrompt extends Prompt<any[], CheckboxOptions> {
     private scrollTop: number = 0;
     private readonly pageSize: number = 10; 
 
-    constructor(options: CheckboxOptions) {
+    constructor(options: CheckboxOptions<V>) {
         super(options);
         this.checkedState = options.choices.map(c => !!c.selected);
     }
