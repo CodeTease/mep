@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { NumberOptions } from '../types';
 
 // --- Implementation: Number Prompt ---
@@ -19,7 +20,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
 
     protected render(firstRender: boolean) {
         // Prepare content
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         // Prefix
         let output = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
         // Value

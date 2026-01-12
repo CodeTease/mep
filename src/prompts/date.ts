@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { DateOptions } from '../types';
 
 // --- Implementation: Date Prompt ---
@@ -28,7 +29,7 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
             return val;
         });
         
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const dateStr = `${display[0]}-${display[1]}-${display[2]} ${display[3]}:${display[4]}`;
         
         let output = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${dateStr} ${theme.muted}(Use arrows or type)${ANSI.RESET}`;

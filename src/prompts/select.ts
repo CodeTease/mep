@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { SelectOptions } from '../types';
 
 // --- Implementation: Select Prompt ---
@@ -82,10 +83,10 @@ export class SelectPrompt<V> extends Prompt<any, SelectOptions<V>> {
                 if (index > 0) output += '\n'; // Separator between items
 
                 if (this.isSeparator(choice)) {
-                    output += `  ${ANSI.DIM}${(choice as any).text || '────────'}${ANSI.RESET}`;
+                    output += `  ${ANSI.DIM}${(choice as any).text || symbols.line.repeat(8)}${ANSI.RESET}`;
                 } else {
                     if (actualIndex === this.selectedIndex) {
-                        output += `${theme.main}❯ ${(choice as any).title}${ANSI.RESET}`;
+                        output += `${theme.main}${symbols.pointer} ${(choice as any).title}${ANSI.RESET}`;
                     } else {
                         output += `  ${(choice as any).title}`;
                     }

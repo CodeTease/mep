@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { FileOptions } from '../types';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -60,7 +61,7 @@ export class FilePrompt extends Prompt<string, FileOptions> {
 
     protected render(firstRender: boolean) {
         // Construct string
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         let output = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${this.input}`;
 
         // Suggestions
@@ -72,7 +73,7 @@ export class FilePrompt extends Prompt<string, FileOptions> {
             displayed.forEach((s, i) => {
                 if (i > 0) output += '\n';
                 if (i === this.selectedSuggestion) {
-                     output += `${theme.main}❯ ${s}${ANSI.RESET}`;
+                     output += `${theme.main}${symbols.pointer} ${s}${ANSI.RESET}`;
                 } else {
                      output += `  ${s}`;
                 }

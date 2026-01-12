@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { SliderOptions } from '../types';
 
 // --- Implementation: Slider Prompt ---
@@ -19,7 +20,7 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
         let bar = '';
         for (let i = 0; i <= width; i++) {
             if (i === pos) bar += `${theme.main}O${ANSI.RESET}`;
-            else bar += '─';
+            else bar += symbols.line;
         }
 
         const unit = this.options.unit || '';

@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { TextOptions } from '../types';
 import { safeSplit, stringWidth } from '../utils';
 
@@ -25,7 +26,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
         const cols = process.stdout.columns || 80;
         
         // 1. Prepare Prompt Label
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const hint = this.options.multiline ? ` ${theme.muted}(Press Ctrl+D to submit)${ANSI.RESET}` : '';
         const prefix = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${hint} `;
         

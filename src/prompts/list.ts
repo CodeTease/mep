@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { ListOptions } from '../types';
 
 // --- Implementation: List Prompt ---
@@ -15,7 +16,7 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
 
     protected render(firstRender: boolean) {
         // Prepare content
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         let mainLine = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
 
         // Render Tags

@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { CheckboxOptions } from '../types';
 
 // --- Implementation: Checkbox Prompt ---
@@ -33,7 +34,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         let output = '';
         
         // Header
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Press <space> to select, <enter> to confirm)${ANSI.RESET}`;
 
         // List
@@ -44,11 +45,11 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
             const actualIndex = this.scrollTop + index;
             output += '\n'; // New line for each item
             
-            const cursor = actualIndex === this.selectedIndex ? `${theme.main}❯${ANSI.RESET}` : ' ';
+            const cursor = actualIndex === this.selectedIndex ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : ' ';
             const isChecked = this.checkedState[actualIndex];
             const checkbox = isChecked 
-                ? `${theme.success}◉${ANSI.RESET}` 
-                : `${theme.muted}◯${ANSI.RESET}`;
+                ? `${theme.success}${symbols.checked}${ANSI.RESET}` 
+                : `${theme.muted}${symbols.unchecked}${ANSI.RESET}`;
             
             const title = actualIndex === this.selectedIndex 
                 ? `${theme.main}${choice.title}${ANSI.RESET}` 

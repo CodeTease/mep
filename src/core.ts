@@ -1,6 +1,7 @@
 import { ANSI } from './ansi';
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions } from './types';
 import { theme } from './theme';
+import { symbols } from './symbols';
 import { TextPrompt } from './prompts/text';
 import { SelectPrompt } from './prompts/select';
 import { CheckboxPrompt } from './prompts/checkbox';
@@ -23,7 +24,7 @@ export class MepCLI {
      * Shows a spinner while a promise is pending.
      */
     static async spin<T>(message: string, taskPromise: Promise<T>): Promise<T> {
-        const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+        const frames = symbols.spinner;
         let i = 0;
         
         process.stdout.write(ANSI.HIDE_CURSOR);
@@ -36,12 +37,12 @@ export class MepCLI {
         try {
             const result = await taskPromise;
             clearInterval(interval);
-            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.success}✔${ANSI.RESET} ${message}\n`);
+            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.success}${symbols.tick}${ANSI.RESET} ${message}\n`);
             process.stdout.write(ANSI.SHOW_CURSOR);
             return result;
         } catch (error) {
             clearInterval(interval);
-            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.error}✖${ANSI.RESET} ${message}\n`);
+            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.error}${symbols.cross}${ANSI.RESET} ${message}\n`);
             process.stdout.write(ANSI.SHOW_CURSOR);
             throw error;
         }

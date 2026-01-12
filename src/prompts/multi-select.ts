@@ -1,6 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
+import { symbols } from '../symbols';
 import { MultiSelectOptions } from '../types';
 
 // --- Implementation: MultiSelect Prompt ---
@@ -39,7 +40,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             this.scrollTop = Math.max(0, choices.length - this.pageSize);
         }
 
-        const icon = this.errorMsg ? `${theme.error}✖` : `${theme.success}?`;
+        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
         
@@ -51,11 +52,11 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
                  if (index > 0) output += '\n';
                  
                  const actualIndex = this.scrollTop + index;
-                 const cursor = actualIndex === this.selectedIndex ? `${theme.main}❯${ANSI.RESET}` : ' ';
+                 const cursor = actualIndex === this.selectedIndex ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : ' ';
                  const isChecked = this.checkedState[choice.originalIndex];
                  const checkbox = isChecked 
-                    ? `${theme.success}◉${ANSI.RESET}` 
-                    : `${theme.muted}◯${ANSI.RESET}`;
+                    ? `${theme.success}${symbols.checked}${ANSI.RESET}` 
+                    : `${theme.muted}${symbols.unchecked}${ANSI.RESET}`;
                  
                  output += `${cursor} ${checkbox} ${choice.title}`;
              });

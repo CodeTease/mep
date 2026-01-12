@@ -1,6 +1,6 @@
 {
   "name": "mepcli",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "Zero-dependency, minimalist interactive CLI prompt for Node.js",
   "repository": {
     "type": "git",
@@ -30,8 +30,8 @@
   "author": "CodeTease",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.19.27",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "@types/node": "^22",
+    "ts-node": "^10",
+    "typescript": "^5"
   }
 }

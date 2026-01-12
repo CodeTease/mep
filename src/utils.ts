@@ -12,18 +12,46 @@ export function detectCapabilities() {
     // Check for True Color support
     const hasTrueColor = env.COLORTERM === 'truecolor';
     
-    // Check for Unicode support
-    // Windows Terminal (WT_SESSION), VS Code (TERM_PROGRAM=vscode), or modern Linux terminals usually support it.
+    // Check if it is a TTY
+    const isTTY = process.stdout.isTTY;
     const isWindows = process.platform === 'win32';
-    const hasUnicode = !!env.WT_SESSION || 
-                       env.TERM_PROGRAM === 'vscode' || 
-                       env.TERM_PROGRAM === 'Apple_Terminal' ||
-                       (!isWindows && env.LANG && env.LANG.toUpperCase().endsWith('UTF-8'));
+
+    // Logic detect Unicode xịn hơn
+    const isUnicodeSupported = () => {
+        // 1. Windows: Check specific environmental variables
+        if (isWindows) {
+            // Windows Terminal
+            if (env.WT_SESSION) return true;
+            // VSCode terminal
+            if (env.TERM_PROGRAM === 'vscode') return true;
+            // Modern terminals setting TERM (e.g. Alacritty, Git Bash, Cygwin)
+            if (env.TERM === 'xterm-256color' || env.TERM === 'alacritty') return true;
+            // ConEmu / Cmder
+            if (env.ConEmuTask) return true;
+            
+            // CI on Windows typically supports Unicode.
+            if (isCI) return true;
+
+            // Default cmd.exe / old powershell => False (ASCII)
+            return false;
+        }
+
+        // 2. Non-Windows (Linux/macOS)
+        if (env.TERM_PROGRAM === 'Apple_Terminal') return true;
+
+        // Check if the LANG or LC_ALL variable contains UTF-8.
+        const lang = env.LANG || '';
+        const lcAll = env.LC_ALL || '';
+        
+        return (lang && lang.toUpperCase().endsWith('UTF-8')) ||
+               (lcAll && lcAll.toUpperCase().endsWith('UTF-8'));
+    };
 
     return {
         isCI,
         hasTrueColor,
-        hasUnicode: hasUnicode || !isWindows // Assume non-windows has unicode by default if not strictly detected?
+        // Enable Unicode only if it's TTY and environment supports it.
+        hasUnicode: isTTY && isUnicodeSupported() 
     };
 }
 
