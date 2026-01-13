@@ -15,14 +15,6 @@ export class InputParser extends EventEmitter {
      * Feed data into the parser.
      */
     public feed(data: Buffer) {
-        // Convert buffer to string.
-        // For partial multi-byte sequences at the chunk boundary,
-        // buffer.toString() might produce replacement chars.
-        // Ideally we should use StringDecoder, but since we are handling KeyPresses,
-        // and usually a keypress is complete, simple toString often works.
-        // However, the user mentioned fragmentation issues.
-        // But InputParser usually receives data from stdin.
-        // The core issue of fragmentation is splitting escape codes like \x1b [ A
         
         const input = data.toString('utf-8');
 
@@ -68,9 +60,9 @@ export class InputParser extends EventEmitter {
         } else if (this.state === 'CSI') {
             this.buffer += char;
 
-            // Check if this is the start of an SGR mouse sequence
-            if (this.buffer === '<') {
+	    if (char === '<') {
                 this.state = 'MOUSE_SGR';
+                this.buffer = '<'; 
                 return;
             }
 
