@@ -13,7 +13,7 @@
 
 ## Installation
 
-```bash
+```shell
 npm install mepcli
 # or
 yarn add mepcli
@@ -106,7 +106,8 @@ MepCLI automatically detects modern terminals and enables **Mouse Tracking** (us
 
 *   **Scrolling:**
     *   `select`, `multiSelect`, `checkbox`: Scroll to navigate the list.
-    *   `number`, `slider`, `rating`: Scroll to increment/decrement values.
+    *   `number`, `slider`, `rating`, `date`: Scroll to increment/decrement values or fields.
+    *   `toggle`, `confirm`: Scroll to toggle the state.
 *   **Configuration:**
     *   Mouse support is enabled by default if the terminal supports it.
     *   You can explicitly disable it per prompt by setting `mouse: false` in the options.
