@@ -42,7 +42,20 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
     }
 
     protected handleInput(char: string) {
-        if (char === '\r' || char === '\n') {
+	if (char === '\r' || char === '\n') {
+            // Min constraint check
+            if (this.options.min && this.value < this.options.min) {
+                this.errorMsg = 'Date cannot be before minimum allowed.';
+                this.render(false);
+                return;
+            }
+            // Max constraint check
+            if (this.options.max && this.value > this.options.max) {
+                this.errorMsg = 'Date cannot be after maximum allowed.';
+                this.render(false);
+                return;
+            }
+
             this.submit(this.value);
             return;
         }
@@ -97,7 +110,16 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
             else if (this.selectedField === 4) d.setMinutes(Math.max(0, Math.min(59, finalVal)));
             
             this.value = d;
-            this.errorMsg = '';
+
+	    // Check immediately after updating the value to display an error message (but still allow further input)
+	    if (this.options.min && this.value < this.options.min) {
+                 this.errorMsg = 'Warning: Date is before minimum.';
+            } else if (this.options.max && this.value > this.options.max) {
+                 this.errorMsg = 'Warning: Date is after maximum.';
+            } else {
+                 this.errorMsg = '';
+            }
+
             this.render(false);
             return;
         }
@@ -134,20 +156,16 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
             case 4: d.setMinutes(d.getMinutes() + dir); break;
         }
 
-        let valid = true;
-        if (this.options.min && d < this.options.min) {
-             this.errorMsg = 'Date cannot be before minimum allowed.';
-             valid = false;
-        }
-        if (this.options.max && d > this.options.max) {
-             this.errorMsg = 'Date cannot be after maximum allowed.';
-             valid = false;
+	this.value = d;
+
+	if (this.options.min && this.value < this.options.min) {
+              this.errorMsg = 'Date cannot be before minimum allowed.';
+  	} else if (this.options.max && this.value > this.options.max) {
+     	      this.errorMsg = 'Date cannot be after maximum allowed.';
+  	} else {
+              this.errorMsg = '';
         }
 
-        if (valid) {
-            this.value = d;
-            this.errorMsg = '';
-        }
-        this.render(false);
+   	this.render(false);
     }
 }
