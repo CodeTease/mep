@@ -15,6 +15,10 @@ export interface SymbolDefinition {
     unchecked: string;
     /** Animation frames for the spinner */
     spinner: string[];
+    /** Star symbol for rating */
+    star: string;
+    /** Empty star symbol for rating */
+    starEmpty: string;
 }
 
 const UnicodeSymbols: SymbolDefinition = {
@@ -24,7 +28,9 @@ const UnicodeSymbols: SymbolDefinition = {
     line: '─',
     checked: '◉',
     unchecked: '◯',
-    spinner: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+    spinner: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
+    star: '★',
+    starEmpty: '☆'
 };
 
 const AsciiSymbols: SymbolDefinition = {
@@ -34,7 +40,9 @@ const AsciiSymbols: SymbolDefinition = {
     line: '-',
     checked: '[x]',
     unchecked: '[ ]',
-    spinner: ['|', '/', '-', '\\']
+    spinner: ['|', '/', '-', '\\'],
+    star: '*',
+    starEmpty: ' '
 };
 
 const capabilities = detectCapabilities();

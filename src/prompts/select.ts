@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SelectOptions } from '../types';
+import { SelectOptions, MouseEvent } from '../types';
 
 // --- Implementation: Select Prompt ---
 export class SelectPrompt<V> extends Prompt<any, SelectOptions<V>> {
@@ -149,6 +149,21 @@ export class SelectPrompt<V> extends Prompt<any, SelectOptions<V>> {
             this.selectedIndex = 0; // Reset selection
              this.selectedIndex = this.findNextSelectableIndex(-1, 1);
             this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        const choices = this.getFilteredChoices();
+        if (choices.length === 0) return;
+
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, -1);
+                this.render(false);
+            } else if (event.scroll === 'down') {
+                this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, 1);
+                this.render(false);
+            }
         }
     }
 }

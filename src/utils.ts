@@ -51,7 +51,10 @@ export function detectCapabilities() {
         isCI,
         hasTrueColor,
         // Enable Unicode only if it's TTY and environment supports it.
-        hasUnicode: isTTY && isUnicodeSupported() 
+        hasUnicode: isTTY && isUnicodeSupported(),
+        // Check if mouse should be enabled (TTY and not CI, or explicit override)
+        // SGR is widely supported in modern terminals
+        hasMouse: isTTY && !isCI
     };
 }
 

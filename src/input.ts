@@ -5,7 +5,7 @@ import { EventEmitter } from 'events';
 export class InputParser extends EventEmitter {
     private buffer: string = '';
     private timeout: NodeJS.Timeout | null = null;
-    private state: 'NORMAL' | 'ESC' | 'CSI' = 'NORMAL';
+    private state: 'NORMAL' | 'ESC' | 'CSI' | 'MOUSE_SGR' = 'NORMAL';
 
     constructor() {
         super();
@@ -67,6 +67,13 @@ export class InputParser extends EventEmitter {
             }
         } else if (this.state === 'CSI') {
             this.buffer += char;
+
+            // Check if this is the start of an SGR mouse sequence
+            if (this.buffer === '<') {
+                this.state = 'MOUSE_SGR';
+                return;
+            }
+
             // CSI sequences end with 0x40-0x7E
             if (char >= '@' && char <= '~') {
                 this.emitKey(this.buffer);
@@ -74,6 +81,67 @@ export class InputParser extends EventEmitter {
                 this.state = 'NORMAL';
             }
             // Otherwise, we keep buffering (params like 1;2)
+        } else if (this.state === 'MOUSE_SGR') {
+            this.buffer += char;
+            // SGR sequences end with 'm' (release) or 'M' (press)
+            if (char === 'm' || char === 'M') {
+                this.parseSGRMouse(this.buffer);
+                this.buffer = '';
+                this.state = 'NORMAL';
+            }
+        }
+    }
+
+    private parseSGRMouse(buffer: string) {
+        // console.log('Parsing SGR:', buffer);
+        // format: <b;x;yM or <b;x;ym
+        // buffer includes the leading < and trailing M/m
+        const content = buffer.slice(1, -1);
+        const type = buffer.slice(-1); // m or M
+        const parts = content.split(';').map(Number);
+        
+        if (parts.length >= 3) {
+            const [b, x, y] = parts;
+            let action: 'press' | 'release' | 'move' | 'scroll' = 'press';
+
+            // Interpret button codes
+            // 0: Left, 1: Middle, 2: Right
+            // +32: Motion
+            // 64: Scroll Up
+            // 65: Scroll Down
+            
+            if (b === 64) {
+                action = 'scroll';
+                this.emit('mouse', { name: 'mouse', x, y, button: 0, action, scroll: 'up' });
+                // Also emit keypress for scroll if needed? No, prompt should listen to mouse.
+                // But for "Easy Features", we emit standard names
+                this.emit('scrollup'); 
+                return;
+            }
+            if (b === 65) {
+                action = 'scroll';
+                this.emit('mouse', { name: 'mouse', x, y, button: 0, action, scroll: 'down' });
+                this.emit('scrolldown');
+                return;
+            }
+
+            if (type === 'm') {
+                action = 'release';
+            } else {
+                action = 'press';
+                // Check if motion
+                if (b & 32) {
+                    action = 'move';
+                }
+            }
+            
+            this.emit('mouse', {
+                name: 'mouse',
+                x,
+                y,
+                button: b & 3, // Strip modifiers to get raw button 0-2
+                action
+            });
         }
     }
 

@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { MultiSelectOptions } from '../types';
+import { MultiSelectOptions, MouseEvent } from '../types';
 
 // --- Implementation: MultiSelect Prompt ---
 export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
@@ -131,6 +131,21 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             this.searchBuffer += char;
             this.selectedIndex = 0;
             this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        const choices = this.getFilteredChoices();
+        if (choices.length === 0) return;
+
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.selectedIndex = (this.selectedIndex - 1 + choices.length) % choices.length;
+                this.render(false);
+            } else if (event.scroll === 'down') {
+                this.selectedIndex = (this.selectedIndex + 1) % choices.length;
+                this.render(false);
+            }
         }
     }
 }

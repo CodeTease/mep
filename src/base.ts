@@ -1,5 +1,6 @@
 import { ANSI } from './ansi';
 import { InputParser } from './input';
+import { BaseOptions, MouseEvent } from './types';
 import { detectCapabilities, stringWidth, stripAnsi } from './utils';
 
 /**
@@ -46,6 +47,12 @@ export abstract class Prompt<T, O> {
      */
     protected abstract handleInput(char: string, key: Buffer): void;
 
+    /**
+     * Optional method to handle mouse events.
+     * Subclasses can override this to implement mouse interaction.
+     */
+    protected handleMouse(event: MouseEvent): void {}
+
     protected print(text: string) {
         this.stdout.write(text);
     }
@@ -64,6 +71,13 @@ export abstract class Prompt<T, O> {
             }
             this.stdin.resume();
             this.stdin.setEncoding('utf8');
+
+            // Enable Mouse Tracking if supported and requested
+            // Default to true if capabilities support it, unless explicitly disabled in options
+            const shouldEnableMouse = (this.options as BaseOptions).mouse !== false && this.capabilities.hasMouse;
+            if (shouldEnableMouse) {
+                this.print(ANSI.SET_ANY_EVENT_MOUSE + ANSI.SET_SGR_EXT_MODE_MOUSE);
+            }
 
             // Initial render: Default to hidden cursor (good for menus)
             // Subclasses like TextPrompt will explicitly show it if needed.
@@ -87,6 +101,11 @@ export abstract class Prompt<T, O> {
             };
 
             this._inputParser.on('keypress', this._onKeyHandler);
+            
+            // Listen to mouse events
+            this._inputParser.on('mouse', (event: MouseEvent) => {
+                this.handleMouse(event);
+            });
 
             this._onDataHandler = (buffer: Buffer) => {
                 this._inputParser.feed(buffer);
@@ -106,6 +125,11 @@ export abstract class Prompt<T, O> {
         if (this._onKeyHandler) {
             this._inputParser.removeListener('keypress', this._onKeyHandler);
         }
+        // Cleanup mouse listener - though InputParser is instance specific, so it's fine.
+        
+        // Disable Mouse Tracking
+        this.print(ANSI.DISABLE_MOUSE);
+
         if (typeof this.stdin.setRawMode === 'function') {
             this.stdin.setRawMode(false);
         }

@@ -89,44 +89,9 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                     cursorLineIndex++;
                     visualColIndex = 0;
                 } else {
-                    // Calculate width of this segment? 
-                    // No, for simple text editor logic we often assume 1 char = 1 pos unless we do full layout.
-                    // But here we want correct cursor placement over wide chars.
-                    // So we should sum width.
-                    // However, standard terminals handle wide chars by advancing cursor 2 spots.
-                    // So we just need to sum the string length of the segment? 
-                    // Or 2 if it's wide?
-                    
-                    // Standard terminal behavior:
-                    // If I write an Emoji (2 cols), the cursor advances 2 cols.
-                    // So visualColIndex should track stringWidth(seg).
-                    
-                    // But if isPassword, it's '*'. Width 1.
                     if (this.options.isPassword) {
                         visualColIndex += 1;
                     } else {
-                        // Use our helper? Or just length?
-                        // If we used stringWidth, it would be accurate.
-                        // But we don't have access to stringWidth here easily unless we import it again (we did in base).
-                        // Let's assume segment.length for now (byte length), 
-                        // because `\x1b[<N>C` moves N COLUMNS? No, N characters? 
-                        // ANSI `CUB` / `CUF` moves N *columns* usually? 
-                        // "The Cursor Forward (CUF) sequence moves the cursor forward by n columns."
-                        // So if we have an emoji (2 cols), we need to move past it.
-                        // If we print an emoji, cursor is at +2.
-                        
-                        // Wait, if we use `renderFrame`, we rewrite everything.
-                        // Then we calculate where to put the cursor.
-                        
-                        // If line is "A <Emoji> B".
-                        // Output: "A <Emoji> B".
-                        // If cursor is after Emoji.
-                        // We need to be at position: width("A") + width("<Emoji>").
-                        // = 1 + 2 = 3.
-                        // So `visualColIndex` should use `stringWidth(seg)`.
-                        // But I didn't export `stringWidth` from `utils.ts` in the last step?
-                        // Checking `src/utils.ts`... I did export it.
-                        // But I need to import it here.
                          visualColIndex += this.options.isPassword ? 1 : this.getSegmentWidth(seg);
                     }
                 }

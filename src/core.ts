@@ -1,5 +1,5 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { TextPrompt } from './prompts/text';
@@ -13,6 +13,7 @@ import { SliderPrompt } from './prompts/slider';
 import { DatePrompt } from './prompts/date';
 import { FilePrompt } from './prompts/file';
 import { MultiSelectPrompt } from './prompts/multi-select';
+import { RatingPrompt } from './prompts/rating';
 
 /**
  * Public Facade for MepCLI
@@ -94,5 +95,9 @@ export class MepCLI {
 
     static multiSelect<const V>(options: MultiSelectOptions<V>): Promise<V[]> {
         return new MultiSelectPrompt(options).run();
+    }
+
+    static rating(options: RatingOptions): Promise<number> {
+        return new RatingPrompt(options).run();
     }
 }

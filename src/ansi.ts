@@ -26,4 +26,9 @@ export const ANSI = {
     SHOW_CURSOR: '\x1b[?25h',
     UP: '\x1b[A',
     DOWN: '\x1b[B',
+
+    // Mouse Tracking (SGR Protocol)
+    SET_ANY_EVENT_MOUSE: '\x1b[?1003h',
+    SET_SGR_EXT_MODE_MOUSE: '\x1b[?1006h',
+    DISABLE_MOUSE: '\x1b[?1003l\x1b[?1006l',
 };

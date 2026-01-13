@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { NumberOptions } from '../types';
+import { NumberOptions, MouseEvent } from '../types';
 
 // --- Implementation: Number Prompt ---
 export class NumberPrompt extends Prompt<number, NumberOptions> {
@@ -142,6 +142,29 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
              this.cursor += char.length;
              this.errorMsg = '';
              this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            let num = parseFloat(this.stringValue) || 0;
+            const step = this.options.step ?? 1;
+
+            if (event.scroll === 'up') {
+                num += step;
+                if (this.options.max !== undefined && num > this.options.max) num = this.options.max;
+            } else if (event.scroll === 'down') {
+                num -= step;
+                if (this.options.min !== undefined && num < this.options.min) num = this.options.min;
+            }
+            
+            // Round to avoid float errors
+            num = Math.round(num * 10000) / 10000;
+            
+            this.stringValue = num.toString();
+            this.cursor = this.stringValue.length;
+            this.errorMsg = '';
+            this.render(false);
         }
     }
 }

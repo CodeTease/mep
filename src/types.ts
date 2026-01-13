@@ -12,6 +12,16 @@ export interface ThemeConfig {
 
 export interface BaseOptions {
     message: string;
+    mouse?: boolean;
+}
+
+export interface MouseEvent {
+    name: 'mouse';
+    x: number;
+    y: number;
+    button: number;
+    action: 'press' | 'release' | 'move' | 'scroll';
+    scroll?: 'up' | 'down';
 }
 
 export interface TextOptions extends BaseOptions {
@@ -80,6 +90,12 @@ export interface SliderOptions extends BaseOptions {
     initial?: number;
     step?: number;
     unit?: string;
+}
+
+export interface RatingOptions extends BaseOptions {
+    min?: number;
+    max?: number;
+    initial?: number;
 }
 
 export interface DateOptions extends BaseOptions {

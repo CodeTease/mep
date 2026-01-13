@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { CheckboxOptions } from '../types';
+import { CheckboxOptions, MouseEvent } from '../types';
 
 // --- Implementation: Checkbox Prompt ---
 export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
@@ -127,6 +127,20 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
             this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
             this.errorMsg = '';
             this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.choices.length - 1;
+                this.errorMsg = '';
+                this.render(false);
+            } else if (event.scroll === 'down') {
+                this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
+                this.errorMsg = '';
+                this.render(false);
+            }
         }
     }
 }

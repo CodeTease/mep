@@ -96,7 +96,16 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n✅ Slider Result: Brightness: ${brightness}%`);
 
-        // --- 9. Date / Time Picker (New) ---
+        // --- 9. Rating Prompt (New) ---
+        const userRating = await MepCLI.rating({
+            message: "How would you rate this CLI tool?",
+            min: 1,
+            max: 5,
+            initial: 5
+        });
+        console.log(`\n✅ Rating Result: You rated it: ${userRating}/5`);
+
+        // --- 10. Date / Time Picker (New) ---
         // We capture 'now' once to ensure initial >= min
         const now = new Date();
         const releaseDate = await MepCLI.date({
@@ -106,14 +115,14 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n✅ Date Result: Release set for: ${releaseDate.toLocaleString()}`);
 
-        // --- 10. File Path Selector (New) ---
+        // --- 11. File Path Selector (New) ---
         const configPath = await MepCLI.file({
             message: "Select configuration file (Tab to autocomplete):",
             basePath: process.cwd()
         });
         console.log(`\n✅ File Result: Path: ${configPath}`);
 
-        // --- 11. Multi-Select Autocomplete (New) ---
+        // --- 12. Multi-Select Autocomplete (New) ---
         const linters = await MepCLI.multiSelect({
             message: "Select linters to install (Type to search, Space to select):",
             choices: [
@@ -128,14 +137,14 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n✅ MultiSelect Result: Linters: [${linters.join(', ')}]`);
 
-        // --- 12. Confirm Prompt (Simple Yes/No) ---
+        // --- 13. Confirm Prompt (Simple Yes/No) ---
         const proceed = await MepCLI.confirm({
             message: "Ready to deploy the project now?",
             initial: true
         });
         console.log(`\n✅ Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
-        // --- 13. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 14. Spin Utility (Loading/Async Task Indicator) ---
         await MepCLI.spin(
             "Finalizing configuration and deploying...",
             new Promise(resolve => setTimeout(resolve, 1500)) // Simulates a 1.5 second async task
