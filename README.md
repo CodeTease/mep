@@ -5,7 +5,8 @@
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `date`, `file`, and `multiSelect`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `date`, `file`, `multiSelect`, and `rating`.
+- **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values; click to select.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
 - **Elegant Look:** Uses ANSI colors for a clean, modern CLI experience.
@@ -66,7 +67,15 @@ async function main() {
         ]
     });
 
-    console.log({ name, age, newsletter, lang, tools });
+    // Rating (Star rating)
+    const stars = await MepCLI.rating({
+        message: "Rate your experience:",
+        min: 1,
+        max: 5,
+        initial: 5
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars });
 }
 
 main();
@@ -86,9 +95,21 @@ main();
 *   `checkbox(options)` - Classic checkbox selection.
 *   `list(options)` - Enter a list of tags/strings.
 *   `slider(options)` - Select a number within a range using a visual slider.
+*   `rating(options)` - Star rating input.
 *   `date(options)` - Date and time picker.
 *   `file(options)` - File system navigator and selector.
 *   `spin(message, promise)` - Display a spinner while waiting for a promise.
+
+## Mouse Support
+
+MepCLI automatically detects modern terminals and enables **Mouse Tracking** (using SGR 1006 protocol).
+
+*   **Scrolling:**
+    *   `select`, `multiSelect`, `checkbox`: Scroll to navigate the list.
+    *   `number`, `slider`, `rating`: Scroll to increment/decrement values.
+*   **Configuration:**
+    *   Mouse support is enabled by default if the terminal supports it.
+    *   You can explicitly disable it per prompt by setting `mouse: false` in the options.
 
 ## License
 
