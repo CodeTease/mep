@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { ConfirmOptions } from '../types';
+import { ConfirmOptions, MouseEvent } from '../types';
 
 // --- Implementation: Confirm Prompt ---
 export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
@@ -33,6 +33,13 @@ export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
          if (this.isLeft(char) || this.isRight(char)) {
             this.value = !this.value;
             this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+             this.value = !this.value;
+             this.render(false);
         }
     }
 }

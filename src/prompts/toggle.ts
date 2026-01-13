@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { ToggleOptions } from '../types';
+import { ToggleOptions, MouseEvent } from '../types';
 
 // --- Implementation: Toggle Prompt ---
 export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
@@ -38,6 +38,13 @@ export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
         if (char === ' ') {
             this.value = !this.value;
             this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+             this.value = !this.value;
+             this.render(false);
         }
     }
 }

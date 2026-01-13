@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { DateOptions } from '../types';
+import { DateOptions, MouseEvent } from '../types';
 
 // --- Implementation: Date Prompt ---
 export class DatePrompt extends Prompt<Date, DateOptions> {
@@ -109,31 +109,45 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
         if (isUp || isDown) {
             this.inputBuffer = ''; // Reset buffer on arrow move
             const dir = isUp ? 1 : -1;
-            const d = new Date(this.value);
-            
-            switch (this.selectedField) {
-                case 0: d.setFullYear(d.getFullYear() + dir); break;
-                case 1: d.setMonth(d.getMonth() + dir); break;
-                case 2: d.setDate(d.getDate() + dir); break;
-                case 3: d.setHours(d.getHours() + dir); break;
-                case 4: d.setMinutes(d.getMinutes() + dir); break;
-            }
-
-            let valid = true;
-            if (this.options.min && d < this.options.min) {
-                 this.errorMsg = 'Date cannot be before minimum allowed.';
-                 valid = false;
-            }
-            if (this.options.max && d > this.options.max) {
-                 this.errorMsg = 'Date cannot be after maximum allowed.';
-                 valid = false;
-            }
-
-            if (valid) {
-                this.value = d;
-                this.errorMsg = '';
-            }
-            this.render(false);
+            this.adjustDate(dir);
         }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.adjustDate(1);
+            } else if (event.scroll === 'down') {
+                this.adjustDate(-1);
+            }
+        }
+    }
+
+    private adjustDate(dir: number) {
+        const d = new Date(this.value);
+        
+        switch (this.selectedField) {
+            case 0: d.setFullYear(d.getFullYear() + dir); break;
+            case 1: d.setMonth(d.getMonth() + dir); break;
+            case 2: d.setDate(d.getDate() + dir); break;
+            case 3: d.setHours(d.getHours() + dir); break;
+            case 4: d.setMinutes(d.getMinutes() + dir); break;
+        }
+
+        let valid = true;
+        if (this.options.min && d < this.options.min) {
+             this.errorMsg = 'Date cannot be before minimum allowed.';
+             valid = false;
+        }
+        if (this.options.max && d > this.options.max) {
+             this.errorMsg = 'Date cannot be after maximum allowed.';
+             valid = false;
+        }
+
+        if (valid) {
+            this.value = d;
+            this.errorMsg = '';
+        }
+        this.render(false);
     }
 }

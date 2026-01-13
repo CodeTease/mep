@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SliderOptions } from '../types';
+import { SliderOptions, MouseEvent } from '../types';
 
 // --- Implementation: Slider Prompt ---
 export class SliderPrompt extends Prompt<number, SliderOptions> {
@@ -46,6 +46,23 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
         if (this.isRight(char)) { // Right
             this.value = Math.min(this.options.max, this.value + step);
              // Round to avoid float errors
+            this.value = Math.round(this.value * 10000) / 10000;
+            this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            const step = this.options.step || 1;
+
+            if (event.scroll === 'up') { // Scroll Up -> Increase
+                this.value = Math.min(this.options.max, this.value + step);
+            }
+            if (event.scroll === 'down') { // Scroll Down -> Decrease
+                this.value = Math.max(this.options.min, this.value - step);
+            }
+            
+            // Round to avoid float errors
             this.value = Math.round(this.value * 10000) / 10000;
             this.render(false);
         }
