@@ -1,7 +1,8 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
+import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
 import { SelectPrompt } from './prompts/select';
 import { CheckboxPrompt } from './prompts/checkbox';
@@ -14,6 +15,9 @@ import { DatePrompt } from './prompts/date';
 import { FilePrompt } from './prompts/file';
 import { MultiSelectPrompt } from './prompts/multi-select';
 import { RatingPrompt } from './prompts/rating';
+import { AutocompletePrompt } from './prompts/autocomplete';
+import { SortPrompt } from './prompts/sort';
+import { TablePrompt } from './prompts/table';
 
 /**
  * Public Facade for MepCLI
@@ -22,31 +26,10 @@ export class MepCLI {
     public static theme: ThemeConfig = theme;
 
     /**
-     * Shows a spinner while a promise is pending.
+     * Creates a new Spinner instance.
      */
-    static async spin<T>(message: string, taskPromise: Promise<T>): Promise<T> {
-        const frames = symbols.spinner;
-        let i = 0;
-        
-        process.stdout.write(ANSI.HIDE_CURSOR);
-        
-        const interval = setInterval(() => {
-            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.main}${frames[i]}${ANSI.RESET} ${message}`);
-            i = (i + 1) % frames.length;
-        }, 80);
-
-        try {
-            const result = await taskPromise;
-            clearInterval(interval);
-            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.success}${symbols.tick}${ANSI.RESET} ${message}\n`);
-            process.stdout.write(ANSI.SHOW_CURSOR);
-            return result;
-        } catch (error) {
-            clearInterval(interval);
-            process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${MepCLI.theme.error}${symbols.cross}${ANSI.RESET} ${message}\n`);
-            process.stdout.write(ANSI.SHOW_CURSOR);
-            throw error;
-        }
+    static spinner(message: string): Spinner {
+        return new Spinner(message);
     }
 
     static text(options: TextOptions): Promise<string> {
@@ -99,5 +82,17 @@ export class MepCLI {
 
     static rating(options: RatingOptions): Promise<number> {
         return new RatingPrompt(options).run();
+    }
+
+    static autocomplete<const V>(options: AutocompleteOptions<V>): Promise<V> {
+        return new AutocompletePrompt(options).run();
+    }
+
+    static sort(options: SortOptions): Promise<string[]> {
+        return new SortPrompt(options).run();
+    }
+
+    static table<const V>(options: TableOptions<V>): Promise<V> {
+        return new TablePrompt(options).run();
     }
 }

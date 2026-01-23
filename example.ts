@@ -4,11 +4,11 @@ import { MepCLI } from './src'; // Or 'mepcli' if installed via NPM
  * Runs a comprehensive demo showcasing all MepCLI prompt types and utilities.
  * This demonstrates all core functionalities including Text, Password, Select,
  * Checkbox, Number, Toggle, Confirm, List, Slider, Date, File, MultiSelect,
- * and the Spin utility.
+ * Autocomplete, Sort, Table, and the Spin utility.
  */
 async function runComprehensiveDemo() {
     console.clear();
-    console.log("--- MepCLI Comprehensive Demo (All 12 Prompts + Spin Utility) ---\n");
+    console.log("--- MepCLI Comprehensive Demo (All 15 Prompts + Spin Utility) ---\n");
 
     try {
         // --- 1. Text Prompt (Input with Validation and initial value) ---
@@ -137,18 +137,58 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n✅ MultiSelect Result: Linters: [${linters.join(', ')}]`);
 
-        // --- 13. Confirm Prompt (Simple Yes/No) ---
+        // --- 13. Autocomplete Prompt (New) ---
+        const city = await MepCLI.autocomplete({
+            message: "Search for a city (simulated async):",
+            suggest: async (query) => {
+                const cities = [
+                    { title: "New York", value: "NY" },
+                    { title: "London", value: "LDN" },
+                    { title: "Paris", value: "PAR" },
+                    { title: "Tokyo", value: "TKY" },
+                    { title: "Berlin", value: "BER" },
+                    { title: "San Francisco", value: "SF" },
+                    { title: "Toronto", value: "TOR" }
+                ];
+                // Simulate delay
+                await new Promise(r => setTimeout(r, 400));
+                return cities.filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
+            }
+        });
+        console.log(`\n✅ Autocomplete Result: City code: ${city}`);
+
+        // --- 14. Sort Prompt (New) ---
+        const priorities = await MepCLI.sort({
+            message: "Rank your top priorities (Space to grab/drop, Arrows to move):",
+            items: ["Performance", "Security", "Features", "Usability", "Cost"]
+        });
+        console.log(`\n✅ Sort Result: Priorities: [${priorities.join(', ')}]`);
+
+        // --- 15. Table Prompt (New) ---
+        const userId = await MepCLI.table({
+            message: "Select a user from the database:",
+            columns: ["ID", "Name", "Role", "Status"],
+            data: [
+                { value: 1, row: ["001", "Alice", "Admin", "Active"] },
+                { value: 2, row: ["002", "Bob", "Dev", "Offline"] },
+                { value: 3, row: ["003", "Charlie", "User", "Active"] },
+                { value: 4, row: ["004", "David", "Manager", "Active"] },
+            ]
+        });
+        console.log(`\n✅ Table Result: Selected User ID: ${userId}`);
+
+        // --- 16. Confirm Prompt (Simple Yes/No) ---
         const proceed = await MepCLI.confirm({
             message: "Ready to deploy the project now?",
             initial: true
         });
         console.log(`\n✅ Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
-        // --- 14. Spin Utility (Loading/Async Task Indicator) ---
-        await MepCLI.spin(
-            "Finalizing configuration and deploying...",
-            new Promise(resolve => setTimeout(resolve, 1500)) // Simulates a 1.5 second async task
-        );
+        // --- 17. Spin Utility (Loading/Async Task Indicator) ---
+        const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
+        s.success();
+        
         console.log("\n--- Deployment successful! All MepCLI features demonstrated! ---");
 
     } catch (e) {

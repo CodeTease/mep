@@ -113,3 +113,25 @@ export interface FileOptions extends BaseOptions {
 export interface MultiSelectOptions<V> extends CheckboxOptions<V> {
     // Inherits choices, min, max
 }
+
+export interface AutocompleteOptions<V> extends BaseOptions {
+    suggest: (input: string) => Promise<SelectChoice<V>[]>;
+    limit?: number; // defaults to 10
+    fallback?: string; // Message when no results
+    initial?: string; // Initial query
+}
+
+export interface SortOptions extends BaseOptions {
+    items: string[];
+}
+
+export interface TableRow<V> {
+    value: V;
+    row: string[];
+}
+
+export interface TableOptions<V> extends BaseOptions {
+    columns: string[];
+    data: TableRow<V>[];
+    rows?: number; // display rows
+}

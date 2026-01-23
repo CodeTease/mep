@@ -99,12 +99,6 @@ export class FilePrompt extends Prompt<string, FileOptions> {
         // Move right
         const prefix = `${icon} ${theme.title}${this.options.message} `;
         const prefixLen = this.stripAnsi(prefix).length;
-        // Cursor is usually at the end of input unless we add backspace support etc.
-        // The cursor property tracks it, but my handleInput simplified it.
-        // Let's rely on this.input.length for now since handleInput appends.
-        // Ah, handleInput logic below supports cursor pos theoretically but I only see appending?
-        // Actually handleInput doesn't support left/right in the original code, it supports down/up for suggestions.
-        // So cursor is always at end.
         
         const targetCol = prefixLen + this.input.length;
         

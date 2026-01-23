@@ -135,29 +135,6 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                 // So cursorRelativeCol above was correct for the current line.
                 
                 if (isCursorLine) {
-                     // Check if we need to scroll
-                     // We need visual width of the line up to cursor.
-                     // cursorRelativeCol holds that.
-                     
-                     // If visual position > maxContentLen, we scroll.
-                     // This logic is similar to before but needs to use widths.
-                     // For simplicity, let's stick to the previous slice logic but apply it to SEGMENTS if possible.
-                     // But slicing segments for display is safer.
-                     
-                     // Let's implement simple tail truncation for now to keep it robust.
-                     // Ideally we scroll, but scrolling with variable width chars is complex.
-                     // "Good Enough": if it fits, show it. If not, truncate end.
-                     // If cursor is beyond end, scroll (slice from left).
-                     
-                     // Simplified: just show visibleLine truncated by base class renderFrame?
-                     // But renderFrame truncates blindly. We want the cursor visible.
-                     
-                     // Let's leave scrolling out for this specific "Backspace" fix task unless it's critical.
-                     // The user asked for "Backspace Emoji fix".
-                     // The scrolling logic is secondary but important.
-                     // I will preserve the existing simple scrolling logic but using segments?
-                     // No, let's just use the string for display and let renderFrame truncate.
-                     // Fix: Ensure we don't crash or show garbage.
                 }
                 
                 displayValueLines.push(theme.main + visibleLine + ANSI.RESET);
