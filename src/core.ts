@@ -1,5 +1,5 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -15,6 +15,9 @@ import { DatePrompt } from './prompts/date';
 import { FilePrompt } from './prompts/file';
 import { MultiSelectPrompt } from './prompts/multi-select';
 import { RatingPrompt } from './prompts/rating';
+import { AutocompletePrompt } from './prompts/autocomplete';
+import { SortPrompt } from './prompts/sort';
+import { TablePrompt } from './prompts/table';
 
 /**
  * Public Facade for MepCLI
@@ -79,5 +82,17 @@ export class MepCLI {
 
     static rating(options: RatingOptions): Promise<number> {
         return new RatingPrompt(options).run();
+    }
+
+    static autocomplete<const V>(options: AutocompleteOptions<V>): Promise<V> {
+        return new AutocompletePrompt(options).run();
+    }
+
+    static sort(options: SortOptions): Promise<string[]> {
+        return new SortPrompt(options).run();
+    }
+
+    static table<const V>(options: TableOptions<V>): Promise<V> {
+        return new TablePrompt(options).run();
     }
 }
