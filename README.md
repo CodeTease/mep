@@ -5,7 +5,7 @@
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `date`, `file`, `multiSelect`, and `rating`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `table`, and `rating`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values; click to select.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -75,7 +75,36 @@ async function main() {
         initial: 5
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars });
+    // Autocomplete (Search)
+    const city = await MepCLI.autocomplete({
+        message: "Search for a city:",
+        suggest: async (query) => {
+            const cities = [
+                { title: "New York", value: "NY" },
+                { title: "London", value: "LDN" },
+                { title: "Paris", value: "PAR" }
+            ];
+            return cities.filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
+        }
+    });
+
+    // Sort (Drag & Drop)
+    const priorities = await MepCLI.sort({
+        message: "Rank priorities:",
+        items: ["Speed", "Quality", "Cost"]
+    });
+
+    // Table (Data selection)
+    const user = await MepCLI.table({
+        message: "Select a user:",
+        columns: ["ID", "Name"],
+        data: [
+            { value: 1, row: ["001", "Alice"] },
+            { value: 2, row: ["002", "Bob"] }
+        ]
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user });
 }
 
 main();
@@ -98,6 +127,9 @@ main();
 *   `rating(options)` - Star rating input.
 *   `date(options)` - Date and time picker.
 *   `file(options)` - File system navigator and selector.
+*   `autocomplete(options)` - Searchable selection with async suggestions.
+*   `sort(options)` - Reorder a list of items.
+*   `table(options)` - Display data in columns and select rows.
 *   `spinner(message)` - Returns a `Spinner` instance for manual control (`start`, `stop`, `update`, `success`, `error`).
 
 ## Mouse Support
@@ -105,8 +137,9 @@ main();
 MepCLI automatically detects modern terminals and enables **Mouse Tracking** (using SGR 1006 protocol).
 
 *   **Scrolling:**
-    *   `select`, `multiSelect`, `checkbox`: Scroll to navigate the list.
+    *   `select`, `multiSelect`, `checkbox`, `autocomplete`, `table`: Scroll to navigate the list.
     *   `number`, `slider`, `rating`, `date`: Scroll to increment/decrement values or fields.
+    *   `sort`: Scroll to navigate or reorder items (when grabbed).
     *   `toggle`, `confirm`: Scroll to toggle the state.
 *   **Configuration:**
     *   Mouse support is enabled by default if the terminal supports it.
