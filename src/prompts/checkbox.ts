@@ -61,10 +61,6 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         // Indication of more items
         if (choices.length > this.pageSize) {
              const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
-             // Maybe add this to the header or footer?
-             // Let's add it to footer or header. Adding to header is cleaner.
-             // But I already wrote header.
-             // Let's just append it at the bottom if I want, or ignore for now to keep UI minimal.
         }
 
         if (this.errorMsg) {

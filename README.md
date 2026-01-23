@@ -98,7 +98,7 @@ main();
 *   `rating(options)` - Star rating input.
 *   `date(options)` - Date and time picker.
 *   `file(options)` - File system navigator and selector.
-*   `spin(message, promise)` - Display a spinner while waiting for a promise.
+*   `spinner(message)` - Returns a `Spinner` instance for manual control (`start`, `stop`, `update`, `success`, `error`).
 
 ## Mouse Support
 

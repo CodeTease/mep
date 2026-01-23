@@ -145,10 +145,10 @@ async function runComprehensiveDemo() {
         console.log(`\n✅ Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
         // --- 14. Spin Utility (Loading/Async Task Indicator) ---
-        await MepCLI.spin(
-            "Finalizing configuration and deploying...",
-            new Promise(resolve => setTimeout(resolve, 1500)) // Simulates a 1.5 second async task
-        );
+        const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
+        s.success();
+        
         console.log("\n--- Deployment successful! All MepCLI features demonstrated! ---");
 
     } catch (e) {
