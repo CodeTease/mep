@@ -17,7 +17,8 @@
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build",
-    "test": "ts-node example.ts"
+    "test": "jest",
+    "demo": "ts-node example.ts"
   },
   "keywords": [
     "cli",
@@ -30,7 +31,10 @@
   "author": "CodeTease",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^30",
     "@types/node": "^22",
+    "jest": "^30",
+    "ts-jest": "^29",
     "ts-node": "^10",
     "typescript": "^5"
   }

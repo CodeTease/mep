@@ -21,14 +21,14 @@ async function runComprehensiveDemo() {
                 return true;
             }
         });
-        console.log(`\n✅ Text Result: Project name set to '${projectName}'`);
+        console.log(`\n Text Result: Project name set to '${projectName}'`);
 
         // --- 2. Password Prompt (Hidden input) ---
         const apiKey = await MepCLI.password({
             message: "Enter the project's external API key:",
             placeholder: "Input will be hidden..."
         });
-        console.log(`\n✅ Password Result: API key entered (length: ${apiKey.length})`);
+        console.log(`\n Password Result: API key entered (length: ${apiKey.length})`);
 
         // --- 3. Select Prompt (Single choice, supports filtering/searching by typing) ---
         const theme = await MepCLI.select({
@@ -42,7 +42,7 @@ async function runComprehensiveDemo() {
                 { title: "Monokai Pro", value: "monokai" },
             ]
         });
-        console.log(`\n✅ Select Result: Chosen theme is: ${theme}`);
+        console.log(`\n Select Result: Chosen theme is: ${theme}`);
 
         // --- 4. Checkbox Prompt (Multi-choice with Min/Max limits) ---
         const buildTools = await MepCLI.checkbox({
@@ -56,7 +56,7 @@ async function runComprehensiveDemo() {
                 { title: "esbuild", value: "esbuild" }
             ]
         });
-        console.log(`\n✅ Checkbox Result: Selected build tools: [${buildTools.join(', ')}]`);
+        console.log(`\n Checkbox Result: Selected build tools: [${buildTools.join(', ')}]`);
 
         // --- 5. Number Prompt (Numeric input, supports Min/Max and Up/Down arrow for Step) ---
         const port = await MepCLI.number({
@@ -66,7 +66,7 @@ async function runComprehensiveDemo() {
             max: 65535,
             step: 100 // Increments/decrements by 100 with arrows
         });
-        console.log(`\n✅ Number Result: Server port: ${port}`);
+        console.log(`\n Number Result: Server port: ${port}`);
         
         // --- 6. Toggle Prompt (Boolean input, supports custom labels) ---
         const isSecure = await MepCLI.toggle({
@@ -75,7 +75,7 @@ async function runComprehensiveDemo() {
             activeText: "SECURE", // Custom 'on' label
             inactiveText: "INSECURE" // Custom 'off' label
         });
-        console.log(`\n✅ Toggle Result: HTTPS enabled: ${isSecure}`);
+        console.log(`\n Toggle Result: HTTPS enabled: ${isSecure}`);
 
         // --- 7. List / Tags Input (New) ---
         const keywords = await MepCLI.list({
@@ -83,7 +83,7 @@ async function runComprehensiveDemo() {
             initial: ["cli", "mep"],
             validate: (tags) => tags.length > 0 || "Please add at least one keyword."
         });
-        console.log(`\n✅ List Result: Keywords: [${keywords.join(', ')}]`);
+        console.log(`\n List Result: Keywords: [${keywords.join(', ')}]`);
 
         // --- 8. Slider / Scale (New) ---
         const brightness = await MepCLI.slider({
@@ -94,7 +94,7 @@ async function runComprehensiveDemo() {
             step: 5,
             unit: "%"
         });
-        console.log(`\n✅ Slider Result: Brightness: ${brightness}%`);
+        console.log(`\n Slider Result: Brightness: ${brightness}%`);
 
         // --- 9. Rating Prompt (New) ---
         const userRating = await MepCLI.rating({
@@ -103,7 +103,7 @@ async function runComprehensiveDemo() {
             max: 5,
             initial: 5
         });
-        console.log(`\n✅ Rating Result: You rated it: ${userRating}/5`);
+        console.log(`\n Rating Result: You rated it: ${userRating}/5`);
 
         // --- 10. Date / Time Picker (New) ---
         // We capture 'now' once to ensure initial >= min
@@ -113,14 +113,14 @@ async function runComprehensiveDemo() {
             initial: now,
             min: now // Cannot be in the past
         });
-        console.log(`\n✅ Date Result: Release set for: ${releaseDate.toLocaleString()}`);
+        console.log(`\n Date Result: Release set for: ${releaseDate.toLocaleString()}`);
 
         // --- 11. File Path Selector (New) ---
         const configPath = await MepCLI.file({
             message: "Select configuration file (Tab to autocomplete):",
             basePath: process.cwd()
         });
-        console.log(`\n✅ File Result: Path: ${configPath}`);
+        console.log(`\n File Result: Path: ${configPath}`);
 
         // --- 12. Multi-Select Autocomplete (New) ---
         const linters = await MepCLI.multiSelect({
@@ -135,7 +135,7 @@ async function runComprehensiveDemo() {
             ],
             min: 1
         });
-        console.log(`\n✅ MultiSelect Result: Linters: [${linters.join(', ')}]`);
+        console.log(`\n MultiSelect Result: Linters: [${linters.join(', ')}]`);
 
         // --- 13. Autocomplete Prompt (New) ---
         const city = await MepCLI.autocomplete({
@@ -155,14 +155,14 @@ async function runComprehensiveDemo() {
                 return cities.filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
             }
         });
-        console.log(`\n✅ Autocomplete Result: City code: ${city}`);
+        console.log(`\n Autocomplete Result: City code: ${city}`);
 
         // --- 14. Sort Prompt (New) ---
         const priorities = await MepCLI.sort({
             message: "Rank your top priorities (Space to grab/drop, Arrows to move):",
             items: ["Performance", "Security", "Features", "Usability", "Cost"]
         });
-        console.log(`\n✅ Sort Result: Priorities: [${priorities.join(', ')}]`);
+        console.log(`\n Sort Result: Priorities: [${priorities.join(', ')}]`);
 
         // --- 15. Table Prompt (New) ---
         const userId = await MepCLI.table({
@@ -175,14 +175,14 @@ async function runComprehensiveDemo() {
                 { value: 4, row: ["004", "David", "Manager", "Active"] },
             ]
         });
-        console.log(`\n✅ Table Result: Selected User ID: ${userId}`);
+        console.log(`\n Table Result: Selected User ID: ${userId}`);
 
         // --- 16. Confirm Prompt (Simple Yes/No) ---
         const proceed = await MepCLI.confirm({
             message: "Ready to deploy the project now?",
             initial: true
         });
-        console.log(`\n✅ Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
+        console.log(`\n Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
         // --- 17. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();

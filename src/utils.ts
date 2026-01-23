@@ -136,7 +136,11 @@ export function stringWidth(str: string): number {
             continue;
         }
         if (inAnsi) {
-            if ((str[i] >= '@' && str[i] <= '~') || (str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')) {
+            if (str[i] === '[') {
+                // Continue, this is the start of CSI
+                continue;
+            }
+            if ((str[i] >= '@' && str[i] <= '~')) {
                 inAnsi = false;
             }
             continue;
