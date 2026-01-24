@@ -184,12 +184,21 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
-        // --- 17. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 17. Editor Prompt (New) ---
+        const bio = await MepCLI.editor({
+            message: "Write your biography (opens default editor):",
+            initial: "Hi, I am a developer...",
+            extension: ".md",
+            waitUserInput: true
+        });
+        console.log(`\n Editor Result: Biography length: ${bio.length} chars`);
+
+        // --- 18. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
         
-        console.log("\n--- Deployment successful! All MepCLI features demonstrated! ---");
+        console.log("\n--- Deployment successful! All MepCLI features (including Editor) demonstrated! ---");
 
     } catch (e) {
         // Global handler for Ctrl+C closure

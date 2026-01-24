@@ -1,5 +1,5 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -18,6 +18,7 @@ import { RatingPrompt } from './prompts/rating';
 import { AutocompletePrompt } from './prompts/autocomplete';
 import { SortPrompt } from './prompts/sort';
 import { TablePrompt } from './prompts/table';
+import { EditorPrompt } from './prompts/editor';
 
 /**
  * Public Facade for MepCLI
@@ -94,5 +95,9 @@ export class MepCLI {
 
     static table<const V>(options: TableOptions<V>): Promise<V> {
         return new TablePrompt(options).run();
+    }
+
+    static editor(options: EditorOptions): Promise<string> {
+        return new EditorPrompt(options).run();
     }
 }

@@ -125,6 +125,12 @@ export interface SortOptions extends BaseOptions {
     items: string[];
 }
 
+export interface EditorOptions extends BaseOptions {
+    initial?: string;
+    extension?: string;
+    waitUserInput?: boolean;
+}
+
 export interface TableRow<V> {
     value: V;
     row: string[];

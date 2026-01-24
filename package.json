@@ -1,6 +1,6 @@
 {
   "name": "mepcli",
-  "version": "0.5.0",
+  "version": "0.5.5",
   "description": "Zero-dependency, minimalist interactive CLI prompt for Node.js",
   "repository": {
     "type": "git",
@@ -18,7 +18,9 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "test": "jest",
-    "demo": "ts-node example.ts"
+    "demo": "ts-node example.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "cli",
@@ -31,11 +33,15 @@
   "author": "CodeTease",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^9",
     "@types/jest": "^30",
     "@types/node": "^22",
+    "eslint": "^9",
+    "globals": "^17",
     "jest": "^30",
     "ts-jest": "^29",
     "ts-node": "^10",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8"
   }
 }
