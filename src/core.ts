@@ -1,5 +1,5 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, KeypressOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -19,6 +19,8 @@ import { AutocompletePrompt } from './prompts/autocomplete';
 import { SortPrompt } from './prompts/sort';
 import { TablePrompt } from './prompts/table';
 import { EditorPrompt } from './prompts/editor';
+import { TreePrompt } from './prompts/tree';
+import { KeypressPrompt } from './prompts/keypress';
 
 /**
  * Public Facade for MepCLI
@@ -99,5 +101,13 @@ export class MepCLI {
 
     static editor(options: EditorOptions): Promise<string> {
         return new EditorPrompt(options).run();
+    }
+
+    static tree<const V>(options: TreeOptions<V>): Promise<V> {
+        return new TreePrompt(options).run();
+    }
+
+    static keypress(options: KeypressOptions): Promise<string> {
+        return new KeypressPrompt(options).run();
     }
 }
