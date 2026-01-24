@@ -125,6 +125,12 @@ export interface SortOptions extends BaseOptions {
     items: string[];
 }
 
+export interface EditorOptions extends BaseOptions {
+    initial?: string;
+    extension?: string;
+    waitUserInput?: boolean;
+}
+
 export interface TableRow<V> {
     value: V;
     row: string[];
@@ -134,4 +140,23 @@ export interface TableOptions<V> extends BaseOptions {
     columns: string[];
     data: TableRow<V>[];
     rows?: number; // display rows
+}
+
+export interface TreeNode<V> {
+    title: string;
+    value: V;
+    children?: TreeNode<V>[];
+    expanded?: boolean;
+    disabled?: boolean;
+}
+
+export interface TreeOptions<V> extends BaseOptions {
+    data: TreeNode<V>[];
+    initial?: V;
+    indent?: number;
+}
+
+export interface KeypressOptions extends BaseOptions {
+    keys?: string[];
+    showInvisible?: boolean;
 }

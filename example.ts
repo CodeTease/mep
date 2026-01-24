@@ -184,12 +184,63 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
-        // --- 17. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 17. Editor Prompt (New) ---
+        const bio = await MepCLI.editor({
+            message: "Write your biography (opens default editor):",
+            initial: "Hi, I am a developer...",
+            extension: ".md",
+            waitUserInput: true
+        });
+        console.log(`\n Editor Result: Biography length: ${bio.length} chars`);
+
+        // --- 18. Keypress Prompt (New) ---
+        console.log("\n--- Press any key to continue to the Tree Prompt Demo... ---");
+        const key = await MepCLI.keypress({
+            message: "Press any key to proceed (or 'q' to quit):",
+            keys: ['q', 'enter', 'space', 'escape'] // Optional whitelist, or leave undefined for any
+        });
+        console.log(`\n Keypress Result: You pressed '${key}'`);
+        if (key === 'q') return;
+
+        // --- 19. Tree Prompt (New) ---
+        const selectedFile = await MepCLI.tree({
+             message: "Select a file from the project structure (Space to toggle, Enter to select):",
+             data: [
+                 {
+                     title: "src",
+                     value: "src",
+                     children: [
+                         { title: "index.ts", value: "src/index.ts" },
+                         { title: "utils.ts", value: "src/utils.ts" },
+                         { 
+                             title: "prompts", 
+                             value: "src/prompts", 
+                             expanded: true,
+                             children: [
+                                 { title: "text.ts", value: "src/prompts/text.ts" },
+                                 { title: "select.ts", value: "src/prompts/select.ts" }
+                             ]
+                         }
+                     ]
+                 },
+                 {
+                     title: "package.json",
+                     value: "package.json"
+                 },
+                 {
+                     title: "README.md",
+                     value: "README.md"
+                 }
+             ]
+        });
+        console.log(`\n Tree Result: Selected path: ${selectedFile}`);
+
+        // --- 20. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
         
-        console.log("\n--- Deployment successful! All MepCLI features demonstrated! ---");
+        console.log("\n--- Deployment successful! All MepCLI features (including Editor) demonstrated! ---");
 
     } catch (e) {
         // Global handler for Ctrl+C closure

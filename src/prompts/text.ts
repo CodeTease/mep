@@ -60,8 +60,8 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             // safeSplit treats '\n' as a segment.
             
             let cursorLineIndex = 0;
-            let cursorSegmentIndexOnLine = 0;
-            let currentSegmentIndex = 0;
+            const cursorSegmentIndexOnLine = 0;
+            const currentSegmentIndex = 0;
             
             for (let i = 0; i < lines.length; i++) {
                 // How many segments in this line?
@@ -70,7 +70,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                 // Iterating segments is safer.
                 
                 // Let's assume we iterate global segments until we hit a newline segment
-                let lineSegmentsCount = 0;
+                const lineSegmentsCount = 0;
                 // Since rawValue.split('\n') consumes the newlines, we need to account for them.
                 
                 // Alternative: iterate this.segments
@@ -79,7 +79,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             
             // Let's iterate segments to find cursor position (row, col)
             cursorLineIndex = 0;
-            let colIndex = 0; // Visual column or char index?
+            const colIndex = 0; // Visual column or char index?
             // If we want visual cursor position, we need visual width of segments.
             let visualColIndex = 0;
 
@@ -104,7 +104,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             // We need to reconstruct lines from segments to apply styling/truncation logic per line.
             
             let currentLineSegments: string[] = [];
-            let processedLines: string[][] = []; // Array of segment arrays
+            const processedLines: string[][] = []; // Array of segment arrays
             
             for (const seg of this.segments) {
                 if (seg === '\n') {
