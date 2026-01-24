@@ -213,10 +213,9 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             }
         }
 
-        // Toggle / Submit
-        if (char === ' ' || char === '\r' || char === '\n') {
+        // Toggle (Space)
+        if (char === ' ') {
             if (hasChildren) {
-                // Toggle folder
                 if (this.expandedNodes.has(node)) {
                     this.expandedNodes.delete(node);
                 } else {
@@ -224,11 +223,14 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
                 }
                 this.recalculateFlatList();
                 this.render(false);
-            } else {
-                // Submit leaf
-                if (!node.disabled) {
-                    this.submit(node.value);
-                }
+            }
+            return;
+        }
+
+        // Submit (Enter)
+        if (char === '\r' || char === '\n') {
+            if (!node.disabled) {
+                this.submit(node.value);
             }
         }
     }

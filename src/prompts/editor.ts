@@ -11,6 +11,7 @@ import { ANSI } from '../ansi';
 export class EditorPrompt extends Prompt<string, EditorOptions> {
     private errorMsg: string = '';
     private status: 'pending' | 'editing' | 'done' = 'pending';
+    private tempFilePath: string | null = null;
 
     constructor(options: EditorOptions) {
         super(options);
@@ -18,6 +19,19 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
         if (this.options.waitUserInput === undefined) {
             this.options.waitUserInput = true;
         }
+    }
+
+    protected cleanup() {
+        if (this.tempFilePath) {
+            try {
+                if (fs.existsSync(this.tempFilePath)) {
+                    fs.unlinkSync(this.tempFilePath);
+                }
+            } catch (error) {
+                // Ignore cleanup errors
+            }
+        }
+        super.cleanup();
     }
 
     protected render(firstRender: boolean) {
@@ -87,11 +101,11 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
         // Ensure extension has dot
         const safeExt = ext.startsWith('.') ? ext : '.' + ext;
         const filename = `mep-editor-${Date.now()}-${Math.floor(Math.random()*1000)}${safeExt}`;
-        const filePath = path.join(os.tmpdir(), filename);
+        this.tempFilePath = path.join(os.tmpdir(), filename);
         const initialContent = this.options.initial || '';
 
         try {
-            fs.writeFileSync(filePath, initialContent, 'utf8');
+            fs.writeFileSync(this.tempFilePath, initialContent, 'utf8');
         } catch (e) {
             this.errorMsg = `Failed to create temp file: ${(e as Error).message}`;
             this.status = 'pending';
@@ -101,7 +115,7 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
 
         // 2. Resolve Editor
         const { cmd, args } = this.resolveEditor();
-        const editorArgs = [...args, filePath];
+        const editorArgs = [...args, this.tempFilePath];
 
         // 3. Pause Mep
         // Temporarily disable mouse tracking if it was enabled
@@ -131,9 +145,10 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
             // 5. Read Result
             let content = initialContent;
             try {
-                if (fs.existsSync(filePath)) {
-                    content = fs.readFileSync(filePath, 'utf8');
-                    fs.unlinkSync(filePath); // Cleanup
+                if (this.tempFilePath && fs.existsSync(this.tempFilePath)) {
+                    content = fs.readFileSync(this.tempFilePath, 'utf8');
+                    fs.unlinkSync(this.tempFilePath); // Cleanup
+                    this.tempFilePath = null; // Mark as cleaned
                 }
             } catch (e) {
                 // Ignore read/delete errors
