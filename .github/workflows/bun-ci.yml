@@ -1,0 +1,34 @@
+name: CI via Bun
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2.1.2
+
+      - name: Checkout 
+        uses: actions/checkout@v6.0.2
+
+      - name: Install dependencies
+        # Bun will migrate the lock file, but it's fine
+        run: bun ci
+
+      - name: Build
+        run: bun run build 
+
+      - name: Test (via Bun)
+        run: bun test
+
+      - name: Test (via Jest)
+        run: bun run test
+
+      - name: Lint
+        run: bun lint || exit 0
