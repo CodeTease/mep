@@ -48,6 +48,11 @@ export interface SelectOptions<V> extends BaseOptions {
     choices: (SelectChoice<V> | Separator)[];
 }
 
+export interface TransferOptions<V> extends BaseOptions {
+    source: (string | SelectChoice<V>)[];
+    target?: (string | SelectChoice<V>)[];
+}
+
 // --- Checkbox Types ---
 export interface CheckboxChoice<V> extends SelectChoice<V> {
     selected?: boolean; // Default checked state
@@ -89,6 +94,14 @@ export interface SliderOptions extends BaseOptions {
     min: number;
     max: number;
     initial?: number;
+    step?: number;
+    unit?: string;
+}
+
+export interface RangeOptions extends BaseOptions {
+    min: number;
+    max: number;
+    initial?: [number, number];
     step?: number;
     unit?: string;
 }
