@@ -160,3 +160,23 @@ export interface KeypressOptions extends BaseOptions {
     keys?: string[];
     showInvisible?: boolean;
 }
+
+export interface FormField {
+    name: string;
+    message: string;
+    initial?: string;
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
+}
+
+export interface FormOptions extends BaseOptions {
+    fields: FormField[];
+}
+
+export interface SnippetOptions extends BaseOptions {
+    template: string;
+    values?: Record<string, string>;
+    fields?: Record<string, {
+         message?: string;
+         validate?: (value: string) => string | boolean;
+    }>;
+}

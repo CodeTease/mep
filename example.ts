@@ -235,12 +235,35 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Tree Result: Selected path: ${selectedFile}`);
 
-        // --- 20. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 20. Form Prompt (New) ---
+        const userDetails = await MepCLI.form({
+            message: "Enter User Details (Up/Down/Tab to navigate):",
+            fields: [
+                { name: "firstname", message: "First Name", initial: "John" },
+                { name: "lastname", message: "Last Name", validate: (v) => v.length > 0 ? true : "Required" },
+                { name: "email", message: "Email", validate: (v) => v.includes("@") || "Invalid email" },
+                { name: "role", message: "Job Role", initial: "Developer" }
+            ]
+        });
+        console.log(`\n Form Result: User: ${JSON.stringify(userDetails)}`);
+
+        // --- 21. Snippet Prompt (New) ---
+        const commitMsg = await MepCLI.snippet({
+            message: "Compose Commit Message (Tab/Shift+Tab to navigate variables):",
+            template: "feat(${scope}): ${message} (Refs: #${issue})",
+            values: {
+                scope: "cli",
+                issue: "123"
+            }
+        });
+        console.log(`\n Snippet Result: "${commitMsg}"`);
+
+        // --- 22. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
         
-        console.log("\n--- Deployment successful! All MepCLI features (including Editor) demonstrated! ---");
+        console.log("\n--- Deployment successful! All MepCLI features (including Editor, Form, Snippet) demonstrated! ---");
 
     } catch (e) {
         // Global handler for Ctrl+C closure

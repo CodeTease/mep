@@ -110,7 +110,26 @@ async function main() {
         extension: ".md"
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, bio });
+    // Form (Multi-field input)
+    const userDetails = await MepCLI.form({
+        message: "User Details:",
+        fields: [
+            { name: "firstname", message: "First Name", initial: "John" },
+            { name: "lastname", message: "Last Name", validate: (v) => v.length > 0 ? true : "Required" },
+            { name: "email", message: "Email", validate: (v) => v.includes("@") || "Invalid email" }
+        ]
+    });
+
+    // Snippet (Template filling)
+    const commitMsg = await MepCLI.snippet({
+        message: "Commit Message:",
+        template: "feat(${scope}): ${message}",
+        values: {
+            scope: "core"
+        }
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, bio, userDetails, commitMsg });
 }
 
 main();
@@ -139,6 +158,8 @@ main();
 *   `tree(options)` - Navigate and select from a hierarchical tree structure.
 *   `keypress(options)` - Wait for a specific key press or any key.
 *   `editor(options)` - Launch an external editor (Vim, Nano, Notepad, etc.) to capture multi-line content.
+*   `form(options)` - Multi-field input form with navigation.
+*   `snippet(options)` - Template string filling with variable navigation.
 *   `spinner(message)` - Returns a `Spinner` instance for manual control (`start`, `stop`, `update`, `success`, `error`).
 
 ## Mouse Support

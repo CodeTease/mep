@@ -1,5 +1,5 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, KeypressOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, KeypressOptions, FormOptions, SnippetOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -21,6 +21,8 @@ import { TablePrompt } from './prompts/table';
 import { EditorPrompt } from './prompts/editor';
 import { TreePrompt } from './prompts/tree';
 import { KeypressPrompt } from './prompts/keypress';
+import { FormPrompt } from './prompts/form';
+import { SnippetPrompt } from './prompts/snippet';
 
 /**
  * Public Facade for MepCLI
@@ -109,5 +111,13 @@ export class MepCLI {
 
     static keypress(options: KeypressOptions): Promise<string> {
         return new KeypressPrompt(options).run();
+    }
+
+    static form(options: FormOptions): Promise<Record<string, string>> {
+        return new FormPrompt(options).run();
+    }
+
+    static snippet(options: SnippetOptions): Promise<string> {
+        return new SnippetPrompt(options).run();
     }
 }
