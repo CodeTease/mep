@@ -8,7 +8,7 @@ import { MepCLI } from './src'; // Or 'mepcli' if installed via NPM
  */
 async function runComprehensiveDemo() {
     console.clear();
-    console.log("--- MepCLI Comprehensive Demo (All 15 Prompts + Spin Utility) ---\n");
+    console.log("--- MepCLI Comprehensive Demo (All Prompts + Spin Utility) ---\n");
 
     try {
         // --- 1. Text Prompt (Input with Validation and initial value) ---
@@ -296,7 +296,7 @@ async function runComprehensiveDemo() {
         // --- 23. Wait Prompt ---
         await MepCLI.wait({
             message: "Please wait while we finalize the setup...",
-            seconds: 5,
+            seconds: 3, // Just 3 seconds for demo
             autoSubmit: true // Automatically proceeds after time is up
         });
         console.log("\n Wait Result: Wait complete.");

@@ -1,12 +1,12 @@
 # Mep
 
-**Mep** is a minimalist and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation.
+**Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation.
 
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
 - **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, and `calendar`.
-- **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values; click to select.
+- **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
 - **Elegant Look:** Uses ANSI colors for a clean, modern CLI experience.
@@ -253,8 +253,40 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
 
 *   **Mouse:**
     *   `Scroll`: Navigate **Months**.
-    *   `Shift + Scroll`: Navigate **Years**.
     *   `Ctrl + Scroll`: Adjust the selected **Day** (cursor movement).
+
+### Checkbox Prompt
+
+*   **Keyboard:**
+    *   `Space`: Toggle selection.
+    *   `a`: Select **All**.
+    *   `x` / `n`: Select **None**.
+    *   `i`: **Invert** selection.
+
+### MultiSelect Prompt
+
+*   **Keyboard:**
+    *   `Space`: Toggle selection.
+    *   `Ctrl + A`: Select **All** (Visible).
+    *   `Ctrl + X`: Deselect **All** (Visible).
+    *   `Typing`: Filter list.
+
+### Transfer Prompt
+
+*   **Keyboard:**
+    *   `Tab` / `Left` / `Right`: Switch focus between Source and Target.
+    *   `Space`: Move selected item.
+    *   `a` / `>`: Move **All** to Target.
+    *   `r` / `<`: Move **All** to Source (Reset).
+
+### Tree & TreeSelect Prompt
+
+*   **Keyboard:**
+    *   `Right`: Expand folder or jump to child.
+    *   `Left`: Collapse folder or jump to parent.
+    *   `Space`: Toggle expansion (Tree) or Checkbox (TreeSelect).
+    *   `e`: **Expand** all recursively.
+    *   `c`: **Collapse** all recursively.
 
 ### Grid Prompt
 

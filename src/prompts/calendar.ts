@@ -340,10 +340,7 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
          if (event.action === 'scroll') {
              const direction = event.scroll === 'up' ? -1 : 1;
              
-             if (event.shift) {
-                 // Shift+Scroll: Year
-                 this.viewDate.setFullYear(this.viewDate.getFullYear() + direction);
-             } else if (event.ctrl) {
+             if (event.ctrl) {
                  // Ctrl+Scroll: Day (Cursor)
                  this.cursor.setDate(this.cursor.getDate() + direction);
                  this.syncViewDate();

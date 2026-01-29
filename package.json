@@ -1,7 +1,7 @@
 {
   "name": "mepcli",
   "version": "0.6.0",
-  "description": "Zero-dependency, minimalist interactive CLI prompt for Node.js",
+  "description": "Zero-dependency, interactive CLI prompt for Node.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/CodeTease/mep.git"
