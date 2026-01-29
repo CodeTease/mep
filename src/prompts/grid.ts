@@ -119,14 +119,83 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
             this.submit(this.selected);
             return;
         }
+
+        // PageUp (First Row)
+        if (char === '\x1b[5~') {
+            this.cursorRow = 0;
+            this.render(false);
+            return;
+        }
+        // PageDown (Last Row)
+        if (char === '\x1b[6~') {
+            this.cursorRow = this.options.rows.length - 1;
+            this.render(false);
+            return;
+        }
+        // Home (First Column)
+        if (char === '\x1b[H' || char === '\x1b[1~') {
+            this.cursorCol = 0;
+            this.render(false);
+            return;
+        }
+        // End (Last Column)
+        if (char === '\x1b[F' || char === '\x1b[4~') {
+            this.cursorCol = this.options.columns.length - 1;
+            this.render(false);
+            return;
+        }
+
+        // r: Toggle Row
+        if (char === 'r') {
+             const row = this.selected[this.cursorRow];
+             const allSelected = row.every(c => c);
+             this.selected[this.cursorRow] = row.map(() => !allSelected);
+             this.render(false);
+             return;
+        }
+
+        // c: Toggle Column
+        if (char === 'c') {
+             const colIdx = this.cursorCol;
+             const colValues = this.selected.map(row => row[colIdx]);
+             const allSelected = colValues.every(c => c);
+             this.selected.forEach(row => row[colIdx] = !allSelected);
+             this.render(false);
+             return;
+        }
+
+        // a: Select All
+        if (char === 'a') {
+             this.selected = this.selected.map(row => row.map(() => true));
+             this.render(false);
+             return;
+        }
+
+        // x: Deselect All
+        if (char === 'x') {
+             this.selected = this.selected.map(row => row.map(() => false));
+             this.render(false);
+             return;
+        }
+
+        // i: Invert
+        if (char === 'i') {
+             this.selected = this.selected.map(row => row.map(v => !v));
+             this.render(false);
+             return;
+        }
     }
 
     protected handleMouse(event: MouseEvent): void {
         if (event.action === 'scroll') {
-            if (event.scroll === 'up') {
-                this.cursorRow = Math.max(0, this.cursorRow - 1);
-            } else if (event.scroll === 'down') {
-                this.cursorRow = Math.min(this.options.rows.length - 1, this.cursorRow + 1);
+            const direction = event.scroll === 'up' ? -1 : 1;
+            
+            if (event.shift) {
+                // Horizontal (Column)
+                this.cursorCol = Math.max(0, Math.min(this.options.columns.length - 1, this.cursorCol + direction));
+            } else {
+                // Vertical (Row)
+                this.cursorRow = Math.max(0, Math.min(this.options.rows.length - 1, this.cursorRow + direction));
             }
             this.render(false);
         }

@@ -211,6 +211,13 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         this.renderFrame(output);
     }
 
+    private syncViewDate() {
+        if (this.cursor.getMonth() !== this.viewDate.getMonth() || this.cursor.getFullYear() !== this.viewDate.getFullYear()) {
+            this.viewDate = new Date(this.cursor);
+            this.viewDate.setDate(1); 
+        }
+    }
+
     protected handleInput(char: string, key: Buffer): void {
         const isUp = this.isUp(char);
         const isDown = this.isDown(char);
@@ -226,13 +233,60 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
             if (isRight) d.setDate(d.getDate() + 1);
             
             this.cursor = d;
-            
-            // Auto-switch view month if cursor moves out
-            if (this.cursor.getMonth() !== this.viewDate.getMonth() || this.cursor.getFullYear() !== this.viewDate.getFullYear()) {
-                this.viewDate = new Date(this.cursor);
-                this.viewDate.setDate(1); 
-            }
-            
+            this.syncViewDate();
+            this.render(false);
+            return;
+        }
+
+        // PageUp (Month - 1)
+        if (char === '\x1b[5~') {
+            this.cursor.setMonth(this.cursor.getMonth() - 1);
+            this.syncViewDate();
+            this.render(false);
+            return;
+        }
+        // PageDown (Month + 1)
+        if (char === '\x1b[6~') {
+            this.cursor.setMonth(this.cursor.getMonth() + 1);
+            this.syncViewDate();
+            this.render(false);
+            return;
+        }
+
+        // Ctrl+Up (Year - 1)
+        if (char === '\x1b[1;5A') {
+            this.cursor.setFullYear(this.cursor.getFullYear() - 1);
+            this.syncViewDate();
+            this.render(false);
+            return;
+        }
+        // Ctrl+Down (Year + 1)
+        if (char === '\x1b[1;5B') {
+            this.cursor.setFullYear(this.cursor.getFullYear() + 1);
+            this.syncViewDate();
+            this.render(false);
+            return;
+        }
+
+        // Home (First Day of Month)
+        if (char === '\x1b[H' || char === '\x1b[1~') {
+            this.cursor.setDate(1);
+            this.render(false);
+            return;
+        }
+
+        // End (Last Day of Month)
+        if (char === '\x1b[F' || char === '\x1b[4~') {
+            this.cursor.setMonth(this.cursor.getMonth() + 1);
+            this.cursor.setDate(0);
+            this.render(false);
+            return;
+        }
+
+        // t (Today)
+        if (char === 't') {
+            this.cursor = new Date();
+            this.syncViewDate();
             this.render(false);
             return;
         }
@@ -284,11 +338,20 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
     
     protected handleMouse(event: MouseEvent): void {
          if (event.action === 'scroll') {
-             if (event.scroll === 'up') {
-                 this.viewDate.setMonth(this.viewDate.getMonth() - 1);
-             } else if (event.scroll === 'down') {
-                 this.viewDate.setMonth(this.viewDate.getMonth() + 1);
+             const direction = event.scroll === 'up' ? -1 : 1;
+             
+             if (event.shift) {
+                 // Shift+Scroll: Year
+                 this.viewDate.setFullYear(this.viewDate.getFullYear() + direction);
+             } else if (event.ctrl) {
+                 // Ctrl+Scroll: Day (Cursor)
+                 this.cursor.setDate(this.cursor.getDate() + direction);
+                 this.syncViewDate();
+             } else {
+                 // Normal Scroll: Month
+                 this.viewDate.setMonth(this.viewDate.getMonth() + direction);
              }
+             
              this.render(false);
          }
          // Todo: Click support requires mapping X/Y to grid cells which is hard in terminal relative mode

@@ -22,6 +22,9 @@ export interface MouseEvent {
     button: number;
     action: 'press' | 'release' | 'move' | 'scroll';
     scroll?: 'up' | 'down';
+    shift?: boolean;
+    ctrl?: boolean;
+    meta?: boolean;
 }
 
 export interface TextOptions extends BaseOptions {
