@@ -129,10 +129,7 @@ export class SortPrompt extends Prompt<string[], SortOptions> {
     private swap(i: number, j: number) {
         [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
     }
-    
-    // Mouse support? 
-    // Drag and drop is hard with just clicks/scroll. 
-    // Maybe click to grab, scroll to move?
+
     protected handleMouse(event: MouseEvent) {
         // Simple scroll support for navigation
          if (event.action === 'scroll') {

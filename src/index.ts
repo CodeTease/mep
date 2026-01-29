@@ -1,5 +1,5 @@
 /**
- * Mep (Minimalist Interactive CLI Prompt)
+ * Mep (A Interactive CLI Prompt)
  * Export file
  */
 

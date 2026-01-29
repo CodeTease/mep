@@ -105,8 +105,6 @@ export class InputParser extends EventEmitter {
             if (b === 64) {
                 action = 'scroll';
                 this.emit('mouse', { name: 'mouse', x, y, button: 0, action, scroll: 'up' });
-                // Also emit keypress for scroll if needed? No, prompt should listen to mouse.
-                // But for "Easy Features", we emit standard names
                 this.emit('scrollup'); 
                 return;
             }

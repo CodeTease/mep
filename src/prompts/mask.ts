@@ -66,19 +66,6 @@ export class MaskedPrompt extends Prompt<string, MaskedOptions> {
         }
         
         if (!found) {
-             // If cursor is at end of input, and input is full or partial
-             // Cursor should be after the last filled token
-             // But wait, if input is full, tokenCount == maskTokens.filter(isToken).length
-             // And loop finishes.
-             // We need to find the visual index corresponding to "after last token"
-             // But that might be a fixed char or end of string.
-             
-             // Simple approach:
-             // Iterate tokens again, count tokens. When count == cursor, stop.
-             // But we need to skip fixed chars.
-             
-             // If !found, it means cursor == input.length (which is valid, at end).
-             // We just iterate from start until we pass `cursor` tokens.
              let count = 0;
              for (let i = 0; i < this.maskTokens.length; i++) {
                  if (this.maskTokens[i].isToken) {
@@ -90,15 +77,6 @@ export class MaskedPrompt extends Prompt<string, MaskedOptions> {
                      found = true;
                      break;
                  }
-                 // If count == cursor, we are AT the token that will be filled next.
-                 // So we want visualIndex of that token.
-                 // My loop above does exactly that: `if (tokenCount === this.cursor)`.
-                 // So why !found?
-                 // `this.cursor` starts at 0. `tokenCount` starts at 0.
-                 // If cursor=0. First token: tokenCount=0. Match. visual=index.
-                 // If input is full (say 3 tokens). cursor can be 3 (after last).
-                 // tokenCount will go 0, 1, 2. Loop ends. !found.
-                 // We need to position at end.
                  visualCursorIndex = this.maskTokens.length;
              }
         }

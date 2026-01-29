@@ -176,6 +176,7 @@ main();
 
 *   `text(options)` - Single line or multiline text input.
 *   `password(options)` - Masked text input.
+*   `secret(options)` - Completely hidden text input.
 *   `number(options)` - Numeric input with increment/decrement support.
 *   `confirm(options)` - Yes/No question.
 *   `toggle(options)` - On/Off switch.

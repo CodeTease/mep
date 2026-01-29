@@ -48,7 +48,8 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             cursorRelativeRow = 0;
             cursorRelativeCol = 0;
         } else {
-            const rawValue = this.options.isPassword ? '*'.repeat(this.segments.length) : this.value;
+            const maskChar = this.options.mask ?? (this.options.isPassword ? '*' : undefined);
+            const rawValue = maskChar !== undefined ? maskChar.repeat(this.segments.length) : this.value;
             // Note: password masking replaces each grapheme with '*'
             
             // Split by lines (for multiline support)
@@ -64,17 +65,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             const currentSegmentIndex = 0;
             
             for (let i = 0; i < lines.length; i++) {
-                // How many segments in this line?
-                // We can't just use lines[i].length because that's chars.
-                // We need to split the line again or iterate segments.
-                // Iterating segments is safer.
-                
-                // Let's assume we iterate global segments until we hit a newline segment
                 const lineSegmentsCount = 0;
-                // Since rawValue.split('\n') consumes the newlines, we need to account for them.
-                
-                // Alternative: iterate this.segments
-                // Find where the cursor falls.
             }
             
             // Let's iterate segments to find cursor position (row, col)
@@ -89,10 +80,10 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                     cursorLineIndex++;
                     visualColIndex = 0;
                 } else {
-                    if (this.options.isPassword) {
-                        visualColIndex += 1;
+                    if (maskChar !== undefined) {
+                        visualColIndex += maskChar.length;
                     } else {
-                         visualColIndex += this.options.isPassword ? 1 : this.getSegmentWidth(seg);
+                        visualColIndex += this.getSegmentWidth(seg);
                     }
                 }
             }
@@ -124,15 +115,11 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                 // Reconstruct line string for display calculation
                 // If password, join with *?
                 let visibleLine = '';
-                if (this.options.isPassword) {
-                    visibleLine = '*'.repeat(lineSegs.length);
+                if (maskChar !== undefined) {
+                    visibleLine = maskChar.repeat(lineSegs.length);
                 } else {
                     visibleLine = lineSegs.join('');
                 }
-                
-                // If this is cursor line, we need to handle horizontal scroll based on cursorRelativeCol.
-                // But cursorRelativeCol is global? No, we reset it on newline.
-                // So cursorRelativeCol above was correct for the current line.
                 
                 if (isCursorLine) {
                 }

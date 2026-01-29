@@ -70,14 +70,9 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
     }
 
     protected render(firstRender: boolean) {
-        // --- FIX START: Restore cursor position ---
-        // renderFrame() in Base assumes the cursor is at the bottom of the output.
-        // Since Autocomplete moves the cursor to the top (for input) after rendering,
-        // we must manually move it back down before the next render cycle.
         if (this.lastRenderHeight > 1) {
             this.print(`\x1b[${this.lastRenderHeight - 1}B`); // Move down
         }
-        // --- FIX END ---
 
         let output = '';
         

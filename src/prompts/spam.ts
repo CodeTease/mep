@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { symbols } from '../symbols'; // Assuming you add a 'block' symbol or use unicode
+import { symbols } from '../symbols'; 
 import { BaseOptions } from '../types';
 
 interface SpamOptions extends BaseOptions {

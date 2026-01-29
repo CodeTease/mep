@@ -257,11 +257,6 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             if (node.selected === true) {
                 result.push(node.value);
             }
-            // Should we collect folders?
-            // Usually yes if they have a value.
-            // If they are strictly structural, maybe not?
-            // `value` is generic V, so it implies meaningful data.
-            // But we also recurse.
             if (node.children) {
                 this.collectSelected(node.children, result);
             }

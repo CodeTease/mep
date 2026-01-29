@@ -220,12 +220,6 @@ export abstract class Prompt<T, O> {
                     inAnsi = false;
                 }
             } else {
-                 // Width check
-                 // Handle surrogates roughly (we don't need perfect width here during loop, just enough to stop)
-                 // But wait, we imported `stringWidth`.
-                 // We can't easily use `stringWidth` incrementally without re-parsing.
-                 // Let's just trust the loop for cut index.
-                 
                  // Re-implement basic width logic here for the cut index finding
                 let charWidth = 1;
                  
@@ -238,10 +232,7 @@ export abstract class Prompt<T, O> {
                         // We'll handle i increment in the loop
                     }
                 }
-                
-                // Check range (simplified or call helper)
-                // We don't have isWideCodePoint exported. 
-                // But generally, we can just say:
+
                 if (cp >= 0x1100) { // Quick check for potentially wide
                      // It's acceptable to be slightly aggressive on wide chars for truncation
                      charWidth = 2;

@@ -87,10 +87,6 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
             }
 
             this.cleanup();
-            // renderFrame cleans up lines, but doesn't print the final state "persisted" if we want to show the result?
-            // Usually we clear the prompt or show a summary.
-            // MepCLI seems to submit and let the caller decide or just print newline.
-            // Base `submit` prints newline.
             
             const results = this.options.choices
                 .filter((_, i) => this.checkedState[i])

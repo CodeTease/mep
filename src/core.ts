@@ -62,6 +62,10 @@ export class MepCLI {
     static password(options: TextOptions): Promise<string> {
         return new TextPrompt({ ...options, isPassword: true }).run();
     }
+
+    static secret(options: TextOptions): Promise<string> {
+        return new TextPrompt({ ...options, mask: '' }).run();
+    }
     
     static number(options: NumberOptions): Promise<number> {
         return new NumberPrompt(options).run();

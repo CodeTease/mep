@@ -85,11 +85,6 @@ export class FilePrompt extends Prompt<string, FileOptions> {
         
         this.renderFrame(output);
         this.print(ANSI.SHOW_CURSOR);
-
-        // Restore Cursor Logic
-        // We need to move up to the input line if we printed suggestions.
-        // The input line is always the first line (index 0).
-        // So we move up by (totalLines - 1).
         
         const totalLines = this.lastRenderHeight; // renderFrame sets this
         if (totalLines > 1) {
