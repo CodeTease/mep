@@ -316,15 +316,16 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Code Result: Config: ${config.replace(/\n/g, ' ')}`);
 
-        // --- 25. Masked Prompt ---
+        /* --- Masked Prompt (Completely Removed) ---
         const phone = await MepCLI.mask({
             message: "Enter Phone Number (Masked):",
             mask: "(999) 999-9999",
             placeholder: "_"
         });
         console.log(`\n Masked Result: Phone: ${phone}`);
+        */
 
-        // --- 26. Tree Select Prompt ---
+        // --- 25. Tree Select Prompt ---
         const selectedTreeItems = await MepCLI.treeSelect({
              message: "Select files to backup (Multi-select Tree):",
              data: [
@@ -349,14 +350,14 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n TreeSelect Result: Selected: [${selectedTreeItems.join(', ')}]`);
 
-        // --- 27. Cron Prompt ---
+        // --- 26. Cron Prompt ---
         const schedule = await MepCLI.cron({
             message: "Set backup schedule (Cron):",
             initial: "0 4 * * *" // Daily at 4:00 AM
         });
         console.log(`\n Cron Result: "${schedule}"`);
 
-        // --- 28. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 27. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

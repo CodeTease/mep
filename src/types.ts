@@ -221,11 +221,6 @@ export interface CodeOptions extends BaseOptions {
     highlight?: boolean;
 }
 
-export interface MaskedOptions extends BaseOptions {
-    mask: string;
-    placeholder?: string;
-}
-
 export interface TreeSelectNode<V> {
     title: string;
     value: V;

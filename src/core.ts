@@ -1,6 +1,6 @@
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
-         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, MaskedOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions } from './types';
+         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -30,7 +30,6 @@ import { SnippetPrompt } from './prompts/snippet';
 import { SpamPrompt } from './prompts/spam';
 import { WaitPrompt } from './prompts/wait';
 import { CodePrompt } from './prompts/code';
-import { MaskedPrompt } from './prompts/mask';
 import { TreeSelectPrompt } from './prompts/tree-select';
 
 /**
@@ -156,10 +155,6 @@ export class MepCLI {
 
     static code(options: CodeOptions): Promise<string> {
         return new CodePrompt(options).run();
-    }
-
-    static mask(options: MaskedOptions): Promise<string> {
-        return new MaskedPrompt(options).run();
     }
 
     static treeSelect<const V>(options: TreeSelectOptions<V>): Promise<V[]> {

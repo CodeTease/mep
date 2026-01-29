@@ -60,15 +60,24 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
             return;
         }
 
-        if (this.isLeft(char)) { // Left
-            this.selectedField = Math.max(0, this.selectedField - 1);
+        if (char === '\t' || this.isRight(char)) { // Right / Tab
+            if (char === '\t') {
+                this.selectedField = (this.selectedField + 1) % 5;
+            } else {
+                this.selectedField = Math.min(4, this.selectedField + 1);
+            }
             this.inputBuffer = ''; // Reset buffer on move
             this.errorMsg = '';
             this.render(false);
             return;
         }
-        if (this.isRight(char)) { // Right
-            this.selectedField = Math.min(4, this.selectedField + 1);
+
+        if (char === '\x1b[Z' || this.isLeft(char)) { // Left / Shift+Tab
+            if (char === '\x1b[Z') {
+                this.selectedField = (this.selectedField - 1 + 5) % 5;
+            } else {
+                this.selectedField = Math.max(0, this.selectedField - 1);
+            }
             this.inputBuffer = ''; // Reset buffer on move
             this.errorMsg = '';
             this.render(false);

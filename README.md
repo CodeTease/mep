@@ -5,7 +5,7 @@
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, and `keypress`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, and `keypress`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values; click to select.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -142,13 +142,6 @@ async function main() {
 `
     });
 
-    // Masked Input (Pattern enforcement)
-    const phone = await MepCLI.mask({
-        message: "Enter Phone Number:",
-        mask: "(999) 999-9999",
-        placeholder: "_"
-    });
-
     // Tree Select (Hierarchical Multi-Select)
     const selectedFiles = await MepCLI.treeSelect({
         message: "Select files to backup:",
@@ -200,7 +193,6 @@ main();
 *   `form(options)` - Multi-field input form with navigation.
 *   `snippet(options)` - Template string filling with variable navigation.
 *   `code(options)` - Edit variables within a code block (JSON/YAML). Syntax highlighting is supported (Experimental).
-*   `mask(options)` - Input text with a fixed pattern mask (e.g., phone numbers, IP addresses).
 *   `treeSelect(options)` - Hierarchical multi-selection with cascading checkboxes.
 *   `spam(options)` - Confirm a dangerous action or fun.
 *   `wait(options)` - Wait for a specified number of seconds.

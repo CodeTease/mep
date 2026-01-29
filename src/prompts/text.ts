@@ -12,6 +12,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
     private cursor: number = 0;
     private hasTyped: boolean = false;
     private segments: string[] = [];
+    private lastLinesUp: number = 0;
 
     constructor(options: TextOptions) {
         super(options);
@@ -22,6 +23,11 @@ export class TextPrompt extends Prompt<string, TextOptions> {
     }
 
     protected render(firstRender: boolean) {
+        if (!firstRender && this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+        }
+        this.lastLinesUp = 0;
+
         // Calculate available width
         const cols = process.stdout.columns || 80;
         
@@ -155,6 +161,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
+        this.lastLinesUp = linesUp;
         
         let targetCol = 0;
         if (cursorRelativeRow === 0) {
