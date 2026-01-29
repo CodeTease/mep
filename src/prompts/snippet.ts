@@ -16,6 +16,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
     private activeVarIndex: number = 0; // Index in variableTokens
     private cursor: number = 0; // Cursor in active variable value
     private errorMsg: string = '';
+    private lastLinesUp: number = 0;
 
     constructor(options: SnippetOptions) {
         super(options);
@@ -59,6 +60,11 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
     }
 
     protected render(firstRender: boolean) {
+        if (!firstRender && this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+        }
+        this.lastLinesUp = 0;
+
         // Build the string
         let output = '';
         let cursorVisualIndex = 0;
@@ -130,6 +136,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         
         if (linesUp > 0) {
              this.print(`\x1b[${linesUp}A`);
+             this.lastLinesUp = linesUp;
         }
         
         this.print(ANSI.CURSOR_LEFT);

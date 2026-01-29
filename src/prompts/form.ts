@@ -3,19 +3,15 @@ import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
 import { FormOptions, FormField } from '../types';
+import { stringWidth } from '../utils';
 
 export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
     private values: Record<string, string> = {};
     private activeIndex: number = 0;
     private fieldErrors: Record<string, string> = {};
     private globalError: string = '';
-    // To track typing state per field if needed, but safeSplit works on full string
-    // We need cursors per field if we want to support editing in middle.
-    // For simplicity, let's assume cursor is always at end for inactive fields, 
-    // and for active field we track cursor? 
-    // The requirement says: "Khi focus chuyển sang field khác, con trỏ nhập liệu (cursor) phải nhảy đến cuối dòng dữ liệu của field đó."
-    // So we don't need to persist cursor position for inactive fields.
     private cursor: number = 0; // Cursor position for the ACTIVE field.
+    private lastLinesUp: number = 0; // To track cursor position after render
 
     constructor(options: FormOptions) {
         super(options);
@@ -26,6 +22,11 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
     }
 
     protected render(firstRender: boolean) {
+	if (!firstRender && this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+        }
+        this.lastLinesUp = 0;
+
         const cols = process.stdout.columns || 80;
         let outputLines: string[] = [];
 
@@ -56,8 +57,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
             const label = `${labelStyle}${field.message}:${ANSI.RESET}`;
 
             // Value
-            // TODO: Masking if password (not in requirements explicitly but "Masking (Tuỳ chọn)" mentioned)
-            // Let's assume text for now.
+            // TODO: Masking if password 
             const displayValue = isActive ? value : `${theme.muted}${value}${ANSI.RESET}`;
             
             // Construct Line
@@ -70,7 +70,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
                 const prefix = `${icon} ${label} `;
                 const valuePrefix = value.substring(0, this.cursor);
                 cursorLineIndex = outputLines.length - 1;
-                cursorColIndex = this.stripAnsi(prefix).length + this.stripAnsi(valuePrefix).length;
+                cursorColIndex = stringWidth(this.stripAnsi(prefix)) + stringWidth(this.stripAnsi(valuePrefix));            
             }
 
             // Error for this field
@@ -80,7 +80,8 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         });
 
         // Instructions
-        outputLines.push(ANSI.RESET + theme.muted + "\n(Use Up/Down/Tab to navigate, Enter to submit)" + ANSI.RESET);
+        outputLines.push('');
+        outputLines.push(`${ANSI.RESET}${theme.muted}(Use Up/Down/Tab to navigate, Enter to submit)${ANSI.RESET}`);
 
         const output = outputLines.join('\n');
         this.renderFrame(output);
@@ -95,6 +96,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
             
             if (linesUp > 0) {
                 this.print(`\x1b[${linesUp}A`);
+                this.lastLinesUp = linesUp;
             }
             
             this.print(ANSI.CURSOR_LEFT);
