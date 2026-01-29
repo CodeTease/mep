@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SnippetOptions } from '../types';
+import { SnippetOptions, MouseEvent } from '../types';
 
 interface Token {
     type: 'static' | 'variable';
@@ -197,6 +197,16 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
             this.values[varName] = pre + char + post;
             this.cursor += char.length;
             this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.moveFocus(-1);
+            } else if (event.scroll === 'down') {
+                this.moveFocus(1);
+            }
         }
     }
 

@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { FormOptions, FormField } from '../types';
+import { FormOptions, FormField, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
@@ -171,6 +171,18 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
             this.cursor += char.length;
             this.fieldErrors[activeField.name] = ''; // Clear error on type
             this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.validateCurrentField();
+                this.moveFocus(-1);
+            } else if (event.scroll === 'down') {
+                this.validateCurrentField();
+                this.moveFocus(1);
+            }
         }
     }
 

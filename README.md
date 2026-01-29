@@ -170,6 +170,7 @@ MepCLI automatically detects modern terminals and enables **Mouse Tracking** (us
 
 *   **Scrolling:**
     *   `select`, `multiSelect`, `checkbox`, `autocomplete`, `table`, `tree`: Scroll to navigate the list.
+    *   `form`, `snippet`: Scroll to navigate between fields.
     *   `number`, `slider`, `rating`, `date`: Scroll to increment/decrement values or fields.
     *   `sort`: Scroll to navigate or reorder items (when grabbed).
     *   `toggle`, `confirm`: Scroll to toggle the state.
