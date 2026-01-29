@@ -45,7 +45,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
         
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`; // No newline at end
+            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
         } else {
              const visible = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
              visible.forEach((choice, index) => {
@@ -61,6 +61,11 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
                  output += `${cursor} ${checkbox} ${choice.title}`;
              });
         }
+
+        // Hints
+        if (!this.searchBuffer && !this.errorMsg) {
+             output += `\n${ANSI.DIM}(Ctrl+A: All, Ctrl+X: None)${ANSI.RESET}`;
+        }
         
         if (this.errorMsg) {
              output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
@@ -72,6 +77,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
     protected handleInput(char: string) {
         const choices = this.getFilteredChoices();
 
+        // Enter
         if (char === '\r' || char === '\n') {
             const selectedCount = this.checkedState.filter(Boolean).length;
             const { min = 0, max } = this.options;
@@ -93,6 +99,38 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             return;
         }
 
+        // --- Batch Shortcuts (Visible Items Only) ---
+
+        // Ctrl+A (\x01): Select All Visible
+        if (char === '\x01') {
+            let newCheckedState = [...this.checkedState];
+            let potentialAdd = 0;
+            
+            // Calculate potential selections
+            choices.forEach(c => {
+                if (!newCheckedState[c.originalIndex]) potentialAdd++;
+            });
+            
+            const currentSelected = newCheckedState.filter(Boolean).length;
+            if (this.options.max && (currentSelected + potentialAdd) > this.options.max) {
+                 this.errorMsg = `Max limit ${this.options.max} reached`;
+            } else {
+                 choices.forEach(c => newCheckedState[c.originalIndex] = true);
+                 this.checkedState = newCheckedState;
+                 this.errorMsg = '';
+            }
+            this.render(false);
+            return;
+        }
+
+        // Ctrl+X (\x18): Deselect All Visible
+        if (char === '\x18') {
+            choices.forEach(c => this.checkedState[c.originalIndex] = false);
+            this.errorMsg = '';
+            this.render(false);
+            return;
+        }
+
         if (char === ' ') {
             if (choices.length > 0) {
                 const choice = choices[this.selectedIndex];
@@ -103,14 +141,14 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             return;
         }
 
-        if (this.isUp(char)) { // Up
+        if (this.isUp(char)) { 
              if (choices.length > 0) {
                  this.selectedIndex = (this.selectedIndex - 1 + choices.length) % choices.length;
                  this.render(false);
              }
              return;
         }
-        if (this.isDown(char)) { // Down
+        if (this.isDown(char)) {
              if (choices.length > 0) {
                  this.selectedIndex = (this.selectedIndex + 1) % choices.length;
                  this.render(false);
@@ -127,6 +165,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
              return;
         }
 
+        // Typing search
         if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
             this.searchBuffer += char;
             this.selectedIndex = 0;

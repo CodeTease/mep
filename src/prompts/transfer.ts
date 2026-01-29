@@ -34,8 +34,6 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
 
     protected truncate(str: string, width: number): string {
         if (stringWidth(str) <= width) return str;
-        // Simple truncation. A better one would use binary search but this is sufficient for now.
-        // We just slice and check width, reducing until it fits.
         let res = str;
         while (stringWidth(res + '...') > width && res.length > 0) {
             res = res.slice(0, -1);
@@ -44,12 +42,8 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
     }
 
     protected render(firstRender: boolean) {
-        // Assume standard terminal width ~80 if unknown, but better to be safe.
-        // We'll use a fixed wide display or try to detect. 
-        // Since we don't have active terminal width in `Prompt` base (it uses stdout columns if available),
-        // we can access process.stdout.columns.
         const termWidth = process.stdout.columns || 80;
-        const colWidth = Math.floor((termWidth - 6) / 2); // 6 for padding/border
+        const colWidth = Math.floor((termWidth - 6) / 2);
 
         // Adjust Scroll Top
         if (this.activeSide === 'left') {
@@ -66,7 +60,6 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
         const leftTitle = this.activeSide === 'left' ? `${theme.main}Source${ANSI.RESET}` : 'Source';
         const rightTitle = this.activeSide === 'right' ? `${theme.main}Target${ANSI.RESET}` : 'Target';
         
-        // Pad headers
         output += `  ${leftTitle}`.padEnd(colWidth + 2) + '   ' + `  ${rightTitle}\n`;
         output += `  ${ANSI.DIM}${symbols.line.repeat(colWidth)}${ANSI.RESET}   ${ANSI.DIM}${symbols.line.repeat(colWidth)}${ANSI.RESET}\n`;
 
@@ -88,7 +81,7 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                     leftStr = `  ${title}`;
                 }
             } else {
-                leftStr = ' '.repeat(colWidth); // Empty line placeholder logic? No, just empty.
+                leftStr = ''; // Empty
             }
 
             // Right Column
@@ -103,28 +96,20 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                 }
             }
             
-            // Pad Left Str to align right column
-            // We need visual width, not string length due to ANSI codes.
-            // But stripping ansi is expensive in loop.
-            // Since we constructed leftStr, we know if it has ANSI or not.
-            // If selected: 2 chars pointer + title + reset = visual width is 2 + width(title)
-            // If not: 2 spaces + title
-            
-            const leftVisualWidth = itemLeft ? (stringWidth(this.truncate(itemLeft.title, colWidth - 2)) + 2) : colWidth;
+            const leftVisualWidth = itemLeft ? (stringWidth(this.truncate(itemLeft.title, colWidth - 2)) + 2) : 0;
+            // Pad visually
             const padding = ' '.repeat(Math.max(0, colWidth - leftVisualWidth));
             
             output += leftStr + padding + ' | ' + rightStr + '\n';
         }
 
-        // Instructions
-        output += `\n${ANSI.DIM}(Tab: Switch | Space: Move | Enter: Submit)${ANSI.RESET}`;
+        output += `\n${ANSI.DIM}(Tab: Switch | a: Move All Right | r: Reset/All Left)${ANSI.RESET}`;
 
         this.renderFrame(output);
     }
 
     protected handleInput(char: string) {
         if (char === '\r' || char === '\n') {
-             // Submit
              const leftValues = this.leftList.map(i => i.value);
              const rightValues = this.rightList.map(i => i.value);
              this.submit([leftValues, rightValues]);
@@ -136,6 +121,32 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
             this.activeSide = this.activeSide === 'left' ? 'right' : 'left';
             this.render(false);
             return;
+        }
+
+        // --- Batch Transfer Shortcuts ---
+        
+        // Move All to Right ('a' or '>')
+        if (char === 'a' || char === '>') {
+             if (this.leftList.length > 0) {
+                 this.rightList.push(...this.leftList);
+                 this.leftList = [];
+                 this.cursorLeft = 0;
+                 this.activeSide = 'right';
+                 this.render(false);
+             }
+             return;
+        }
+
+        // Move All to Left ('r' or '<')
+        if (char === 'r' || char === '<') {
+             if (this.rightList.length > 0) {
+                 this.leftList.push(...this.rightList);
+                 this.rightList = [];
+                 this.cursorRight = 0;
+                 this.activeSide = 'left';
+                 this.render(false);
+             }
+             return;
         }
 
         if (this.isUp(char)) {
@@ -164,7 +175,6 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                 if (this.leftList.length > 0) {
                     const [item] = this.leftList.splice(this.cursorLeft, 1);
                     this.rightList.push(item);
-                    // Adjust cursor
                     if (this.cursorLeft >= this.leftList.length) {
                         this.cursorLeft = Math.max(0, this.leftList.length - 1);
                     }
@@ -173,7 +183,6 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                  if (this.rightList.length > 0) {
                     const [item] = this.rightList.splice(this.cursorRight, 1);
                     this.leftList.push(item);
-                    // Adjust cursor
                     if (this.cursorRight >= this.rightList.length) {
                         this.cursorRight = Math.max(0, this.rightList.length - 1);
                     }

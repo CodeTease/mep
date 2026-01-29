@@ -124,6 +124,15 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         }
     }
 
+    private toggleRecursive(node: TreeSelectNode<V>, expand: boolean) {
+        if (expand) this.expandedNodes.add(node);
+        else this.expandedNodes.delete(node);
+
+        if (node.children) {
+            node.children.forEach(child => this.toggleRecursive(child, expand));
+        }
+    }
+
     protected render(firstRender: boolean) {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
@@ -180,7 +189,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             if (index < visible.length - 1) output += '\n';
         });
         
-        output += `\n${theme.muted}(Space to toggle, Enter to submit)${ANSI.RESET}`;
+        output += `\n${theme.muted}(e: Expand All, c: Collapse All, Space: Toggle)${ANSI.RESET}`;
 
         this.renderFrame(output);
     }
@@ -188,7 +197,6 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
     protected handleInput(char: string, key: Buffer) {
         if (this.flatList.length === 0) return;
 
-        // Navigation
         if (this.isUp(char)) {
             this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
             this.render(false);
@@ -203,6 +211,22 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         const currentItem = this.flatList[this.cursor];
         const node = currentItem.node;
         const hasChildren = node.children && node.children.length > 0;
+
+        // Recursive Expand (e)
+        if (char === 'e' && hasChildren) {
+            this.toggleRecursive(node, true);
+            this.recalculateFlatList();
+            this.render(false);
+            return;
+        }
+
+        // Recursive Collapse (c)
+        if (char === 'c' && hasChildren) {
+            this.toggleRecursive(node, false);
+            this.recalculateFlatList();
+            this.render(false);
+            return;
+        }
 
         // Right/Left
         if (this.isRight(char)) {
@@ -236,8 +260,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         // Toggle (Space)
         if (char === ' ') {
             if (!node.disabled) {
-                // Toggle selection
-                const newState = node.selected === true ? false : true; // If indet -> true
+                const newState = node.selected === true ? false : true; 
                 this.setNodeState(node, newState);
                 this.render(false);
             }
