@@ -5,7 +5,7 @@
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, and `keypress`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, and `calendar`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values; click to select.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -104,6 +104,25 @@ async function main() {
         ]
     });
 
+    // Color (RGB Picker)
+    const color = await MepCLI.color({
+        message: "Choose theme color:",
+        initial: "#3B82F6"
+    });
+
+    // Grid (Matrix Selection)
+    const permissions = await MepCLI.grid({
+        message: "Manage Permissions:",
+        rows: ["Admin", "User", "Guest"],
+        columns: ["Read", "Write", "Delete"]
+    });
+
+    // Calendar (Date/Range Picker)
+    const booking = await MepCLI.calendar({
+        message: "Select dates:",
+        mode: "range"
+    });
+
     // Editor (External text editor)
     const bio = await MepCLI.editor({
         message: "Write your biography:",
@@ -157,7 +176,7 @@ async function main() {
         ]
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, bio, userDetails, commitMsg, config, phone, selectedFiles });
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, bio, userDetails, commitMsg, config, selectedFiles });
 }
 
 main();
@@ -181,6 +200,9 @@ main();
 *   `range(options)` - Select a numerical range (min/max) using a dual-handle slider.
 *   `rating(options)` - Star rating input.
 *   `date(options)` - Date and time picker.
+*   `color(options)` - RGB color picker with hex output and TrueColor preview.
+*   `grid(options)` - 2D matrix selection (rows x columns).
+*   `calendar(options)` - Interactive monthly calendar for single dates or ranges.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
@@ -208,6 +230,9 @@ MepCLI automatically detects modern terminals and enables **Mouse Tracking** (us
     *   `number`, `slider`, `range`, `rating`, `date`: Scroll to increment/decrement values or fields.
     *   `sort`: Scroll to navigate or reorder items (when grabbed).
     *   `toggle`, `confirm`: Scroll to toggle the state.
+    *   `calendar`: Scroll to switch months.
+    *   `color`: Scroll to adjust RGB channels.
+    *   `grid`: Scroll to move selection.
 *   **Configuration:**
     *   Mouse support is enabled by default if the terminal supports it.
     *   You can explicitly disable it per prompt by setting `mouse: false` in the options.

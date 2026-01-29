@@ -357,7 +357,29 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Cron Result: "${schedule}"`);
 
-        // --- 27. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 27. Color Prompt ---
+        const themeColor = await MepCLI.color({
+            message: "Pick your brand color (RGB):",
+            initial: "#6366f1"
+        });
+        console.log(`\n Color Result: "${themeColor}"`);
+
+        // --- 28. Grid Prompt ---
+        const permissions = await MepCLI.grid({
+            message: "Configure Access Permissions:",
+            rows: ["Admin", "User", "Guest"],
+            columns: ["Read", "Write", "Execute"]
+        });
+        console.log(`\n Grid Result: (Boolean Matrix)`, permissions);
+
+        // --- 29. Calendar Prompt ---
+        const bookingRange = await MepCLI.calendar({
+            message: "Select booking period:",
+            mode: "range"
+        });
+        console.log(`\n Calendar Result:`, bookingRange);
+
+        // --- 30. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

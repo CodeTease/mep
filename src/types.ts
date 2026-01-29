@@ -167,6 +167,7 @@ export interface TreeNode<V> {
     children?: TreeNode<V>[];
     expanded?: boolean;
     disabled?: boolean;
+    selected?: boolean | 'indeterminate';
 }
 
 export interface TreeOptions<V> extends BaseOptions {
@@ -234,4 +235,23 @@ export interface TreeSelectOptions<V> extends BaseOptions {
     data: TreeSelectNode<V>[];
     initial?: V[];
     indent?: number;
+}
+
+export interface ColorOptions extends BaseOptions {
+    initial?: string; // Hex support (e.g. "#3B82F6")
+    format?: 'hex' | 'rgb' | 'hsl';
+}
+
+export interface GridOptions extends BaseOptions {
+    rows: string[];
+    columns: string[];
+    initial?: boolean[][]; // Trạng thái selected ban đầu
+}
+
+export interface CalendarOptions extends BaseOptions {
+    mode?: 'single' | 'range';
+    initial?: Date | [Date, Date]; // Single date or Range tuple
+    min?: Date;
+    max?: Date;
+    weekStart?: 0 | 1; // 0 = Sunday, 1 = Monday
 }

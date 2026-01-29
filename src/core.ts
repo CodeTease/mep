@@ -1,6 +1,7 @@
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
-         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions } from './types';
+         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
+         ColorOptions, GridOptions, CalendarOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -31,6 +32,9 @@ import { SpamPrompt } from './prompts/spam';
 import { WaitPrompt } from './prompts/wait';
 import { CodePrompt } from './prompts/code';
 import { TreeSelectPrompt } from './prompts/tree-select';
+import { ColorPrompt } from './prompts/color';
+import { GridPrompt } from './prompts/grid';
+import { CalendarPrompt } from './prompts/calendar';
 
 /**
  * Public Facade for MepCLI
@@ -159,5 +163,17 @@ export class MepCLI {
 
     static treeSelect<const V>(options: TreeSelectOptions<V>): Promise<V[]> {
         return new TreeSelectPrompt(options).run();
+    }
+
+    static color(options: ColorOptions): Promise<string> {
+        return new ColorPrompt(options).run();
+    }
+
+    static grid(options: GridOptions): Promise<boolean[][]> {
+        return new GridPrompt(options).run();
+    }
+
+    static calendar(options: CalendarOptions): Promise<Date | [Date, Date]> {
+        return new CalendarPrompt(options).run();
     }
 }
