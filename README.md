@@ -160,6 +160,8 @@ main();
 *   `editor(options)` - Launch an external editor (Vim, Nano, Notepad, etc.) to capture multi-line content.
 *   `form(options)` - Multi-field input form with navigation.
 *   `snippet(options)` - Template string filling with variable navigation.
+*   `spam(options)` - Confirm a dangerous action or fun.
+*   `wait(options)` - Wait for a specified number of seconds.
 *   `spinner(message)` - Returns a `Spinner` instance for manual control (`start`, `stop`, `update`, `success`, `error`).
 
 ## Mouse Support
