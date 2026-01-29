@@ -237,6 +237,44 @@ MepCLI automatically detects modern terminals and enables **Mouse Tracking** (us
     *   Mouse support is enabled by default if the terminal supports it.
     *   You can explicitly disable it per prompt by setting `mouse: false` in the options.
 
+## Advanced Shortcuts
+
+### Calendar Prompt
+
+Mep's Calendar prompt supports advanced navigation and selection shortcuts for power users.
+
+*   **Keyboard:**
+    *   `Arrow Keys`: Move cursor day by day.
+    *   `PageUp` / `PageDown`: Jump to previous/next **Month**.
+    *   `Ctrl + Up` / `Ctrl + Down`: Jump to previous/next **Year**.
+    *   `Home` / `End`: Jump to the first/last day of the current month.
+    *   `t`: Jump immediately to **Today**.
+    *   `Enter`: Select date (or start/end of range).
+
+*   **Mouse:**
+    *   `Scroll`: Navigate **Months**.
+    *   `Shift + Scroll`: Navigate **Years**.
+    *   `Ctrl + Scroll`: Adjust the selected **Day** (cursor movement).
+
+### Grid Prompt
+
+The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
+
+*   **Keyboard:**
+    *   `Arrow Keys`: Move cursor.
+    *   `PageUp` / `PageDown`: Jump to the first/last **Row**.
+    *   `Home` / `End`: Jump to the first/last **Column**.
+    *   `Space`: Toggle current cell.
+    *   `r`: Toggle entire **Row**.
+    *   `c`: Toggle entire **Column**.
+    *   `a`: Select **All**.
+    *   `x`: Deselect **All** (None).
+    *   `i`: **Invert** selection.
+
+*   **Mouse:**
+    *   `Scroll`: Vertical navigation (Rows).
+    *   `Shift + Scroll`: Horizontal navigation (Columns).
+
 ## License
 
 This project is under the **MIT License**.
