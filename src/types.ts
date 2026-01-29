@@ -160,3 +160,64 @@ export interface KeypressOptions extends BaseOptions {
     keys?: string[];
     showInvisible?: boolean;
 }
+
+export interface FormField {
+    name: string;
+    message: string;
+    initial?: string;
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
+}
+
+export interface FormOptions extends BaseOptions {
+    fields: FormField[];
+}
+
+export interface SnippetOptions extends BaseOptions {
+    template: string;
+    values?: Record<string, string>;
+    fields?: Record<string, {
+         message?: string;
+         validate?: (value: string) => string | boolean;
+    }>;
+}
+
+export interface SpamOptions extends BaseOptions {
+    threshold: number; 
+    spamKey?: string; 
+    decay?: boolean; 
+}
+
+export interface WaitOptions extends BaseOptions {
+    seconds: number;
+    autoSubmit?: boolean; 
+}
+
+export interface CodeOptions extends BaseOptions {
+    template: string;
+    language?: 'json' | 'yaml';
+    /**
+     * Enable syntax highlighting (Experimental).
+     * @default true
+     */
+    highlight?: boolean;
+}
+
+export interface MaskedOptions extends BaseOptions {
+    mask: string;
+    placeholder?: string;
+}
+
+export interface TreeSelectNode<V> {
+    title: string;
+    value: V;
+    children?: TreeSelectNode<V>[];
+    expanded?: boolean;
+    disabled?: boolean;
+    selected?: boolean | 'indeterminate';
+}
+
+export interface TreeSelectOptions<V> extends BaseOptions {
+    data: TreeSelectNode<V>[];
+    initial?: V[];
+    indent?: number;
+}
