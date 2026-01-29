@@ -180,3 +180,14 @@ export interface SnippetOptions extends BaseOptions {
          validate?: (value: string) => string | boolean;
     }>;
 }
+
+export interface SpamOptions extends BaseOptions {
+    threshold: number; 
+    spamKey?: string; 
+    decay?: boolean; 
+}
+
+export interface WaitOptions extends BaseOptions {
+    seconds: number;
+    autoSubmit?: boolean; 
+}

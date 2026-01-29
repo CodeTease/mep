@@ -258,7 +258,24 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Snippet Result: "${commitMsg}"`);
 
-        // --- 22. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 22. Spam Prompt (New) ---
+        const spamConfirmed = await MepCLI.spam({
+            message: "Hold on! Confirm deployment by mashing the Space key!",
+            threshold: 10,
+            decay: false, // We're not devil
+            spamKey: ' ' // Space key
+        });
+        console.log(`\n Spam Result: Deployment confirmed: ${spamConfirmed}`);
+
+        // --- 23. Wait Prompt (New) ---
+        await MepCLI.wait({
+            message: "Please wait while we finalize the setup...",
+            seconds: 5,
+            autoSubmit: true // Automatically proceeds after time is up
+        });
+        console.log("\n Wait Result: Wait complete.");
+
+        // --- 24. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

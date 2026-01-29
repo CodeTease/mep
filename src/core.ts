@@ -1,5 +1,7 @@
 import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, KeypressOptions, FormOptions, SnippetOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
+         DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
+         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -23,6 +25,8 @@ import { TreePrompt } from './prompts/tree';
 import { KeypressPrompt } from './prompts/keypress';
 import { FormPrompt } from './prompts/form';
 import { SnippetPrompt } from './prompts/snippet';
+import { SpamPrompt } from './prompts/spam';
+import { WaitPrompt } from './prompts/wait';
 
 /**
  * Public Facade for MepCLI
@@ -119,5 +123,13 @@ export class MepCLI {
 
     static snippet(options: SnippetOptions): Promise<string> {
         return new SnippetPrompt(options).run();
+    }
+
+    static spam(options: SpamOptions): Promise<boolean> {
+        return new SpamPrompt(options).run();
+    }
+
+    static wait(options: WaitOptions): Promise<void> {
+        return new WaitPrompt(options).run();
     }
 }
