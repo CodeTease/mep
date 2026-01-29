@@ -103,6 +103,17 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Slider Result: Brightness: ${brightness}%`);
 
+        // --- 8.1. Range Prompt (Dual Slider) ---
+        const priceRange = await MepCLI.range({
+            message: "Filter by price range:",
+            min: 0,
+            max: 1000,
+            initial: [200, 800],
+            step: 50,
+            unit: "$"
+        });
+        console.log(`\n Range Result: $${priceRange[0]} - $${priceRange[1]}`);
+
         // --- 9. Rating Prompt ---
         const userRating = await MepCLI.rating({
             message: "How would you rate this CLI tool?",
@@ -170,6 +181,14 @@ async function runComprehensiveDemo() {
             items: ["Performance", "Security", "Features", "Usability", "Cost"]
         });
         console.log(`\n Sort Result: Priorities: [${priorities.join(', ')}]`);
+
+        // --- 14.1 Transfer Prompt (PickList) ---
+        const teamA = await MepCLI.transfer({
+            message: "Assign members to Team A (Space to move):",
+            source: ["Alice", "Bob", "Charlie", "David", "Eve"],
+            target: ["Frank"] // Pre-assigned
+        });
+        console.log(`\n Transfer Result: Team A: [${teamA[1].join(', ')}] (Remaining: [${teamA[0].join(', ')}])`);
 
         // --- 15. Table Prompt ---
         const userId = await MepCLI.table({
@@ -330,7 +349,14 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n TreeSelect Result: Selected: [${selectedTreeItems.join(', ')}]`);
 
-        // --- 27. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 27. Cron Prompt ---
+        const schedule = await MepCLI.cron({
+            message: "Set backup schedule (Cron):",
+            initial: "0 4 * * *" // Daily at 4:00 AM
+        });
+        console.log(`\n Cron Result: "${schedule}"`);
+
+        // --- 28. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

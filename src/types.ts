@@ -53,6 +53,11 @@ export interface TransferOptions<V> extends BaseOptions {
     target?: (string | SelectChoice<V>)[];
 }
 
+export interface CronOptions extends BaseOptions {
+    initial?: string;
+    placeholder?: string;
+}
+
 // --- Checkbox Types ---
 export interface CheckboxChoice<V> extends SelectChoice<V> {
     selected?: boolean; // Default checked state

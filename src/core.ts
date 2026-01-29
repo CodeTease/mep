@@ -1,6 +1,6 @@
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
-         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, MaskedOptions, TreeSelectOptions, RangeOptions, TransferOptions } from './types';
+         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, MaskedOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -14,6 +14,7 @@ import { ListPrompt } from './prompts/list';
 import { SliderPrompt } from './prompts/slider';
 import { RangePrompt } from './prompts/range';
 import { TransferPrompt } from './prompts/transfer';
+import { CronPrompt } from './prompts/cron';
 import { DatePrompt } from './prompts/date';
 import { FilePrompt } from './prompts/file';
 import { MultiSelectPrompt } from './prompts/multi-select';
@@ -91,6 +92,10 @@ export class MepCLI {
 
     static transfer<const V>(options: TransferOptions<V>): Promise<[V[], V[]]> {
         return new TransferPrompt(options).run();
+    }
+
+    static cron(options: CronOptions): Promise<string> {
+        return new CronPrompt(options).run();
     }
 
     static date(options: DateOptions): Promise<Date> {

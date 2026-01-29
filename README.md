@@ -5,7 +5,7 @@
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `table`, `rating`, `editor`, `tree`, and `keypress`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, and `keypress`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values; click to select.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -185,11 +185,14 @@ main();
 *   `checkbox(options)` - Classic checkbox selection.
 *   `list(options)` - Enter a list of tags/strings.
 *   `slider(options)` - Select a number within a range using a visual slider.
+*   `range(options)` - Select a numerical range (min/max) using a dual-handle slider.
 *   `rating(options)` - Star rating input.
 *   `date(options)` - Date and time picker.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
+*   `transfer(options)` - Move items between two lists (Source/Target).
+*   `cron(options)` - Visually build a cron schedule (Minute, Hour, Day, Month, Weekday).
 *   `table(options)` - Display data in columns and select rows.
 *   `tree(options)` - Navigate and select from a hierarchical tree structure.
 *   `keypress(options)` - Wait for a specific key press or any key.
@@ -208,9 +211,9 @@ main();
 MepCLI automatically detects modern terminals and enables **Mouse Tracking** (using SGR 1006 protocol).
 
 *   **Scrolling:**
-    *   `select`, `multiSelect`, `checkbox`, `autocomplete`, `table`, `tree`: Scroll to navigate the list.
-    *   `form`, `snippet`: Scroll to navigate between fields.
-    *   `number`, `slider`, `rating`, `date`: Scroll to increment/decrement values or fields.
+    *   `select`, `multiSelect`, `checkbox`, `autocomplete`, `table`, `tree`, `transfer`: Scroll to navigate the list.
+    *   `form`, `snippet`, `cron`: Scroll to navigate between fields or values.
+    *   `number`, `slider`, `range`, `rating`, `date`: Scroll to increment/decrement values or fields.
     *   `sort`: Scroll to navigate or reorder items (when grabbed).
     *   `toggle`, `confirm`: Scroll to toggle the state.
 *   **Configuration:**
