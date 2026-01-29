@@ -191,3 +191,33 @@ export interface WaitOptions extends BaseOptions {
     seconds: number;
     autoSubmit?: boolean; 
 }
+
+export interface CodeOptions extends BaseOptions {
+    template: string;
+    language?: 'json' | 'yaml';
+    /**
+     * Enable syntax highlighting (Experimental).
+     * @default true
+     */
+    highlight?: boolean;
+}
+
+export interface MaskedOptions extends BaseOptions {
+    mask: string;
+    placeholder?: string;
+}
+
+export interface TreeSelectNode<V> {
+    title: string;
+    value: V;
+    children?: TreeSelectNode<V>[];
+    expanded?: boolean;
+    disabled?: boolean;
+    selected?: boolean | 'indeterminate';
+}
+
+export interface TreeSelectOptions<V> extends BaseOptions {
+    data: TreeSelectNode<V>[];
+    initial?: V[];
+    indent?: number;
+}

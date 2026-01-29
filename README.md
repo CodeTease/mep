@@ -129,7 +129,42 @@ async function main() {
         }
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, bio, userDetails, commitMsg });
+    // Code Prompt (JSON/YAML Editing)
+    const config = await MepCLI.code({
+        message: "Configure Server:",
+        language: "json",
+        template: `
+{
+  "host": "\${host}",
+  "port": \${port},
+  "debug": \${debug}
+}
+`
+    });
+
+    // Masked Input (Pattern enforcement)
+    const phone = await MepCLI.mask({
+        message: "Enter Phone Number:",
+        mask: "(999) 999-9999",
+        placeholder: "_"
+    });
+
+    // Tree Select (Hierarchical Multi-Select)
+    const selectedFiles = await MepCLI.treeSelect({
+        message: "Select files to backup:",
+        data: [
+            {
+                title: "src",
+                value: "src",
+                children: [
+                    { title: "index.ts", value: "src/index.ts" },
+                    { title: "utils.ts", value: "src/utils.ts" }
+                ]
+            }
+        ]
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, bio, userDetails, commitMsg, config, phone, selectedFiles });
 }
 
 main();
@@ -160,6 +195,9 @@ main();
 *   `editor(options)` - Launch an external editor (Vim, Nano, Notepad, etc.) to capture multi-line content.
 *   `form(options)` - Multi-field input form with navigation.
 *   `snippet(options)` - Template string filling with variable navigation.
+*   `code(options)` - Edit variables within a code block (JSON/YAML). Syntax highlighting is supported (Experimental).
+*   `mask(options)` - Input text with a fixed pattern mask (e.g., phone numbers, IP addresses).
+*   `treeSelect(options)` - Hierarchical multi-selection with cascading checkboxes.
 *   `spam(options)` - Confirm a dangerous action or fun.
 *   `wait(options)` - Wait for a specified number of seconds.
 *   `spinner(message)` - Returns a `Spinner` instance for manual control (`start`, `stop`, `update`, `success`, `error`).

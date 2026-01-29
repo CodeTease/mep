@@ -275,12 +275,60 @@ async function runComprehensiveDemo() {
         });
         console.log("\n Wait Result: Wait complete.");
 
-        // --- 24. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 24. Code Prompt (New) ---
+        const config = await MepCLI.code({
+            message: "Configure Server (JSON) - Tab to nav:",
+            language: "json",
+            highlight: true, // Experimental syntax highlighting
+            template: `
+{
+  "host": "\${host}",
+  "port": \${port},
+  "debug": \${debug}
+}
+`
+        });
+        console.log(`\n Code Result: Config: ${config.replace(/\n/g, ' ')}`);
+
+        // --- 25. Masked Prompt (New) ---
+        const phone = await MepCLI.mask({
+            message: "Enter Phone Number (Masked):",
+            mask: "(999) 999-9999",
+            placeholder: "_"
+        });
+        console.log(`\n Masked Result: Phone: ${phone}`);
+
+        // --- 26. Tree Select Prompt (New) ---
+        const selectedTreeItems = await MepCLI.treeSelect({
+             message: "Select files to backup (Multi-select Tree):",
+             data: [
+                 {
+                     title: "src",
+                     value: "src",
+                     children: [
+                         { title: "index.ts", value: "src/index.ts" },
+                         { title: "utils.ts", value: "src/utils.ts" }
+                     ]
+                 },
+                 {
+                     title: "tests",
+                     value: "tests",
+                     expanded: true,
+                     children: [
+                         { title: "e2e", value: "tests/e2e", selected: true },
+                         { title: "unit", value: "tests/unit" }
+                     ]
+                 }
+             ]
+        });
+        console.log(`\n TreeSelect Result: Selected: [${selectedTreeItems.join(', ')}]`);
+
+        // --- 27. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
         
-        console.log("\n--- Deployment successful! All MepCLI features (including Editor, Form, Snippet) demonstrated! ---");
+        console.log("\n--- Deployment successful! All MepCLI features (including Code, Mask, TreeSelect) demonstrated! ---");
 
     } catch (e) {
         // Global handler for Ctrl+C closure

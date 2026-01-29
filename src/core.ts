@@ -1,7 +1,6 @@
-import { ANSI } from './ansi';
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
-         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions } from './types';
+         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, MaskedOptions, TreeSelectOptions } from './types';
 import { theme } from './theme';
 import { symbols } from './symbols';
 import { Spinner } from './spinner';
@@ -27,6 +26,9 @@ import { FormPrompt } from './prompts/form';
 import { SnippetPrompt } from './prompts/snippet';
 import { SpamPrompt } from './prompts/spam';
 import { WaitPrompt } from './prompts/wait';
+import { CodePrompt } from './prompts/code';
+import { MaskedPrompt } from './prompts/mask';
+import { TreeSelectPrompt } from './prompts/tree-select';
 
 /**
  * Public Facade for MepCLI
@@ -131,5 +133,17 @@ export class MepCLI {
 
     static wait(options: WaitOptions): Promise<void> {
         return new WaitPrompt(options).run();
+    }
+
+    static code(options: CodeOptions): Promise<string> {
+        return new CodePrompt(options).run();
+    }
+
+    static mask(options: MaskedOptions): Promise<string> {
+        return new MaskedPrompt(options).run();
+    }
+
+    static treeSelect<const V>(options: TreeSelectOptions<V>): Promise<V[]> {
+        return new TreeSelectPrompt(options).run();
     }
 }
