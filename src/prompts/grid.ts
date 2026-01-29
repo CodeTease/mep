@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { GridOptions } from '../types';
+import { GridOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class GridPrompt extends Prompt<boolean[][], GridOptions> {
@@ -118,6 +118,17 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         if (char === '\r' || char === '\n') {
             this.submit(this.selected);
             return;
+        }
+    }
+
+    protected handleMouse(event: MouseEvent): void {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.cursorRow = Math.max(0, this.cursorRow - 1);
+            } else if (event.scroll === 'down') {
+                this.cursorRow = Math.min(this.options.rows.length - 1, this.cursorRow + 1);
+            }
+            this.render(false);
         }
     }
 }

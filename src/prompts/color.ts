@@ -144,4 +144,20 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             return;
         }
     }
+
+    protected handleMouse(event: MouseEvent): void {
+        if (event.action === 'scroll') {
+            const channels: ('r' | 'g' | 'b')[] = ['r', 'g', 'b'];
+            let idx = channels.indexOf(this.activeChannel);
+            
+            if (event.scroll === 'up') {
+                idx = (idx - 1 + 3) % 3;
+            } else if (event.scroll === 'down') {
+                idx = (idx + 1) % 3;
+            }
+            
+            this.activeChannel = channels[idx];
+            this.render(false);
+        }
+    }
 }
