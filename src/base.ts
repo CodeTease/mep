@@ -125,7 +125,6 @@ export abstract class Prompt<T, O> {
         if (this._onKeyHandler) {
             this._inputParser.removeListener('keypress', this._onKeyHandler);
         }
-        // Cleanup mouse listener - though InputParser is instance specific, so it's fine.
         
         // Disable Mouse Tracking
         this.print(ANSI.DISABLE_MOUSE);

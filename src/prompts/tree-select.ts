@@ -10,6 +10,11 @@ interface FlatNode<V> {
     parent: TreeSelectNode<V> | null;
 }
 
+/**
+ * FIXED-ISH: This prompt may hang on Windows TTY after multiple prompt cycles.
+ * Current workaround: User must press 'Enter' to flush the stdin buffer.
+ * Potential root cause: Synchronous recursion during initialization blocking setRawMode.
+ */
 export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
     private cursor: number = 0;
     private expandedNodes: Set<TreeSelectNode<V>> = new Set();
@@ -17,6 +22,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
     private scrollTop: number = 0;
     private readonly pageSize: number = 15;
     private parentMap: Map<TreeSelectNode<V>, TreeSelectNode<V>> = new Map();
+    private static hasWarnedWindows = false; // Static flag to warn only once
 
     private readonly ICON_CLOSED = symbols.pointer === '>' ? '+' : '▸';
     private readonly ICON_OPEN = symbols.pointer === '>' ? '-' : '▾';
@@ -30,6 +36,11 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
              const initialSet = new Set(this.options.initial);
              this.initializeSelection(this.options.data, initialSet);
              this.recalculateAllParents(this.options.data);
+        }
+
+        if (process.platform === 'win32' && !TreeSelectPrompt.hasWarnedWindows) {
+            console.warn(`${ANSI.FG_YELLOW}Warning:${ANSI.RESET} TreeSelectPrompt may hang on Windows TTY after multiple prompt cycles. Please press 'Enter' if the prompt becomes unresponsive.${ANSI.RESET}`);
+            TreeSelectPrompt.hasWarnedWindows = true;
         }
         
         this.recalculateFlatList();

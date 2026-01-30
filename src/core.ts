@@ -160,6 +160,15 @@ export class MepCLI {
         return new CodePrompt(options).run();
     }
 
+    /**
+     * Tree Select Prompt (Multi-selection)
+     * * @param options Configuration for the tree selection
+     * @returns A promise that resolves to an array of selected values
+     * * @notice Windows Compatibility:
+     * When used in a long sequence of prompts, this component may experience 
+     * an input delay. If it feels "blocked", simply press 'Enter' once 
+     * to refresh the TTY stream. 
+     */
     static treeSelect<const V>(options: TreeSelectOptions<V>): Promise<V[]> {
         return new TreeSelectPrompt(options).run();
     }

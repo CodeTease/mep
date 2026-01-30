@@ -316,15 +316,6 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Code Result: Config: ${config.replace(/\n/g, ' ')}`);
 
-        /* --- Masked Prompt (Completely Removed) ---
-        const phone = await MepCLI.mask({
-            message: "Enter Phone Number (Masked):",
-            mask: "(999) 999-9999",
-            placeholder: "_"
-        });
-        console.log(`\n Masked Result: Phone: ${phone}`);
-        */
-
         // --- 25. Tree Select Prompt ---
         const selectedTreeItems = await MepCLI.treeSelect({
              message: "Select files to backup (Multi-select Tree):",
