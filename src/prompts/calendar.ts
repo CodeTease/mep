@@ -366,7 +366,5 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
              
              this.render(false);
          }
-         // Todo: Click support requires mapping X/Y to grid cells which is hard in terminal relative mode
-         // We'll skip click-to-select for now unless we implement robust hit testing.
     }
 }

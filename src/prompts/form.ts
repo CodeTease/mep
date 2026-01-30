@@ -57,7 +57,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
             const label = `${labelStyle}${field.message}:${ANSI.RESET}`;
 
             // Value
-            // TODO: Masking if password 
+            // Note: Use Secret/Password prompt for case sensitive input, Form prompt is for general text input
             const displayValue = isActive ? value : `${theme.muted}${value}${ANSI.RESET}`;
             
             // Construct Line
