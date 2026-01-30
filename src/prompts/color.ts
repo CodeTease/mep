@@ -147,17 +147,16 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
 
     protected handleMouse(event: MouseEvent): void {
         if (event.action === 'scroll') {
-            const channels: ('r' | 'g' | 'b')[] = ['r', 'g', 'b'];
-            let idx = channels.indexOf(this.activeChannel);
-            
-            if (event.scroll === 'up') {
-                idx = (idx - 1 + 3) % 3;
-            } else if (event.scroll === 'down') {
-                idx = (idx + 1) % 3;
+            // On scroll, adjust the currently active channel's value.
+            // If Ctrl is held, adjust by a larger step (fast adjust).
+            const fast = !!event.ctrl;
+            const step = fast ? 10 : 1;
+            const change = event.scroll === 'up' ? step : (event.scroll === 'down' ? -step : 0);
+            if (change !== 0) {
+                let val = this.rgb[this.activeChannel] + change;
+                this.rgb[this.activeChannel] = Math.max(0, Math.min(255, val));
+                this.render(false);
             }
-            
-            this.activeChannel = channels[idx];
-            this.render(false);
         }
     }
 }

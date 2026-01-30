@@ -2,6 +2,8 @@
 
 **Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation.
 
+A **CodeTease** project. 
+
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
@@ -254,6 +256,18 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
 *   **Mouse:**
     *   `Scroll`: Navigate **Months**.
     *   `Ctrl + Scroll`: Adjust the selected **Day** (cursor movement).
+
+### Color Prompt
+
+*   **Keyboard:**
+    *   `Tab`: Switch between RGB channels.
+    *   `Up` / `Down`: Move between channels.
+    *   `Left` / `Right`: Adjust current channel value.
+    *   `Shift + Left` / `Shift + Right`: Fast adjust current channel value.
+
+*   **Mouse:**
+    *   `Scroll`: Adjust the current channel value.
+    *   `Ctrl + Scroll`: Fast adjust.
 
 ### Checkbox Prompt
 
