@@ -218,6 +218,18 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         }
     }
 
+    // When the user navigates the visible month independently (mouse scroll or
+    // '<'/'>'), keep the cursor in the newly viewed month so subsequent
+    // cursor movements don't snap the view back to the old month.
+    private alignCursorToViewDate() {
+        const day = this.cursor.getDate();
+        const year = this.viewDate.getFullYear();
+        const month = this.viewDate.getMonth();
+        const daysInTarget = this.getDaysInMonth(year, month);
+        const newDay = Math.min(day, daysInTarget);
+        this.cursor = new Date(year, month, newDay);
+    }
+
     protected handleInput(char: string, key: Buffer): void {
         const isUp = this.isUp(char);
         const isDown = this.isDown(char);
@@ -294,12 +306,14 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         // Month Navigation with < and > (shift+, shift+.)
         if (char === '<' || char === ',') {
             this.viewDate.setMonth(this.viewDate.getMonth() - 1);
-            this.render(false);
+              this.alignCursorToViewDate();
+              this.render(false);
             return;
         }
         if (char === '>' || char === '.') {
              this.viewDate.setMonth(this.viewDate.getMonth() + 1);
-             this.render(false);
+               this.alignCursorToViewDate();
+               this.render(false);
              return;
         }
 
@@ -347,6 +361,7 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
              } else {
                  // Normal Scroll: Month
                  this.viewDate.setMonth(this.viewDate.getMonth() + direction);
+                 this.alignCursorToViewDate();
              }
              
              this.render(false);
