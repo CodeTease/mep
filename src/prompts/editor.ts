@@ -27,7 +27,7 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
                 if (fs.existsSync(this.tempFilePath)) {
                     fs.unlinkSync(this.tempFilePath);
                 }
-            } catch (error) {
+            } catch (_error) {
                 // Ignore cleanup errors
             }
         }
@@ -150,7 +150,7 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
                     fs.unlinkSync(this.tempFilePath); // Cleanup
                     this.tempFilePath = null; // Mark as cleaned
                 }
-            } catch (e) {
+            } catch (_e) {
                 // Ignore read/delete errors
             }
             

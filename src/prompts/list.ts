@@ -14,7 +14,7 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
         this.value = options.initial || [];
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const cols = process.stdout.columns || 80;
 
         // 1. Prepare Prefix

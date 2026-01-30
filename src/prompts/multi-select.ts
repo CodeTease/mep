@@ -26,7 +26,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             .filter(c => c.title.toLowerCase().includes(this.searchBuffer.toLowerCase()));
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
 

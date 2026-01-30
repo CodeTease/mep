@@ -18,7 +18,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         this.checkedState = options.choices.map(c => !!c.selected);
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Adjust Scroll Top
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;
@@ -60,7 +60,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         
         // Indication of more items
         if (choices.length > this.pageSize) {
-             const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
+             // const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
         }
 
         if (this.errorMsg) {

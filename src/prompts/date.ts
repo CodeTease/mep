@@ -15,7 +15,7 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
         this.value = options.initial || new Date();
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Date formatting
         const y = this.value.getFullYear();
         const m = (this.value.getMonth() + 1).toString().padStart(2, '0');

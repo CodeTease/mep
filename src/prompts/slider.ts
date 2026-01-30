@@ -11,7 +11,7 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
         this.value = options.initial ?? options.min;
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const width = 20;
         const range = this.options.max - this.options.min;
         const ratio = (this.value - this.options.min) / range;

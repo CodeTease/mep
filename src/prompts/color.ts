@@ -37,7 +37,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
         return `\x1b[48;2;${r};${g};${b}m`;
     }
 
-    protected render(firstRender: boolean): void {
+    protected render(_firstRender: boolean): void {
         const { r, g, b } = this.rgb;
         const hex = this.rgbToHex(r, g, b);
         
@@ -70,7 +70,6 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             // Width 20 chars for 0-255
             const width = 20;
             const pos = Math.floor((val / 255) * width);
-            const track = '━'.repeat(pos) + '⚪' + '─'.repeat(width - pos);
             // Wait, '⚪' might be wide. using simpler char if needed. 'O' or ANSI reverse space.
             // Let's use standard chars.
             const trackSimple = '━'.repeat(pos) + (isActive ? '●' : '○') + '─'.repeat(width - pos);
@@ -90,7 +89,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer): void {
+    protected handleInput(char: string, _key: Buffer): void {
         const isUp = this.isUp(char);
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);

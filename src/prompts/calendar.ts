@@ -130,7 +130,7 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
          return this.isSameDay(d, this.selection as Date);
     }
 
-    protected render(firstRender: boolean): void {
+    protected render(_firstRender: boolean): void {
         const monthNames = ["January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"
         ];
@@ -140,7 +140,6 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         
         const header = `${ANSI.BOLD}${monthNames[month]} ${year}${ANSI.RESET}`;
         // Centered header roughly
-        const padding = Math.max(0, Math.floor((20 - header.length + 9) / 2)); // +9 for ANSI codes length approx
         // 20 is approx width of calendar (3 chars * 7 cols - 1 space = 20)
         
         // Actually grid width: 7 columns. Each cell is usually "DD ". Last col "DD".
@@ -230,7 +229,7 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         this.cursor = new Date(year, month, newDay);
     }
 
-    protected handleInput(char: string, key: Buffer): void {
+    protected handleInput(char: string, _key: Buffer): void {
         const isUp = this.isUp(char);
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);

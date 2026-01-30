@@ -51,7 +51,7 @@ export abstract class Prompt<T, O> {
      * Optional method to handle mouse events.
      * Subclasses can override this to implement mouse interaction.
      */
-    protected handleMouse(event: MouseEvent): void {}
+    protected handleMouse(_event: MouseEvent): void {}
 
     protected print(text: string) {
         this.stdout.write(text);

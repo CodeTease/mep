@@ -1,7 +1,6 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { symbols } from '../symbols';
 import { SnippetOptions, MouseEvent } from '../types';
 
 interface Token {
@@ -123,7 +122,6 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         // 3. Error (optional)
         // 4. Hint
         
-        const totalRows = this.lastRenderHeight; // or calculate from output
         // snippetLine is at index 1 (0-based) if Message has no newlines.
         // Prefix ends with \n. So snippetLine is on 2nd line.
         
@@ -145,7 +143,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         }
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         // Navigation: Tab / Shift+Tab
         if (char === '\u001b[Z') {
              // Shift Tab -> Prev

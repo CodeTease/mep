@@ -10,7 +10,7 @@ export function highlightJson(json: string): string {
     // 3. Booleans/Null
     // 4. Punctuation
     
-    const tokenRegex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)|(-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)|(true|false|null)|([{}\[\],:])/g;
+    const tokenRegex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)|(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|(true|false|null)|([{}[\],:])/g;
 
     return json.replace(tokenRegex, (match) => {
         // String

@@ -41,7 +41,7 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
         return res + '...';
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const termWidth = process.stdout.columns || 80;
         const colWidth = Math.floor((termWidth - 6) / 2);
 

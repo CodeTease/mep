@@ -133,7 +133,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         }
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         if (this.flatList.length === 0) {
@@ -194,7 +194,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         if (this.flatList.length === 0) return;
 
         // 1. Priority: Navigation keys (ANSI sequences)

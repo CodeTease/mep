@@ -39,7 +39,7 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
                 this.selectedIndex = 0;
                 this.scrollTop = 0;
                 this.hasSearched = true;
-            } catch (err) {
+            } catch (_err) {
                 this.choices = [];
             } finally {
                 this.loading = false;
@@ -69,7 +69,7 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
         super.cleanup();
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         if (this.lastRenderHeight > 1) {
             this.print(`\x1b[${this.lastRenderHeight - 1}B`); // Move down
         }

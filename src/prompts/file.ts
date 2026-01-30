@@ -48,7 +48,7 @@ export class FilePrompt extends Prompt<string, FileOptions> {
                                  return this.options.extensions.some(ext => f.endsWith(ext));
                              }
                              return true;
-                         } catch (e) {
+                         } catch (_e) {
                              return false;
                          }
                     })
@@ -57,13 +57,13 @@ export class FilePrompt extends Prompt<string, FileOptions> {
                         try {
                             // Append separator if the file is a directory
                             if (fs.statSync(fullPath).isDirectory()) return f + path.sep;
-                        } catch (e) { /* ignore */ }
+                        } catch (_e) { /* ignore */ }
                         return f;
                     });
             } else {
                 this.suggestions = [];
             }
-        } catch (e) {
+        } catch (_e) {
             this.suggestions = [];
         }
         this.selectedSuggestion = -1;

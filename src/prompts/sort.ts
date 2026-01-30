@@ -16,7 +16,7 @@ export class SortPrompt extends Prompt<string[], SortOptions> {
         this.items = [...options.items];
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Adjust Scroll Top
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;

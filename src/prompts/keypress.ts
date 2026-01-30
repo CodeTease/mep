@@ -8,7 +8,7 @@ export class KeypressPrompt extends Prompt<string, KeypressOptions> {
         super(options);
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = `${theme.title}${this.options.message}${ANSI.RESET}`;
         
         if (this.options.keys) {
@@ -27,7 +27,7 @@ export class KeypressPrompt extends Prompt<string, KeypressOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         let keyName = char;
         if (char === '\r' || char === '\n') keyName = 'enter';
         else if (char === ' ') keyName = 'space';

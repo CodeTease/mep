@@ -29,8 +29,6 @@ export class TextPrompt extends Prompt<string, TextOptions> {
         this.lastLinesUp = 0;
 
         // Calculate available width
-        const cols = process.stdout.columns || 80;
-        
         // 1. Prepare Prompt Label
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const hint = this.options.multiline ? ` ${theme.muted}(Press Ctrl+D to submit)${ANSI.RESET}` : '';
@@ -55,11 +53,9 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             cursorRelativeCol = 0;
         } else {
             const maskChar = this.options.mask ?? (this.options.isPassword ? '*' : undefined);
-            const rawValue = maskChar !== undefined ? maskChar.repeat(this.segments.length) : this.value;
             // Note: password masking replaces each grapheme with '*'
             
             // Split by lines (for multiline support)
-            const lines = rawValue.split('\n');
             
             // Determine which line the cursor is on
             // We need to map 'cursor' (segments index) to line/col.
@@ -67,16 +63,9 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             // safeSplit treats '\n' as a segment.
             
             let cursorLineIndex = 0;
-            const cursorSegmentIndexOnLine = 0;
-            const currentSegmentIndex = 0;
-            
-            for (let i = 0; i < lines.length; i++) {
-                const lineSegmentsCount = 0;
-            }
             
             // Let's iterate segments to find cursor position (row, col)
             cursorLineIndex = 0;
-            const colIndex = 0; // Visual column or char index?
             // If we want visual cursor position, we need visual width of segments.
             let visualColIndex = 0;
 
@@ -113,10 +102,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             }
             processedLines.push(currentLineSegments); // Last line
             
-            processedLines.forEach((lineSegs: string[], idx: number) => {
-                const isCursorLine = idx === cursorLineIndex;
-                const linePrefixLen = (idx === 0) ? prefixVisualLen : 0; 
-                const maxContentLen = Math.max(10, cols - linePrefixLen - 1);
+            processedLines.forEach((lineSegs: string[]) => {
                 
                 // Reconstruct line string for display calculation
                 // If password, join with *?
@@ -125,9 +111,6 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                     visibleLine = maskChar.repeat(lineSegs.length);
                 } else {
                     visibleLine = lineSegs.join('');
-                }
-                
-                if (isCursorLine) {
                 }
                 
                 displayValueLines.push(theme.main + visibleLine + ANSI.RESET);

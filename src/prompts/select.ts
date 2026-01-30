@@ -50,7 +50,7 @@ export class SelectPrompt<V> extends Prompt<any, SelectOptions<V>> {
         });
     }
     
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
         

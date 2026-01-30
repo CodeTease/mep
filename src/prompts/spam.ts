@@ -33,7 +33,7 @@ export class SpamPrompt extends Prompt<boolean, SpamOptions> {
         super.cleanup();
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const progress = Math.min(this.count / this.options.threshold, 1);
         const filledLen = Math.round(progress * this.width);
         const emptyLen = this.width - filledLen;

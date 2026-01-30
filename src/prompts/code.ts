@@ -28,7 +28,6 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         
         // Init cursor at end of first var
         if (this.variableTokens.length > 0) {
-             const firstVar = this.tokens[this.variableTokens[0]].value;
              this.cursor = 0; // Start empty
         }
     }
@@ -147,7 +146,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         }
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         // Nav
         if (char === '\u001b[Z') { // Shift Tab
              this.moveFocus(-1);

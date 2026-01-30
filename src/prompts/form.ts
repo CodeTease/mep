@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { FormOptions, FormField, MouseEvent } from '../types';
+import { FormOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
@@ -27,7 +27,6 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         }
         this.lastLinesUp = 0;
 
-        const cols = process.stdout.columns || 80;
         const outputLines: string[] = [];
 
         // Title

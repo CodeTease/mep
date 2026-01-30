@@ -21,7 +21,7 @@ export class RangePrompt extends Prompt<[number, number], RangeOptions> {
         this.value = [low, high];
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const width = 20;
         const range = this.options.max - this.options.min;
         const [low, high] = this.value;

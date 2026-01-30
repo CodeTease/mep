@@ -3,7 +3,6 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions } from './types';
 import { theme } from './theme';
-import { symbols } from './symbols';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
 import { SelectPrompt } from './prompts/select';

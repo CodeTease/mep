@@ -52,7 +52,7 @@ export class WaitPrompt extends Prompt<void, WaitOptions> {
         super.cleanup();
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = `${theme.title}${this.options.message}${ANSI.RESET} `;
 
         if (this.isDone) {

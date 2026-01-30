@@ -36,7 +36,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         return FIELDS[this.activeField];
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean): void {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         
         // Render fields

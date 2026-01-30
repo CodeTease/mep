@@ -95,7 +95,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
         }
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         if (this.flatList.length === 0) {
@@ -156,7 +156,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         if (this.flatList.length === 0) return;
 
         if (this.isUp(char)) {

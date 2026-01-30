@@ -39,7 +39,7 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         });
     }
 
-    protected render(firstRender: boolean): void {
+    protected render(_firstRender: boolean): void {
         const { rows, columns } = this.options;
         
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
@@ -93,7 +93,7 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer): void {
+    protected handleInput(char: string, _key: Buffer): void {
         const isUp = this.isUp(char);
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);

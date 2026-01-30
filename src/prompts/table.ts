@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { TableOptions, MouseEvent, TableRow } from '../types';
+import { TableOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
@@ -33,7 +33,7 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
         this.colWidths = this.colWidths.map(w => w + 2);
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Scroll Logic
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;
