@@ -157,7 +157,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             const indentSize = this.options.indent || 2;
             const indentation = ' '.repeat(item.depth * indentSize);
 
-            let linePrefix = isSelected ? `${theme.main}${symbols.pointer} ` : '  ';
+            const linePrefix = isSelected ? `${theme.main}${symbols.pointer} ` : '  ';
 
             let folderIcon = '  '; 
             const hasChildren = item.node.children && item.node.children.length > 0;

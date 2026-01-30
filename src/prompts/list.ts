@@ -22,7 +22,7 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
         const prefix = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
         
         // 2. Build Lines with Wrapping
-        let lines: string[] = [];
+        const lines: string[] = [];
         let currentLine = prefix;
         
         // Helper to check width

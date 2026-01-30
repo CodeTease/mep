@@ -50,7 +50,7 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         // Calculate days from previous month to fill the first row
         // If startDayOfWeek is 2 (Tue) and weekStart is 0 (Sun), we need 2 days from prev month.
         // If startDayOfWeek is 0 (Sun) and weekStart is 1 (Mon), we need 6 days from prev month.
-        let daysFromPrevMonth = (startDayOfWeek - weekStart + 7) % 7;
+        const daysFromPrevMonth = (startDayOfWeek - weekStart + 7) % 7;
         if (daysFromPrevMonth === 0 && startDayOfWeek !== weekStart) {
              // Logic check: if starts on same day, 0. 
         }

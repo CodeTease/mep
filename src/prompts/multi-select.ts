@@ -103,7 +103,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
 
         // Ctrl+A (\x01): Select All Visible
         if (char === '\x01') {
-            let newCheckedState = [...this.checkedState];
+            const newCheckedState = [...this.checkedState];
             let potentialAdd = 0;
             
             // Calculate potential selections

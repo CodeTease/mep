@@ -101,7 +101,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         }
 
         const config = this.currentConfig;
-        let currentVal = this.fields[this.activeField];
+        const currentVal = this.fields[this.activeField];
         let numVal = parseInt(currentVal);
 
         if (this.isUp(char)) {
@@ -163,7 +163,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
     protected handleMouse(event: MouseEvent) {
          if (event.action === 'scroll') {
              const config = this.currentConfig;
-             let currentVal = this.fields[this.activeField];
+             const currentVal = this.fields[this.activeField];
              let numVal = parseInt(currentVal);
 
             if (event.scroll === 'up') { // Increase

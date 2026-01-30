@@ -124,7 +124,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             if (isShiftRight) change = 10;
             if (isShiftLeft) change = -10;
             
-            let val = this.rgb[this.activeChannel] + change;
+            const val = this.rgb[this.activeChannel] + change;
             this.rgb[this.activeChannel] = Math.max(0, Math.min(255, val));
             this.render(false);
             return;
@@ -153,7 +153,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             const step = fast ? 10 : 1;
             const change = event.scroll === 'up' ? step : (event.scroll === 'down' ? -step : 0);
             if (change !== 0) {
-                let val = this.rgb[this.activeChannel] + change;
+                const val = this.rgb[this.activeChannel] + change;
                 this.rgb[this.activeChannel] = Math.max(0, Math.min(255, val));
                 this.render(false);
             }

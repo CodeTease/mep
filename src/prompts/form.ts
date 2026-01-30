@@ -28,7 +28,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         this.lastLinesUp = 0;
 
         const cols = process.stdout.columns || 80;
-        let outputLines: string[] = [];
+        const outputLines: string[] = [];
 
         // Title
         outputLines.push(`${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}`);
@@ -138,7 +138,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Editing Active Field
         const activeField = this.options.fields[this.activeIndex];
-        let val = this.values[activeField.name];
+        const val = this.values[activeField.name];
 
         if (char === '\u0008' || char === '\x7f') { // Backspace
             if (this.cursor > 0) {
