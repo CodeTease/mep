@@ -20,17 +20,13 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
     // Icons
     private readonly ICON_CLOSED = symbols.pointer === '>' ? '+' : '▸';
     private readonly ICON_OPEN = symbols.pointer === '>' ? '-' : '▾';
-    private readonly ICON_LEAF = symbols.pointer === '>' ? ' ' : ' '; // No specific icon for leaf, just indentation
-
+    
     constructor(options: TreeOptions<V>) {
         super(options);
         this.initializeExpanded(this.options.data);
-
-        // Handle initial value
         if (this.options.initial !== undefined) {
             this.expandPathTo(this.options.initial);
         }
-
         this.recalculateFlatList();
         
         if (this.options.initial !== undefined) {
@@ -71,8 +67,6 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
     private recalculateFlatList() {
         this.flatList = [];
         this.traverse(this.options.data, 0, null);
-        
-        // Adjust cursor if it went out of bounds (e.g. collapsing a folder above cursor)
         if (this.cursor >= this.flatList.length) {
             this.cursor = Math.max(0, this.flatList.length - 1);
         }
@@ -92,7 +86,16 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
         }
     }
 
-    protected render(firstRender: boolean) {
+    private toggleRecursive(node: TreeNode<V>, expand: boolean) {
+        if (expand) this.expandedNodes.add(node);
+        else this.expandedNodes.delete(node);
+
+        if (node.children) {
+            node.children.forEach(child => this.toggleRecursive(child, expand));
+        }
+    }
+
+    protected render(_firstRender: boolean) {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         if (this.flatList.length === 0) {
@@ -101,7 +104,6 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             return;
         }
 
-        // Adjust Scroll
         if (this.cursor < this.scrollTop) {
             this.scrollTop = this.cursor;
         } else if (this.cursor >= this.scrollTop + this.pageSize) {
@@ -114,11 +116,9 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             const actualIndex = this.scrollTop + index;
             const isSelected = actualIndex === this.cursor;
             
-            // Indentation
             const indentSize = this.options.indent || 2;
             const indentation = ' '.repeat(item.depth * indentSize);
 
-            // Pointer
             let linePrefix = '';
             if (isSelected) {
                 linePrefix = `${theme.main}${symbols.pointer} `;
@@ -126,8 +126,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
                 linePrefix = '  ';
             }
 
-            // Folder Icon
-            let icon = '  '; // Default 2 spaces for alignment
+            let icon = '  ';
             const hasChildren = item.node.children && item.node.children.length > 0;
             
             if (hasChildren) {
@@ -138,13 +137,11 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
                 }
             }
 
-            // Title
             let title = item.node.title;
             if (item.node.disabled) {
                 title = `${theme.muted}${title} (disabled)${ANSI.RESET}`;
             }
 
-            // Compose line
             let line = `${indentation}${icon}${title}`;
             if (isSelected) {
                 line = `${theme.main}${line}${ANSI.RESET}`;
@@ -154,13 +151,14 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             if (index < visible.length - 1) output += '\n';
         });
 
+        output += `\n${theme.muted}(Arrows: Nav, e: Expand All, c: Collapse All)${ANSI.RESET}`;
+
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         if (this.flatList.length === 0) return;
 
-        // Navigation
         if (this.isUp(char)) {
             this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
             this.render(false);
@@ -176,14 +174,28 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
         const node = currentItem.node;
         const hasChildren = node.children && node.children.length > 0;
 
-        // Right: Expand or Go Down
+        // Recursive Expand (e)
+        if (char === 'e' && hasChildren) {
+            this.toggleRecursive(node, true);
+            this.recalculateFlatList();
+            this.render(false);
+            return;
+        }
+
+        // Recursive Collapse (c)
+        if (char === 'c' && hasChildren) {
+            this.toggleRecursive(node, false);
+            this.recalculateFlatList();
+            this.render(false);
+            return;
+        }
+
         if (this.isRight(char)) {
             if (hasChildren) {
                 if (!this.expandedNodes.has(node)) {
                     this.expandedNodes.add(node);
                     this.recalculateFlatList();
                 } else {
-                    // Go to first child (next item in flat list)
                     if (this.cursor + 1 < this.flatList.length) {
                         this.cursor++;
                     }
@@ -193,7 +205,6 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             }
         }
 
-        // Left: Collapse or Go Up (Parent)
         if (this.isLeft(char)) {
             if (hasChildren && this.expandedNodes.has(node)) {
                 this.expandedNodes.delete(node);
@@ -201,7 +212,6 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
                 this.render(false);
                 return;
             } else {
-                // Go to parent
                 if (currentItem.parent) {
                     const parentIndex = this.flatList.findIndex(x => x.node === currentItem.parent);
                     if (parentIndex !== -1) {
@@ -213,7 +223,6 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             }
         }
 
-        // Toggle (Space)
         if (char === ' ') {
             if (hasChildren) {
                 if (this.expandedNodes.has(node)) {
@@ -227,7 +236,6 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             return;
         }
 
-        // Submit (Enter)
         if (char === '\r' || char === '\n') {
             if (!node.disabled) {
                 this.submit(node.value);

@@ -10,7 +10,7 @@ export function detectCapabilities() {
     const isCI = !!env.CI;
     
     // Check for True Color support
-    const hasTrueColor = env.COLORTERM === 'truecolor';
+    const hasTrueColor = env.COLORTERM === 'truecolor' || !!env.WT_SESSION;
     
     // Check if it is a TTY
     const isTTY = process.stdout.isTTY;

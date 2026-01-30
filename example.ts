@@ -8,7 +8,7 @@ import { MepCLI } from './src'; // Or 'mepcli' if installed via NPM
  */
 async function runComprehensiveDemo() {
     console.clear();
-    console.log("--- MepCLI Comprehensive Demo (All 15 Prompts + Spin Utility) ---\n");
+    console.log("--- MepCLI Comprehensive Demo (All Prompts + Spin Utility) ---\n");
 
     try {
         // --- 1. Text Prompt (Input with Validation and initial value) ---
@@ -29,6 +29,13 @@ async function runComprehensiveDemo() {
             placeholder: "Input will be hidden..."
         });
         console.log(`\n Password Result: API key entered (length: ${apiKey.length})`);
+
+        // --- 2.5. Secret Prompt (Completely hidden input) ---
+        const secretToken = await MepCLI.secret({
+            message: "Enter secret token (no feedback):",
+            validate: (v) => v.length > 0 || "Token required"
+        });
+        console.log(`\n Secret Result: Token entered (length: ${secretToken.length})`);
 
         // --- 3. Select Prompt (Single choice, supports filtering/searching by typing) ---
         const theme = await MepCLI.select({
@@ -77,7 +84,7 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Toggle Result: HTTPS enabled: ${isSecure}`);
 
-        // --- 7. List / Tags Input (New) ---
+        // --- 7. List / Tags Input ---
         const keywords = await MepCLI.list({
             message: "Enter keywords for package.json (Enter to add, Backspace to remove):",
             initial: ["cli", "mep"],
@@ -85,7 +92,7 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n List Result: Keywords: [${keywords.join(', ')}]`);
 
-        // --- 8. Slider / Scale (New) ---
+        // --- 8. Slider / Scale ---
         const brightness = await MepCLI.slider({
             message: "Set initial brightness:",
             min: 0,
@@ -96,7 +103,18 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Slider Result: Brightness: ${brightness}%`);
 
-        // --- 9. Rating Prompt (New) ---
+        // --- 8.1. Range Prompt (Dual Slider) ---
+        const priceRange = await MepCLI.range({
+            message: "Filter by price range:",
+            min: 0,
+            max: 1000,
+            initial: [200, 800],
+            step: 50,
+            unit: "$"
+        });
+        console.log(`\n Range Result: $${priceRange[0]} - $${priceRange[1]}`);
+
+        // --- 9. Rating Prompt ---
         const userRating = await MepCLI.rating({
             message: "How would you rate this CLI tool?",
             min: 1,
@@ -105,7 +123,7 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Rating Result: You rated it: ${userRating}/5`);
 
-        // --- 10. Date / Time Picker (New) ---
+        // --- 10. Date / Time Picker ---
         // We capture 'now' once to ensure initial >= min
         const now = new Date();
         const releaseDate = await MepCLI.date({
@@ -115,14 +133,14 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Date Result: Release set for: ${releaseDate.toLocaleString()}`);
 
-        // --- 11. File Path Selector (New) ---
+        // --- 11. File Path Selector  ---
         const configPath = await MepCLI.file({
             message: "Select configuration file (Tab to autocomplete):",
             basePath: process.cwd()
         });
         console.log(`\n File Result: Path: ${configPath}`);
 
-        // --- 12. Multi-Select Autocomplete (New) ---
+        // --- 12. Multi-Select Autocomplete ---
         const linters = await MepCLI.multiSelect({
             message: "Select linters to install (Type to search, Space to select):",
             choices: [
@@ -137,7 +155,7 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n MultiSelect Result: Linters: [${linters.join(', ')}]`);
 
-        // --- 13. Autocomplete Prompt (New) ---
+        // --- 13. Autocomplete Prompt ---
         const city = await MepCLI.autocomplete({
             message: "Search for a city (simulated async):",
             suggest: async (query) => {
@@ -157,14 +175,22 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Autocomplete Result: City code: ${city}`);
 
-        // --- 14. Sort Prompt (New) ---
+        // --- 14. Sort Prompt ---
         const priorities = await MepCLI.sort({
             message: "Rank your top priorities (Space to grab/drop, Arrows to move):",
             items: ["Performance", "Security", "Features", "Usability", "Cost"]
         });
         console.log(`\n Sort Result: Priorities: [${priorities.join(', ')}]`);
 
-        // --- 15. Table Prompt (New) ---
+        // --- 14.1 Transfer Prompt (PickList) ---
+        const teamA = await MepCLI.transfer({
+            message: "Assign members to Team A (Space to move):",
+            source: ["Alice", "Bob", "Charlie", "David", "Eve"],
+            target: ["Frank"] // Pre-assigned
+        });
+        console.log(`\n Transfer Result: Team A: [${teamA[1].join(', ')}] (Remaining: [${teamA[0].join(', ')}])`);
+
+        // --- 15. Table Prompt ---
         const userId = await MepCLI.table({
             message: "Select a user from the database:",
             columns: ["ID", "Name", "Role", "Status"],
@@ -184,7 +210,7 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Confirm Result: Deployment decision: ${proceed ? 'Proceed' : 'Cancel'}`);
 
-        // --- 17. Editor Prompt (New) ---
+        // --- 17. Editor Prompt ---
         const bio = await MepCLI.editor({
             message: "Write your biography (opens default editor):",
             initial: "Hi, I am a developer...",
@@ -193,7 +219,7 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Editor Result: Biography length: ${bio.length} chars`);
 
-        // --- 18. Keypress Prompt (New) ---
+        // --- 18. Keypress Prompt ---
         console.log("\n--- Press any key to continue to the Tree Prompt Demo... ---");
         const key = await MepCLI.keypress({
             message: "Press any key to proceed (or 'q' to quit):",
@@ -202,7 +228,7 @@ async function runComprehensiveDemo() {
         console.log(`\n Keypress Result: You pressed '${key}'`);
         if (key === 'q') return;
 
-        // --- 19. Tree Prompt (New) ---
+        // --- 19. Tree Prompt ---
         const selectedFile = await MepCLI.tree({
              message: "Select a file from the project structure (Space to toggle, Enter to select):",
              data: [
@@ -235,12 +261,121 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Tree Result: Selected path: ${selectedFile}`);
 
-        // --- 20. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 20. Form Prompt ---
+        const userDetails = await MepCLI.form({
+            message: "Enter User Details (Up/Down/Tab to navigate):",
+            fields: [
+                { name: "firstname", message: "First Name", initial: "John" },
+                { name: "lastname", message: "Last Name", validate: (v) => v.length > 0 ? true : "Required" },
+                { name: "email", message: "Email", validate: (v) => v.includes("@") || "Invalid email" },
+                { name: "role", message: "Job Role", initial: "Developer" }
+            ]
+        });
+        console.log(`\n Form Result: User: ${JSON.stringify(userDetails)}`);
+
+        // --- 21. Snippet Prompt ---
+        const commitMsg = await MepCLI.snippet({
+            message: "Compose Commit Message (Tab/Shift+Tab to navigate variables):",
+            template: "feat(${scope}): ${message} (Refs: #${issue})",
+            values: {
+                scope: "cli",
+                issue: "123"
+            }
+        });
+        console.log(`\n Snippet Result: "${commitMsg}"`);
+
+        // --- 22. Spam Prompt ---
+        const spamConfirmed = await MepCLI.spam({
+            message: "Hold on! Confirm deployment by mashing the Space key!",
+            threshold: 10,
+            decay: false, // We're not devil
+            spamKey: ' ' // Space key
+        });
+        console.log(`\n Spam Result: Deployment confirmed: ${spamConfirmed}`);
+
+        // --- 23. Wait Prompt ---
+        await MepCLI.wait({
+            message: "Please wait while we finalize the setup...",
+            seconds: 3, // Just 3 seconds for demo
+            autoSubmit: true // Automatically proceeds after time is up
+        });
+        console.log("\n Wait Result: Wait complete.");
+
+        // --- 24. Code Prompt ---
+        const config = await MepCLI.code({
+            message: "Configure Server (JSON) - Tab to nav:",
+            language: "json",
+            highlight: true, // Experimental syntax highlighting
+            template: `
+{
+  "host": "\${host}",
+  "port": \${port},
+  "debug": \${debug}
+}
+`
+        });
+        console.log(`\n Code Result: Config: ${config.replace(/\n/g, ' ')}`);
+
+        // --- 25. Tree Select Prompt ---
+        const selectedTreeItems = await MepCLI.treeSelect({
+             message: "Select files to backup (Multi-select Tree):",
+             data: [
+                 {
+                     title: "src",
+                     value: "src",
+                     children: [
+                         { title: "index.ts", value: "src/index.ts" },
+                         { title: "utils.ts", value: "src/utils.ts" }
+                     ]
+                 },
+                 {
+                     title: "tests",
+                     value: "tests",
+                     expanded: true,
+                     children: [
+                         { title: "e2e", value: "tests/e2e", selected: true },
+                         { title: "unit", value: "tests/unit" }
+                     ]
+                 }
+             ]
+        });
+        console.log(`\n TreeSelect Result: Selected: [${selectedTreeItems.join(', ')}]`);
+
+        // --- 26. Cron Prompt ---
+        const schedule = await MepCLI.cron({
+            message: "Set backup schedule (Cron):",
+            initial: "0 4 * * *" // Daily at 4:00 AM
+        });
+        console.log(`\n Cron Result: "${schedule}"`);
+
+        // --- 27. Color Prompt ---
+        const themeColor = await MepCLI.color({
+            message: "Pick your brand color (RGB):",
+            initial: "#6366f1"
+        });
+        console.log(`\n Color Result: "${themeColor}"`);
+
+        // --- 28. Grid Prompt ---
+        const permissions = await MepCLI.grid({
+            message: "Configure Access Permissions:",
+            rows: ["Admin", "User", "Guest"],
+            columns: ["Read", "Write", "Execute"]
+        });
+        console.log(`\n Grid Result: (Boolean Matrix)`, permissions);
+
+        // --- 29. Calendar Prompt ---
+        const bookingRange = await MepCLI.calendar({
+            message: "Select booking period:",
+            mode: "range"
+        });
+        console.log(`\n Calendar Result:`, bookingRange);
+
+        // --- 30. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
         
-        console.log("\n--- Deployment successful! All MepCLI features (including Editor) demonstrated! ---");
+        console.log("\n--- Deployment successful! All MepCLI features demonstrated! ---");
 
     } catch (e) {
         // Global handler for Ctrl+C closure

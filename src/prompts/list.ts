@@ -14,46 +14,70 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
         this.value = options.initial || [];
     }
 
-    protected render(firstRender: boolean) {
-        // Prepare content
+    protected render(_firstRender: boolean) {
+        const cols = process.stdout.columns || 80;
+
+        // 1. Prepare Prefix
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
-        let mainLine = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
+        const prefix = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
+        
+        // 2. Build Lines with Wrapping
+        const lines: string[] = [];
+        let currentLine = prefix;
+        
+        // Helper to check width
+        const addText = (text: string) => {
+             const visualLen = this.stripAnsi(currentLine).length + this.stripAnsi(text).length;
+             if (visualLen > cols) {
+                 lines.push(currentLine);
+                 currentLine = text.trimStart(); // Start new line
+             } else {
+                 currentLine += text;
+             }
+        };
 
         // Render Tags
         if (this.value.length > 0) {
             this.value.forEach((tag: string) => {
-                mainLine += `${theme.main}[${tag}]${ANSI.RESET} `;
+                const tagStr = `${theme.main}[${tag}]${ANSI.RESET} `;
+                addText(tagStr);
             });
         }
 
         // Render Current Input
-        mainLine += `${this.currentInput}`;
+        addText(this.currentInput);
+        
+        lines.push(currentLine); // Push the last line
 
-        let output = mainLine;
+        // Track where the input ends (for cursor positioning)
+        const inputLineIndex = lines.length - 1;
+        const inputVisualCol = this.stripAnsi(currentLine).length;
+
+        // 3. Append Error if any
         if (this.errorMsg) {
-             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+             lines.push(`${theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
         }
         
-        // Use Double Buffering
+        const output = lines.join('\n');
+        
+        // 4. Render Frame
         this.renderFrame(output);
         
         this.print(ANSI.SHOW_CURSOR);
 
-        // If we printed an error, the cursor is at the end of the error line.
-        // We need to move it back to the end of the input line.
-        if (this.errorMsg) {
-            // Move up one line (since error is always on the next line in this simple implementation)
-            this.print(ANSI.UP);
-            
-            // Move to the correct column.
-            // We need to calculate visual length of mainLine to place cursor correctly.
-            // stripAnsi is available in base class now.
-            const visualLength = this.stripAnsi(mainLine).length;
-            
-            this.print(ANSI.CURSOR_LEFT); // Go to start
-            if (visualLength > 0) {
-                this.print(`\x1b[${visualLength}C`);
-            }
+        // 5. Position Cursor
+        // If we printed lines after the input line (e.g. error msg), move up.
+        const totalRows = lines.length;
+        const linesUp = (totalRows - 1) - inputLineIndex;
+        
+        if (linesUp > 0) {
+            this.print(`\x1b[${linesUp}A`);
+        }
+        
+        // Move to correct column
+        this.print(ANSI.CURSOR_LEFT);
+        if (inputVisualCol > 0) {
+            this.print(`\x1b[${inputVisualCol}C`);
         }
     }
 
@@ -84,7 +108,8 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
                 this.currentInput = this.currentInput.slice(0, -1);
                 this.render(false);
             } else if (this.value.length > 0) {
-                this.value.pop();
+                const last = this.value.pop();
+                this.currentInput = last || '';
                 this.render(false);
             }
             return;

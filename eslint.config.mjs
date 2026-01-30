@@ -12,7 +12,7 @@ export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ["dist/", "coverage/"]
+    ignores: ["dist/", "coverage/", "test/"]
   },
   {
       rules: {

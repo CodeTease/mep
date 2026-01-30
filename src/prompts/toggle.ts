@@ -10,7 +10,7 @@ export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
         this.value = options.initial ?? false;
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const activeText = this.options.activeText || 'ON';
         const inactiveText = this.options.inactiveText || 'OFF';
 

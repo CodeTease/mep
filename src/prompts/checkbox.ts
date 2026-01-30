@@ -9,7 +9,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
     private selectedIndex: number = 0;
     private checkedState: boolean[];
     private errorMsg: string = '';
-    // Pagination state (added for consistency and performance)
+    // Pagination state
     private scrollTop: number = 0;
     private readonly pageSize: number = 10; 
 
@@ -18,7 +18,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         this.checkedState = options.choices.map(c => !!c.selected);
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Adjust Scroll Top
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;
@@ -35,7 +35,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         
         // Header
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
-        output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Press <space> to select, <enter> to confirm)${ANSI.RESET}`;
+        output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Space: toggle, a: all, x: none, Enter: submit)${ANSI.RESET}`;
 
         // List
         const choices = this.options.choices;
@@ -60,7 +60,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         
         // Indication of more items
         if (choices.length > this.pageSize) {
-             const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
+             // const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
         }
 
         if (this.errorMsg) {
@@ -87,10 +87,6 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
             }
 
             this.cleanup();
-            // renderFrame cleans up lines, but doesn't print the final state "persisted" if we want to show the result?
-            // Usually we clear the prompt or show a summary.
-            // MepCLI seems to submit and let the caller decide or just print newline.
-            // Base `submit` prints newline.
             
             const results = this.options.choices
                 .filter((_, i) => this.checkedState[i])
@@ -100,6 +96,42 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
             return;
         }
 
+        // --- Batch Shortcuts ---
+        
+        // 'a': Select All
+        if (char === 'a') {
+            if (this.options.max && this.options.choices.length > this.options.max) {
+                 this.errorMsg = `Cannot select all: Max limit is ${this.options.max}`;
+            } else {
+                 this.checkedState.fill(true);
+                 this.errorMsg = '';
+            }
+            this.render(false);
+            return;
+        }
+
+        // 'x' or 'n': Select None
+        if (char === 'x' || char === 'n') {
+            this.checkedState.fill(false);
+            this.errorMsg = '';
+            this.render(false);
+            return;
+        }
+
+        // 'i': Invert Selection
+        if (char === 'i') {
+             const potentialCount = this.checkedState.filter(s => !s).length;
+             if (this.options.max && potentialCount > this.options.max) {
+                 this.errorMsg = `Cannot invert: Result exceeds max limit ${this.options.max}`;
+             } else {
+                 this.checkedState = this.checkedState.map(s => !s);
+                 this.errorMsg = '';
+             }
+             this.render(false);
+             return;
+        }
+
+        // Space Toggle
         if (char === ' ') {
             const currentChecked = this.checkedState[this.selectedIndex];
             const selectedCount = this.checkedState.filter(Boolean).length;

@@ -9,6 +9,7 @@ export const ANSI = {
     DIM: '\x1b[2m',
     ITALIC: '\x1b[3m',
     UNDERLINE: '\x1b[4m',
+    REVERSE: '\x1b[7m',
     
     // Colors
     FG_GREEN: '\x1b[32m',

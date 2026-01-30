@@ -12,6 +12,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
     private cursor: number = 0;
     private hasTyped: boolean = false;
     private segments: string[] = [];
+    private lastLinesUp: number = 0;
 
     constructor(options: TextOptions) {
         super(options);
@@ -22,9 +23,12 @@ export class TextPrompt extends Prompt<string, TextOptions> {
     }
 
     protected render(firstRender: boolean) {
+        if (!firstRender && this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+        }
+        this.lastLinesUp = 0;
+
         // Calculate available width
-        const cols = process.stdout.columns || 80;
-        
         // 1. Prepare Prompt Label
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const hint = this.options.multiline ? ` ${theme.muted}(Press Ctrl+D to submit)${ANSI.RESET}` : '';
@@ -48,11 +52,10 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             cursorRelativeRow = 0;
             cursorRelativeCol = 0;
         } else {
-            const rawValue = this.options.isPassword ? '*'.repeat(this.segments.length) : this.value;
+            const maskChar = this.options.mask ?? (this.options.isPassword ? '*' : undefined);
             // Note: password masking replaces each grapheme with '*'
             
             // Split by lines (for multiline support)
-            const lines = rawValue.split('\n');
             
             // Determine which line the cursor is on
             // We need to map 'cursor' (segments index) to line/col.
@@ -60,26 +63,9 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             // safeSplit treats '\n' as a segment.
             
             let cursorLineIndex = 0;
-            const cursorSegmentIndexOnLine = 0;
-            const currentSegmentIndex = 0;
-            
-            for (let i = 0; i < lines.length; i++) {
-                // How many segments in this line?
-                // We can't just use lines[i].length because that's chars.
-                // We need to split the line again or iterate segments.
-                // Iterating segments is safer.
-                
-                // Let's assume we iterate global segments until we hit a newline segment
-                const lineSegmentsCount = 0;
-                // Since rawValue.split('\n') consumes the newlines, we need to account for them.
-                
-                // Alternative: iterate this.segments
-                // Find where the cursor falls.
-            }
             
             // Let's iterate segments to find cursor position (row, col)
             cursorLineIndex = 0;
-            const colIndex = 0; // Visual column or char index?
             // If we want visual cursor position, we need visual width of segments.
             let visualColIndex = 0;
 
@@ -89,10 +75,10 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                     cursorLineIndex++;
                     visualColIndex = 0;
                 } else {
-                    if (this.options.isPassword) {
-                        visualColIndex += 1;
+                    if (maskChar !== undefined) {
+                        visualColIndex += maskChar.length;
                     } else {
-                         visualColIndex += this.options.isPassword ? 1 : this.getSegmentWidth(seg);
+                        visualColIndex += this.getSegmentWidth(seg);
                     }
                 }
             }
@@ -116,25 +102,15 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             }
             processedLines.push(currentLineSegments); // Last line
             
-            processedLines.forEach((lineSegs: string[], idx: number) => {
-                const isCursorLine = idx === cursorLineIndex;
-                const linePrefixLen = (idx === 0) ? prefixVisualLen : 0; 
-                const maxContentLen = Math.max(10, cols - linePrefixLen - 1);
+            processedLines.forEach((lineSegs: string[]) => {
                 
                 // Reconstruct line string for display calculation
                 // If password, join with *?
                 let visibleLine = '';
-                if (this.options.isPassword) {
-                    visibleLine = '*'.repeat(lineSegs.length);
+                if (maskChar !== undefined) {
+                    visibleLine = maskChar.repeat(lineSegs.length);
                 } else {
                     visibleLine = lineSegs.join('');
-                }
-                
-                // If this is cursor line, we need to handle horizontal scroll based on cursorRelativeCol.
-                // But cursorRelativeCol is global? No, we reset it on newline.
-                // So cursorRelativeCol above was correct for the current line.
-                
-                if (isCursorLine) {
                 }
                 
                 displayValueLines.push(theme.main + visibleLine + ANSI.RESET);
@@ -168,6 +144,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
+        this.lastLinesUp = linesUp;
         
         let targetCol = 0;
         if (cursorRelativeRow === 0) {

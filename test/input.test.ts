@@ -78,7 +78,10 @@ describe('InputParser', () => {
                 x: 20,
                 y: 10,
                 button: 0,
-                action: 'press'
+                action: 'press',
+                shift: false,
+                ctrl: false,
+                meta: false
             });
         });
 
@@ -91,7 +94,10 @@ describe('InputParser', () => {
                 x: 20,
                 y: 10,
                 button: 0,
-                action: 'release'
+                action: 'release',
+                shift: false,
+                ctrl: false,
+                meta: false
             });
         });
 
@@ -104,7 +110,10 @@ describe('InputParser', () => {
                 x: 20,
                 y: 10,
                 button: 0,
-                action: 'move'
+                action: 'move',
+                shift: false,
+                ctrl: false,
+                meta: false
             });
         });
 
@@ -118,7 +127,10 @@ describe('InputParser', () => {
                 y: 10,
                 button: 0,
                 action: 'scroll',
-                scroll: 'up'
+                scroll: 'up',
+                shift: false,
+                ctrl: false,
+                meta: false
             });
             expect(scrollUpHandler).toHaveBeenCalled();
         });
@@ -133,9 +145,59 @@ describe('InputParser', () => {
                 y: 10,
                 button: 0,
                 action: 'scroll',
-                scroll: 'down'
+                scroll: 'down',
+                shift: false,
+                ctrl: false,
+                meta: false
             });
             expect(scrollDownHandler).toHaveBeenCalled();
+        });
+
+        it('should parse mouse with modifiers', () => {
+            // Shift(4) + Left(0) = 4
+            parser.feed(Buffer.from('\x1b[<4;20;10M'));
+            expect(mouseHandler).toHaveBeenCalledWith({
+                name: 'mouse',
+                x: 20,
+                y: 10,
+                button: 0,
+                action: 'press',
+                shift: true,
+                ctrl: false,
+                meta: false
+            });
+        });
+
+        it('should parse scroll up with Ctrl', () => {
+            // Ctrl(16) + ScrollUp(64) = 80
+            parser.feed(Buffer.from('\x1b[<80;20;10M'));
+            expect(mouseHandler).toHaveBeenCalledWith({
+                name: 'mouse',
+                x: 20,
+                y: 10,
+                button: 0,
+                action: 'scroll',
+                scroll: 'up',
+                shift: false,
+                ctrl: true,
+                meta: false
+            });
+        });
+
+        it('should parse scroll down with Shift and Ctrl', () => {
+            // Shift(4) + Ctrl(16) + ScrollDown(65) = 85
+            parser.feed(Buffer.from('\x1b[<85;20;10M'));
+            expect(mouseHandler).toHaveBeenCalledWith({
+                name: 'mouse',
+                x: 20,
+                y: 10,
+                button: 0,
+                action: 'scroll',
+                scroll: 'down',
+                shift: true,
+                ctrl: true,
+                meta: false
+            });
         });
     });
 
@@ -160,7 +222,10 @@ describe('InputParser', () => {
                 x: 1,
                 y: 1,
                 button: 0,
-                action: 'press'
+                action: 'press',
+                shift: false,
+                ctrl: false,
+                meta: false
             });
         });
     });

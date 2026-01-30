@@ -18,7 +18,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         this.cursor = this.stringValue.length;
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Prepare content
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         // Prefix
@@ -136,7 +136,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         }
         
         // Numeric Input (and . and -)
-        if (/^[0-9.\-]+$/.test(char)) {
+        if (/^[0-9.-]+$/.test(char)) {
              // Allow if it looks like a number part
              this.stringValue = this.stringValue.slice(0, this.cursor) + char + this.stringValue.slice(this.cursor);
              this.cursor += char.length;

@@ -96,24 +96,32 @@ export class InputParser extends EventEmitter {
             const [b, x, y] = parts;
             let action: 'press' | 'release' | 'move' | 'scroll' = 'press';
 
+            // Extract modifiers
+            const shift = !!(b & 4);
+            const meta = !!(b & 8);
+            const ctrl = !!(b & 16);
+
             // Interpret button codes
             // 0: Left, 1: Middle, 2: Right
             // +32: Motion
-            // 64: Scroll Up
-            // 65: Scroll Down
+            // 64: Scroll (bit 6)
             
-            if (b === 64) {
+            if (b & 64) {
                 action = 'scroll';
-                this.emit('mouse', { name: 'mouse', x, y, button: 0, action, scroll: 'up' });
-                // Also emit keypress for scroll if needed? No, prompt should listen to mouse.
-                // But for "Easy Features", we emit standard names
-                this.emit('scrollup'); 
-                return;
-            }
-            if (b === 65) {
-                action = 'scroll';
-                this.emit('mouse', { name: 'mouse', x, y, button: 0, action, scroll: 'down' });
-                this.emit('scrolldown');
+                const scroll = (b & 1) ? 'down' : 'up';
+                this.emit('mouse', { 
+                    name: 'mouse', 
+                    x, 
+                    y, 
+                    button: 0, 
+                    action, 
+                    scroll,
+                    shift,
+                    ctrl,
+                    meta
+                });
+                if (scroll === 'up') this.emit('scrollup');
+                else this.emit('scrolldown');
                 return;
             }
 
@@ -132,7 +140,10 @@ export class InputParser extends EventEmitter {
                 x,
                 y,
                 button: b & 3, // Strip modifiers to get raw button 0-2
-                action
+                action,
+                shift,
+                ctrl,
+                meta
             });
         }
     }

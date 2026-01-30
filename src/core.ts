@@ -1,7 +1,8 @@
-import { ANSI } from './ansi';
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, KeypressOptions } from './types';
+import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
+         DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
+         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
+         ColorOptions, GridOptions, CalendarOptions } from './types';
 import { theme } from './theme';
-import { symbols } from './symbols';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
 import { SelectPrompt } from './prompts/select';
@@ -11,6 +12,9 @@ import { TogglePrompt } from './prompts/toggle';
 import { NumberPrompt } from './prompts/number';
 import { ListPrompt } from './prompts/list';
 import { SliderPrompt } from './prompts/slider';
+import { RangePrompt } from './prompts/range';
+import { TransferPrompt } from './prompts/transfer';
+import { CronPrompt } from './prompts/cron';
 import { DatePrompt } from './prompts/date';
 import { FilePrompt } from './prompts/file';
 import { MultiSelectPrompt } from './prompts/multi-select';
@@ -21,6 +25,15 @@ import { TablePrompt } from './prompts/table';
 import { EditorPrompt } from './prompts/editor';
 import { TreePrompt } from './prompts/tree';
 import { KeypressPrompt } from './prompts/keypress';
+import { FormPrompt } from './prompts/form';
+import { SnippetPrompt } from './prompts/snippet';
+import { SpamPrompt } from './prompts/spam';
+import { WaitPrompt } from './prompts/wait';
+import { CodePrompt } from './prompts/code';
+import { TreeSelectPrompt } from './prompts/tree-select';
+import { ColorPrompt } from './prompts/color';
+import { GridPrompt } from './prompts/grid';
+import { CalendarPrompt } from './prompts/calendar';
 
 /**
  * Public Facade for MepCLI
@@ -54,6 +67,10 @@ export class MepCLI {
     static password(options: TextOptions): Promise<string> {
         return new TextPrompt({ ...options, isPassword: true }).run();
     }
+
+    static secret(options: TextOptions): Promise<string> {
+        return new TextPrompt({ ...options, mask: '' }).run();
+    }
     
     static number(options: NumberOptions): Promise<number> {
         return new NumberPrompt(options).run();
@@ -69,6 +86,18 @@ export class MepCLI {
 
     static slider(options: SliderOptions): Promise<number> {
         return new SliderPrompt(options).run();
+    }
+
+    static range(options: RangeOptions): Promise<[number, number]> {
+        return new RangePrompt(options).run();
+    }
+
+    static transfer<const V>(options: TransferOptions<V>): Promise<[V[], V[]]> {
+        return new TransferPrompt(options).run();
+    }
+
+    static cron(options: CronOptions): Promise<string> {
+        return new CronPrompt(options).run();
     }
 
     static date(options: DateOptions): Promise<Date> {
@@ -109,5 +138,50 @@ export class MepCLI {
 
     static keypress(options: KeypressOptions): Promise<string> {
         return new KeypressPrompt(options).run();
+    }
+
+    static form(options: FormOptions): Promise<Record<string, string>> {
+        return new FormPrompt(options).run();
+    }
+
+    static snippet(options: SnippetOptions): Promise<string> {
+        return new SnippetPrompt(options).run();
+    }
+
+    static spam(options: SpamOptions): Promise<boolean> {
+        return new SpamPrompt(options).run();
+    }
+
+    static wait(options: WaitOptions): Promise<void> {
+        return new WaitPrompt(options).run();
+    }
+
+    static code(options: CodeOptions): Promise<string> {
+        return new CodePrompt(options).run();
+    }
+
+    /**
+     * Tree Select Prompt (Multi-selection)
+     * * @param options Configuration for the tree selection
+     * @returns A promise that resolves to an array of selected values
+     * * @notice Windows Compatibility:
+     * When used in a long sequence of prompts, this component may experience 
+     * an input delay. If it feels "blocked", simply press 'Enter' once 
+     * to refresh the TTY stream. 
+     */
+    static treeSelect<const V>(options: TreeSelectOptions<V>): Promise<V[]> {
+        return new TreeSelectPrompt(options).run();
+    }
+
+    static color(options: ColorOptions): Promise<string> {
+        return new ColorPrompt(options).run();
+    }
+
+    static grid(options: GridOptions): Promise<boolean[][]> {
+        return new GridPrompt(options).run();
+    }
+
+    static calendar(options: CalendarOptions): Promise<Date | [Date, Date]> {
+        return new CalendarPrompt(options).run();
     }
 }

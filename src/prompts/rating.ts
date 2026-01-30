@@ -11,7 +11,7 @@ export class RatingPrompt extends Prompt<number, RatingOptions> {
         this.value = options.initial ?? (options.min || 1);
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const min = this.options.min || 1;
         const max = this.options.max || 5;
         

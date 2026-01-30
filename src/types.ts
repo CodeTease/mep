@@ -22,6 +22,9 @@ export interface MouseEvent {
     button: number;
     action: 'press' | 'release' | 'move' | 'scroll';
     scroll?: 'up' | 'down';
+    shift?: boolean;
+    ctrl?: boolean;
+    meta?: boolean;
 }
 
 export interface TextOptions extends BaseOptions {
@@ -30,6 +33,7 @@ export interface TextOptions extends BaseOptions {
     validate?: (value: string) => string | boolean | Promise<string | boolean>;
     isPassword?: boolean;
     multiline?: boolean;
+    mask?: string;
 }
 
 export interface Separator {
@@ -45,6 +49,16 @@ export interface SelectChoice<V> {
 
 export interface SelectOptions<V> extends BaseOptions {
     choices: (SelectChoice<V> | Separator)[];
+}
+
+export interface TransferOptions<V> extends BaseOptions {
+    source: (string | SelectChoice<V>)[];
+    target?: (string | SelectChoice<V>)[];
+}
+
+export interface CronOptions extends BaseOptions {
+    initial?: string;
+    placeholder?: string;
 }
 
 // --- Checkbox Types ---
@@ -88,6 +102,14 @@ export interface SliderOptions extends BaseOptions {
     min: number;
     max: number;
     initial?: number;
+    step?: number;
+    unit?: string;
+}
+
+export interface RangeOptions extends BaseOptions {
+    min: number;
+    max: number;
+    initial?: [number, number];
     step?: number;
     unit?: string;
 }
@@ -148,6 +170,7 @@ export interface TreeNode<V> {
     children?: TreeNode<V>[];
     expanded?: boolean;
     disabled?: boolean;
+    selected?: boolean | 'indeterminate';
 }
 
 export interface TreeOptions<V> extends BaseOptions {
@@ -159,4 +182,79 @@ export interface TreeOptions<V> extends BaseOptions {
 export interface KeypressOptions extends BaseOptions {
     keys?: string[];
     showInvisible?: boolean;
+}
+
+export interface FormField {
+    name: string;
+    message: string;
+    initial?: string;
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
+}
+
+export interface FormOptions extends BaseOptions {
+    fields: FormField[];
+}
+
+export interface SnippetOptions extends BaseOptions {
+    template: string;
+    values?: Record<string, string>;
+    fields?: Record<string, {
+         message?: string;
+         validate?: (value: string) => string | boolean;
+    }>;
+}
+
+export interface SpamOptions extends BaseOptions {
+    threshold: number; 
+    spamKey?: string; 
+    decay?: boolean; 
+}
+
+export interface WaitOptions extends BaseOptions {
+    seconds: number;
+    autoSubmit?: boolean; 
+}
+
+export interface CodeOptions extends BaseOptions {
+    template: string;
+    language?: 'json' | 'yaml';
+    /**
+     * Enable syntax highlighting (Experimental).
+     * @default true
+     */
+    highlight?: boolean;
+}
+
+export interface TreeSelectNode<V> {
+    title: string;
+    value: V;
+    children?: TreeSelectNode<V>[];
+    expanded?: boolean;
+    disabled?: boolean;
+    selected?: boolean | 'indeterminate';
+}
+
+export interface TreeSelectOptions<V> extends BaseOptions {
+    data: TreeSelectNode<V>[];
+    initial?: V[];
+    indent?: number;
+}
+
+export interface ColorOptions extends BaseOptions {
+    initial?: string; // Hex support (e.g. "#3B82F6")
+    format?: 'hex' | 'rgb' | 'hsl';
+}
+
+export interface GridOptions extends BaseOptions {
+    rows: string[];
+    columns: string[];
+    initial?: boolean[][]; // Trạng thái selected ban đầu
+}
+
+export interface CalendarOptions extends BaseOptions {
+    mode?: 'single' | 'range';
+    initial?: Date | [Date, Date]; // Single date or Range tuple
+    min?: Date;
+    max?: Date;
+    weekStart?: 0 | 1; // 0 = Sunday, 1 = Monday
 }

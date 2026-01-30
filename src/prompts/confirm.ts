@@ -10,7 +10,7 @@ export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
         this.value = options.initial ?? true;
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Prepare content
         const hint = this.value ? `${ANSI.BOLD}Yes${ANSI.RESET}/no` : `yes/${ANSI.BOLD}No${ANSI.RESET}`;
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(${hint})${ANSI.RESET} `;
