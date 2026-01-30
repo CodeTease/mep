@@ -197,11 +197,13 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
     protected handleInput(char: string, key: Buffer) {
         if (this.flatList.length === 0) return;
 
+        // 1. Priority: Navigation keys (ANSI sequences)
         if (this.isUp(char)) {
             this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
             this.render(false);
             return;
         }
+        
         if (this.isDown(char)) {
             this.cursor = (this.cursor + 1) % this.flatList.length;
             this.render(false);
@@ -209,55 +211,39 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         }
 
         const currentItem = this.flatList[this.cursor];
+        if (!currentItem) return;
+
         const node = currentItem.node;
         const hasChildren = node.children && node.children.length > 0;
 
-        // Recursive Expand (e)
-        if (char === 'e' && hasChildren) {
-            this.toggleRecursive(node, true);
-            this.recalculateFlatList();
-            this.render(false);
-            return;
-        }
-
-        // Recursive Collapse (c)
-        if (char === 'c' && hasChildren) {
-            this.toggleRecursive(node, false);
-            this.recalculateFlatList();
-            this.render(false);
-            return;
-        }
-
-        // Right/Left
+        // 2. Right Arrow: Expand folder or move to first child
         if (this.isRight(char)) {
-            if (hasChildren) {
-                if (!this.expandedNodes.has(node)) {
-                    this.expandedNodes.add(node);
-                    this.recalculateFlatList();
-                } else if (this.cursor + 1 < this.flatList.length) {
-                    this.cursor++;
-                }
-                this.render(false);
-                return;
+            if (hasChildren && !this.expandedNodes.has(node)) {
+                this.expandedNodes.add(node);
+                this.recalculateFlatList();
+            } else if (this.cursor + 1 < this.flatList.length) {
+                this.cursor++;
             }
+            this.render(false);
+            return;
         }
+
+        // 3. Left Arrow: Collapse folder or move to parent
         if (this.isLeft(char)) {
             if (hasChildren && this.expandedNodes.has(node)) {
                 this.expandedNodes.delete(node);
                 this.recalculateFlatList();
-                this.render(false);
-                return;
             } else if (currentItem.parent) {
                 const parentIndex = this.flatList.findIndex(x => x.node === currentItem.parent);
                 if (parentIndex !== -1) {
                     this.cursor = parentIndex;
-                    this.render(false);
-                    return;
                 }
             }
+            this.render(false);
+            return;
         }
 
-        // Toggle (Space)
+        // 4. Space: Toggle selection
         if (char === ' ') {
             if (!node.disabled) {
                 const newState = node.selected === true ? false : true; 
@@ -267,14 +253,29 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             return;
         }
 
-        // Submit (Enter)
+        // 5. Functional keys (Keep it simple to avoid blocking)
+        if (char === 'e' && hasChildren) {
+            this.toggleRecursive(node, true);
+            this.recalculateFlatList();
+            this.render(false);
+            return;
+        }
+
+        if (char === 'c' && hasChildren) {
+            this.toggleRecursive(node, false);
+            this.recalculateFlatList();
+            this.render(false);
+            return;
+        }
+
+        // 6. Submit: Enter
         if (char === '\r' || char === '\n') {
             const selectedValues: V[] = [];
             this.collectSelected(this.options.data, selectedValues);
             this.submit(selectedValues);
         }
     }
-    
+
     private collectSelected(nodes: TreeSelectNode<V>[], result: V[]) {
         for (const node of nodes) {
             if (node.selected === true) {
