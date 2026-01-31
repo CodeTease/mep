@@ -196,7 +196,7 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
              return;
         }
         
-        if (this.isRight(char)) {
+        if (this.isRight(char) || char === '\t') {
             // Expand
             const idx = this.selections[this.activeCol];
             const item = currentData[idx];
@@ -208,7 +208,7 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
             return;
         }
         
-        if (this.isLeft(char)) {
+        if (this.isLeft(char) || char === '\x1b[Z') {
             if (this.activeCol > 0) {
                 this.activeCol--;
                 this.render(false);

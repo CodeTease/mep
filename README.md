@@ -602,8 +602,8 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Keyboard:**
     *   `Up` / `Down`: Navigate items.
-    *   `Right` / `Enter`: Expand child or Drill down.
-    *   `Left`: Collapse or Go back.
+    *   `Right` / `Enter` / `Tab`: Expand child or Drill down.
+    *   `Left` / `Shift + Tab`: Collapse or Go back.
 
 ### Match Prompt
 
