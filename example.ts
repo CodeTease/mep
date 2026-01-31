@@ -711,7 +711,15 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Scroll Result: License Accepted`);
 
-        // --- 56. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 56. Breadcrumb Prompt ---
+        const breadcrumbPath = await MepCLI.breadcrumb({
+            message: "Select a folder (Breadcrumb):",
+            root: process.cwd(),
+            showHidden: false
+        });
+        console.log(`\n Breadcrumb Result: ${breadcrumbPath}`);
+
+        // --- 57. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

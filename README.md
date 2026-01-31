@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, and `scroll`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, and `scroll`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -123,6 +123,13 @@ async function main() {
     const booking = await MepCLI.calendar({
         message: "Select dates:",
         mode: "range"
+    });
+
+    // Breadcrumb Navigation
+    const projectDir = await MepCLI.breadcrumb({
+        message: "Navigate to folder:",
+        root: process.cwd(),
+        showHidden: false
     });
 
     // Map (Key-Value Editor)
@@ -431,6 +438,7 @@ main();
 *   `dial(options)` - Circular rotary knob for numeric input.
 *   `draw(options)` - Drawing canvas using Braille characters.
 *   `file(options)` - File system navigator and selector.
+*   `breadcrumb(options)` - Stack-based file system navigator with breadcrumb trail.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
 *   `transfer(options)` - Move items between two lists (Source/Target).
@@ -463,6 +471,7 @@ MepCLI automatically detects modern terminals and enables **Mouse Tracking** (us
     *   `match`: Scroll independent columns.
     *   `time`: Scroll to adjust values.
     *   `scroll`: Scroll content up/down.
+    *   `breadcrumb`: Scroll to navigate list.
 *   **Configuration:**
     *   Mouse support is enabled by default if the terminal supports it.
     *   You can explicitly disable it per prompt by setting `mouse: false` in the options.
