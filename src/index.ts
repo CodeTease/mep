@@ -14,3 +14,6 @@ export * from './prompts/heatmap';
 export * from './prompts/byte';
 export * from './prompts/slot';
 export * from './prompts/gauge';
+export * from './prompts/calculator';
+export * from './prompts/emoji';
+export * from './prompts/match';

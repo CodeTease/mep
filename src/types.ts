@@ -348,3 +348,40 @@ export interface GaugeOptions extends BaseOptions {
     /** Safe zone width as a percentage (0-1) or absolute character count (>1). Default: 0.2 (20%) */
     safeZone?: number; 
 }
+
+// --- Calculator Types ---
+export interface CalculatorOptions extends BaseOptions {
+    initial?: string;
+    variables?: Record<string, number>;
+    precision?: number;
+    placeholder?: string;
+}
+
+// --- Emoji Types ---
+export interface EmojiItem {
+    char: string;
+    name: string;
+    description?: string;
+}
+
+export interface EmojiOptions extends BaseOptions {
+    emojis: EmojiItem[];
+    recent?: string[]; // Array of emoji names
+    cols?: number;
+}
+
+// --- Match Types ---
+export interface MatchItem {
+    id: string;
+    label: string;
+    value?: any;
+}
+
+export interface MatchOptions extends BaseOptions {
+    source: (string | MatchItem)[];
+    target: (string | MatchItem)[];
+    constraints?: {
+        required?: boolean; // Must link all source items?
+        oneToMany?: boolean; // Can a target receive multiple sources?
+    };
+}

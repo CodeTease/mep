@@ -47,7 +47,10 @@ import { HeatmapPrompt } from './prompts/heatmap';
 import { BytePrompt } from './prompts/byte';
 import { SlotPrompt } from './prompts/slot';
 import { GaugePrompt } from './prompts/gauge';
-import { SlotOptions, GaugeOptions } from './types';
+import { CalculatorPrompt } from './prompts/calculator';
+import { EmojiPrompt } from './prompts/emoji';
+import { MatchPrompt } from './prompts/match';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions } from './types';
 
 /**
  * Public Facade for MepCLI
@@ -245,5 +248,17 @@ export class MepCLI {
 
     static gauge(options: GaugeOptions): Promise<string> {
         return new GaugePrompt(options).run();
+    }
+
+    static calculator(options: CalculatorOptions): Promise<number> {
+        return new CalculatorPrompt(options).run();
+    }
+
+    static emoji(options: EmojiOptions): Promise<string> {
+        return new EmojiPrompt(options).run();
+    }
+
+    static match(options: MatchOptions): Promise<Record<string, any[]>> {
+        return new MatchPrompt(options).run();
     }
 }
