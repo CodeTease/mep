@@ -45,6 +45,9 @@ import { KanbanPrompt } from './prompts/kanban';
 import { TimePrompt } from './prompts/time';
 import { HeatmapPrompt } from './prompts/heatmap';
 import { BytePrompt } from './prompts/byte';
+import { SlotPrompt } from './prompts/slot';
+import { GaugePrompt } from './prompts/gauge';
+import { SlotOptions, GaugeOptions } from './types';
 
 /**
  * Public Facade for MepCLI
@@ -234,5 +237,13 @@ export class MepCLI {
 
     static byte(options: ByteOptions): Promise<number> {
         return new BytePrompt(options).run();
+    }
+
+    static slot(options: SlotOptions): Promise<string> {
+        return new SlotPrompt(options).run();
+    }
+
+    static gauge(options: GaugeOptions): Promise<string> {
+        return new GaugePrompt(options).run();
     }
 }

@@ -333,3 +333,18 @@ export interface ByteOptions extends BaseOptions {
     min?: number;     // Min bytes
     max?: number;     // Max bytes
 }
+
+// --- Slot Machine Types ---
+export interface SlotOptions extends BaseOptions {
+    choices: string[];
+    rows?: number; // Default: 3
+    initial?: number; // Default: 0
+}
+
+// --- Rhythm Gauge Types ---
+export interface GaugeOptions extends BaseOptions {
+    theme?: Partial<ThemeConfig>;
+    width?: number; // Default: 40
+    /** Safe zone width as a percentage (0-1) or absolute character count (>1). Default: 0.2 (20%) */
+    safeZone?: number; 
+}

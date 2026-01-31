@@ -12,3 +12,5 @@ export * from './prompts/kanban';
 export * from './prompts/time';
 export * from './prompts/heatmap';
 export * from './prompts/byte';
+export * from './prompts/slot';
+export * from './prompts/gauge';
