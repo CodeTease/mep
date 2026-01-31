@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { MatchOptions, MatchItem } from '../types';
+import { MatchOptions, MatchItem, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
@@ -210,22 +210,10 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
                         sourceLinks.delete(tId);
                     } else {
                         // Link
-                        // Check Constraints
-                        // "One Target can receive multiple sources?" (oneToMany)
-                        // If oneToMany is FALSE (default?), then this target can only have ONE source.
-                        // We need to check if this target is already linked to ANY other source.
-                        
-                        if (this.options.constraints?.oneToMany === false) { // Default is allowed? Plan says "Add flag". Assume allowed if undefined?
-                             // Wait, Plan says: "Có bắt buộc nối hết không? Một đích có được nhận nhiều nguồn không?"
-                             // Usually defaults are permissive.
-                             // If `oneToMany` is explicitly false, check uniqueness.
+                        if (this.options.constraints?.oneToMany === false) { 
                              
                              for (const [otherSId, tIds] of Array.from(this.links.entries())) {
                                  if (otherSId !== sId && tIds.has(tId)) {
-                                     // Target already taken
-                                     // Maybe steal it? or Block?
-                                     // Let's block or steal. Steal is better UX usually.
-                                     // "Steal": remove from other.
                                      tIds.delete(tId);
                                  }
                              }
@@ -250,10 +238,6 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
                  });
                  
                  if (!allLinked) {
-                     // Maybe show error?
-                     // Use render to show error temporarily?
-                     // Since I don't have errorMsg state exposed in render loop easily without modifying class...
-                     // I'll just ignore enter.
                      return; 
                  }
             }
@@ -293,6 +277,25 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
              }
              this.render(false);
              return;
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+             if (event.scroll === 'up') {
+                 if (this.activeSide === 'source') {
+                     this.cursorSource = Math.max(0, this.cursorSource - 1);
+                 } else {
+                     this.cursorTarget = Math.max(0, this.cursorTarget - 1);
+                 }
+             } else {
+                 if (this.activeSide === 'source') {
+                     this.cursorSource = Math.min(this.source.length - 1, this.cursorSource + 1);
+                 } else {
+                     this.cursorTarget = Math.min(this.target.length - 1, this.cursorTarget + 1);
+                 }
+             }
+             this.render(false);
         }
     }
 }

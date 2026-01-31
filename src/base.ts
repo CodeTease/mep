@@ -17,6 +17,7 @@ export abstract class Prompt<T, O> {
     private _inputParser: InputParser;
     private _onKeyHandler?: (char: string, key: Buffer) => void;
     private _onDataHandler?: (chunk: Buffer) => void;
+    private static warnedComponents = new Set<string>();
 
     protected lastRenderLines: string[] = [];
     protected lastRenderHeight: number = 0;
@@ -29,6 +30,23 @@ export abstract class Prompt<T, O> {
         this.stdout = process.stdout;
         this._inputParser = new InputParser();
         this.capabilities = detectCapabilities();
+    }
+
+    /**
+     * Checks if running on Windows and logs a warning message once per component type.
+     * Call this in the constructor of problematic prompts.
+     */
+    protected checkWindowsAttention() {
+        const componentName = this.constructor.name;
+
+        // Check platform and if already warned
+        if (process.platform === 'win32' && !Prompt.warnedComponents.has(componentName)) {
+            console.warn(
+                `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} ${componentName} may hang on Windows TTY after multiple cycles. ` +
+                `Press 'Enter' if unresponsive.`
+            );
+            Prompt.warnedComponents.add(componentName);
+        }
     }
 
     protected abstract render(firstRender: boolean): void;

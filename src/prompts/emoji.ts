@@ -1,8 +1,9 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { EmojiOptions, EmojiItem } from '../types';
+import { EmojiOptions, EmojiItem, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
+import { TreeSelectPrompt } from './tree-select';
 
 export class EmojiPrompt extends Prompt<string, EmojiOptions> {
     private search: string = '';
@@ -28,6 +29,8 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
                 return 0;
             });
         }
+
+        this.checkWindowsAttention();
         
         // Initial filter
         this.filtered = this.sortedEmojis;
@@ -134,9 +137,6 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
             if (newCursor >= 0) {
                 this.cursor = newCursor;
             } else {
-                 // Wrap to bottom or just stop? Plan says "Wrap loop" is optional.
-                 // "If at first row -> Up -> Loop to last row (optional)"
-                 // Let's implement standard grid nav.
             }
             this.adjustScroll();
             this.render(false);
@@ -202,6 +202,28 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
         if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
             this.search += char;
             this.updateFilter();
+            this.render(false);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent): void {
+        if (event.action === 'scroll' && this.filtered.length > 0) {
+            if (event.scroll === 'up') {
+                // Left / Previous
+                if (this.cursor > 0) {
+                    this.cursor--;
+                } else {
+                    this.cursor = this.filtered.length - 1;
+                }
+            } else {
+                // Right / Next
+                if (this.cursor < this.filtered.length - 1) {
+                    this.cursor++;
+                } else {
+                    this.cursor = 0;
+                }
+            }
+            this.adjustScroll();
             this.render(false);
         }
     }

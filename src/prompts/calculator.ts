@@ -54,32 +54,17 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
             const keys = Object.keys(this.options.variables).sort((a, b) => b.length - a.length);
             for (const key of keys) {
                 const val = this.options.variables[key];
-                // Use regex to replace whole words only? Or direct replacement?
-                // User requirement: "Substitute variable names"
-                // Safer to use a regex with word boundaries
                 const regex = new RegExp(`\\b${key}\\b`, 'g');
                 expr = expr.replace(regex, String(val));
             }
         }
 
         // 2. Validate characters
-        // Allowed: numbers, operators (+ - * / % ^), parens, dots, spaces
-        // Also allow 'Math.' functions if we want? Plan says "Mathematical operators".
-        // Let's allow basic Math constants like PI, E if needed, but strictly:
-        // Filter out dangerous characters.
-        // We deny letters (unless they were variables already replaced).
-        // Check for any remaining letters [a-zA-Z]
         if (/[a-zA-Z_]/.test(expr)) {
-             // Maybe it's a Math function?
              // Support basic Math functions: sin, cos, tan, log, sqrt, abs, pow, floor, ceil, round
              const allowedMath = ['sin', 'cos', 'tan', 'log', 'sqrt', 'abs', 'pow', 'floor', 'ceil', 'round', 'PI', 'E'];
              // We can prefix them with Math.
              
-             // Simple tokenizer or just allow specific words?
-             // Let's rely on a strict whitelist regex check.
-             // If it has letters, they must be part of the allowed list.
-             
-             // Implementation: Replace allowed keywords with "MATH_KEYWORD" then check for other letters.
              let checkStr = expr;
              allowedMath.forEach(k => {
                  checkStr = checkStr.replace(new RegExp(k, 'g'), '');
@@ -147,13 +132,6 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
 
         this.renderFrame(output);
         this.print(ANSI.SHOW_CURSOR);
-
-        // Calculate cursor position
-        // Lines up: 
-        // If preview is present: 1 line
-        // If error is present: 1 line
-        // Input is always on line 0 (relative to start)
-        // (Assuming single line input for Calculator)
         
         let totalRows = 1;
         if (previewStr) totalRows++;
@@ -194,12 +172,6 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
                 this.render(false);
                 return;
             }
-            
-            // if (this.options.validate) {
-                // Not implementing async validate for calc now to keep simple, 
-                // but strictly we should. 
-                // For now, assume sync validate if present, or just submit
-            // }
 
             this.submit(result);
             return;
