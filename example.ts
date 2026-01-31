@@ -481,7 +481,23 @@ async function runComprehensiveDemo() {
         });
         console.log(`Configured: ${size} bytes`); 
 
-        // --- 40. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 40. Slot Machine Prompt ---
+        const slotPrize = await MepCLI.slot({
+            message: "Spin for your daily bonus:",
+            choices: ["💎 Diamond", "🥇 Gold", "🥈 Silver", "🥉 Bronze", "🪵 Wood"],
+            rows: 5
+        });
+        console.log(`\n Slot Result: ${slotPrize}`);
+
+        // --- 41. Rhythm Gauge Prompt ---
+        const gaugeScore = await MepCLI.gauge({
+            message: "Stop the needle in the GREEN zone!",
+            width: 40,
+            safeZone: 0.15 // 15% safe zone
+        });
+        console.log(`\n Gauge Result: ${gaugeScore}`);
+
+        // --- 42. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

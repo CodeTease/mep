@@ -1,13 +1,13 @@
 # Mep
 
-**Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation.
+**Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation. With over 40+ built-in prompt types, Mep is ideal for building rich CLI applications, installers, and configuration wizards.
 
 A **CodeTease** project. 
 
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, and `heatmap`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, and `gauge`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -192,6 +192,20 @@ async function main() {
         ]
     });
 
+    // Slot Machine (Random Selection)
+    const winner = await MepCLI.slot({
+        message: "Spin for a prize:",
+        choices: ["🍒 Cherry", "🍋 Lemon", "🍊 Orange", "💎 Diamond"],
+        rows: 3
+    });
+
+    // Rhythm Gauge (Timing Game)
+    const accuracy = await MepCLI.gauge({
+        message: "Hit the green zone!",
+        width: 40,
+        safeZone: 0.2 // 20% width
+    });
+
     // SemVer (Version Bump)
     const nextVersion = await MepCLI.semver({
         message: "Bump version:",
@@ -288,6 +302,8 @@ main();
 *   `time(options)` - Vertical time scroller with rollover logic.
 *   `heatmap(options)` - Grid intensity selector with custom legend.
 *   `byte(options)` - Byte size input with unit suffixes (B, KB, MB, GB, TB, PB).
+*   `slot(options)` - Visual slot machine for random selection.
+*   `gauge(options)` - Timing-based gauge game for accuracy input.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
