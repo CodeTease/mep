@@ -17,3 +17,6 @@ export * from './prompts/gauge';
 export * from './prompts/calculator';
 export * from './prompts/emoji';
 export * from './prompts/match';
+export * from './prompts/diff';
+export * from './prompts/dial';
+export * from './prompts/draw';

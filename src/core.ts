@@ -50,7 +50,10 @@ import { GaugePrompt } from './prompts/gauge';
 import { CalculatorPrompt } from './prompts/calculator';
 import { EmojiPrompt } from './prompts/emoji';
 import { MatchPrompt } from './prompts/match';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions } from './types';
+import { DiffPrompt } from './prompts/diff';
+import { DialPrompt } from './prompts/dial';
+import { DrawPrompt } from './prompts/draw';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions } from './types';
 
 /**
  * Public Facade for MepCLI
@@ -260,5 +263,17 @@ export class MepCLI {
 
     static match(options: MatchOptions): Promise<Record<string, any[]>> {
         return new MatchPrompt(options).run();
+    }
+
+    static diff(options: DiffOptions): Promise<string> {
+        return new DiffPrompt(options).run();
+    }
+
+    static dial(options: DialOptions): Promise<number> {
+        return new DialPrompt(options).run();
+    }
+
+    static draw(options: DrawOptions): Promise<string | boolean[][]> {
+        return new DrawPrompt(options).run();
     }
 }

@@ -385,3 +385,29 @@ export interface MatchOptions extends BaseOptions {
         oneToMany?: boolean; // Can a target receive multiple sources?
     };
 }
+
+// --- Diff Types ---
+export interface DiffOptions extends BaseOptions {
+    original: string;
+    modified: string;
+    context?: number;
+    mode?: 'inline' | 'split';
+}
+
+// --- Dial Types ---
+export interface DialOptions extends BaseOptions {
+    min: number;
+    max: number;
+    step?: number;
+    radius: number;
+    pointerSymbol?: string;
+    initial?: number;
+}
+
+// --- Draw Types ---
+export interface DrawOptions extends BaseOptions {
+    width: number; // Width in characters
+    height: number; // Height in characters
+    exportType?: 'matrix' | 'text';
+    initial?: boolean[][];
+}
