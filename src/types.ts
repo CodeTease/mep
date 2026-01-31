@@ -510,3 +510,32 @@ export interface ExecOptions extends BaseOptions {
     cwd?: string;
     streamOutput?: boolean; // default false
 }
+
+// --- Shortcut Types ---
+export interface ShortcutResult {
+    name: string;
+    ctrl: boolean;
+    shift: boolean;
+    meta: boolean;
+    sequence: string;
+}
+
+export interface ShortcutOptions extends BaseOptions {
+    initial?: ShortcutResult;
+}
+
+// --- Seat Types ---
+export interface SeatOptions extends BaseOptions {
+    layout: string[];
+    rows?: string[];
+    cols?: string[];
+    initial?: string[];
+    multiple?: boolean;
+}
+
+// --- Mnemonic Types ---
+export interface MnemonicOptions extends BaseOptions {
+    wordlist?: string[]; // Defaults to BIP39 English if not provided
+    length?: 12 | 24;
+    showInput?: boolean;
+}

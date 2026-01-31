@@ -53,7 +53,7 @@ import { MatchPrompt } from './prompts/match';
 import { DiffPrompt } from './prompts/diff';
 import { DialPrompt } from './prompts/dial';
 import { DrawPrompt } from './prompts/draw';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, MnemonicOptions } from './types';
 import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
 import { FuzzySelectPrompt } from './prompts/fuzzy';
 import { MillerPrompt } from './prompts/miller';
@@ -65,6 +65,9 @@ import { BreadcrumbPrompt } from './prompts/breadcrumb';
 import { SchedulePrompt } from './prompts/schedule';
 import { DataInspectorPrompt } from './prompts/data-inspector';
 import { ExecPrompt } from './prompts/exec';
+import { ShortcutPrompt } from './prompts/shortcut';
+import { SeatPrompt } from './prompts/seat';
+import { MnemonicPrompt } from './prompts/mnemonic';
 
 /**
  * Public Facade for MepCLI
@@ -330,5 +333,17 @@ export class MepCLI {
 
     static exec(options: ExecOptions): Promise<void> {
         return new ExecPrompt(options).run();
+    }
+
+    static shortcut(options: ShortcutOptions): Promise<ShortcutResult> {
+        return new ShortcutPrompt(options).run();
+    }
+
+    static seat(options: SeatOptions): Promise<string[]> {
+        return new SeatPrompt(options).run();
+    }
+
+    static mnemonic(options: MnemonicOptions): Promise<string> {
+        return new MnemonicPrompt(options).run();
     }
 }

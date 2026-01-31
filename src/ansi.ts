@@ -25,6 +25,8 @@ export const ANSI = {
     BG_YELLOW: '\x1b[43m',
     BG_BLUE: '\x1b[44m',
     BG_CYAN: '\x1b[46m',
+    BG_GREEN: '\x1b[42m',
+    BG_RED: '\x1b[41m',
 
     // Cursor & Erasing
     ERASE_LINE: '\x1b[2K',      // Clear current line

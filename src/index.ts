@@ -31,3 +31,6 @@ export * from './prompts/breadcrumb';
 export * from './prompts/schedule';
 export * from './prompts/data-inspector';
 export * from './prompts/exec';
+export * from './prompts/shortcut';
+export * from './prompts/seat';
+export * from './prompts/mnemonic';
