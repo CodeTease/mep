@@ -289,3 +289,41 @@ export interface QuizTextOptions extends TextOptions {
     correctAnswer: string;
     explanation?: string;
 }
+
+// --- Kanban Types ---
+export interface KanbanItem {
+    id: string;
+    title: string;
+    [key: string]: any;
+}
+
+export interface KanbanColumn<V extends KanbanItem> {
+    id: string;
+    title: string;
+    items: V[];
+}
+
+export interface KanbanOptions<V extends KanbanItem> extends BaseOptions {
+    columns: KanbanColumn<V>[];
+}
+
+// --- Time Scroller Types ---
+export interface TimeOptions extends BaseOptions {
+    format?: '12h' | '24h';
+    step?: number;
+    initial?: Date | string;
+}
+
+// --- Heatmap Types ---
+export interface HeatmapLegend {
+    value: number;
+    char: string;
+    color: (str: string) => string;
+}
+
+export interface HeatmapOptions extends BaseOptions {
+    rows: string[];
+    columns: string[];
+    legend: HeatmapLegend[];
+    initial?: number[][];
+}

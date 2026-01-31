@@ -1,7 +1,8 @@
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
-         ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions } from './types';
+         ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
+         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -40,6 +41,9 @@ import { IPPrompt } from './prompts/ip';
 import { OTPPrompt } from './prompts/otp';
 import { QuizSelectPrompt } from './prompts/quiz-select';
 import { QuizTextPrompt } from './prompts/quiz-text';
+import { KanbanPrompt } from './prompts/kanban';
+import { TimePrompt } from './prompts/time';
+import { HeatmapPrompt } from './prompts/heatmap';
 
 /**
  * Public Facade for MepCLI
@@ -213,5 +217,17 @@ export class MepCLI {
 
     static quizText(options: QuizTextOptions): Promise<string> {
         return new QuizTextPrompt(options).run();
+    }
+
+    static kanban<V extends KanbanItem>(options: KanbanOptions<V>): Promise<Record<string, V[]>> {
+        return new KanbanPrompt(options).run();
+    }
+
+    static time(options: TimeOptions): Promise<string> {
+        return new TimePrompt(options).run();
+    }
+
+    static heatmap(options: HeatmapOptions): Promise<number[][]> {
+        return new HeatmapPrompt(options).run();
     }
 }

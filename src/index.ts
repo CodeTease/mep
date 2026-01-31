@@ -8,3 +8,6 @@ export * from './core';
 export * from './prompts/map';
 export * from './prompts/semver';
 export * from './prompts/ip';
+export * from './prompts/kanban';
+export * from './prompts/time';
+export * from './prompts/heatmap';
