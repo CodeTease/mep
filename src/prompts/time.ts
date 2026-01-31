@@ -147,7 +147,7 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
         const step = this.options.step || 1;
         const maxCols = is12h ? 2 : 1; // 0, 1, 2 or 0, 1
 
-        if (char === '\r') {
+        if (char === '\r' || char === '\n') { // Enter
              const h = this.hour.toString().padStart(2, '0');
              const m = this.minute.toString().padStart(2, '0');
              const result = is12h 

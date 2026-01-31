@@ -84,7 +84,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
     }
 
     protected handleInput(char: string, key: Buffer): void {
-        if (char === '\r') {
+        if (char === '\r' || char === '\n') { // Enter
             this.submit(this.grid);
             return;
         }

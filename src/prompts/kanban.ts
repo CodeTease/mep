@@ -154,7 +154,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
     }
 
     protected handleInput(char: string, key: Buffer): void {
-        if (char === '\r') { // Enter
+        if (char === '\r' || char === '\n') { // Enter
             const result: Record<string, V[]> = {};
             this.columns.forEach(c => {
                 result[c.id] = c.items;
