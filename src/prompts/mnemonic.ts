@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { Prompt } from '../base';
-import { MnemonicOptions } from '../types';
+import { MnemonicOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
 import { theme } from '../theme';
 
@@ -8,6 +8,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
     private words: string[] = [];
     private buffer: string = '';
     private suggestions: string[] = [];
+    private suggestionIndex: number = 0;
     private wordlist: string[];
     private errorMsg: string = '';
     private length: number;
@@ -16,6 +17,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
         super(options);
         this.wordlist = options.wordlist || DEFAULT_WORDLIST;
         this.length = options.length || 12;
+        this.checkWindowsAttention();
     }
 
     protected render(_firstRender: boolean) {
@@ -42,14 +44,23 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
 
         // Render Suggestions
         if (this.buffer.length > 0 && this.suggestions.length > 0) {
-            const suggestionStr = this.suggestions.slice(0, 5).map((s, i) => {
+            // Adjust to show window around selection
+            let startIdx = 0;
+            if (this.suggestionIndex >= 5) {
+                startIdx = this.suggestionIndex - 4;
+            }
+            const view = this.suggestions.slice(startIdx, startIdx + 5);
+
+            const suggestionStr = view.map((s, idx) => {
+                 const realIndex = startIdx + idx;
                  // Highlight match
                  const matchLen = this.buffer.length;
                  const matched = s.slice(0, matchLen);
                  const rest = s.slice(matchLen);
                  
-                 // If first suggestion, highlight it as "selected" (Tab target)
-                 if (i === 0) {
+                 const isSelected = realIndex === this.suggestionIndex;
+
+                 if (isSelected) {
                      return `${ANSI.BG_BLUE}${ANSI.FG_WHITE}${matched}${ANSI.FG_CYAN}${rest}${ANSI.RESET}`;
                  }
                  return `${ANSI.FG_CYAN}${matched}${theme.muted}${rest}${ANSI.RESET}`;
@@ -80,11 +91,26 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
             return;
         }
 
-        // Tab (Autocomplete)
+        // Tab (Autocomplete Selected)
         if (char === '\t') {
             if (this.suggestions.length > 0) {
-                // Pick first suggestion
-                this.confirmWord(this.suggestions[0]);
+                this.confirmWord(this.suggestions[this.suggestionIndex]);
+            }
+            return;
+        }
+
+        // Arrow Left/Right (Navigate Suggestions)
+        if (this.isLeft(char)) {
+            if (this.suggestions.length > 0) {
+                this.suggestionIndex = Math.max(0, this.suggestionIndex - 1);
+                this.render(false);
+            }
+            return;
+        }
+        if (this.isRight(char)) {
+             if (this.suggestions.length > 0) {
+                this.suggestionIndex = Math.min(this.suggestions.length - 1, this.suggestionIndex + 1);
+                this.render(false);
             }
             return;
         }
@@ -96,9 +122,9 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
                 this.confirmWord(this.buffer);
                 return;
             }
-            // If buffer is unique prefix?
-            if (this.suggestions.length === 1) {
-                this.confirmWord(this.suggestions[0]);
+            
+            if (this.suggestions.length > 0) {
+                this.confirmWord(this.suggestions[this.suggestionIndex]);
                 return;
             }
             
@@ -118,7 +144,19 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
         }
     }
 
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll' && this.suggestions.length > 0) {
+            if (event.scroll === 'up') {
+                this.suggestionIndex = Math.max(0, this.suggestionIndex - 1);
+            } else {
+                this.suggestionIndex = Math.min(this.suggestions.length - 1, this.suggestionIndex + 1);
+            }
+            this.render(false);
+        }
+    }
+
     private updateSuggestions() {
+        this.suggestionIndex = 0;
         if (this.buffer.length === 0) {
             this.suggestions = [];
             return;

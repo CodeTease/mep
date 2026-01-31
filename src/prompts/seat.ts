@@ -1,5 +1,5 @@
 import { Prompt } from '../base';
-import { SeatOptions } from '../types';
+import { SeatOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
 import { theme } from '../theme';
 
@@ -140,6 +140,17 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
         else if (this.isDown(char)) this.move(0, 1);
         else if (this.isLeft(char)) this.move(-1, 0);
         else if (this.isRight(char)) this.move(1, 0);
+        
+        // Tab / Shift+Tab
+        else if (char === '\t') this.move(1, 0);
+        else if (char === '\u001b[Z') this.move(-1, 0);
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') this.move(0, -1);
+            else if (event.scroll === 'down') this.move(0, 1);
+        }
     }
 
     private move(dx: number, dy: number) {
