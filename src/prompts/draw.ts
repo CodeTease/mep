@@ -63,11 +63,6 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
 
     protected render(firstRender: boolean) {
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
-
-        // Render Grid
-        const borderTop = `${ANSI.FG_GRAY}┌${'─'.repeat(this.options.width * 2 + 2)}┐${ANSI.RESET}`; // *2 for spacing? No, braille is 1 char wide
-        // But I will output "  " + char. No, just " " + char? 
-        // Let's use simple border based on width.
         
         output += `${ANSI.FG_GRAY}┌${'─'.repeat(this.options.width + 2)}┐${ANSI.RESET}\n`;
 
@@ -158,10 +153,6 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
                 this.render(false);
             }
         } else {
-             // First click or press
-             // Just set the lastMouse, don't move cursor yet to avoid jumps if we don't know absolute pos
-             // But if it is a press, maybe we should paint?
-             // Without moving cursor, we paint at CURRENT cursor.
              if (event.action === 'press' && event.button === 0) {
                  this.setPixel(this.cursorX, this.cursorY, true);
                  this.render(false);

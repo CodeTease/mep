@@ -98,13 +98,8 @@ ${this.options.modified}
                 extension: '.txt',
                 waitUserInput: false // Launch immediately
             }).run().then(result => {
-                // Remove conflict markers if user left them? 
-                // Usually user should edit them out.
-                // We just return what they saved.
                 this.submit(result); 
             }).catch(err => {
-                 // In case of error, fall back to modified or original?
-                 // Or just return the conflict text.
                  this.submit(initial); 
             });
         }
