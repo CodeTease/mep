@@ -154,7 +154,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             this.render(false);
             return;
         }
-        if (this.isLeft(char)) {
+        if (this.isLeft(char) || char === '\x1b[Z') {
             this.cursorCol = Math.max(0, this.cursorCol - 1);
             if (this.cursorCol < this.scrollCol) {
                 this.scrollCol = this.cursorCol;
@@ -162,7 +162,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             this.render(false);
             return;
         }
-        if (this.isRight(char)) {
+        if (this.isRight(char) || char === '\t') {
             this.cursorCol = Math.min(this.options.columns.length - 1, this.cursorCol + 1);
             
             // Adjust scrollCol to keep cursor visible
