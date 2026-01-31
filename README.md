@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, and `match`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, and `draw`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -238,6 +238,28 @@ async function main() {
         currentVersion: "1.0.2"
     });
 
+    // Diff (Conflict Resolver)
+    const resolved = await MepCLI.diff({
+        message: "Resolve Merge Conflict:",
+        original: "function old() { return 1; }",
+        modified: "function new() { return 2; }"
+    });
+
+    // Dial (Circular Knob)
+    const volume = await MepCLI.dial({
+        message: "Set Volume:",
+        min: 0,
+        max: 100,
+        initial: 50
+    });
+
+    // Draw (Braille Canvas)
+    const art = await MepCLI.draw({
+        message: "Draw signature:",
+        width: 20,
+        height: 10
+    });
+
     // Editor (External text editor)
     const bio = await MepCLI.editor({
         message: "Write your biography:",
@@ -333,6 +355,9 @@ main();
 *   `calculator(options)` - Evaluate mathematical expressions with real-time preview.
 *   `emoji(options)` - Grid-based emoji selector with filtering and recent history.
 *   `match(options)` - Link items between source and target columns.
+*   `diff(options)` - Conflict resolver for comparing and merging text blocks.
+*   `dial(options)` - Circular rotary knob for numeric input.
+*   `draw(options)` - Drawing canvas using Braille characters.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
@@ -506,6 +531,34 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
     *   `Arrows`: Navigate lists.
     *   `Tab`: Switch Source/Target.
     *   `Space`: Pick Source or Toggle Link.
+
+### Diff Prompt
+
+*   **Keyboard:**
+    *   `Left` / `Right`: Switch Action (Original / Modified / Edit).
+    *   `Enter`: Submit selection.
+
+### Dial Prompt
+
+*   **Keyboard:**
+    *   `Arrows`: Adjust value (rotate knob).
+    *   `Enter`: Submit.
+
+*   **Mouse:**
+    *   `Scroll`: Adjust value.
+
+### Draw Prompt
+
+*   **Keyboard:**
+    *   `Arrows`: Move cursor.
+    *   `Space`: Toggle pixel.
+    *   `c`: Clear canvas.
+    *   `i`: Invert canvas.
+    *   `Enter`: Submit.
+
+*   **Mouse:**
+    *   `Drag`: Paint (Left Click) or Erase (Right Click).
+    *   `Click`: Toggle pixel.
 
 ## License
 

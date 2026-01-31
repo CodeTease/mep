@@ -399,7 +399,7 @@ export interface DialOptions extends BaseOptions {
     min: number;
     max: number;
     step?: number;
-    radius: number;
+    radius?: number;
     pointerSymbol?: string;
     initial?: number;
 }

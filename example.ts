@@ -529,7 +529,34 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Match Result:`, linkedItems);
 
-        // --- 45. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 45. Diff Prompt ---
+        const diffResult = await MepCLI.diff({
+            message: "Resolve Conflict:",
+            original: "const x = 10;",
+            modified: "const x = 20; // Updated value"
+        });
+        console.log(`\n Diff Result: ${diffResult}`);
+
+        // --- 46. Dial Prompt ---
+        const dialVal = await MepCLI.dial({
+            message: "Set Volume:",
+            min: 0, 
+            max: 100,
+            initial: 50,
+            radius: 5
+        });
+        console.log(`\n Dial Result: ${dialVal}`);
+
+        // --- 47. Draw Prompt ---
+        const drawing = await MepCLI.draw({
+             message: "Draw a smiley face:",
+             width: 20,
+             height: 10,
+             exportType: 'text'
+        });
+        console.log(`\n Drawing:\n${drawing}`);
+
+        // --- 48. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
