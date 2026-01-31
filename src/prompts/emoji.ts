@@ -3,7 +3,6 @@ import { Prompt } from '../base';
 import { theme } from '../theme';
 import { EmojiOptions, EmojiItem, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
-import { TreeSelectPrompt } from './tree-select';
 
 export class EmojiPrompt extends Prompt<string, EmojiOptions> {
     private search: string = '';
