@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, and `ip`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, and `quizText`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -137,6 +137,33 @@ async function main() {
         initial: "192.168.1.1"
     });
 
+    // OTP (Masked PIN input)
+    const pin = await MepCLI.otp({
+        message: "Enter Verification PIN:",
+        length: 4,
+        mask: "•",
+        secure: true
+    });
+
+    // Quiz Select (Interactive Multiple Choice)
+    const capital = await MepCLI.quizSelect({
+        message: "What is the capital of France?",
+        choices: [
+            { title: "London", value: "london" },
+            { title: "Paris", value: "paris" },
+            { title: "Berlin", value: "berlin" }
+        ],
+        correctValue: "paris",
+        explanation: "Paris is the capital and most populous city of France."
+    });
+
+    // Quiz Text (Interactive Text Answer)
+    const answer = await MepCLI.quizText({
+        message: "What is 2 + 2?",
+        correctAnswer: "4",
+        explanation: "Basic arithmetic."
+    });
+
     // SemVer (Version Bump)
     const nextVersion = await MepCLI.semver({
         message: "Bump version:",
@@ -226,6 +253,9 @@ main();
 *   `map(options)` - Key-Value editor with grid navigation.
 *   `semver(options)` - Version bumping utility.
 *   `ip(options)` - IPv4 address input with auto-jump.
+*   `otp(options)` - Masked fixed-length input (PIN/OTP) with auto-submit.
+*   `quizSelect(options)` - Multiple choice quiz with immediate feedback/reveal.
+*   `quizText(options)` - Text answer quiz with validation and feedback.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.

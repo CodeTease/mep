@@ -391,7 +391,39 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n SemVer Result: ${nextVersion}`);
 
-        // --- 33. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 33. OTP Prompt ---
+        const otpCode = await MepCLI.otp({
+            message: "Enter Verification Code (OTP):",
+            length: 6,
+            mask: "•",
+            secure: false // Set true to hide input like password
+        });
+        console.log(`\n OTP Result: ${otpCode}`);
+
+        // --- 34. Quiz Select Prompt ---
+        const quizResult1 = await MepCLI.quizSelect({
+            message: "Quiz: Which language runs in the browser?",
+            choices: [
+                { title: "C++", value: "cpp" },
+                { title: "JavaScript", value: "js" },
+                { title: "Python", value: "py" }
+            ],
+            correctValue: "js",
+            explanation: "JavaScript is the primary scripting language for the web."
+        });
+        console.log(`\n Quiz Select Result: ${quizResult1}`);
+
+        // --- 35. Quiz Text Prompt ---
+        const quizResult2 = await MepCLI.quizText({
+            message: "Quiz: What is the largest planet in our solar system?",
+            correctAnswer: "Jupiter",
+            explanation: "Jupiter is a gas giant and the largest planet.",
+            // Optional custom verify function (e.g., allow case insensitive)
+            verify: (val) => val.trim().toLowerCase() === "jupiter"
+        });
+        console.log(`\n Quiz Text Result: ${quizResult2}`);
+
+        // --- 36. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
