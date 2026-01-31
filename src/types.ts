@@ -502,3 +502,11 @@ export interface DataInspectorOptions extends BaseOptions {
     data: any;
     maxDepth?: number;
 }
+
+// --- Exec Types ---
+export interface ExecOptions extends BaseOptions {
+    command: string;
+    timeout?: number; // ms, default 0 (infinite)
+    cwd?: string;
+    streamOutput?: boolean; // default false
+}

@@ -125,6 +125,12 @@ export abstract class Prompt<T, O> {
         if (this._resolve) this._resolve(result);
     }
 
+    protected cancel(reason: any) {
+        this.cleanup();
+        this.print('\n');
+        if (this._reject) this._reject(reason);
+    }
+
     /**
      * Renders the frame using a linear scan diffing algorithm.
      * Prevents flicker and handles height changes (expand/collapse) robustly.

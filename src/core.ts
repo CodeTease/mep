@@ -53,7 +53,7 @@ import { MatchPrompt } from './prompts/match';
 import { DiffPrompt } from './prompts/diff';
 import { DialPrompt } from './prompts/dial';
 import { DrawPrompt } from './prompts/draw';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions } from './types';
 import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
 import { FuzzySelectPrompt } from './prompts/fuzzy';
 import { MillerPrompt } from './prompts/miller';
@@ -64,6 +64,7 @@ import { ScrollPrompt } from './prompts/scroll';
 import { BreadcrumbPrompt } from './prompts/breadcrumb';
 import { SchedulePrompt } from './prompts/schedule';
 import { DataInspectorPrompt } from './prompts/data-inspector';
+import { ExecPrompt } from './prompts/exec';
 
 /**
  * Public Facade for MepCLI
@@ -325,5 +326,9 @@ export class MepCLI {
 
     static inspector(options: DataInspectorOptions): Promise<any> {
         return new DataInspectorPrompt(options).run();
+    }
+
+    static exec(options: ExecOptions): Promise<void> {
+        return new ExecPrompt(options).run();
     }
 }
