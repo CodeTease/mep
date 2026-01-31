@@ -165,6 +165,18 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         const task = this.tasks[this.cursor];
         const step = this.msPerChar; // Move by 1 char equivalent
 
+        // Tab Handling
+        if (char === '\t') {
+            this.cursor = (this.cursor + 1) % this.tasks.length;
+            this.render(false);
+            return;
+        }
+        if (char === '\u001b[Z') { // Shift+Tab
+            this.cursor = (this.cursor - 1 + this.tasks.length) % this.tasks.length;
+            this.render(false);
+            return;
+        }
+
         if (this.isUp(char)) {
             this.cursor = (this.cursor - 1 + this.tasks.length) % this.tasks.length;
             this.render(false);
@@ -224,6 +236,20 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
 
         if (char === '\r' || char === '\n') {
             this.submit(this.tasks);
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+             // Scroll timeline horizontally
+             if (event.scroll === 'up') {
+                 // Move view to earlier (left)
+                 this.viewStartDate -= (this.msPerChar * 5); 
+             } else if (event.scroll === 'down') {
+                 // Move view to later (right)
+                 this.viewStartDate += (this.msPerChar * 5);
+             }
+             this.render(false);
         }
     }
 }

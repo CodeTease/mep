@@ -277,4 +277,17 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
             this.render(false);
         }
     }
+
+    protected handleMouse(event: MouseEvent) {
+        if (this.editMode) return; // Disable scroll in edit mode for now
+
+        if (event.action === 'scroll') {
+             if (event.scroll === 'up') {
+                 this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
+             } else if (event.scroll === 'down') {
+                 this.cursor = (this.cursor + 1) % this.flatList.length;
+             }
+             this.render(false);
+        }
+    }
 }

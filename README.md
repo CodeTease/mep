@@ -682,13 +682,20 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 ### Schedule Prompt
 *   **Keyboard:**
     *   `Arrows`: Move task in time.
+    *   `Tab` / `Shift + Tab`: Switch between tasks.
     *   `Shift + Left/Right`: Resize task duration.
     *   `PageUp` / `PageDown`: Scroll timeline horizontally.
+
+* **Mouse:**
+    *   `Scroll`: Scroll timeline horizontally.
 
 ### Data Inspector
 *   **Keyboard:**
     *   `Space` / `Arrows`: Expand/Collapse nodes.
     *   `Enter`: Toggle Boolean or Edit String/Number.
+
+*   **Mouse:**
+    *   `Scroll`: Navigate tree.
 
 ## License
 
