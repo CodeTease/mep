@@ -424,18 +424,28 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
     *   `Space`: Grab/Drop item (Drag & Drop mode).
     *   `Enter`: Submit.
 
+*   **Mouse:**
+    *   `Scroll`: Navigate items (Normal) or Move item Left/Right (Grabbed).
+
 ### Time Prompt
 
 *   **Keyboard:**
     *   `Up` / `Down`: Adjust value.
     *   `Left` / `Right` / `Tab`: Switch unit (Hour/Minute/AM-PM).
 
+*   **Mouse:**
+    *   `Scroll`: Adjust value (Up/Down).
+
 ### Heatmap Prompt
 
 *   **Keyboard:**
     *   `Arrows`: Navigate cells.
+    *   `Tab` / `Shift+Tab`: Navigate cells (Horizontal).
     *   `Space`: Cycle value.
     *   `0-9`: Set value directly.
+
+*   **Mouse:**
+    *   `Scroll`: Navigate rows (Vertical).
 
 ## License
 
