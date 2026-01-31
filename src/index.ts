@@ -26,3 +26,4 @@ export * from './prompts/miller';
 export * from './prompts/pattern';
 export * from './prompts/region';
 export * from './prompts/spreadsheet';
+export * from './prompts/scroll';

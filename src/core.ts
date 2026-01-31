@@ -53,13 +53,14 @@ import { MatchPrompt } from './prompts/match';
 import { DiffPrompt } from './prompts/diff';
 import { DialPrompt } from './prompts/dial';
 import { DrawPrompt } from './prompts/draw';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions } from './types';
 import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
 import { FuzzySelectPrompt } from './prompts/fuzzy';
 import { MillerPrompt } from './prompts/miller';
 import { PatternPrompt } from './prompts/pattern';
 import { RegionPrompt } from './prompts/region';
 import { SpreadsheetPrompt } from './prompts/spreadsheet';
+import { ScrollPrompt } from './prompts/scroll';
 
 /**
  * Public Facade for MepCLI
@@ -305,5 +306,9 @@ export class MepCLI {
 
     static spreadsheet(options: SpreadsheetOptions): Promise<Record<string, any>[]> {
         return new SpreadsheetPrompt(options).run();
+    }
+
+    static scroll(options: ScrollOptions): Promise<boolean> {
+        return new ScrollPrompt(options).run();
     }
 }

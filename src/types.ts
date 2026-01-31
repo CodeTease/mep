@@ -469,3 +469,10 @@ export interface SpreadsheetOptions extends BaseOptions {
         cancel?: string[];
     };
 }
+
+// --- Scroll Prompt Types ---
+export interface ScrollOptions extends BaseOptions {
+    content: string;
+    height?: number; // Default: 10-15
+    requireScrollToBottom?: boolean;
+}
