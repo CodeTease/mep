@@ -20,6 +20,15 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
     }
 
     protected handleInput(char: string) {
+        // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            if (this.searchBuffer.length > 0) {
+                this.searchBuffer = this.searchBuffer.slice(0, -1);
+                this.performSearch();
+            }
+            return;
+        }
+
         // Intercept typing to add debounce
         if (char.length === 1 && !/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
             this.searchBuffer += char;
@@ -34,15 +43,6 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
                 this.performSearch();
             }
             return; // Skip super.handleInput for typing
-        }
-        
-        // Backspace
-        if (char === '\u0008' || char === '\x7f') {
-            if (this.searchBuffer.length > 0) {
-                this.searchBuffer = this.searchBuffer.slice(0, -1);
-                this.performSearch();
-            }
-            return;
         }
 
         super.handleInput(char);
@@ -69,10 +69,6 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         this.selectedIndex = 0;
         // Ensure index is valid
         if (this.filteredResults.length > 0) {
-             // Loop to find first selectable?
-             // Usually first item is best match and selectable.
-             // But if separator? Separators are filtered out in results map?
-             // My map returns null for separator.
         }
         this.render(false);
     }
@@ -82,9 +78,6 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         const indexSet = new Set(indices);
         for (let i = 0; i < text.length; i++) {
             if (indexSet.has(i)) {
-                // Highlight matched char. 
-                // If selected (Cyan/Main bg), we want distinct color?
-                // Usually bold is enough, or a complementary color.
                 if (isSelected) {
                      output += `${ANSI.BOLD}${ANSI.FG_WHITE}${text[i]}${theme.main}`; // Reset to main theme
                 } else {

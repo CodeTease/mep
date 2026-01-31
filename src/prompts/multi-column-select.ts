@@ -163,20 +163,13 @@ export class MultiColumnSelectPrompt<V> extends SelectPrompt<V, MultiColumnSelec
              this.render(false);
              return;
          }
-
-         // Search buffer logic inherited from SelectPrompt?
-         // SelectPrompt handles typing by adding to searchBuffer and resetting index.
-         // We can use super.handleInput(char) but it handles Up/Down differently.
-         // So we copy the search logic.
          
         // Backspace
         if (char === '\u0008' || char === '\x7f') {
             if (this.searchBuffer.length > 0) {
                 this.searchBuffer = this.searchBuffer.slice(0, -1);
                 this.selectedIndex = 0;
-                this.calculateLayout(); // Recalculate cols? No, cols usually based on original items or fixed.
-                                        // Actually if we filter, the layout might change if we base it on filtered items.
-                                        // But typically grid structure stays consistent.
+                this.calculateLayout(); 
                 this.render(false);
             }
             return;

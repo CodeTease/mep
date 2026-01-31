@@ -1,5 +1,5 @@
 import { Prompt } from '../base';
-import { MillerOptions, TreeNode } from '../types';
+import { MillerOptions, TreeNode, MouseEvent } from '../types';
 import { theme } from '../theme';
 import { ANSI } from '../ansi';
 import { symbols } from '../symbols';
@@ -17,9 +17,6 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
     constructor(options: MillerOptions<V>) {
         super(options);
         
-        // Initialize from options.initial (values) ??
-        // Mapping values back to indices is hard without a search.
-        // For now, start at root [0].
         this.selections = [0];
         this.scrollTops = [0];
         
@@ -57,19 +54,10 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
         
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         
-        // Determine start column for sliding window
-        // We want activeCol to be visible.
-        // Ideally centered or at right if deep.
-        
         let startCol = 0;
         if (this.activeCol >= this.visibleCols) {
             startCol = this.activeCol - this.visibleCols + 1;
         }
-        
-        // We usually show activeCol + 1 (preview) if possible?
-        // Let's just show up to activeCol, maybe +1 if space allows?
-        // The logic: columns exist if parent has children.
-        // Let's count how many valid columns we have.
         
         // Construct columns content
         const columnsToRender: string[][] = [];
@@ -226,6 +214,31 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
                 this.render(false);
             }
             return;
+        }
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            const currentData = this.getColumnData(this.activeCol);
+            if (!currentData || currentData.length === 0) return;
+
+            if (event.scroll === 'up') {
+                if (this.selections[this.activeCol] > 0) {
+                    this.selections[this.activeCol]--;
+                } else {
+                    this.selections[this.activeCol] = currentData.length - 1;
+                }
+            } else if (event.scroll === 'down') {
+                if (this.selections[this.activeCol] < currentData.length - 1) {
+                    this.selections[this.activeCol]++;
+                } else {
+                    this.selections[this.activeCol] = 0;
+                }
+            }
+
+            // Reset subsequent columns
+            this.selections = this.selections.slice(0, this.activeCol + 1);
+            this.render(false);
         }
     }
 }
