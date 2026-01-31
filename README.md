@@ -349,7 +349,28 @@ async function main() {
         ]
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location });
+    // Pattern Lock
+    const pattern = await MepCLI.pattern({
+        message: "Draw a pattern:",
+        rows: 3,
+        cols: 3
+    });
+
+    // Region Selector
+    const region = await MepCLI.region({
+        message: "Select a region:",
+        mapArt: "   ___\n__/   \\__\n\\_______/",
+        regions: [{ id: "Base", label: "Base", x: 4, y: 1 }]
+    });
+
+    // Spreadsheet
+    const sheet = await MepCLI.spreadsheet({
+        message: "Edit Data:",
+        columns: [{ name: "Name", key: "name" }, { name: "Role", key: "role" }],
+        data: [{ name: "Alice", role: "Dev" }]
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet });
 }
 
 main();
@@ -370,6 +391,9 @@ main();
 *   `multiColumnSelect(options)` - Single selection with grid layout.
 *   `fuzzySelect(options)` - Single selection with fuzzy search.
 *   `miller(options)` - Hierarchical navigation using Miller Columns.
+*   `pattern(options)` - Grid-based pattern lock input.
+*   `region(options)` - Select regions on an ASCII map.
+*   `spreadsheet(options)` - Interactive table/spreadsheet editor.
 *   `checkbox(options)` - Classic checkbox selection.
 *   `list(options)` - Enter a list of tags/strings.
 *   `slider(options)` - Select a number within a range using a visual slider.

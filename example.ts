@@ -648,7 +648,57 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Miller Result: ${millerPath.join(' -> ')}`);
 
-        // --- 52. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 52. Pattern Lock Prompt ---
+        const pattern = await MepCLI.pattern({
+            message: "Draw a pattern (at least 2 nodes):",
+            rows: 3,
+            cols: 3
+        });
+        console.log(`\n Pattern Result: ${pattern}`);
+
+        // --- 53. Region Selector Prompt ---
+        const mapArt = 
+`       ___
+    __/   \\__
+   /         \\
+  |           |
+   \\         /
+    \\__   __/
+       | |
+    ___| |___
+   /         \\
+  |           |
+   \\_________/`;
+        const region = await MepCLI.region({
+            message: "Select a region on the map:",
+            mapArt: mapArt,
+            regions: [
+                { id: 'North', label: 'North Base', x: 8, y: 3, description: 'The northern stronghold' },
+                { id: 'South', label: 'South Outpost', x: 8, y: 9, description: 'The southern trading post' }
+            ]
+        });
+        console.log(`\n Region Result: ${region}`);
+
+        // --- 54. Spreadsheet Prompt ---
+        const sheetData = await MepCLI.spreadsheet({
+            message: "Edit User Data (Spreadsheet):",
+            columns: [
+                { name: 'ID', key: 'id', width: 5, editable: false },
+                { name: 'Name', key: 'name', width: 15 },
+                { name: 'Role', key: 'role', width: 15 },
+                { name: 'Active', key: 'active', width: 8 }
+            ],
+            data: [
+                { id: 1, name: 'Alice', role: 'Admin', active: 'Yes' },
+                { id: 2, name: 'Bob', role: 'User', active: 'Yes' },
+                { id: 3, name: 'Charlie', role: 'Guest', active: 'No' },
+                { id: 4, name: 'Dave', role: 'User', active: 'Yes' },
+            ],
+            rows: 5
+        });
+        console.log(`\n Spreadsheet Result:`, sheetData);
+
+        // --- 55. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
