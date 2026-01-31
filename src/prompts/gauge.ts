@@ -1,7 +1,6 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { symbols } from '../symbols';
 import { GaugeOptions } from '../types';
 
 export class GaugePrompt extends Prompt<string, GaugeOptions> {

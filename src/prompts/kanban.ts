@@ -45,9 +45,6 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         output += ANSI.FG_GRAY + '─'.repeat(columns) + ANSI.RESET + '\n';
 
         // Render Rows
-        // Determine max height based on terminal or fixed limit? 
-        // Let's use a fixed height window, e.g., 10 rows or dynamic?
-        // For simple TUI, let's use a fixed viewport height, say 15 rows.
         const viewportHeight = 10;
         
         for (let r = 0; r < viewportHeight; r++) {
@@ -80,13 +77,6 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
                     const plain = `${prefix} ${title}${suffix}`.padEnd(colWidth);
 
                     if (style) {
-                        // Apply style to the whole cell content? Or just text?
-                        // Let's apply to text area.
-                        // We need to be careful with padding and ANSI codes.
-                        // Easier: Construct plain string, then wrap.
-                        // But padding needs to be correct.
-                        // Re-construct with color
-                        // We highlight the visible part
                         content = style + plain + ANSI.RESET;
                     } else {
                          content = plain;
@@ -222,19 +212,13 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         const targetCol = this.columns[this.activeCol + direction];
         const item = sourceCol.items.splice(this.activeRow, 1)[0];
         
-        // Logic to insert at a reasonable position in target col
-        // For now, append? Or try to match index?
-        // Let's try to match index or append if index > length
         let targetIndex = this.activeRow;
         if (targetIndex > targetCol.items.length) {
             targetIndex = targetCol.items.length;
         }
         
         targetCol.items.splice(targetIndex, 0, item);
-        
-        // When we move column, the activeRow might need adjustment if we were at the end
-        // But since we inserted at activeRow (or close), we should keep activeRow mostly same.
-        // If we appended, activeRow should be last.
+
         this.activeRow = targetIndex;
     }
 
