@@ -497,7 +497,39 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Gauge Result: ${gaugeScore}`);
 
-        // --- 42. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 42. Calculator Prompt ---
+        const calcTotal = await MepCLI.calculator({
+            message: "Calculate invoice total (price * qty):",
+            initial: "price * qty",
+            variables: { price: 29.99, qty: 5 },
+            precision: 2
+        });
+        console.log(`\n Calculator Result: ${calcTotal}`);
+
+        // --- 43. Emoji Prompt ---
+        const pickedEmoji = await MepCLI.emoji({
+            message: "Pick an emoji for your avatar:",
+            emojis: [
+                { char: '😀', name: 'Grinning' },
+                { char: '🚀', name: 'Rocket' },
+                { char: '💻', name: 'Tech' },
+                { char: '🎉', name: 'Party' },
+                { char: '🔥', name: 'Fire' }
+            ],
+            recent: ['Rocket']
+        });
+        console.log(`\n Emoji Result: ${pickedEmoji}`);
+
+        // --- 44. Match Prompt ---
+        const linkedItems = await MepCLI.match({
+            message: "Match capitals to countries:",
+            source: ['Paris', 'Berlin', 'Tokyo'],
+            target: ['Germany', 'Japan', 'France'],
+            constraints: { required: true }
+        });
+        console.log(`\n Match Result:`, linkedItems);
+
+        // --- 45. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

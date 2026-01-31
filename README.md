@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, and `gauge`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, and `match`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -206,6 +206,32 @@ async function main() {
         safeZone: 0.2 // 20% width
     });
 
+    // Calculator (Math Expression)
+    const result = await MepCLI.calculator({
+        message: "Calculate total:",
+        initial: "price * qty",
+        variables: { price: 25, qty: 4 },
+        precision: 2
+    });
+
+    // Emoji (Grid Selection)
+    const icon = await MepCLI.emoji({
+        message: "Select an icon:",
+        emojis: [
+            { char: "😀", name: "Smile" },
+            { char: "🚀", name: "Rocket" }
+        ],
+        recent: ["Rocket"]
+    });
+
+    // Match (Link Items)
+    const links = await MepCLI.match({
+        message: "Match Capital to Country:",
+        source: ["Paris", "Berlin"],
+        target: ["Germany", "France"],
+        constraints: { required: true }
+    });
+
     // SemVer (Version Bump)
     const nextVersion = await MepCLI.semver({
         message: "Bump version:",
@@ -304,6 +330,9 @@ main();
 *   `byte(options)` - Byte size input with unit suffixes (B, KB, MB, GB, TB, PB).
 *   `slot(options)` - Visual slot machine for random selection.
 *   `gauge(options)` - Timing-based gauge game for accuracy input.
+*   `calculator(options)` - Evaluate mathematical expressions with real-time preview.
+*   `emoji(options)` - Grid-based emoji selector with filtering and recent history.
+*   `match(options)` - Link items between source and target columns.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
@@ -333,7 +362,8 @@ MepCLI automatically detects modern terminals and enables **Mouse Tracking** (us
     *   `toggle`, `confirm`: Scroll to toggle the state.
     *   `calendar`: Scroll to switch months.
     *   `color`: Scroll to adjust RGB channels.
-    *   `grid`, `heatmap`, `kanban`: Scroll to move selection.
+    *   `grid`, `heatmap`, `kanban`, `emoji`: Scroll to move selection.
+    *   `match`: Scroll independent columns.
     *   `time`: Scroll to adjust values.
 *   **Configuration:**
     *   Mouse support is enabled by default if the terminal supports it.
@@ -463,6 +493,19 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Navigate rows (Vertical).
+
+### Emoji Prompt
+
+*   **Keyboard:**
+    *   `Arrows`: Navigate grid.
+    *   `Typing`: Filter/Search.
+
+### Match Prompt
+
+*   **Keyboard:**
+    *   `Arrows`: Navigate lists.
+    *   `Tab`: Switch Source/Target.
+    *   `Space`: Pick Source or Toggle Link.
 
 ## License
 
