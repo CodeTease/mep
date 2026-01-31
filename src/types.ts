@@ -217,7 +217,7 @@ export interface WaitOptions extends BaseOptions {
 
 export interface CodeOptions extends BaseOptions {
     template: string;
-    language?: 'json' | 'yaml';
+    language?: 'json';
     /**
      * Enable syntax highlighting (Experimental).
      * @default true
@@ -257,4 +257,222 @@ export interface CalendarOptions extends BaseOptions {
     min?: Date;
     max?: Date;
     weekStart?: 0 | 1; // 0 = Sunday, 1 = Monday
+}
+
+// --- New Prompts ---
+export interface MapOptions extends BaseOptions {
+    initial?: Record<string, string>;
+}
+
+export interface SemVerOptions extends BaseOptions {
+    currentVersion: string;
+}
+
+export interface IPOptions extends BaseOptions {
+    initial?: string;
+}
+
+export interface OTPOptions extends BaseOptions {
+    length?: number;
+    mask?: string;
+    secure?: boolean;
+    placeholder?: string;
+}
+
+export interface QuizSelectOptions<V> extends SelectOptions<V> {
+    correctValue: V;
+    explanation?: string;
+}
+
+export interface QuizTextOptions extends TextOptions {
+    verify?: (value: string) => boolean | Promise<boolean>;
+    correctAnswer: string;
+    explanation?: string;
+}
+
+// --- Kanban Types ---
+export interface KanbanItem {
+    id: string;
+    title: string;
+    [key: string]: any;
+}
+
+export interface KanbanColumn<V extends KanbanItem> {
+    id: string;
+    title: string;
+    items: V[];
+}
+
+export interface KanbanOptions<V extends KanbanItem> extends BaseOptions {
+    columns: KanbanColumn<V>[];
+}
+
+// --- Time Scroller Types ---
+export interface TimeOptions extends BaseOptions {
+    format?: '12h' | '24h';
+    step?: number;
+    initial?: Date | string;
+}
+
+// --- Heatmap Types ---
+export interface HeatmapLegend {
+    value: number;
+    char: string;
+    color: (str: string) => string;
+}
+
+export interface HeatmapOptions extends BaseOptions {
+    rows: string[];
+    columns: string[];
+    legend: HeatmapLegend[];
+    initial?: number[][];
+}
+
+export interface ByteOptions extends BaseOptions {
+    initial?: number; // Field initial in bytes
+    min?: number;     // Min bytes
+    max?: number;     // Max bytes
+}
+
+// --- Slot Machine Types ---
+export interface SlotOptions extends BaseOptions {
+    choices: string[];
+    rows?: number; // Default: 3
+    initial?: number; // Default: 0
+}
+
+// --- Rhythm Gauge Types ---
+export interface GaugeOptions extends BaseOptions {
+    theme?: Partial<ThemeConfig>;
+    width?: number; // Default: 40
+    /** Safe zone width as a percentage (0-1) or absolute character count (>1). Default: 0.2 (20%) */
+    safeZone?: number; 
+}
+
+// --- Calculator Types ---
+export interface CalculatorOptions extends BaseOptions {
+    initial?: string;
+    variables?: Record<string, number>;
+    precision?: number;
+    placeholder?: string;
+}
+
+// --- Emoji Types ---
+export interface EmojiItem {
+    char: string;
+    name: string;
+    description?: string;
+}
+
+export interface EmojiOptions extends BaseOptions {
+    emojis: EmojiItem[];
+    recent?: string[]; // Array of emoji names
+    cols?: number;
+}
+
+// --- Match Types ---
+export interface MatchItem {
+    id: string;
+    label: string;
+    value?: any;
+}
+
+export interface MatchOptions extends BaseOptions {
+    source: (string | MatchItem)[];
+    target: (string | MatchItem)[];
+    constraints?: {
+        required?: boolean; // Must link all source items?
+        oneToMany?: boolean; // Can a target receive multiple sources?
+    };
+}
+
+// --- Diff Types ---
+export interface DiffOptions extends BaseOptions {
+    original: string;
+    modified: string;
+    context?: number;
+    mode?: 'inline' | 'split';
+}
+
+// --- Dial Types ---
+export interface DialOptions extends BaseOptions {
+    min: number;
+    max: number;
+    step?: number;
+    radius?: number;
+    pointerSymbol?: string;
+    initial?: number;
+}
+
+// --- Draw Types ---
+export interface DrawOptions extends BaseOptions {
+    width: number; // Width in characters
+    height: number; // Height in characters
+    exportType?: 'matrix' | 'text';
+    initial?: boolean[][];
+}
+
+// --- Multi-Column Select Types ---
+export interface MultiColumnSelectOptions<V> extends SelectOptions<V> {
+    cols?: number | 'auto';
+}
+
+// --- Fuzzy Match Types ---
+export interface FuzzySelectOptions<V> extends SelectOptions<V> {
+    // Inherits choices
+}
+
+// --- Miller Columns Types ---
+export interface MillerOptions<V> extends BaseOptions {
+    data: TreeNode<V>[];
+    initial?: V[]; // Path of values to pre-select
+    separator?: string;
+}
+
+// --- Pattern Lock Types ---
+export interface PatternOptions extends BaseOptions {
+    rows?: number; // Default 3
+    cols?: number; // Default 3
+    nodeChar?: string; // Default ●
+    lineChar?: string; // Default based on symbols
+}
+
+// --- Region/Map Selector Types ---
+export interface MapRegion {
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+    description?: string;
+}
+
+export interface RegionOptions extends BaseOptions {
+    mapArt: string;
+    regions: MapRegion[];
+    initial?: string; // Initial selected region ID
+}
+
+// --- Spreadsheet Types ---
+export interface SpreadsheetColumn {
+    name: string;
+    key: string;
+    width?: number; // Fixed width, or auto if undefined
+    editable?: boolean;
+}
+
+export interface SpreadsheetOptions extends BaseOptions {
+    columns: SpreadsheetColumn[];
+    data: Record<string, any>[];
+    rows?: number; // Viewport height
+    keyBindings?: {
+        save?: string[];
+        cancel?: string[];
+    };
+}
+
+// --- Scroll Prompt Types ---
+export interface ScrollOptions extends BaseOptions {
+    content: string;
+    height?: number; // Default: 10-15
+    requireScrollToBottom?: boolean;
 }

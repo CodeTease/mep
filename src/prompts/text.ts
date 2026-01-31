@@ -6,15 +6,15 @@ import { TextOptions } from '../types';
 import { safeSplit, stringWidth } from '../utils';
 
 // --- Implementation: Text Prompt ---
-export class TextPrompt extends Prompt<string, TextOptions> {
-    private errorMsg: string = '';
+export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<string, O> {
+    protected errorMsg: string = '';
     // cursor is now an index into the grapheme segments array
-    private cursor: number = 0;
-    private hasTyped: boolean = false;
-    private segments: string[] = [];
-    private lastLinesUp: number = 0;
+    protected cursor: number = 0;
+    protected hasTyped: boolean = false;
+    protected segments: string[] = [];
+    protected lastLinesUp: number = 0;
 
-    constructor(options: TextOptions) {
+    constructor(options: O) {
         super(options);
         this.value = options.initial || '';
         // Initialize segments from value

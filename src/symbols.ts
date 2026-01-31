@@ -19,6 +19,18 @@ export interface SymbolDefinition {
     star: string;
     /** Empty star symbol for rating */
     starEmpty: string;
+    /** Box drawing top-left corner */
+    topLeft: string;
+    /** Box drawing top-right corner */
+    topRight: string;
+    /** Box drawing bottom-left corner */
+    bottomLeft: string;
+    /** Box drawing bottom-right corner */
+    bottomRight: string;
+    /** Box drawing horizontal line */
+    horizontal: string;
+    /** Box drawing vertical line */
+    vertical: string;
 }
 
 const UnicodeSymbols: SymbolDefinition = {
@@ -30,7 +42,13 @@ const UnicodeSymbols: SymbolDefinition = {
     unchecked: '◯',
     spinner: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
     star: '★',
-    starEmpty: '☆'
+    starEmpty: '☆',
+    topLeft: '┌',
+    topRight: '┐',
+    bottomLeft: '└',
+    bottomRight: '┘',
+    horizontal: '─',
+    vertical: '│'
 };
 
 const AsciiSymbols: SymbolDefinition = {
@@ -42,7 +60,13 @@ const AsciiSymbols: SymbolDefinition = {
     unchecked: '[ ]',
     spinner: ['|', '/', '-', '\\'],
     star: '*',
-    starEmpty: ' '
+    starEmpty: ' ',
+    topLeft: '+',
+    topRight: '+',
+    bottomLeft: '+',
+    bottomRight: '+',
+    horizontal: '-',
+    vertical: '|'
 };
 
 const capabilities = detectCapabilities();

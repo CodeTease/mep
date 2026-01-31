@@ -22,7 +22,6 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
     private scrollTop: number = 0;
     private readonly pageSize: number = 15;
     private parentMap: Map<TreeSelectNode<V>, TreeSelectNode<V>> = new Map();
-    private static hasWarnedWindows = false; // Static flag to warn only once
 
     private readonly ICON_CLOSED = symbols.pointer === '>' ? '+' : '▸';
     private readonly ICON_OPEN = symbols.pointer === '>' ? '-' : '▾';
@@ -38,11 +37,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
              this.recalculateAllParents(this.options.data);
         }
 
-        if (process.platform === 'win32' && !TreeSelectPrompt.hasWarnedWindows) {
-            console.warn(`${ANSI.FG_YELLOW}Warning:${ANSI.RESET} TreeSelectPrompt may hang on Windows TTY after multiple prompt cycles. Please press 'Enter' if the prompt becomes unresponsive.${ANSI.RESET}`);
-            TreeSelectPrompt.hasWarnedWindows = true;
-        }
-        
+        this.checkWindowsAttention();
         this.recalculateFlatList();
     }
     

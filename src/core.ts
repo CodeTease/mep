@@ -1,7 +1,8 @@
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
-         ColorOptions, GridOptions, CalendarOptions } from './types';
+         ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
+         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -34,6 +35,32 @@ import { TreeSelectPrompt } from './prompts/tree-select';
 import { ColorPrompt } from './prompts/color';
 import { GridPrompt } from './prompts/grid';
 import { CalendarPrompt } from './prompts/calendar';
+import { MapPrompt } from './prompts/map';
+import { SemVerPrompt } from './prompts/semver';
+import { IPPrompt } from './prompts/ip';
+import { OTPPrompt } from './prompts/otp';
+import { QuizSelectPrompt } from './prompts/quiz-select';
+import { QuizTextPrompt } from './prompts/quiz-text';
+import { KanbanPrompt } from './prompts/kanban';
+import { TimePrompt } from './prompts/time';
+import { HeatmapPrompt } from './prompts/heatmap';
+import { BytePrompt } from './prompts/byte';
+import { SlotPrompt } from './prompts/slot';
+import { GaugePrompt } from './prompts/gauge';
+import { CalculatorPrompt } from './prompts/calculator';
+import { EmojiPrompt } from './prompts/emoji';
+import { MatchPrompt } from './prompts/match';
+import { DiffPrompt } from './prompts/diff';
+import { DialPrompt } from './prompts/dial';
+import { DrawPrompt } from './prompts/draw';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions } from './types';
+import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
+import { FuzzySelectPrompt } from './prompts/fuzzy';
+import { MillerPrompt } from './prompts/miller';
+import { PatternPrompt } from './prompts/pattern';
+import { RegionPrompt } from './prompts/region';
+import { SpreadsheetPrompt } from './prompts/spreadsheet';
+import { ScrollPrompt } from './prompts/scroll';
 
 /**
  * Public Facade for MepCLI
@@ -183,5 +210,105 @@ export class MepCLI {
 
     static calendar(options: CalendarOptions): Promise<Date | [Date, Date]> {
         return new CalendarPrompt(options).run();
+    }
+
+    static map(options: MapOptions): Promise<Record<string, string>> {
+        return new MapPrompt(options).run();
+    }
+
+    static semver(options: SemVerOptions): Promise<string> {
+        return new SemVerPrompt(options).run();
+    }
+
+    static ip(options: IPOptions): Promise<string> {
+        return new IPPrompt(options).run();
+    }
+
+    static otp(options: OTPOptions): Promise<string> {
+        return new OTPPrompt(options).run();
+    }
+
+    static quizSelect<const V>(options: QuizSelectOptions<V>): Promise<V> {
+        return new QuizSelectPrompt(options).run();
+    }
+
+    static quizText(options: QuizTextOptions): Promise<string> {
+        return new QuizTextPrompt(options).run();
+    }
+
+    static kanban<V extends KanbanItem>(options: KanbanOptions<V>): Promise<Record<string, V[]>> {
+        return new KanbanPrompt(options).run();
+    }
+
+    static time(options: TimeOptions): Promise<string> {
+        return new TimePrompt(options).run();
+    }
+
+    static heatmap(options: HeatmapOptions): Promise<number[][]> {
+        return new HeatmapPrompt(options).run();
+    }
+
+    static byte(options: ByteOptions): Promise<number> {
+        return new BytePrompt(options).run();
+    }
+
+    static slot(options: SlotOptions): Promise<string> {
+        return new SlotPrompt(options).run();
+    }
+
+    static gauge(options: GaugeOptions): Promise<string> {
+        return new GaugePrompt(options).run();
+    }
+
+    static calculator(options: CalculatorOptions): Promise<number> {
+        return new CalculatorPrompt(options).run();
+    }
+
+    static emoji(options: EmojiOptions): Promise<string> {
+        return new EmojiPrompt(options).run();
+    }
+
+    static match(options: MatchOptions): Promise<Record<string, any[]>> {
+        return new MatchPrompt(options).run();
+    }
+
+    static diff(options: DiffOptions): Promise<string> {
+        return new DiffPrompt(options).run();
+    }
+
+    static dial(options: DialOptions): Promise<number> {
+        return new DialPrompt(options).run();
+    }
+
+    static draw(options: DrawOptions): Promise<string | boolean[][]> {
+        return new DrawPrompt(options).run();
+    }
+
+    static multiColumnSelect<V>(options: MultiColumnSelectOptions<V>): Promise<V> {
+        return new MultiColumnSelectPrompt(options).run();
+    }
+
+    static fuzzySelect<V>(options: FuzzySelectOptions<V>): Promise<V> {
+        return new FuzzySelectPrompt(options).run();
+    }
+
+    static miller<V>(options: MillerOptions<V>): Promise<V[]> {
+        return new MillerPrompt(options).run();
+    }
+
+    static pattern(options: PatternOptions): Promise<number[]> {
+        return new PatternPrompt(options).run();
+    }
+
+    static region(options: RegionOptions): Promise<string> {
+        return new RegionPrompt(options).run();
+    }
+
+    static spreadsheet(options: SpreadsheetOptions): Promise<Record<string, any>[]> {
+        return new SpreadsheetPrompt(options).run();
+    }
+
+    static scroll(options: ScrollOptions): Promise<boolean> {
+        return new ScrollPrompt(options).run();
     }
 }
