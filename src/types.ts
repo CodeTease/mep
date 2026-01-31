@@ -258,3 +258,16 @@ export interface CalendarOptions extends BaseOptions {
     max?: Date;
     weekStart?: 0 | 1; // 0 = Sunday, 1 = Monday
 }
+
+// --- New Prompts ---
+export interface MapOptions extends BaseOptions {
+    initial?: Record<string, string>;
+}
+
+export interface SemVerOptions extends BaseOptions {
+    currentVersion: string;
+}
+
+export interface IPOptions extends BaseOptions {
+    initial?: string;
+}

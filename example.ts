@@ -370,7 +370,28 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Calendar Result:`, bookingRange);
 
-        // --- 30. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 30. Map Prompt ---
+        const envVars = await MepCLI.map({
+            message: "Configure Environment Variables (Map):",
+            initial: { "API_URL": "http://localhost:8080", "DB_HOST": "127.0.0.1" }
+        });
+        console.log(`\n Map Result:`, envVars);
+
+        // --- 31. IP Prompt ---
+        const ipAddress = await MepCLI.ip({
+            message: "Enter Server IP Address:",
+            initial: "192.168.0.1"
+        });
+        console.log(`\n IP Result: ${ipAddress}`);
+
+        // --- 32. SemVer Prompt ---
+        const nextVersion = await MepCLI.semver({
+            message: "Bump Package Version:",
+            currentVersion: "1.0.5"
+        });
+        console.log(`\n SemVer Result: ${nextVersion}`);
+
+        // --- 33. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

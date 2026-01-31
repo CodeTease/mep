@@ -1,7 +1,7 @@
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
-         ColorOptions, GridOptions, CalendarOptions } from './types';
+         ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -34,6 +34,9 @@ import { TreeSelectPrompt } from './prompts/tree-select';
 import { ColorPrompt } from './prompts/color';
 import { GridPrompt } from './prompts/grid';
 import { CalendarPrompt } from './prompts/calendar';
+import { MapPrompt } from './prompts/map';
+import { SemVerPrompt } from './prompts/semver';
+import { IPPrompt } from './prompts/ip';
 
 /**
  * Public Facade for MepCLI
@@ -183,5 +186,17 @@ export class MepCLI {
 
     static calendar(options: CalendarOptions): Promise<Date | [Date, Date]> {
         return new CalendarPrompt(options).run();
+    }
+
+    static map(options: MapOptions): Promise<Record<string, string>> {
+        return new MapPrompt(options).run();
+    }
+
+    static semver(options: SemVerOptions): Promise<string> {
+        return new SemVerPrompt(options).run();
+    }
+
+    static ip(options: IPOptions): Promise<string> {
+        return new IPPrompt(options).run();
     }
 }

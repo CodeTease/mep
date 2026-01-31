@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, and `calendar`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, and `ip`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -125,6 +125,24 @@ async function main() {
         mode: "range"
     });
 
+    // Map (Key-Value Editor)
+    const envVars = await MepCLI.map({
+        message: "Edit Environment Variables:",
+        initial: { "API_URL": "http://localhost:3000", "DEBUG": "true" }
+    });
+
+    // IP Address (v4)
+    const serverIp = await MepCLI.ip({
+        message: "Enter Server IP:",
+        initial: "192.168.1.1"
+    });
+
+    // SemVer (Version Bump)
+    const nextVersion = await MepCLI.semver({
+        message: "Bump version:",
+        currentVersion: "1.0.2"
+    });
+
     // Editor (External text editor)
     const bio = await MepCLI.editor({
         message: "Write your biography:",
@@ -178,7 +196,7 @@ async function main() {
         ]
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, bio, userDetails, commitMsg, config, selectedFiles });
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles });
 }
 
 main();
@@ -205,6 +223,9 @@ main();
 *   `color(options)` - RGB color picker with hex output and TrueColor preview.
 *   `grid(options)` - 2D matrix selection (rows x columns).
 *   `calendar(options)` - Interactive monthly calendar for single dates or ranges.
+*   `map(options)` - Key-Value editor with grid navigation.
+*   `semver(options)` - Version bumping utility.
+*   `ip(options)` - IPv4 address input with auto-jump.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
@@ -320,6 +341,19 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Vertical navigation (Rows).
     *   `Shift + Scroll`: Horizontal navigation (Columns).
+
+### Map Prompt
+
+*   **Keyboard:**
+    *   `Ctrl + N`: Add new row.
+    *   `Ctrl + D`: Delete current row.
+    *   `Arrows` / `Tab`: Navigate cells.
+
+### IP Prompt
+
+*   **Keyboard:**
+    *   `typing...`: Auto-jumps to next octet after 3 digits or `.`.
+    *   `Backspace`: Navigates back to previous octet if empty.
 
 ## License
 
