@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, `scroll`, `schedule`, and `inspector`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, `scroll`, `schedule`, `inspector`, and `exec`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -404,6 +404,13 @@ async function main() {
         }
     });
 
+    // Exec (Background Command)
+    await MepCLI.exec({
+        message: "Installing dependencies...",
+        command: "npm install",
+        timeout: 60000 // 60s timeout
+    });
+
     console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet, timeline, configData });
 }
 
@@ -431,6 +438,7 @@ main();
 *   `scroll(options)` - Scrollable viewport for long text content.
 *   `schedule(options)` - Gantt-style timeline for viewing and editing task durations.
 *   `inspector(options)` - Tree-view JSON explorer with in-place editing.
+*   `exec(options)` - Run a shell command in the background with a minimalist status UI (Running/Success/Error).
 *   `checkbox(options)` - Classic checkbox selection.
 *   `list(options)` - Enter a list of tags/strings.
 *   `slider(options)` - Select a number within a range using a visual slider.

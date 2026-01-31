@@ -758,7 +758,20 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Inspector Result:`, JSON.stringify(finalConfig, null, 2));
 
-        // --- 59. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 59. Exec Prompt (Background Command) ---
+        console.log("\n--- Exec Prompt Demo (Simulating Background Task) ---");
+        try {
+            await MepCLI.exec({
+                message: "Simulating a build process...",
+                command: "node -e \"setTimeout(() => {}, 2000)\"", // 2s delay
+                timeout: 5000
+            });
+            console.log(" -> Build Success!");
+        } catch (e) {
+            console.log(" -> Build Failed!", e);
+        }
+
+        // --- 60. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
