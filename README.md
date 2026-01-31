@@ -1,13 +1,13 @@
 # Mep
 
-**Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation. With over 40+ built-in prompt types, Mep is ideal for building rich CLI applications, installers, and configuration wizards.
+**Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation. With over 50+ built-in prompt types, Mep is ideal for building rich CLI applications, installers, and configuration wizards.
 
 A **CodeTease** project. 
 
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, and `draw`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, and `draw`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -313,7 +313,43 @@ async function main() {
         ]
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles });
+    // Multi-Column Select (Grid Layout)
+    const tech = await MepCLI.multiColumnSelect({
+        message: "Pick a technology:",
+        choices: [
+            { title: "React", value: "react" },
+            { title: "Vue", value: "vue" },
+            { title: "Angular", value: "angular" },
+            { title: "Node", value: "node" }
+        ],
+        cols: 2
+    });
+
+    // Fuzzy Select (Approximate Search)
+    const pkg = await MepCLI.fuzzySelect({
+        message: "Search package:",
+        choices: [
+            { title: "react", value: "react" },
+            { title: "react-dom", value: "react-dom" },
+            { title: "redux", value: "redux" }
+        ]
+    });
+
+    // Miller Columns (Hierarchical Navigation)
+    const location = await MepCLI.miller({
+        message: "Select Location:",
+        data: [
+            {
+                title: "USA",
+                value: "usa",
+                children: [
+                    { title: "California", value: "ca", children: [{ title: "SF", value: "sf" }] }
+                ]
+            }
+        ]
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location });
 }
 
 main();
@@ -331,6 +367,9 @@ main();
 *   `toggle(options)` - On/Off switch.
 *   `select(options)` - Single item selection from a list.
 *   `multiSelect(options)` - Multiple item selection with filtering.
+*   `multiColumnSelect(options)` - Single selection with grid layout.
+*   `fuzzySelect(options)` - Single selection with fuzzy search.
+*   `miller(options)` - Hierarchical navigation using Miller Columns.
 *   `checkbox(options)` - Classic checkbox selection.
 *   `list(options)` - Enter a list of tags/strings.
 *   `slider(options)` - Select a number within a range using a visual slider.
@@ -519,11 +558,18 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Navigate rows (Vertical).
 
-### Emoji Prompt
+### Emoji Prompt & MultiColumnSelect
 
 *   **Keyboard:**
     *   `Arrows`: Navigate grid.
-    *   `Typing`: Filter/Search.
+    *   `Typing`: Filter/Search (Emoji only).
+
+### Miller Prompt
+
+*   **Keyboard:**
+    *   `Up` / `Down`: Navigate items.
+    *   `Right` / `Enter`: Expand child or Drill down.
+    *   `Left`: Collapse or Go back.
 
 ### Match Prompt
 
