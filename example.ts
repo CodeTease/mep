@@ -698,7 +698,20 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Spreadsheet Result:`, sheetData);
 
-        // --- 55. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 55. Scroll Prompt (License Agreement) ---
+        const dummyLicense = Array(40).fill("").map((_, i) => 
+            `Clause ${i + 1}: This is a sample clause text that is quite long to ensure it wraps correctly or at least takes up some space.`
+        ).join('\n');
+
+        await MepCLI.scroll({
+            message: "Read and Accept the License Agreement (Scroll to bottom):",
+            content: dummyLicense,
+            height: 10,
+            requireScrollToBottom: true
+        });
+        console.log(`\n Scroll Result: License Accepted`);
+
+        // --- 56. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
