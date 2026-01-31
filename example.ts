@@ -771,7 +771,35 @@ async function runComprehensiveDemo() {
             console.log(" -> Build Failed!", e);
         }
 
-        // --- 60. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 60. Shortcut Prompt ---
+        const keyShortcut = await MepCLI.shortcut({
+             message: "Press any key combination (e.g. Ctrl+Shift+A):"
+        });
+        console.log(`\n Shortcut Result: ${keyShortcut.name} (Ctrl:${keyShortcut.ctrl}, Alt:${keyShortcut.meta}, Shift:${keyShortcut.shift})`);
+
+        // --- 61. Seat Prompt ---
+        const seats = await MepCLI.seat({
+            message: "Select your seats (Use arrows, jump over gaps):",
+            layout: [
+                "AA_AA",
+                "AA_AA",
+                "_____",
+                "BB_BB",
+                "XX_BB" // XX is occupied
+            ],
+            multiple: true
+        });
+        console.log(`\n Seat Result: [${seats.join(', ')}]`);
+
+        // --- 62. Mnemonic Prompt ---
+        const seedPhrase = await MepCLI.mnemonic({
+            message: "Enter your 12-word recovery phrase (BIP39):",
+            length: 12,
+            showInput: true // Show clear text for demo purposes
+        });
+        console.log(`\n Mnemonic Result: ${seedPhrase}`);
+
+        // --- 63. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
