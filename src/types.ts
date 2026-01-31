@@ -217,7 +217,7 @@ export interface WaitOptions extends BaseOptions {
 
 export interface CodeOptions extends BaseOptions {
     template: string;
-    language?: 'json' | 'yaml';
+    language?: 'json';
     /**
      * Enable syntax highlighting (Experimental).
      * @default true

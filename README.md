@@ -195,7 +195,7 @@ async function main() {
         }
     });
 
-    // Code Prompt (JSON/YAML Editing)
+    // Code Prompt (JSON Editing)
     const config = await MepCLI.code({
         message: "Configure Server:",
         language: "json",
@@ -267,7 +267,7 @@ main();
 *   `editor(options)` - Launch an external editor (Vim, Nano, Notepad, etc.) to capture multi-line content.
 *   `form(options)` - Multi-field input form with navigation.
 *   `snippet(options)` - Template string filling with variable navigation.
-*   `code(options)` - Edit variables within a code block (JSON/YAML). Syntax highlighting is supported (Experimental).
+*   `code(options)` - Edit variables within a code block (JSON). Syntax highlighting is supported (Experimental).
 *   `treeSelect(options)` - Hierarchical multi-selection with cascading checkboxes.
 *   `spam(options)` - Confirm a dangerous action or fun.
 *   `wait(options)` - Wait for a specified number of seconds.
