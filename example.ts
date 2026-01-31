@@ -556,7 +556,99 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Drawing:\n${drawing}`);
 
-        // --- 48. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 49. Multi-Column Select Prompt ---
+        const mcSelection = await MepCLI.multiColumnSelect({
+            message: "Pick a technology (Multi-Column):",
+            choices: [
+                { title: "React", value: "react" },
+                { title: "Vue", value: "vue" },
+                { title: "Angular", value: "angular" },
+                { title: "Svelte", value: "svelte" },
+                { title: "Node.js", value: "node" },
+                { title: "Python", value: "python" },
+                { title: "Ruby", value: "ruby" },
+                { title: "Go", value: "go" },
+                { title: "Rust", value: "rust" },
+                { title: "Java", value: "java" },
+                { title: "C#", value: "csharp" },
+                { title: "PHP", value: "php" }
+            ],
+            cols: 4 // or 'auto'
+        });
+        console.log(`\n Multi-Column Result: ${mcSelection}`);
+
+        // --- 50. Fuzzy Select Prompt ---
+        const fuzzyResult = await MepCLI.fuzzySelect({
+            message: "Search a package (Fuzzy):",
+            choices: [
+                { title: "react", value: "react" },
+                { title: "react-dom", value: "react-dom" },
+                { title: "react-router", value: "react-router" },
+                { title: "redux", value: "redux" },
+                { title: "vue", value: "vue" },
+                { title: "vite", value: "vite" },
+                { title: "webpack", value: "webpack" },
+                { title: "lodash", value: "lodash" },
+                { title: "moment", value: "moment" },
+                { title: "express", value: "express" },
+                { title: "git status", value: "git-status" },
+                { title: "git commit", value: "git-commit" }
+            ]
+        });
+        console.log(`\n Fuzzy Result: ${fuzzyResult}`);
+        
+        // --- 51. Miller Columns Prompt ---
+        const millerPath = await MepCLI.miller({
+            message: "Navigate Hierarchy (Miller Columns):",
+            data: [
+                {
+                    title: "USA",
+                    value: "usa",
+                    children: [
+                        {
+                            title: "California",
+                            value: "ca",
+                            children: [
+                                { title: "San Francisco", value: "sf" },
+                                { title: "Los Angeles", value: "la" }
+                            ]
+                        },
+                        {
+                            title: "New York",
+                            value: "ny",
+                            children: [
+                                { title: "NYC", value: "nyc" },
+                                { title: "Albany", value: "albany" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    title: "Canada",
+                    value: "canada",
+                    children: [
+                        {
+                            title: "Ontario",
+                            value: "on",
+                            children: [
+                                { title: "Toronto", value: "toronto" },
+                                { title: "Ottawa", value: "ottawa" }
+                            ]
+                        },
+                         {
+                            title: "Quebec",
+                            value: "qc",
+                             children: [
+                                { title: "Montreal", value: "montreal" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+        console.log(`\n Miller Result: ${millerPath.join(' -> ')}`);
+
+        // --- 52. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

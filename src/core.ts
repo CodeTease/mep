@@ -53,7 +53,10 @@ import { MatchPrompt } from './prompts/match';
 import { DiffPrompt } from './prompts/diff';
 import { DialPrompt } from './prompts/dial';
 import { DrawPrompt } from './prompts/draw';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions } from './types';
+import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
+import { FuzzySelectPrompt } from './prompts/fuzzy';
+import { MillerPrompt } from './prompts/miller';
 
 /**
  * Public Facade for MepCLI
@@ -275,5 +278,17 @@ export class MepCLI {
 
     static draw(options: DrawOptions): Promise<string | boolean[][]> {
         return new DrawPrompt(options).run();
+    }
+
+    static multiColumnSelect<V>(options: MultiColumnSelectOptions<V>): Promise<V> {
+        return new MultiColumnSelectPrompt(options).run();
+    }
+
+    static fuzzySelect<V>(options: FuzzySelectOptions<V>): Promise<V> {
+        return new FuzzySelectPrompt(options).run();
+    }
+
+    static miller<V>(options: MillerOptions<V>): Promise<V[]> {
+        return new MillerPrompt(options).run();
     }
 }

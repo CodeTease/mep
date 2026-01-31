@@ -20,3 +20,6 @@ export * from './prompts/match';
 export * from './prompts/diff';
 export * from './prompts/dial';
 export * from './prompts/draw';
+export * from './prompts/multi-column-select';
+export * from './prompts/fuzzy';
+export * from './prompts/miller';

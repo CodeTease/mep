@@ -411,3 +411,20 @@ export interface DrawOptions extends BaseOptions {
     exportType?: 'matrix' | 'text';
     initial?: boolean[][];
 }
+
+// --- Multi-Column Select Types ---
+export interface MultiColumnSelectOptions<V> extends SelectOptions<V> {
+    cols?: number | 'auto';
+}
+
+// --- Fuzzy Match Types ---
+export interface FuzzySelectOptions<V> extends SelectOptions<V> {
+    // Inherits choices
+}
+
+// --- Miller Columns Types ---
+export interface MillerOptions<V> extends BaseOptions {
+    data: TreeNode<V>[];
+    initial?: V[]; // Path of values to pre-select
+    separator?: string;
+}

@@ -176,3 +176,78 @@ export function safeSplit(str: string): string[] {
     }
     return result;
 }
+
+/**
+ * Fuzzy match algorithm (Subsequence matching).
+ * Returns score and matched indices, or null if no match.
+ */
+export function fuzzyMatch(query: string, target: string): { score: number; indices: number[] } | null {
+    if (!query) return { score: 0, indices: [] };
+    
+    const queryLower = query.toLowerCase();
+    const targetLower = target.toLowerCase();
+    
+    let queryIdx = 0;
+    let targetIdx = 0;
+    const indices: number[] = [];
+    let score = 0;
+    let consecutive = 0;
+    // Track previous match index for consecutive check
+    let lastMatchIdx = -1;
+
+    // Simple greedy subsequence match
+    while (queryIdx < queryLower.length && targetIdx < targetLower.length) {
+        const qChar = queryLower[queryIdx];
+        const tChar = targetLower[targetIdx];
+
+        if (qChar === tChar) {
+            indices.push(targetIdx);
+            
+            let charScore = 1;
+            
+            // Bonus: Consecutive match
+            if (lastMatchIdx !== -1 && targetIdx === lastMatchIdx + 1) {
+                consecutive++;
+                charScore += (consecutive * 2); // Increasing bonus for longer runs
+            } else {
+                consecutive = 0;
+            }
+
+            // Bonus: Match at start of string
+            if (targetIdx === 0) {
+                charScore += 5;
+            } 
+            // Bonus: Match after separator (camelCase or space or special char)
+            else if (targetIdx > 0) {
+                const prevChar = target.charAt(targetIdx - 1);
+                if (/[\s_\-.]/.test(prevChar) || prevChar === '/') {
+                    charScore += 4;
+                } else if (prevChar !== prevChar.toUpperCase() && target.charAt(targetIdx) === target.charAt(targetIdx).toUpperCase()) {
+                    // CamelCase hump
+                     charScore += 3;
+                }
+            }
+
+            score += charScore;
+            lastMatchIdx = targetIdx;
+            queryIdx++;
+        }
+        targetIdx++;
+    }
+
+    // Must match all characters in query
+    if (queryIdx < queryLower.length) {
+        return null;
+    }
+
+    // Penalty for total length (prefer shorter strings)
+    score -= target.length * 0.1;
+    
+    // Penalty for distance between first and last match (compactness)
+    if (indices.length > 1) {
+        const spread = indices[indices.length - 1] - indices[0];
+        score -= spread * 0.5;
+    }
+
+    return { score, indices };
+}
