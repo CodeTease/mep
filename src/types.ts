@@ -428,3 +428,44 @@ export interface MillerOptions<V> extends BaseOptions {
     initial?: V[]; // Path of values to pre-select
     separator?: string;
 }
+
+// --- Pattern Lock Types ---
+export interface PatternOptions extends BaseOptions {
+    rows?: number; // Default 3
+    cols?: number; // Default 3
+    nodeChar?: string; // Default ●
+    lineChar?: string; // Default based on symbols
+}
+
+// --- Region/Map Selector Types ---
+export interface MapRegion {
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+    description?: string;
+}
+
+export interface RegionOptions extends BaseOptions {
+    mapArt: string;
+    regions: MapRegion[];
+    initial?: string; // Initial selected region ID
+}
+
+// --- Spreadsheet Types ---
+export interface SpreadsheetColumn {
+    name: string;
+    key: string;
+    width?: number; // Fixed width, or auto if undefined
+    editable?: boolean;
+}
+
+export interface SpreadsheetOptions extends BaseOptions {
+    columns: SpreadsheetColumn[];
+    data: Record<string, any>[];
+    rows?: number; // Viewport height
+    keyBindings?: {
+        save?: string[];
+        cancel?: string[];
+    };
+}

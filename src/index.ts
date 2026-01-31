@@ -23,3 +23,6 @@ export * from './prompts/draw';
 export * from './prompts/multi-column-select';
 export * from './prompts/fuzzy';
 export * from './prompts/miller';
+export * from './prompts/pattern';
+export * from './prompts/region';
+export * from './prompts/spreadsheet';

@@ -2,7 +2,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
-         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions } from './types';
+         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -57,6 +57,9 @@ import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOption
 import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
 import { FuzzySelectPrompt } from './prompts/fuzzy';
 import { MillerPrompt } from './prompts/miller';
+import { PatternPrompt } from './prompts/pattern';
+import { RegionPrompt } from './prompts/region';
+import { SpreadsheetPrompt } from './prompts/spreadsheet';
 
 /**
  * Public Facade for MepCLI
@@ -290,5 +293,17 @@ export class MepCLI {
 
     static miller<V>(options: MillerOptions<V>): Promise<V[]> {
         return new MillerPrompt(options).run();
+    }
+
+    static pattern(options: PatternOptions): Promise<number[]> {
+        return new PatternPrompt(options).run();
+    }
+
+    static region(options: RegionOptions): Promise<string> {
+        return new RegionPrompt(options).run();
+    }
+
+    static spreadsheet(options: SpreadsheetOptions): Promise<Record<string, any>[]> {
+        return new SpreadsheetPrompt(options).run();
     }
 }
