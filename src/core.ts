@@ -53,7 +53,7 @@ import { MatchPrompt } from './prompts/match';
 import { DiffPrompt } from './prompts/diff';
 import { DialPrompt } from './prompts/dial';
 import { DrawPrompt } from './prompts/draw';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions } from './types';
 import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
 import { FuzzySelectPrompt } from './prompts/fuzzy';
 import { MillerPrompt } from './prompts/miller';
@@ -61,6 +61,7 @@ import { PatternPrompt } from './prompts/pattern';
 import { RegionPrompt } from './prompts/region';
 import { SpreadsheetPrompt } from './prompts/spreadsheet';
 import { ScrollPrompt } from './prompts/scroll';
+import { BreadcrumbPrompt } from './prompts/breadcrumb';
 
 /**
  * Public Facade for MepCLI
@@ -310,5 +311,9 @@ export class MepCLI {
 
     static scroll(options: ScrollOptions): Promise<boolean> {
         return new ScrollPrompt(options).run();
+    }
+
+    static breadcrumb(options: BreadcrumbOptions): Promise<string> {
+        return new BreadcrumbPrompt(options).run();
     }
 }

@@ -476,3 +476,10 @@ export interface ScrollOptions extends BaseOptions {
     height?: number; // Default: 10-15
     requireScrollToBottom?: boolean;
 }
+
+// --- Breadcrumb Types ---
+export interface BreadcrumbOptions extends BaseOptions {
+    root?: string;
+    separator?: string;
+    showHidden?: boolean;
+}
