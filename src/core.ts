@@ -1,7 +1,7 @@
 import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
-         ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions } from './types';
+         ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -37,6 +37,9 @@ import { CalendarPrompt } from './prompts/calendar';
 import { MapPrompt } from './prompts/map';
 import { SemVerPrompt } from './prompts/semver';
 import { IPPrompt } from './prompts/ip';
+import { OTPPrompt } from './prompts/otp';
+import { QuizSelectPrompt } from './prompts/quiz-select';
+import { QuizTextPrompt } from './prompts/quiz-text';
 
 /**
  * Public Facade for MepCLI
@@ -198,5 +201,17 @@ export class MepCLI {
 
     static ip(options: IPOptions): Promise<string> {
         return new IPPrompt(options).run();
+    }
+
+    static otp(options: OTPOptions): Promise<string> {
+        return new OTPPrompt(options).run();
+    }
+
+    static quizSelect<const V>(options: QuizSelectOptions<V>): Promise<V> {
+        return new QuizSelectPrompt(options).run();
+    }
+
+    static quizText(options: QuizTextOptions): Promise<string> {
+        return new QuizTextPrompt(options).run();
     }
 }

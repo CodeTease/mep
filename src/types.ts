@@ -271,3 +271,21 @@ export interface SemVerOptions extends BaseOptions {
 export interface IPOptions extends BaseOptions {
     initial?: string;
 }
+
+export interface OTPOptions extends BaseOptions {
+    length?: number;
+    mask?: string;
+    secure?: boolean;
+    placeholder?: string;
+}
+
+export interface QuizSelectOptions<V> extends SelectOptions<V> {
+    correctValue: V;
+    explanation?: string;
+}
+
+export interface QuizTextOptions extends TextOptions {
+    verify?: (value: string) => boolean | Promise<boolean>;
+    correctAnswer: string;
+    explanation?: string;
+}

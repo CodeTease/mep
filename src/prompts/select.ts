@@ -5,23 +5,23 @@ import { symbols } from '../symbols';
 import { SelectOptions, MouseEvent } from '../types';
 
 // --- Implementation: Select Prompt ---
-export class SelectPrompt<V> extends Prompt<any, SelectOptions<V>> {
-    private selectedIndex: number = 0;
-    private searchBuffer: string = '';
-    private scrollTop: number = 0;
-    private readonly pageSize: number = 7;
+export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> extends Prompt<any, O> {
+    protected selectedIndex: number = 0;
+    protected searchBuffer: string = '';
+    protected scrollTop: number = 0;
+    protected readonly pageSize: number = 7;
 
-    constructor(options: SelectOptions<V>) {
+    constructor(options: O) {
         super(options);
         // Find first non-separator index
         this.selectedIndex = this.findNextSelectableIndex(-1, 1);
     }
 
-    private isSeparator(item: any): boolean {
+    protected isSeparator(item: any): boolean {
         return item && item.separator === true;
     }
 
-    private findNextSelectableIndex(currentIndex: number, direction: 1 | -1): number {
+    protected findNextSelectableIndex(currentIndex: number, direction: 1 | -1): number {
         let nextIndex = currentIndex + direction;
         const choices = this.getFilteredChoices();
         
@@ -42,7 +42,7 @@ export class SelectPrompt<V> extends Prompt<any, SelectOptions<V>> {
         return nextIndex;
     }
     
-    private getFilteredChoices() {
+    protected getFilteredChoices() {
         if (!this.searchBuffer) return this.options.choices;
         return this.options.choices.filter(c => {
             if (this.isSeparator(c)) return false; // Hide separators when searching
