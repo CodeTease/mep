@@ -15,7 +15,8 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
     }
     
     protected getFilteredChoices() {
-        return this.filteredResults;
+        // Safety check: this.filteredResults might be undefined if called from super() constructor
+        return this.filteredResults || this.options.choices;
     }
 
     protected handleInput(char: string) {
