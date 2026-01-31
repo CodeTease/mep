@@ -23,6 +23,19 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Text Result: Project name set to '${projectName}'`);
 
+        // --- 1.5 Text Prompt with Suggestion (Ghost Text) ---
+        const gitCommand = await MepCLI.text({
+            message: "Enter a git command (try typing 'git c' and press Tab):",
+            placeholder: "git ...",
+            suggest: (input) => {
+                if (!input) return "";
+                const suggestions = ["git commit", "git checkout", "git clone", "git push", "git pull", "git status"];
+                const match = suggestions.find(s => s.startsWith(input));
+                return match || "";
+            }
+        });
+        console.log(`\n Text Suggestion Result: '${gitCommand}'`);
+
         // --- 2. Password Prompt (Hidden input) ---
         const apiKey = await MepCLI.password({
             message: "Enter the project's external API key:",

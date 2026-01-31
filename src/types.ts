@@ -34,6 +34,7 @@ export interface TextOptions extends BaseOptions {
     isPassword?: boolean;
     multiline?: boolean;
     mask?: string;
+    suggest?: (input: string) => string | Promise<string>;
 }
 
 export interface Separator {
