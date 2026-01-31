@@ -1,5 +1,5 @@
 import { Prompt } from '../base';
-import { TimeOptions } from '../types';
+import { TimeOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
 
 export class TimePrompt extends Prompt<string, TimeOptions> {
@@ -129,6 +129,17 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
         output += ANSI.FG_GRAY + "(Use Arrows/Tab to navigate)" + ANSI.RESET;
 
         this.renderFrame(output);
+    }
+
+    protected handleMouse(event: MouseEvent): void {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.adjustValue(-1);
+            } else if (event.scroll === 'down') {
+                this.adjustValue(1);
+            }
+            this.render(false);
+        }
     }
 
     protected handleInput(char: string, key: Buffer): void {

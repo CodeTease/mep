@@ -1,5 +1,5 @@
 import { Prompt } from '../base';
-import { KanbanOptions, KanbanItem, KanbanColumn } from '../types';
+import { KanbanOptions, KanbanItem, KanbanColumn, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
 import { stringWidth } from '../utils';
 
@@ -111,6 +111,46 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         const left = Math.floor((width - visibleLen) / 2);
         const right = width - visibleLen - left;
         return ' '.repeat(left) + style + str + ANSI.RESET + ' '.repeat(right);
+    }
+
+    protected handleMouse(event: MouseEvent): void {
+        if (event.action === 'scroll') {
+            if (this.grabbed) {
+                // Grabbed: Scroll moves Left/Right
+                if (event.scroll === 'up') {
+                    // Up/Left
+                    if (this.activeCol > 0) {
+                        this.moveItemHorizontal(-1);
+                        this.activeCol--;
+                        this.clampRow();
+                        this.ensureVisible();
+                    }
+                } else if (event.scroll === 'down') {
+                    // Down/Right
+                    if (this.activeCol < this.columns.length - 1) {
+                        this.moveItemHorizontal(1);
+                        this.activeCol++;
+                        this.clampRow();
+                        this.ensureVisible();
+                    }
+                }
+            } else {
+                // Normal: Scroll moves Up/Down
+                if (event.scroll === 'up') {
+                     if (this.activeRow > 0) {
+                        this.activeRow--;
+                        this.ensureVisible();
+                    }
+                } else if (event.scroll === 'down') {
+                     const colLen = this.columns[this.activeCol].items.length;
+                     if (this.activeRow < colLen - 1) {
+                        this.activeRow++;
+                        this.ensureVisible();
+                    }
+                }
+            }
+            this.render(false);
+        }
     }
 
     protected handleInput(char: string, key: Buffer): void {

@@ -1,5 +1,5 @@
 import { Prompt } from '../base';
-import { HeatmapOptions, HeatmapLegend } from '../types';
+import { HeatmapOptions, HeatmapLegend, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
 
 export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
@@ -72,6 +72,17 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
         return this.options.legend.find(l => l.value === val);
     }
 
+    protected handleMouse(event: MouseEvent): void {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                if (this.cursorRow > 0) this.cursorRow--;
+            } else if (event.scroll === 'down') {
+                if (this.cursorRow < this.options.rows.length - 1) this.cursorRow++;
+            }
+            this.render(false);
+        }
+    }
+
     protected handleInput(char: string, key: Buffer): void {
         if (char === '\r') {
             this.submit(this.grid);
@@ -86,6 +97,24 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
             if (this.cursorCol > 0) this.cursorCol--;
         } else if (this.isRight(char)) {
             if (this.cursorCol < this.options.columns.length - 1) this.cursorCol++;
+        } else if (char === '\t') { // Tab -> Right (Cycle)
+             this.cursorCol++;
+             if (this.cursorCol >= this.options.columns.length) {
+                 this.cursorCol = 0;
+                 this.cursorRow++;
+                 if (this.cursorRow >= this.options.rows.length) {
+                     this.cursorRow = 0;
+                 }
+             }
+        } else if (char === '\u001b[Z') { // Shift+Tab -> Left (Cycle)
+             this.cursorCol--;
+             if (this.cursorCol < 0) {
+                 this.cursorCol = this.options.columns.length - 1;
+                 this.cursorRow--;
+                 if (this.cursorRow < 0) {
+                     this.cursorRow = this.options.rows.length - 1;
+                 }
+             }
         } else if (char === ' ') {
             const val = this.grid[this.cursorRow][this.cursorCol];
             const idx = this.validValues.indexOf(val);
