@@ -44,10 +44,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         const mode = this.editMode ? `${ANSI.FG_YELLOW}[EDIT]${ANSI.RESET}` : `${ANSI.FG_BLUE}[NAV]${ANSI.RESET}`;
         output += `${theme.title}${this.options.message} ${mode}${ANSI.RESET}\n`;
 
-        // Instructions
-        if (firstRender) {
-             output += `${ANSI.DIM}(Arrows: Move, Enter/Type: Edit, Esc: Cancel)${ANSI.RESET}\n`;
-        }
+        output += `${ANSI.DIM}(Arrows: Move, Enter/Type: Edit, Esc: Cancel)${ANSI.RESET}\n`;
 
         // Viewport Logic (Rows)
         const maxScrollRow = Math.max(0, this.options.data.length - this.viewportHeight);
