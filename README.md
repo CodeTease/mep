@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, and `scroll`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, `scroll`, `schedule`, and `inspector`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -385,7 +385,26 @@ async function main() {
         requireScrollToBottom: true
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet });
+    // Schedule (Gantt Chart)
+    const timeline = await MepCLI.schedule({
+        message: "Project Timeline:",
+        data: [
+            { name: "Design", start: new Date("2023-01-01"), end: new Date("2023-01-05") },
+            { name: "Code", start: new Date("2023-01-06"), end: new Date("2023-01-15") }
+        ]
+    });
+
+    // Data Inspector (JSON Explorer)
+    const configData = await MepCLI.inspector({
+        message: "Edit Config:",
+        data: {
+            host: "localhost",
+            port: 8080,
+            features: { auth: true, logs: false }
+        }
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet, timeline, configData });
 }
 
 main();
@@ -410,6 +429,8 @@ main();
 *   `region(options)` - Select regions on an ASCII map.
 *   `spreadsheet(options)` - Interactive table/spreadsheet editor.
 *   `scroll(options)` - Scrollable viewport for long text content.
+*   `schedule(options)` - Gantt-style timeline for viewing and editing task durations.
+*   `inspector(options)` - Tree-view JSON explorer with in-place editing.
 *   `checkbox(options)` - Classic checkbox selection.
 *   `list(options)` - Enter a list of tags/strings.
 *   `slider(options)` - Select a number within a range using a visual slider.
@@ -657,6 +678,17 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *  **Mouse:**
     *   `Scroll`: Navigate list.
+
+### Schedule Prompt
+*   **Keyboard:**
+    *   `Arrows`: Move task in time.
+    *   `Shift + Left/Right`: Resize task duration.
+    *   `PageUp` / `PageDown`: Scroll timeline horizontally.
+
+### Data Inspector
+*   **Keyboard:**
+    *   `Space` / `Arrows`: Expand/Collapse nodes.
+    *   `Enter`: Toggle Boolean or Edit String/Number.
 
 ## License
 

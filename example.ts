@@ -719,7 +719,33 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Breadcrumb Result: ${breadcrumbPath}`);
 
-        // --- 57. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 57. Schedule Prompt ---
+        const timeline = await MepCLI.schedule({
+            message: "Project Timeline (Shift+Arrows to resize):",
+            data: [
+                { name: "Planning", start: new Date(), end: new Date(Date.now() + 86400000 * 2) },
+                { name: "Development", start: new Date(Date.now() + 86400000 * 3), end: new Date(Date.now() + 86400000 * 7) }
+            ]
+        });
+        console.log(`\n Schedule Result:`, timeline);
+
+        // --- 58. Data Inspector Prompt ---
+        const finalConfig = await MepCLI.inspector({
+            message: "Verify Final Configuration (Data Inspector):",
+            data: {
+                env: "production",
+                debug: false,
+                database: {
+                    host: "10.0.0.5",
+                    port: 5432,
+                    pool: { max: 20, min: 5 }
+                },
+                services: ["api", "worker", "auth"]
+            }
+        });
+        console.log(`\n Inspector Result:`, JSON.stringify(finalConfig, null, 2));
+
+        // --- 59. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
