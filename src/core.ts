@@ -2,7 +2,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
-         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions } from './types';
+         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -44,6 +44,7 @@ import { QuizTextPrompt } from './prompts/quiz-text';
 import { KanbanPrompt } from './prompts/kanban';
 import { TimePrompt } from './prompts/time';
 import { HeatmapPrompt } from './prompts/heatmap';
+import { BytePrompt } from './prompts/byte';
 
 /**
  * Public Facade for MepCLI
@@ -229,5 +230,9 @@ export class MepCLI {
 
     static heatmap(options: HeatmapOptions): Promise<number[][]> {
         return new HeatmapPrompt(options).run();
+    }
+
+    static byte(options: ByteOptions): Promise<number> {
+        return new BytePrompt(options).run();
     }
 }

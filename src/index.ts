@@ -11,3 +11,4 @@ export * from './prompts/ip';
 export * from './prompts/kanban';
 export * from './prompts/time';
 export * from './prompts/heatmap';
+export * from './prompts/byte';

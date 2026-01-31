@@ -473,7 +473,15 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Heatmap Result:`, weeklyAvailability);
 
-        // --- 39. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 39. Byte Prompt ---
+        const size = await MepCLI.byte({
+            message: "Set docker container memory limit",
+            initial: 512 * 1024 * 1024, // 512 MB
+            min: 1024 * 1024 // Min 1 MB
+        });
+        console.log(`Configured: ${size} bytes`); 
+
+        // --- 40. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

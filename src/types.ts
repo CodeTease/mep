@@ -327,3 +327,9 @@ export interface HeatmapOptions extends BaseOptions {
     legend: HeatmapLegend[];
     initial?: number[][];
 }
+
+export interface ByteOptions extends BaseOptions {
+    initial?: number; // Field initial in bytes
+    min?: number;     // Min bytes
+    max?: number;     // Max bytes
+}
