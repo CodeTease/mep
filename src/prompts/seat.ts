@@ -28,6 +28,7 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
         if (options.initial) {
             options.initial.forEach(id => this.selected.add(id));
         }
+        this.checkWindowsAttention();
     }
 
     private parseLayout() {

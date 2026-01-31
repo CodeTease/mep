@@ -17,7 +17,6 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
         super(options);
         this.wordlist = options.wordlist || DEFAULT_WORDLIST;
         this.length = options.length || 12;
-        this.checkWindowsAttention();
     }
 
     protected render(_firstRender: boolean) {
