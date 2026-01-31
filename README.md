@@ -649,6 +649,15 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
     *   `Drag`: Paint (Left Click) or Erase (Right Click).
     *   `Click`: Toggle pixel.
 
+### Breadcrumb Prompt
+*   **Keyboard:**
+    *   `Arrows`: Navigate list.
+    *   `Enter`: Drill down into folder.
+    *   `Backspace`: Go up one level.
+
+*  **Mouse:**
+    *   `Scroll`: Navigate list.
+
 ## License
 
 This project is under the **MIT License**.

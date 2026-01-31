@@ -1,5 +1,5 @@
 import { Prompt } from '../base';
-import { BreadcrumbOptions } from '../types';
+import { BreadcrumbOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
@@ -280,6 +280,25 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
             this.cursor = Math.min(this.currentEntries.length - 1, this.cursor + this.pageSize);
             this.render(false);
             return;
+        }
+    }
+
+    protected handleMouse(_event: MouseEvent): void {
+        // Scroll up and down
+        if (this.isLoading) return;
+
+        if (_event.action === 'scroll') {
+            if (_event.scroll === 'up') {
+                if (this.cursor > 0) {
+                    this.cursor--;
+                    this.render(false);
+                }
+            } else if (_event.scroll === 'down') {
+                if (this.cursor < this.currentEntries.length - 1) {
+                    this.cursor++;
+                    this.render(false);
+                }
+            }
         }
     }
 }
