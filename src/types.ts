@@ -483,3 +483,21 @@ export interface BreadcrumbOptions extends BaseOptions {
     separator?: string;
     showHidden?: boolean;
 }
+
+// --- Schedule Types ---
+export interface ScheduleTask {
+    name: string;
+    start: Date;
+    end: Date;
+    metadata?: any;
+}
+
+export interface ScheduleOptions extends BaseOptions {
+    data: ScheduleTask[];
+}
+
+// --- Data Inspector Types ---
+export interface DataInspectorOptions extends BaseOptions {
+    data: any;
+    maxDepth?: number;
+}

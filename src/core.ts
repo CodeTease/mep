@@ -53,7 +53,7 @@ import { MatchPrompt } from './prompts/match';
 import { DiffPrompt } from './prompts/diff';
 import { DialPrompt } from './prompts/dial';
 import { DrawPrompt } from './prompts/draw';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions } from './types';
 import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
 import { FuzzySelectPrompt } from './prompts/fuzzy';
 import { MillerPrompt } from './prompts/miller';
@@ -62,6 +62,8 @@ import { RegionPrompt } from './prompts/region';
 import { SpreadsheetPrompt } from './prompts/spreadsheet';
 import { ScrollPrompt } from './prompts/scroll';
 import { BreadcrumbPrompt } from './prompts/breadcrumb';
+import { SchedulePrompt } from './prompts/schedule';
+import { DataInspectorPrompt } from './prompts/data-inspector';
 
 /**
  * Public Facade for MepCLI
@@ -315,5 +317,13 @@ export class MepCLI {
 
     static breadcrumb(options: BreadcrumbOptions): Promise<string> {
         return new BreadcrumbPrompt(options).run();
+    }
+
+    static schedule(options: ScheduleOptions): Promise<ScheduleTask[]> {
+        return new SchedulePrompt(options).run();
+    }
+
+    static inspector(options: DataInspectorOptions): Promise<any> {
+        return new DataInspectorPrompt(options).run();
     }
 }

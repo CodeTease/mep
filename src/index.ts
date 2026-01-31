@@ -28,3 +28,5 @@ export * from './prompts/region';
 export * from './prompts/spreadsheet';
 export * from './prompts/scroll';
 export * from './prompts/breadcrumb';
+export * from './prompts/schedule';
+export * from './prompts/data-inspector';
