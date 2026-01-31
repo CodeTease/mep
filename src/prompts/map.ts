@@ -77,7 +77,7 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
              // Render Value
              let valStr = item.value;
              if (isRowActive && this.colIndex === 1) {
-                 valStr = `${theme.main}${ANSI.UNDERLINE}${valStr}${ANSI.RESET}`;
+                 valStr = `${theme.main}${ANSI.UNDERLINE}${valStr || ' '}${ANSI.RESET}`;
              }
 
              output += `${pointer}${keyStr}${padding}${valStr}`;
