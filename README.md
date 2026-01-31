@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, and `quizText`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `multiSelect`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, and `heatmap`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -164,6 +164,34 @@ async function main() {
         explanation: "Basic arithmetic."
     });
 
+    // Kanban (Column/Card Management)
+    const kanban = await MepCLI.kanban({
+        message: "Prioritize Tasks:",
+        columns: [
+            { id: "todo", title: "To Do", items: [{ id: "1", title: "Fix Bugs" }] },
+            { id: "doing", title: "In Progress", items: [{ id: "2", title: "Write Docs" }] },
+            { id: "done", title: "Done", items: [] }
+        ]
+    });
+
+    // Time (Vertical Scroller)
+    const time = await MepCLI.time({
+        message: "Select meeting time:",
+        format: "12h",
+        step: 15
+    });
+
+    // Heatmap (Grid Intensity)
+    const activity = await MepCLI.heatmap({
+        message: "Weekly Activity:",
+        rows: ["Mon", "Tue", "Wed"],
+        columns: ["Morning", "Afternoon", "Evening"],
+        legend: [
+             { value: 0, char: ".", color: (s) => s },
+             { value: 1, char: "x", color: (s) => `\x1b[32m${s}\x1b[0m` } // Green
+        ]
+    });
+
     // SemVer (Version Bump)
     const nextVersion = await MepCLI.semver({
         message: "Bump version:",
@@ -256,6 +284,9 @@ main();
 *   `otp(options)` - Masked fixed-length input (PIN/OTP) with auto-submit.
 *   `quizSelect(options)` - Multiple choice quiz with immediate feedback/reveal.
 *   `quizText(options)` - Text answer quiz with validation and feedback.
+*   `kanban(options)` - Move items between multiple columns (Drag & Drop).
+*   `time(options)` - Vertical time scroller with rollover logic.
+*   `heatmap(options)` - Grid intensity selector with custom legend.
 *   `file(options)` - File system navigator and selector.
 *   `autocomplete(options)` - Searchable selection with async suggestions.
 *   `sort(options)` - Reorder a list of items.
@@ -285,7 +316,8 @@ MepCLI automatically detects modern terminals and enables **Mouse Tracking** (us
     *   `toggle`, `confirm`: Scroll to toggle the state.
     *   `calendar`: Scroll to switch months.
     *   `color`: Scroll to adjust RGB channels.
-    *   `grid`: Scroll to move selection.
+    *   `grid`, `heatmap`, `kanban`: Scroll to move selection.
+    *   `time`: Scroll to adjust values.
 *   **Configuration:**
     *   Mouse support is enabled by default if the terminal supports it.
     *   You can explicitly disable it per prompt by setting `mouse: false` in the options.
@@ -384,6 +416,26 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Keyboard:**
     *   `typing...`: Auto-jumps to next octet after 3 digits or `.`.
     *   `Backspace`: Navigates back to previous octet if empty.
+
+### Kanban Prompt
+
+*   **Keyboard:**
+    *   `Arrows`: Navigate items/columns.
+    *   `Space`: Grab/Drop item (Drag & Drop mode).
+    *   `Enter`: Submit.
+
+### Time Prompt
+
+*   **Keyboard:**
+    *   `Up` / `Down`: Adjust value.
+    *   `Left` / `Right` / `Tab`: Switch unit (Hour/Minute/AM-PM).
+
+### Heatmap Prompt
+
+*   **Keyboard:**
+    *   `Arrows`: Navigate cells.
+    *   `Space`: Cycle value.
+    *   `0-9`: Set value directly.
 
 ## License
 

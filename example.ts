@@ -423,7 +423,57 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Quiz Text Result: ${quizResult2}`);
 
-        // --- 36. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 36. Kanban Prompt ---
+        const kanbanBoard = await MepCLI.kanban({
+            message: "Manage Project Tasks (Kanban):",
+            columns: [
+                { 
+                    id: "todo", 
+                    title: "To Do", 
+                    items: [
+                        { id: "t1", title: "Setup Repo" },
+                        { id: "t2", title: "Design DB" }
+                    ] 
+                },
+                { 
+                    id: "in-progress", 
+                    title: "In Progress", 
+                    items: [
+                        { id: "t3", title: "Auth Module" }
+                    ] 
+                },
+                { 
+                    id: "done", 
+                    title: "Done", 
+                    items: [] 
+                }
+            ]
+        });
+        console.log(`\n Kanban Result:`, kanbanBoard);
+
+        // --- 37. Time Prompt ---
+        const meetingTime = await MepCLI.time({
+            message: "Schedule Daily Standup:",
+            format: "12h",
+            step: 15,
+            initial: new Date()
+        });
+        console.log(`\n Time Result: ${meetingTime}`);
+
+        // --- 38. Heatmap Prompt ---
+        const weeklyAvailability = await MepCLI.heatmap({
+            message: "Set Availability (0=Busy, 1=Free, 2=Preferred):",
+            rows: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+            columns: ["9AM", "1PM", "5PM"],
+            legend: [
+                { value: 0, char: "x", color: (s) => `\x1b[31m${s}\x1b[0m` }, // Red
+                { value: 1, char: "o", color: (s) => `\x1b[33m${s}\x1b[0m` }, // Yellow
+                { value: 2, char: "✓", color: (s) => `\x1b[32m${s}\x1b[0m` }  // Green
+            ]
+        });
+        console.log(`\n Heatmap Result:`, weeklyAvailability);
+
+        // --- 39. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
