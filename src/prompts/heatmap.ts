@@ -48,7 +48,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
                 
                 const isCursor = r === this.cursorRow && c === this.cursorCol;
                 
-                let cellContent = color(char);
+                const cellContent = color(char);
                 if (isCursor) {
                     output += `[${cellContent}]`; // Brackets around
                 } else {

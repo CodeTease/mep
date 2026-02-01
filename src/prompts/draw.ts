@@ -69,7 +69,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         for (let y = 0; y < this.options.height; y++) {
             let line = '';
             for (let x = 0; x < this.options.width; x++) {
-                let char = this.getBrailleChar(x, y);
+                const char = this.getBrailleChar(x, y);
                 
                 // Highlight cursor position (pixel level approximation)
                 // If cursor is within this character block

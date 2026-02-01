@@ -79,7 +79,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
             symbol = theme.error + symbols.cross + ANSI.RESET;
         }
 
-        let output = `${theme.title}${this.options.message}${ANSI.RESET} ${symbol}`;
+        const output = `${theme.title}${this.options.message}${ANSI.RESET} ${symbol}`;
         this.renderFrame(output);
     }
 

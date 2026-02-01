@@ -57,7 +57,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
                 if (item) {
                     const isCursor = cIndex === this.activeCol && itemIndex === this.activeRow;
                     let prefix = ' ';
-                    let suffix = ' ';
+                    const suffix = ' ';
                     let style = '';
 
                     if (isCursor) {
