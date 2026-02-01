@@ -434,7 +434,28 @@ async function main() {
         length: 12
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet, timeline, configData, keybind, seats, seed });
+    // Select Range (Continuous Selection)
+    const selectedRange = await MepCLI.selectRange({
+        message: "Select a range of commits to squash:",
+        choices: [
+            { title: "feat: add user login", value: "c1" },
+            { title: "fix: validation error", value: "c2" },
+            { title: "docs: update readme", value: "c3" },
+            { title: "chore: bump deps", value: "c4" }
+        ],
+        initial: [1, 2] // Start and End index
+    });
+
+    // Sort Grid (2D Reorder)
+    const sortedGrid = await MepCLI.sortGrid({
+        message: "Rearrange the dashboard widgets:",
+        data: [
+            ["Clock", "Weather"],
+            ["Calendar", "Notes"]
+        ]
+    });
+
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet, timeline, configData, keybind, seats, seed, selectedRange, sortedGrid });
 }
 
 main();
@@ -465,6 +486,8 @@ main();
 *   `shortcut(options)` - Record raw key combinations (Ctrl/Alt/Shift + Key).
 *   `seat(options)` - Select items from a 2D layout with gaps and "jump" navigation.
 *   `mnemonic(options)` - Securely enter BIP39 phrases with autocomplete and validation.
+*   `selectRange(options)` - Select a continuous range of items from a list using an anchor.
+*   `sortGrid(options)` - Rearrange items in a 2D grid using drag-and-drop.
 *   `checkbox(options)` - Classic checkbox selection.
 *   `list(options)` - Enter a list of tags/strings.
 *   `slider(options)` - Select a number within a range using a visual slider.
@@ -748,6 +771,18 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Navigate suggestions.
+
+### Select Range Prompt
+*   **Keyboard:**
+    *   `Arrows (Up/Down)`: Navigate items.
+    *   `Space`: Set/Unset anchor point.
+    *   `Enter`: Submit selected range.
+
+### Sort Grid Prompt
+*   **Keyboard:**
+    *   `Arrows`: Navigate grid.
+    *   `Space`: Grab/Drop item.
+    *   `Enter`: Submit grid.
 
 ## License
 

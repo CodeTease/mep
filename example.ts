@@ -799,7 +799,32 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Mnemonic Result: ${seedPhrase}`);
 
-        // --- 63. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 63. Select Range Prompt ---
+        const selectedRange = await MepCLI.selectRange({
+            message: "Select a range of commits (Space to anchor):",
+            choices: [
+                { title: "feat: initial commit", value: "c1" },
+                { title: "feat: add login", value: "c2" },
+                { title: "fix: login bug", value: "c3" },
+                { title: "docs: readme", value: "c4" },
+                { title: "chore: cleanup", value: "c5" },
+                { title: "feat: dashboard", value: "c6" }
+            ]
+        });
+        console.log(`\n SelectRange Result: [${selectedRange.join(', ')}]`);
+
+        // --- 64. Sort Grid Prompt ---
+        const sortedGrid = await MepCLI.sortGrid({
+            message: "Rearrange the grid (Space to grab):",
+            data: [
+                ["A", "B", "C"],
+                ["D", "E", "F"],
+                ["G", "H", "I"]
+            ]
+        });
+        console.log(`\n SortGrid Result:`, sortedGrid);
+
+        // --- 65. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

@@ -36,6 +36,7 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
     }
 
     protected render(_firstRender: boolean): void {
+        this.calculateLayout();
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         this.gridData.forEach((row, r) => {

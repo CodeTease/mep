@@ -115,7 +115,7 @@ export interface RangeOptions extends BaseOptions {
     unit?: string;
 }
 
-export interface SelectRangeOptions<V> extends SelectOptions<V> {
+export interface SelectRangeOptions<V> extends Omit<SelectOptions<V>, 'initial'> {
     initial?: [number, number]; // Start and End indices
 }
 

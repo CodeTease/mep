@@ -10,12 +10,13 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
     constructor(options: SelectRangeOptions<V>) {
         super(options);
         if (options.initial) {
-             this.anchorIndex = options.initial[0];
-             this.selectedIndex = options.initial[1];
+             const maxIdx = Math.max(0, options.choices.length - 1);
+             this.anchorIndex = Math.min(Math.max(0, options.initial[0]), maxIdx);
+             this.selectedIndex = Math.min(Math.max(0, options.initial[1]), maxIdx);
         }
     }
 
-    protected handleInput(char: string, _key: Buffer) {
+    protected handleInput(char: string, _key?: Buffer) {
         // Handle Enter (Submit)
         if (char === '\r' || char === '\n') {
             const choices = this.getFilteredChoices();
