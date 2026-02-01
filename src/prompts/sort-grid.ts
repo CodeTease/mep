@@ -1,14 +1,14 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { SortGridOptions } from '../types';
+import { SortGridOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
-    private cursorX: number = 0;
-    private cursorY: number = 0;
-    private grabbedX: number | null = null;
-    private grabbedY: number | null = null;
+    protected cursorX: number = 0;
+    protected cursorY: number = 0;
+    protected grabbedX: number | null = null;
+    protected grabbedY: number | null = null;
     private gridData: string[][];
     private columnWidths: number[] = [];
 
@@ -101,42 +101,59 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);
         const isRight = this.isRight(char);
+        const isTab = char === '\t';
+        const isShiftTab = char === '\u001b[Z';
         
-        if ((isUp || isDown || isLeft || isRight) && this.gridData.length > 0) {
-            const oldX = this.cursorX;
-            const oldY = this.cursorY;
-            
-            if (isUp) this.cursorY = Math.max(0, this.cursorY - 1);
-            if (isDown) this.cursorY = Math.min(this.gridData.length - 1, this.cursorY + 1);
-            
-            // Clamp cursorX if we moved to a shorter row
-            if (this.gridData.length > 0) {
-                 const rowLen = this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
-                 if (this.cursorX >= rowLen) this.cursorX = Math.max(0, rowLen - 1);
-            }
+        if (isUp) this.move('up');
+        if (isDown) this.move('down');
+        if (isLeft || isShiftTab) this.move('left');
+        if (isRight || isTab) this.move('right');
+    }
 
-            if (isLeft) this.cursorX = Math.max(0, this.cursorX - 1);
-            if (isRight) {
-                const rowLen = this.gridData.length > 0 && this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
-                this.cursorX = Math.min(rowLen - 1, this.cursorX + 1);
-            }
-
-            // If Grabbed, swap content
-            if (this.grabbedX !== null) {
-                // If we moved
-                if (oldX !== this.cursorX || oldY !== this.cursorY) {
-                    const valA = this.gridData[oldY][oldX];
-                    const valB = this.gridData[this.cursorY][this.cursorX];
-                    
-                    this.gridData[oldY][oldX] = valB;
-                    this.gridData[this.cursorY][this.cursorX] = valA;
-                    
-                    this.grabbedX = this.cursorX;
-                    this.grabbedY = this.cursorY;
-                }
-            }
-            
-            this.render(false);
+    protected handleMouse(event: MouseEvent): void {
+        if (event.scroll === 'up') {
+            this.move('up');
+        } else if (event.scroll === 'down') {
+            this.move('down');
         }
+    }
+
+    protected move(direction: 'up' | 'down' | 'left' | 'right'): void {
+        if (this.gridData.length === 0) return;
+
+        const oldX = this.cursorX;
+        const oldY = this.cursorY;
+        
+        if (direction === 'up') this.cursorY = Math.max(0, this.cursorY - 1);
+        if (direction === 'down') this.cursorY = Math.min(this.gridData.length - 1, this.cursorY + 1);
+        
+        // Clamp cursorX if we moved to a shorter row
+        if (this.gridData.length > 0) {
+             const rowLen = this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
+             if (this.cursorX >= rowLen) this.cursorX = Math.max(0, rowLen - 1);
+        }
+
+        if (direction === 'left') this.cursorX = Math.max(0, this.cursorX - 1);
+        if (direction === 'right') {
+            const rowLen = this.gridData.length > 0 && this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
+            this.cursorX = Math.min(rowLen - 1, this.cursorX + 1);
+        }
+
+        // If Grabbed, swap content
+        if (this.grabbedX !== null) {
+            // If we moved
+            if (oldX !== this.cursorX || oldY !== this.cursorY) {
+                const valA = this.gridData[oldY][oldX];
+                const valB = this.gridData[this.cursorY][this.cursorX];
+                
+                this.gridData[oldY][oldX] = valB;
+                this.gridData[this.cursorY][this.cursorX] = valA;
+                
+                this.grabbedX = this.cursorX;
+                this.grabbedY = this.cursorY;
+            }
+        }
+        
+        this.render(false);
     }
 }

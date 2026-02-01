@@ -765,8 +765,12 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 ### Sort Grid Prompt
 *   **Keyboard:**
     *   `Arrows`: Navigate grid.
+    *   `Tab` / `Shift+Tab`: Navigate Left/Right.
     *   `Space`: Grab/Drop item.
     *   `Enter`: Submit grid.
+
+*   **Mouse:**
+    *   `Scroll`: Navigate Up/Down.
 
 ## License
 
