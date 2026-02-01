@@ -55,8 +55,6 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
 
     private killChild() {
         if (this.child && !this.child.killed) {
-            // Using tree-kill logic is overkill for now unless requested, 
-            // but standard kill is usually sufficient for direct spawns.
             this.child.kill(); 
         }
     }

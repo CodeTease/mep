@@ -15,13 +15,6 @@ export class QuizTextPrompt extends TextPrompt<QuizTextOptions> {
     protected handleInput(char: string) {
         if (this.status === 'revealed') {
              if (char === '\r' || char === '\n') {
-                 // Call Prompt.submit directly?
-                 // We need to bypass our own override check.
-                 // We can do this by setting status to done before calling super.submit, 
-                 // but here we are in revealed state.
-                 // If we call super.submit(this.value), it calls our overridden submit.
-                 // Our overridden submit checks status.
-                 // So we just need to ensure our overridden submit handles 'revealed' status correctly.
                  this.submit(this.value);
              }
              return;

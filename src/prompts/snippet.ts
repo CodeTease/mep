@@ -72,10 +72,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         // Prefix/Message
         const prefix = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message || 'Fill snippet'}${ANSI.RESET}\n`;
         output += prefix;
-        // cursorVisualIndex should start after prefix?
-        // Actually renderFrame handles newlines.
-        // We will construct the snippet line.
-        
+    
         let snippetLine = '';
         
         this.tokens.forEach((token, index) => {

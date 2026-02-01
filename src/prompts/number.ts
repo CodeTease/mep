@@ -55,8 +55,6 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         if (char === '\r' || char === '\n') {
             const num = parseFloat(this.stringValue);
             if (this.stringValue.trim() === '' || isNaN(num)) {
-                 // Check if empty is allowed? 
-                 // If not required? Assuming required for number prompt usually
                 this.errorMsg = 'Please enter a valid number.';
                 this.render(false);
                 return;

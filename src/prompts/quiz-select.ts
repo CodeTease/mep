@@ -60,11 +60,6 @@ export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
         let output = '';
         const choices = this.getFilteredChoices();
         
-        // Adjust Scroll Top logic (inherited from SelectPrompt logic)
-        // We want to ensure selected item is visible, but user can't scroll anymore in revealed state?
-        // Or maybe they should be able to scroll to see explanation?
-        // Let's assume the list stays static where it was.
-        
         // Header
         const icon = this.isCorrect ? `${theme.success}${symbols.tick}` : `${theme.error}${symbols.cross}`;
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;

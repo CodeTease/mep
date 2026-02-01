@@ -166,10 +166,6 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
             // Success
             this.status = 'done';
             
-            // Trim trailing newline which editors often add
-            // We only trim the *last* newline added by the editor if it wasn't there?
-            // Usually editors ensure a final newline.
-            // If the user entered "abc", vim saves "abc\n". We probably want "abc".
             if (content.endsWith('\n')) {
                 content = content.slice(0, -1);
             }

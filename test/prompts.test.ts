@@ -69,14 +69,7 @@ describe('Complex Prompts', () => {
              const promise = prompt.run();
              await delay(10);
  
-             sendKey('a'); // 'a' is not allowed if it's not a variable or math function?
-             // CalculatorPrompt: if (/[a-zA-Z_]/.test(checkStr)) return null;
-             // But handleInput calls evaluate. If result is null, it sets errorMsg.
-             // It doesn't prevent typing unless it is validated during typing?
-             // handleInput:
-             // if (!/^[\x00-\x1F]/.test(char)...) { ... segments.splice... }
-             // updatePreview() calls evaluate.
-             // Enter calls evaluate. If null/NaN -> errorMsg.
+             sendKey('a'); 
              
              await delay(10);
              sendKey('\r');

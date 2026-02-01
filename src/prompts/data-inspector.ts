@@ -230,8 +230,6 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
                 return;
             }
             
-            // For objects/arrays, maybe submit specific part? 
-            // For now, let's say Enter on Root/Object submits the whole result.
              this.submit(this.rootData);
         }
     }

@@ -253,16 +253,6 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
             
             // Sensitivity threshold
             if (dx !== 0 || dy !== 0) {
-                // Move cursor logic
-                // Maybe 1 char movement = 1 move? 
-                // Or accumulate?
-                // Let's just assume delta > 0 means move
-                
-                // Adjust sensitivity: requires significant movement to jump nodes?
-                // No, let's behave like a trackpad controlling the cursor.
-                // But we clamp it to the grid.
-                
-                // Just use simple direction detection
                 if (Math.abs(dx) > Math.abs(dy)) {
                     if (dx > 0) this.cursor.c = Math.min(this.cols - 1, this.cursor.c + 1);
                     else if (dx < 0) this.cursor.c = Math.max(0, this.cursor.c - 1);

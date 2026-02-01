@@ -17,8 +17,6 @@ export class KeypressPrompt extends Prompt<string, KeypressOptions> {
                  if (k === ' ' || k === 'space') return 'space';
                  return k;
              }).join('/');
-             // Only show hint if it's short enough to be helpful, or always?
-             // Let's always show it if provided, or maybe just dimmed.
              output += ` ${theme.muted}(${hint})${ANSI.RESET}`;
         } else {
              output += ` ${theme.muted}(Press any key)${ANSI.RESET}`;

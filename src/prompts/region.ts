@@ -25,11 +25,6 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
         const lines = this.options.mapArt.split('\n');
         const height = lines.length;
         const width = Math.max(...lines.map(l => l.length));
-        
-        // We need to support color codes in mapArt? Assuming mapArt is plain text or has ansi.
-        // If it has ansi, coordinate overlay is hard. Assuming plain text for overlay calculation.
-        // To be safe, we'll split by chars, but handling existing ANSI is complex.
-        // Implementation assumption: mapArt is largely plain ASCII/Unicode.
 
         // Overlay regions
         // We will build the output line by line.

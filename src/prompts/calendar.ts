@@ -99,8 +99,6 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         if (this.options.mode === 'range') {
             if (Array.isArray(this.selection)) {
                 const [start, end] = this.selection;
-                // If the range is complete, highlight everything in between
-                // Sort to ensure valid range check even if start > end (though we should normalize)
                 const s = start < end ? start : end;
                 const e = start < end ? end : start;
                 
@@ -111,9 +109,6 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
                 
                 return dTime >= sTime && dTime <= eTime;
             } else {
-                 // Selecting range, but only first point picked?
-                 // Usually when picking range, first click sets start, moving cursor highlights?
-                 // For now, if selection is single date in range mode, just highlight it
                  return this.isSameDay(d, this.selection as Date);
             }
         } else {
