@@ -1,555 +1,171 @@
 # Mep
 
-**Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling, including support for cursor movement and input validation. With over 60+ built-in prompt types, Mep is ideal for building rich CLI applications, installers, and configuration wizards.
+**Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling.
 
-A **CodeTease** project. 
+A **CodeTease** project.
 
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, `scroll`, `schedule`, `inspector`, `exec`, `shortcut`, and `seat`.
-- **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
-- **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
-- **Validation:** Built-in support for input validation (sync and async) with custom error messages.
-- **Elegant Look:** Uses ANSI colors for a clean, modern CLI experience.
+- **Comprehensive:** 60+ prompt types for every need.
+- **Mouse Support:** Built-in scroll and click interaction.
+- **Responsive:** Fluid cursor movement and validation.
+- **Elegant:** Modern ANSI color styling.
 
 ## Installation
 
-```shell
+```sh
 npm install mepcli
 # or
 yarn add mepcli
 ```
 
-## Usage Example
-
-Mep provides a static class facade, `MepCLI`, for all interactions.
+## Quick Start
 
 ```typescript
 import { MepCLI } from 'mepcli';
 
 async function main() {
-    // Text input with validation
+    // 1. Text Input
     const name = await MepCLI.text({
-        message: "Enter your name:",
-        placeholder: "John Doe",
-        validate: (v) => v.length > 0 || "Name cannot be empty"
+        message: "What's your name?",
+        placeholder: "John Doe"
     });
 
-    // Number input
-    const age = await MepCLI.number({
-        message: "How old are you?",
-        min: 1,
-        max: 120
-    });
-
-    // Toggle (Switch)
-    const newsletter = await MepCLI.toggle({
-        message: "Subscribe to newsletter?",
-        initial: true
-    });
-
-    // Select menu
+    // 2. Select Menu
     const lang = await MepCLI.select({
-        message: "Preferred Language:",
+        message: "Choose language:",
         choices: [
             { title: "JavaScript", value: "js" },
-            { title: "TypeScript", value: "ts" },
-            { title: "Python", value: "py" }
+            { title: "TypeScript", value: "ts" }
         ]
     });
 
-    // Checkbox (Multiple choice)
-    const tools = await MepCLI.checkbox({
-        message: "Select tools:",
-        choices: [
-            { title: "ESLint", value: "eslint" },
-            { title: "Prettier", value: "prettier", selected: true },
-            { title: "Jest", value: "jest" }
-        ]
+    // 3. Confirm
+    const ready = await MepCLI.confirm({
+        message: "Ready to deploy?"
     });
 
-    // Rating (Star rating)
-    const stars = await MepCLI.rating({
-        message: "Rate your experience:",
-        min: 1,
-        max: 5,
-        initial: 5
-    });
-
-    // Autocomplete (Search)
-    const city = await MepCLI.autocomplete({
-        message: "Search for a city:",
-        suggest: async (query) => {
-            const cities = [
-                { title: "New York", value: "NY" },
-                { title: "London", value: "LDN" },
-                { title: "Paris", value: "PAR" }
-            ];
-            return cities.filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
-        }
-    });
-
-    // Sort (Drag & Drop)
-    const priorities = await MepCLI.sort({
-        message: "Rank priorities:",
-        items: ["Speed", "Quality", "Cost"]
-    });
-
-    // Table (Data selection)
-    const user = await MepCLI.table({
-        message: "Select a user:",
-        columns: ["ID", "Name"],
-        data: [
-            { value: 1, row: ["001", "Alice"] },
-            { value: 2, row: ["002", "Bob"] }
-        ]
-    });
-
-    // Color (RGB Picker)
-    const color = await MepCLI.color({
-        message: "Choose theme color:",
-        initial: "#3B82F6"
-    });
-
-    // Grid (Matrix Selection)
-    const permissions = await MepCLI.grid({
-        message: "Manage Permissions:",
-        rows: ["Admin", "User", "Guest"],
-        columns: ["Read", "Write", "Delete"]
-    });
-
-    // Calendar (Date/Range Picker)
-    const booking = await MepCLI.calendar({
-        message: "Select dates:",
-        mode: "range"
-    });
-
-    // Breadcrumb Navigation
-    const projectDir = await MepCLI.breadcrumb({
-        message: "Navigate to folder:",
-        root: process.cwd(),
-        showHidden: false
-    });
-
-    // Map (Key-Value Editor)
-    const envVars = await MepCLI.map({
-        message: "Edit Environment Variables:",
-        initial: { "API_URL": "http://localhost:3000", "DEBUG": "true" }
-    });
-
-    // IP Address (v4)
-    const serverIp = await MepCLI.ip({
-        message: "Enter Server IP:",
-        initial: "192.168.1.1"
-    });
-
-    // OTP (Masked PIN input)
-    const pin = await MepCLI.otp({
-        message: "Enter Verification PIN:",
-        length: 4,
-        mask: "•",
-        secure: true
-    });
-
-    // Quiz Select (Interactive Multiple Choice)
-    const capital = await MepCLI.quizSelect({
-        message: "What is the capital of France?",
-        choices: [
-            { title: "London", value: "london" },
-            { title: "Paris", value: "paris" },
-            { title: "Berlin", value: "berlin" }
-        ],
-        correctValue: "paris",
-        explanation: "Paris is the capital and most populous city of France."
-    });
-
-    // Quiz Text (Interactive Text Answer)
-    const answer = await MepCLI.quizText({
-        message: "What is 2 + 2?",
-        correctAnswer: "4",
-        explanation: "Basic arithmetic."
-    });
-
-    // Kanban (Column/Card Management)
-    const kanban = await MepCLI.kanban({
-        message: "Prioritize Tasks:",
-        columns: [
-            { id: "todo", title: "To Do", items: [{ id: "1", title: "Fix Bugs" }] },
-            { id: "doing", title: "In Progress", items: [{ id: "2", title: "Write Docs" }] },
-            { id: "done", title: "Done", items: [] }
-        ]
-    });
-
-    // Time (Vertical Scroller)
-    const time = await MepCLI.time({
-        message: "Select meeting time:",
-        format: "12h",
-        step: 15
-    });
-
-    // Heatmap (Grid Intensity)
-    const activity = await MepCLI.heatmap({
-        message: "Weekly Activity:",
-        rows: ["Mon", "Tue", "Wed"],
-        columns: ["Morning", "Afternoon", "Evening"],
-        legend: [
-             { value: 0, char: ".", color: (s) => s },
-             { value: 1, char: "x", color: (s) => `\x1b[32m${s}\x1b[0m` } // Green
-        ]
-    });
-
-    // Slot Machine (Random Selection)
-    const winner = await MepCLI.slot({
-        message: "Spin for a prize:",
-        choices: ["🍒 Cherry", "🍋 Lemon", "🍊 Orange", "💎 Diamond"],
-        rows: 3
-    });
-
-    // Rhythm Gauge (Timing Game)
-    const accuracy = await MepCLI.gauge({
-        message: "Hit the green zone!",
-        width: 40,
-        safeZone: 0.2 // 20% width
-    });
-
-    // Calculator (Math Expression)
-    const result = await MepCLI.calculator({
-        message: "Calculate total:",
-        initial: "price * qty",
-        variables: { price: 25, qty: 4 },
-        precision: 2
-    });
-
-    // Emoji (Grid Selection)
-    const icon = await MepCLI.emoji({
-        message: "Select an icon:",
-        emojis: [
-            { char: "😀", name: "Smile" },
-            { char: "🚀", name: "Rocket" }
-        ],
-        recent: ["Rocket"]
-    });
-
-    // Match (Link Items)
-    const links = await MepCLI.match({
-        message: "Match Capital to Country:",
-        source: ["Paris", "Berlin"],
-        target: ["Germany", "France"],
-        constraints: { required: true }
-    });
-
-    // SemVer (Version Bump)
-    const nextVersion = await MepCLI.semver({
-        message: "Bump version:",
-        currentVersion: "1.0.2"
-    });
-
-    // Diff (Conflict Resolver)
-    const resolved = await MepCLI.diff({
-        message: "Resolve Merge Conflict:",
-        original: "function old() { return 1; }",
-        modified: "function new() { return 2; }"
-    });
-
-    // Dial (Circular Knob)
-    const volume = await MepCLI.dial({
-        message: "Set Volume:",
-        min: 0,
-        max: 100,
-        initial: 50
-    });
-
-    // Draw (Braille Canvas)
-    const art = await MepCLI.draw({
-        message: "Draw signature:",
-        width: 20,
-        height: 10
-    });
-
-    // Editor (External text editor)
-    const bio = await MepCLI.editor({
-        message: "Write your biography:",
-        extension: ".md"
-    });
-
-    // Form (Multi-field input)
-    const userDetails = await MepCLI.form({
-        message: "User Details:",
-        fields: [
-            { name: "firstname", message: "First Name", initial: "John" },
-            { name: "lastname", message: "Last Name", validate: (v) => v.length > 0 ? true : "Required" },
-            { name: "email", message: "Email", validate: (v) => v.includes("@") || "Invalid email" }
-        ]
-    });
-
-    // Snippet (Template filling)
-    const commitMsg = await MepCLI.snippet({
-        message: "Commit Message:",
-        template: "feat(${scope}): ${message}",
-        values: {
-            scope: "core"
-        }
-    });
-
-    // Code Prompt (JSON Editing)
-    const config = await MepCLI.code({
-        message: "Configure Server:",
-        language: "json",
-        template: `
-{
-  "host": "\${host}",
-  "port": \${port},
-  "debug": \${debug}
-}
-`
-    });
-
-    // Tree Select (Hierarchical Multi-Select)
-    const selectedFiles = await MepCLI.treeSelect({
-        message: "Select files to backup:",
-        data: [
-            {
-                title: "src",
-                value: "src",
-                children: [
-                    { title: "index.ts", value: "src/index.ts" },
-                    { title: "utils.ts", value: "src/utils.ts" }
-                ]
-            }
-        ]
-    });
-
-    // Multi-Column Select (Grid Layout)
-    const tech = await MepCLI.multiColumnSelect({
-        message: "Pick a technology:",
-        choices: [
-            { title: "React", value: "react" },
-            { title: "Vue", value: "vue" },
-            { title: "Angular", value: "angular" },
-            { title: "Node", value: "node" }
-        ],
-        cols: 2
-    });
-
-    // Fuzzy Select (Approximate Search)
-    const pkg = await MepCLI.fuzzySelect({
-        message: "Search package:",
-        choices: [
-            { title: "react", value: "react" },
-            { title: "react-dom", value: "react-dom" },
-            { title: "redux", value: "redux" }
-        ]
-    });
-
-    // Miller Columns (Hierarchical Navigation)
-    const location = await MepCLI.miller({
-        message: "Select Location:",
-        data: [
-            {
-                title: "USA",
-                value: "usa",
-                children: [
-                    { title: "California", value: "ca", children: [{ title: "SF", value: "sf" }] }
-                ]
-            }
-        ]
-    });
-
-    // Pattern Lock
-    const pattern = await MepCLI.pattern({
-        message: "Draw a pattern:",
-        rows: 3,
-        cols: 3
-    });
-
-    // Region Selector
-    const region = await MepCLI.region({
-        message: "Select a region:",
-        mapArt: "   ___\n__/   \\__\n\\_______/",
-        regions: [{ id: "Base", label: "Base", x: 4, y: 1 }]
-    });
-
-    // Spreadsheet
-    const sheet = await MepCLI.spreadsheet({
-        message: "Edit Data:",
-        columns: [{ name: "Name", key: "name" }, { name: "Role", key: "role" }],
-        data: [{ name: "Alice", role: "Dev" }]
-    });
-
-    // Scroll (License Viewer)
-    await MepCLI.scroll({
-        message: "Read License:",
-        content: "MIT License...\n(Lots of text here)",
-        height: 10,
-        requireScrollToBottom: true
-    });
-
-    // Schedule (Gantt Chart)
-    const timeline = await MepCLI.schedule({
-        message: "Project Timeline:",
-        data: [
-            { name: "Design", start: new Date("2023-01-01"), end: new Date("2023-01-05") },
-            { name: "Code", start: new Date("2023-01-06"), end: new Date("2023-01-15") }
-        ]
-    });
-
-    // Data Inspector (JSON Explorer)
-    const configData = await MepCLI.inspector({
-        message: "Edit Config:",
-        data: {
-            host: "localhost",
-            port: 8080,
-            features: { auth: true, logs: false }
-        }
-    });
-
-    // Exec (Background Command)
-    await MepCLI.exec({
-        message: "Installing dependencies...",
-        command: "npm install",
-        timeout: 60000 // 60s timeout
-    });
-
-    // Shortcut (Keybinding Recorder)
-    const keybind = await MepCLI.shortcut({
-        message: "Press a key combination to bind:"
-    });
-
-    // Seat (Matrix Selection with Gaps)
-    const seats = await MepCLI.seat({
-        message: "Choose your seats:",
-        layout: [
-            "AAA_AAA",
-            "AAA_AAA",
-            "_______", // Walkway
-            "BBBBBBB"
-        ],
-        multiple: true
-    });
-
-    // Select Range (Continuous Selection)
-    const selectedRange = await MepCLI.selectRange({
-        message: "Select a range of commits to squash:",
-        choices: [
-            { title: "feat: add user login", value: "c1" },
-            { title: "fix: validation error", value: "c2" },
-            { title: "docs: update readme", value: "c3" },
-            { title: "chore: bump deps", value: "c4" }
-        ],
-        initial: [1, 2] // Start and End index
-    });
-
-    // Sort Grid (2D Reorder)
-    const sortedGrid = await MepCLI.sortGrid({
-        message: "Rearrange the dashboard widgets:",
-        data: [
-            ["Clock", "Weather"],
-            ["Calendar", "Notes"]
-        ]
-    });
-
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet, timeline, configData, keybind, seats, selectedRange, sortedGrid });
+    console.log({ name, lang, ready });
 }
 
 main();
 ```
 
-## API Reference
+> 💡 **Want more?** Check out the full feature demo in [`example.ts`](example.ts) or browse the `examples/` directory.
 
-### MepCLI
+## Prompt Types 
 
-*   `text(options)` - Single line or multiline text input.
-*   `password(options)` - Masked text input.
-*   `secret(options)` - Completely hidden text input.
-*   `number(options)` - Numeric input with increment/decrement support.
-*   `confirm(options)` - Yes/No question.
-*   `toggle(options)` - On/Off switch.
-*   `select(options)` - Single item selection from a list.
-*   `multiSelect(options)` - Multiple item selection with filtering.
-*   `multiColumnSelect(options)` - Single selection with grid layout.
-*   `fuzzySelect(options)` - Single selection with fuzzy search.
-*   `miller(options)` - Hierarchical navigation using Miller Columns.
-*   `pattern(options)` - Grid-based pattern lock input.
-*   `region(options)` - Select regions on an ASCII map.
-*   `spreadsheet(options)` - Interactive table/spreadsheet editor.
-*   `scroll(options)` - Scrollable viewport for long text content.
-*   `schedule(options)` - Gantt-style timeline for viewing and editing task durations.
-*   `inspector(options)` - Tree-view JSON explorer with in-place editing.
-*   `exec(options)` - Run a shell command in the background with a minimalist status UI (Running/Success/Error).
-*   `shortcut(options)` - Record raw key combinations (Ctrl/Alt/Shift + Key).
-*   `seat(options)` - Select items from a 2D layout with gaps and "jump" navigation.
-*   `selectRange(options)` - Select a continuous range of items from a list using an anchor.
-*   `sortGrid(options)` - Rearrange items in a 2D grid using drag-and-drop.
-*   `checkbox(options)` - Classic checkbox selection.
-*   `list(options)` - Enter a list of tags/strings.
-*   `slider(options)` - Select a number within a range using a visual slider.
-*   `range(options)` - Select a numerical range (min/max) using a dual-handle slider.
-*   `rating(options)` - Star rating input.
-*   `date(options)` - Date and time picker.
-*   `color(options)` - RGB color picker with hex output and TrueColor preview.
-*   `grid(options)` - 2D matrix selection (rows x columns).
-*   `calendar(options)` - Interactive monthly calendar for single dates or ranges.
-*   `map(options)` - Key-Value editor with grid navigation.
-*   `semver(options)` - Version bumping utility.
-*   `ip(options)` - IPv4 address input with auto-jump.
-*   `otp(options)` - Masked fixed-length input (PIN/OTP) with auto-submit.
-*   `quizSelect(options)` - Multiple choice quiz with immediate feedback/reveal.
-*   `quizText(options)` - Text answer quiz with validation and feedback.
-*   `kanban(options)` - Move items between multiple columns (Drag & Drop).
-*   `time(options)` - Vertical time scroller with rollover logic.
-*   `heatmap(options)` - Grid intensity selector with custom legend.
-*   `byte(options)` - Byte size input with unit suffixes (B, KB, MB, GB, TB, PB).
-*   `slot(options)` - Visual slot machine for random selection.
-*   `gauge(options)` - Timing-based gauge game for accuracy input.
-*   `calculator(options)` - Evaluate mathematical expressions with real-time preview.
-*   `emoji(options)` - Grid-based emoji selector with filtering and recent history.
-*   `match(options)` - Link items between source and target columns.
-*   `diff(options)` - Conflict resolver for comparing and merging text blocks.
-*   `dial(options)` - Circular rotary knob for numeric input.
-*   `draw(options)` - Drawing canvas using Braille characters.
-*   `file(options)` - File system navigator and selector.
-*   `breadcrumb(options)` - Stack-based file system navigator with breadcrumb trail.
-*   `autocomplete(options)` - Searchable selection with async suggestions.
-*   `sort(options)` - Reorder a list of items.
-*   `transfer(options)` - Move items between two lists (Source/Target).
-*   `cron(options)` - Visually build a cron schedule (Minute, Hour, Day, Month, Weekday).
-*   `table(options)` - Display data in columns and select rows.
-*   `tree(options)` - Navigate and select from a hierarchical tree structure.
-*   `keypress(options)` - Wait for a specific key press or any key.
-*   `editor(options)` - Launch an external editor (Vim, Nano, Notepad, etc.) to capture multi-line content.
-*   `form(options)` - Multi-field input form with navigation.
-*   `snippet(options)` - Template string filling with variable navigation.
-*   `code(options)` - Edit variables within a code block (JSON). Syntax highlighting is supported (Experimental).
-*   `treeSelect(options)` - Hierarchical multi-selection with cascading checkboxes.
-*   `spam(options)` - Confirm a dangerous action or fun.
-*   `wait(options)` - Wait for a specified number of seconds.
-*   `spinner(message)` - Returns a `Spinner` instance for manual control (`start`, `stop`, `update`, `success`, `error`).
+### 🔹 The Basics
+Essential prompts for everyday input.
 
-## Mouse Support
+| Function | Description |
+| :--- | :--- |
+| `text` | Single line or multiline text input. |
+| `password` | Masked text input (`***`). |
+| `secret` | Completely hidden text input. |
+| `number` | Numeric input with increment/decrement. |
+| `confirm` | Yes/No question. |
+| `toggle` | On/Off switch (True/False). |
+| `select` | Single item selection from a list. |
+| `list` | Enter a list of tags/strings. |
 
-MepCLI automatically detects modern terminals and enables **Mouse Tracking** (using SGR 1006 protocol).
+### 🔹 Selection & Pickers
+Powerful tools for selecting dates, files, colors, and more.
 
-*   **Scrolling:**
-    *   `select`, `multiSelect`, `checkbox`, `autocomplete`, `table`, `tree`, `transfer`: Scroll to navigate the list.
-    *   `form`, `snippet`, `cron`: Scroll to navigate between fields or values.
-    *   `number`, `slider`, `range`, `rating`, `date`: Scroll to increment/decrement values or fields.
-    *   `sort`: Scroll to navigate or reorder items (when grabbed).
-    *   `toggle`, `confirm`: Scroll to toggle the state.
-    *   `calendar`: Scroll to switch months.
-    *   `color`: Scroll to adjust RGB channels.
-    *   `grid`, `heatmap`, `kanban`, `emoji`: Scroll to move selection.
-    *   `match`: Scroll independent columns.
-    *   `time`: Scroll to adjust values.
-    *   `scroll`: Scroll content up/down.
-    *   `breadcrumb`: Scroll to navigate list.
-*   **Configuration:**
-    *   Mouse support is enabled by default if the terminal supports it.
-    *   You can explicitly disable it per prompt by setting `mouse: false` in the options.
+| Function | Description |
+| :--- | :--- |
+| `checkbox` | Multiple choice selection. |
+| `multiSelect` | Multiple selection with filtering. |
+| `multiColumnSelect` | Selection with grid layout. |
+| `fuzzySelect` | Selection with fuzzy search. |
+| `autocomplete` | Async searchable selection. |
+| `selectRange` | Select a continuous range (start-end). |
+| `treeSelect` | Hierarchical multi-selection. |
+| `grid` | 2D matrix selection (rows x columns). |
+| `seat` | Seat selection map with gaps. |
+| `emoji` | Emoji picker with history. |
+| `color` | RGB/Hex color picker. |
+| `date` | Date and time picker. |
+| `calendar` | Interactive calendar for dates/ranges. |
+| `time` | Time picker. |
+| `file` | File system navigator. |
+| `breadcrumb` | Breadcrumb navigation style. |
+| `miller` | Miller columns navigation. |
+| `tree` | Hierarchical tree navigation. |
 
-## Advanced Shortcuts
+### 🔹 Advanced Layouts
+Complex interfaces for structured data.
 
-### Calendar Prompt
+| Function | Description |
+| :--- | :--- |
+| `table` | Display data in columns and select rows. |
+| `spreadsheet` | Interactive table editor. |
+| `inspector` | JSON data explorer/editor. |
+| `schedule` | Gantt chart timeline. |
+| `kanban` | Kanban board (Drag & Drop). |
+| `heatmap` | Grid intensity selector. |
+| `sort` | Reorder a list of items. |
+| `sortGrid` | Rearrange items in a 2D grid. |
+| `transfer` | Move items between two lists. |
+| `match` | Link items between source and target. |
+| `map` | Key-Value editor. |
+| `form` | Multi-field input form. |
+| `snippet` | Template string filling. |
+| `cron` | Cron schedule builder. |
+| `code` | Code/JSON editor with syntax highlighting. |
+
+### 🔹 Specialized Inputs
+ tailored for specific data formats.
+
+| Function | Description |
+| :--- | :--- |
+| `ip` | IPv4 address input. |
+| `semver` | Semantic versioning bumper. |
+| `otp` | One Time Password (PIN) input. |
+| `byte` | Byte size input (KB, MB, GB). |
+| `rating` | Star rating input. |
+| `slider` | Visual numeric slider. |
+| `range` | Dual-handle slider (min-max). |
+| `dial` | Rotary knob for numeric input. |
+| `calculator` | Math expression evaluator. |
+| `region` | ASCII map region selector. |
+| `pattern` | Android-style pattern lock. |
+
+### 🔹 Gamified & Fun
+Add some personality to your CLI.
+
+| Function | Description |
+| :--- | :--- |
+| `slot` | Slot machine randomizer. |
+| `gauge` | Rhythm/accuracy game. |
+| `draw` | Braille canvas drawing. |
+| `quizSelect` | Multiple choice quiz. |
+| `quizText` | Text answer quiz. |
+| `spam` | Mash keys to confirm (fun mode). |
+
+### 🔹 Utilities
+Helper functions for better CLI UX.
+
+| Function | Description |
+| :--- | :--- |
+| `exec` | Run shell command with spinner. |
+| `scroll` | Scrollable text viewer (e.g., License). |
+| `diff` | Text merge conflict resolver. |
+| `editor` | Open external editor (Vim/Nano). |
+| `shortcut` | Record key combinations. |
+| `keypress` | Wait for a specific key press. |
+| `wait` | Pause for a few seconds. |
+| `spinner` | Simple loading spinner control. |
+
+## Keyboard & Mouse Support
+
+MepCLI automatically detects modern terminals and enables **Mouse Tracking** (using SGR 1006 protocol) for scrolling and clicking.
+
+### ⌨️ Advanced Shortcuts
+
+<details>
+<summary><b>Calendar Prompt</b></summary>
 
 Mep's Calendar prompt supports advanced navigation and selection shortcuts for power users.
 
@@ -565,7 +181,10 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
     *   `Scroll`: Navigate **Months**.
     *   `Ctrl + Scroll`: Adjust the selected **Day** (cursor movement).
 
-### Color Prompt
+</details>
+
+<details>
+<summary><b>Color Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Tab`: Switch between RGB channels.
@@ -577,7 +196,10 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
     *   `Scroll`: Adjust the current channel value.
     *   `Ctrl + Scroll`: Fast adjust.
 
-### Checkbox Prompt
+</details>
+
+<details>
+<summary><b>Checkbox Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Space`: Toggle selection.
@@ -585,7 +207,10 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
     *   `x` / `n`: Select **None**.
     *   `i`: **Invert** selection.
 
-### MultiSelect Prompt
+</details>
+
+<details>
+<summary><b>MultiSelect Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Space`: Toggle selection.
@@ -593,7 +218,10 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
     *   `Ctrl + X`: Deselect **All** (Visible).
     *   `Typing`: Filter list.
 
-### Transfer Prompt
+</details>
+
+<details>
+<summary><b>Transfer Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Tab` / `Left` / `Right`: Switch focus between Source and Target.
@@ -601,7 +229,10 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
     *   `a` / `>`: Move **All** to Target.
     *   `r` / `<`: Move **All** to Source (Reset).
 
-### Tree & TreeSelect Prompt
+</details>
+
+<details>
+<summary><b>Tree & TreeSelect Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Right`: Expand folder or jump to child.
@@ -610,7 +241,10 @@ Mep's Calendar prompt supports advanced navigation and selection shortcuts for p
     *   `e`: **Expand** all recursively.
     *   `c`: **Collapse** all recursively.
 
-### Grid Prompt
+</details>
+
+<details>
+<summary><b>Grid Prompt</b></summary>
 
 The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
@@ -629,20 +263,29 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
     *   `Scroll`: Vertical navigation (Rows).
     *   `Shift + Scroll`: Horizontal navigation (Columns).
 
-### Map Prompt
+</details>
+
+<details>
+<summary><b>Map Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Ctrl + N`: Add new row.
     *   `Ctrl + D`: Delete current row.
     *   `Arrows` / `Tab`: Navigate cells.
 
-### IP Prompt
+</details>
+
+<details>
+<summary><b>IP Prompt</b></summary>
 
 *   **Keyboard:**
     *   `typing...`: Auto-jumps to next octet after 3 digits or `.`.
     *   `Backspace`: Navigates back to previous octet if empty.
 
-### Kanban Prompt
+</details>
+
+<details>
+<summary><b>Kanban Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Arrows`: Navigate items/columns.
@@ -652,7 +295,10 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Navigate items (Normal) or Move item Left/Right (Grabbed).
 
-### Time Prompt
+</details>
+
+<details>
+<summary><b>Time Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Up` / `Down`: Adjust value.
@@ -661,7 +307,10 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Adjust value (Up/Down).
 
-### Heatmap Prompt
+</details>
+
+<details>
+<summary><b>Heatmap Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Arrows`: Navigate cells.
@@ -672,33 +321,48 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Navigate rows (Vertical).
 
-### Emoji Prompt & MultiColumnSelect
+</details>
+
+<details>
+<summary><b>Emoji Prompt & MultiColumnSelect</b></summary>
 
 *   **Keyboard:**
     *   `Arrows`: Navigate grid.
     *   `Typing`: Filter/Search (Emoji only).
 
-### Miller Prompt
+</details>
+
+<details>
+<summary><b>Miller Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Up` / `Down`: Navigate items.
     *   `Right` / `Enter` / `Tab`: Expand child or Drill down.
     *   `Left` / `Shift + Tab`: Collapse or Go back.
 
-### Match Prompt
+</details>
+
+<details>
+<summary><b>Match Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Arrows`: Navigate lists.
     *   `Tab`: Switch Source/Target.
     *   `Space`: Pick Source or Toggle Link.
 
-### Diff Prompt
+</details>
+
+<details>
+<summary><b>Diff Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Left` / `Right`: Switch Action (Original / Modified / Edit).
     *   `Enter`: Submit selection.
 
-### Dial Prompt
+</details>
+
+<details>
+<summary><b>Dial Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Arrows`: Adjust value (rotate knob).
@@ -707,7 +371,10 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Adjust value.
 
-### Draw Prompt
+</details>
+
+<details>
+<summary><b>Draw Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Arrows`: Move cursor.
@@ -720,7 +387,11 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
     *   `Drag`: Paint (Left Click) or Erase (Right Click).
     *   `Click`: Toggle pixel.
 
-### Breadcrumb Prompt
+</details>
+
+<details>
+<summary><b>Breadcrumb Prompt</b></summary>
+
 *   **Keyboard:**
     *   `Arrows`: Navigate list.
     *   `Enter`: Drill down into folder.
@@ -729,7 +400,11 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *  **Mouse:**
     *   `Scroll`: Navigate list.
 
-### Schedule Prompt
+</details>
+
+<details>
+<summary><b>Schedule Prompt</b></summary>
+
 *   **Keyboard:**
     *   `Arrows`: Move task in time.
     *   `Tab` / `Shift + Tab`: Switch between tasks.
@@ -739,7 +414,11 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 * **Mouse:**
     *   `Scroll`: Scroll timeline horizontally.
 
-### Data Inspector
+</details>
+
+<details>
+<summary><b>Data Inspector</b></summary>
+
 *   **Keyboard:**
     *   `Space` / `Arrows`: Expand/Collapse nodes.
     *   `Enter`: Toggle Boolean or Edit String/Number.
@@ -747,7 +426,11 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Navigate tree.
 
-### Seat Prompt
+</details>
+
+<details>
+<summary><b>Seat Prompt</b></summary>
+
 *   **Keyboard:**
     *   `Arrows`: Navigate seat grid.
     *   `Tab` / `Shift+Tab`: Navigate Left/Right.
@@ -756,13 +439,21 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 *   **Mouse:**
     *   `Scroll`: Navigate Up/Down.
 
-### Select Range Prompt
+</details>
+
+<details>
+<summary><b>Select Range Prompt</b></summary>
+
 *   **Keyboard:**
     *   `Arrows (Up/Down)`: Navigate items.
     *   `Space`: Set/Unset anchor point.
     *   `Enter`: Submit selected range.
 
-### Sort Grid Prompt
+</details>
+
+<details>
+<summary><b>Sort Grid Prompt</b></summary>
+
 *   **Keyboard:**
     *   `Arrows`: Navigate grid.
     *   `Tab` / `Shift+Tab`: Navigate Left/Right.
@@ -771,6 +462,8 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Navigate Up/Down.
+
+</details>
 
 ## License
 
