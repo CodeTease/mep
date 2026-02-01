@@ -568,3 +568,17 @@ export interface License {
 export interface LicenseOptions extends BaseOptions {
     defaultLicense?: string;
 }
+
+// --- Regex Types ---
+export interface RegexOptions extends BaseOptions {
+    tests: string[];
+    flags?: string;
+}
+
+// --- Box Model Types ---
+export interface BoxOptions extends BaseOptions {
+    initial?: number | { top: number; right: number; bottom: number; left: number };
+    min?: number;
+    max?: number;
+    step?: number;
+}

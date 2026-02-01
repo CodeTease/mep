@@ -3,7 +3,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
          KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions } from './types';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions, RegexOptions, BoxOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -71,6 +71,8 @@ import { SelectRangePrompt } from './prompts/select-range';
 import { SortGridPrompt } from './prompts/sort-grid';
 import { DependencyPrompt } from './prompts/dependency';
 import { LicensePrompt } from './prompts/license';
+import { RegexPrompt } from './prompts/regex';
+import { BoxPrompt } from './prompts/box';
 
 /**
  * Public Facade for MepCLI
@@ -360,5 +362,13 @@ export class MepCLI {
 
     static license(options: LicenseOptions): Promise<string> {
         return new LicensePrompt(options).run();
+    }
+
+    static regex(options: RegexOptions): Promise<RegExp> {
+        return new RegexPrompt(options).run();
+    }
+
+    static box(options: BoxOptions): Promise<{top: number, right: number, bottom: number, left: number}> {
+        return new BoxPrompt(options).run();
     }
 }

@@ -37,3 +37,5 @@ export * from './prompts/select-range';
 export * from './prompts/sort-grid';
 export * from './prompts/dependency';
 export * from './prompts/license';
+export * from './prompts/regex';
+export * from './prompts/box';
