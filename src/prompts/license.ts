@@ -33,13 +33,9 @@ export class LicensePrompt extends SelectPrompt<string> {
         }
     }
 
-    protected render(firstRender: boolean) {
-        // 1. Render Left Column (Select List) using base logic logic, but captured to string
-        // We can't reuse super.render() easily because it prints to stdout.
-        // We will reconstruct the list rendering logic here, simplified.
+    protected render(_firstRender: boolean) {
         
         const width = this.stdout.columns || 80;
-        const splitWidth = width; 
         
         // Calculate dimensions
         // Left column: 30% or min 20 chars
@@ -58,14 +54,6 @@ export class LicensePrompt extends SelectPrompt<string> {
     }
 
     private renderList(): string {
-        // Pagination logic reused from SelectPrompt (conceptually)
-        // Accessing protected members from SelectPrompt might be tricky if they are private.
-        // SelectPrompt has: selectedIndex, scrollTop, pageSize.
-        // Let's assume we can access them or shadow them if needed. 
-        // Typescript might complain if they are private in base. 
-        // Checking SelectPrompt source... It extends Prompt. 
-        // Let's cast to any to access internal state for this specialized render if needed, 
-        // or better, duplicate the simple list logic since we are rendering to a buffer string, not stdout.
         
         const selectedIndex = (this as any).selectedIndex;
         const scrollTop = (this as any).scrollTop;

@@ -541,13 +541,6 @@ export interface SeatOptions extends BaseOptions {
     multiple?: boolean;
 }
 
-// --- Terminal Types ---
-export interface TerminalOptions extends BaseOptions {
-    allowedCommands?: string[];
-    cwd?: string;
-    maxHeight?: number;
-}
-
 // --- Dependency Types ---
 export interface DependencyItem<V> extends CheckboxChoice<V> {
     dependsOn?: V[]; // Values this item depends on

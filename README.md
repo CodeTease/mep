@@ -131,7 +131,6 @@ Complex interfaces for structured data.
 | `calculator` | Math expression evaluator. |
 | `region` | ASCII map region selector. |
 | `pattern` | Android-style pattern lock. |
-| `terminal` | Restricted shell environment. |
 | `dependency` | Checkbox with logic (Depends/Conflict). |
 | `license` | License picker with Split View. |
 
@@ -465,16 +464,6 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Navigate Up/Down.
-
-</details>
-
-<details>
-<summary><b>Terminal Prompt</b></summary>
-
-*   **Keyboard:**
-    *   `Typing`: Enter commands.
-    *   `Enter`: Execute command.
-    *   `Ctrl + D`: Submit session log and exit.
 
 </details>
 

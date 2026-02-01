@@ -2,8 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { DependencyOptions, DependencyItem, MouseEvent } from '../types';
-import { Graph } from '../utils';
+import { DependencyOptions, MouseEvent } from '../types';
 
 export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
     private selectedIndex: number = 0;
@@ -37,7 +36,6 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
         if (this.options.autoResolve === false) return;
 
         const choices = this.options.choices;
-        const item = choices[index];
         const visited = new Set<number>();
         const queue: { idx: number, val: boolean, reason?: string }[] = [];
         

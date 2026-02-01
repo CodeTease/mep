@@ -816,19 +816,6 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n SortGrid Result:`, sortedGrid);
 
-        // --- 64. Terminal Prompt (Shell) ---
-        console.log("\n--- Terminal Prompt (Interactive Shell) ---");
-        try {
-            await MepCLI.terminal({
-                message: "Interactive Shell (Type 'exit' to finish):",
-                allowedCommands: ['ls', 'echo', 'pwd', 'whoami', 'date'],
-                maxHeight: 10
-            });
-            console.log("\n Terminal Session Finished.");
-        } catch (err) {
-            console.log("Terminal exited.");
-        }
-
         // --- 65. Dependency Prompt ---
         const deps = await MepCLI.dependency({
             message: "Select Features (with Dependencies):",
