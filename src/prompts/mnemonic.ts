@@ -16,6 +16,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
 
     constructor(options: MnemonicOptions) {
         super(options);
+        // Use the provided wordlist or fallback to the imported DEFAULT_WORDLIST (English)
         this.wordlist = options.wordlist || DEFAULT_WORDLIST;
         this.length = options.length || 12;
         this.words = new Array(this.length).fill('');
@@ -46,7 +47,10 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
             }
 
             let displayWord = word;
-            if (!this.options.showInput && word.length > 0) {
+            // Mask input if showInput is explicitly false (default usually true for mnemonic entry?)
+            // Actually, standard practice for mnemonics is often masked, but user can toggle.
+            // Following existing logic here.
+            if (this.options.showInput === false && word.length > 0) {
                 displayWord = '*'.repeat(word.length);
             } else if (word.length === 0) {
                 displayWord = '-';
@@ -66,11 +70,9 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
             if ((i + 1) % cols === 0) {
                 grid += '\n';
             } else {
-                // Calculate padding
-                // Prefix len = 4 (" 1. ")
-                // Content len = displayWord.length (or 1 if empty/cursor)
+                // Calculate padding for alignment
                 const contentLen = (word.length === 0 && !isCursor) ? 1 : Math.max(1, displayWord.length);
-                const currentLen = 4 + contentLen;
+                const currentLen = 4 + contentLen; // 4 is prefix length " 1. "
                 const padding = Math.max(2, colWidth - currentLen);
                 grid += ' '.repeat(padding);
             }
@@ -92,6 +94,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
                 output += ` ${theme.muted}...${ANSI.RESET}`;
             }
         } else {
+            // Empty line to maintain stability
             output += `\n`; 
         }
 
@@ -125,9 +128,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
         if (char === '\t') {
             if (this.suggestions.length > 0) {
                 this.words[this.cursorIndex] = this.suggestions[this.suggestionIndex];
-                this.cursorIndex = Math.min(this.length - 1, this.cursorIndex + 1);
-                this.updateSuggestions();
-            } else {
+                // Move to next word automatically after autocomplete
                 this.cursorIndex = Math.min(this.length - 1, this.cursorIndex + 1);
                 this.updateSuggestions();
             }
@@ -135,7 +136,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
             return;
         }
 
-        // Shift+Tab
+        // Shift+Tab: Move back
         if (char === '\u001b[Z') {
             this.cursorIndex = Math.max(0, this.cursorIndex - 1);
             this.updateSuggestions();
@@ -160,6 +161,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
                 this.words[this.cursorIndex] = currentWord.slice(0, -1);
                 this.updateSuggestions();
             } else {
+                // If current word is empty, move back to previous word
                 if (this.cursorIndex > 0) {
                     this.cursorIndex--;
                     this.updateSuggestions();
@@ -174,23 +176,25 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
         if (char === ' ' || char === '\r' || char === '\n') {
             const currentWord = this.words[this.cursorIndex];
             
-            // Check submit condition
+            // Check submit condition (Enter key)
             if ((char === '\r' || char === '\n')) {
-                // If everything is valid, submit
-                if (this.isAllValid() && validateMnemonic(this.words, this.wordlist)) {
-                     this.submit(this.words.join(' '));
-                     return;
-                }
-                // If check fails
-                if (this.isAllValid() && !validateMnemonic(this.words, this.wordlist)) {
-                     this.errorMsg = 'Invalid Checksum!';
-                     this.render(false);
-                     return;
+                // Validate completeness and checksum
+                if (this.isAllValid()) {
+                    if (validateMnemonic(this.words, this.wordlist)) {
+                        this.submit(this.words.join(' '));
+                        return;
+                    } else {
+                        this.errorMsg = 'Invalid Checksum!';
+                        this.render(false);
+                        return;
+                    }
                 }
             }
 
-            // Apply suggestion if needed (on Space/Enter if word is incomplete)
+            // Apply suggestion if needed (on Space/Enter if word is incomplete but matches a suggestion)
             if (this.suggestions.length > 0 && currentWord !== this.suggestions[this.suggestionIndex]) {
+                 // Only autocomplete if the current typed word isn't already valid on its own
+                 // (Prevents annoying jumps if the user typed a valid short word that is also a prefix of another)
                  if (!isWordValid(currentWord, this.wordlist)) {
                      this.words[this.cursorIndex] = this.suggestions[this.suggestionIndex];
                  }
@@ -201,38 +205,40 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
                 this.cursorIndex++;
                 this.updateSuggestions();
                 this.errorMsg = '';
-            } else if (char === ' ') {
-                 // Warning at end?
             }
             
             this.render(false);
             return;
         }
 
-        // Typing / Paste
+        // Typing / Paste Handling
         if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
-            if (char.length > 1 || char.includes(' ')) {
-                 // Paste logic
-                 const parts = char.split(/[\s\n]+/);
+            // Check for paste (multiple characters or separators)
+            // Enhanced split regex to handle standard spaces, newlines, tabs, AND Ideographic Space (\u3000) for Japanese
+            if (char.length > 1 || /[\s\u3000]/.test(char)) {
+                 const parts = char.split(/[\s\n\t\u3000]+/);
                  let idx = this.cursorIndex;
                  
                  for (let i = 0; i < parts.length; i++) {
                      const part = parts[i];
-                     if (!part) continue;
+                     if (!part) continue; // Skip empty splits
                      
                      if (idx >= this.length) break;
 
                      if (i === 0) {
+                         // Append to current word (continuation of typing/paste at cursor)
                          this.words[idx] += part;
                      } else {
+                         // Move to next slot
                          idx++;
                          if (idx < this.length) {
                              this.words[idx] = part;
                          }
                      }
                  }
-                 this.cursorIndex = idx;
+                 this.cursorIndex = Math.min(this.length - 1, idx);
             } else {
+                // Single character typing
                 this.words[this.cursorIndex] += char;
             }
             
@@ -262,7 +268,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
             return;
         }
         
-        // Filter by fuzzy match
+        // Filter by fuzzy match from the current wordlist
         const matches = [];
         for (const w of this.wordlist) {
             const res = fuzzyMatch(currentWord, w);
@@ -271,11 +277,13 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
             }
         }
         
+        // Sort by score
         matches.sort((a, b) => b.score - a.score);
         this.suggestions = matches.slice(0, 10).map(m => m.word);
     }
 
     private isAllValid(): boolean {
-        return this.words.every(w => isWordValid(w, this.wordlist));
+        // Ensure all slots are filled and valid against the wordlist
+        return this.words.every(w => w.length > 0 && isWordValid(w, this.wordlist));
     }
 }
