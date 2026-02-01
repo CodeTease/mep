@@ -135,6 +135,8 @@ Complex interfaces for structured data.
 | `license` | License picker with Split View. |
 | `regex` | Real-time regex validator. |
 | `box` | Box model (CSS Margin/Padding) editor. |
+| `connectionString` | Database URL wizard. |
+| `curl` (experimental) | Interactive HTTP request builder. |
 
 ### 🔹 Gamified & Fun
 Add some personality to your CLI.
@@ -153,7 +155,7 @@ Helper functions for better CLI UX.
 
 | Function | Description |
 | :--- | :--- |
-| `exec` | Run shell command with spinner. |
+| `exec` (experimental) | Run shell command with spinner. |
 | `scroll` | Scrollable text viewer (e.g., License). |
 | `diff` | Text merge conflict resolver. |
 | `editor` | Open external editor (Vim/Nano). |
