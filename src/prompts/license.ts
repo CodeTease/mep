@@ -36,15 +36,19 @@ export class LicensePrompt extends SelectPrompt<string> {
     protected render(_firstRender: boolean) {
         
         const width = this.stdout.columns || 80;
+        const gap = 2;
+        const ratio = 0.3;
         
         // Calculate dimensions
         // Left column: 30% or min 20 chars
         // Right column: rest
+        const leftWidth = Math.floor((width - gap) * ratio);
+        const rightWidth = width - leftWidth - gap;
         
         const leftContent = this.renderList();
-        const rightContent = this.renderDetails();
+        const rightContent = this.renderDetails(rightWidth);
         
-        const content = Layout.split(leftContent, rightContent, width, { ratio: 0.3, gap: 2 });
+        const content = Layout.split(leftContent, rightContent, width, { ratio, gap });
         
         // Header
         const header = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Use arrows to navigate, Enter to select)${ANSI.RESET}`;
@@ -89,7 +93,7 @@ export class LicensePrompt extends SelectPrompt<string> {
         return output;
     }
 
-    private renderDetails(): string {
+    private renderDetails(maxWidth: number): string {
         const selectedIndex = (this as any).selectedIndex;
         const license = this.licenses[selectedIndex];
         
@@ -97,7 +101,11 @@ export class LicensePrompt extends SelectPrompt<string> {
         
         let output = '';
         output += `${ANSI.BOLD}${license.name}${ANSI.RESET}\n`;
-        output += `${theme.muted}${license.description}${ANSI.RESET}\n\n`;
+        
+        const wrappedDesc = Layout.wrap(license.description, maxWidth);
+        const coloredDesc = wrappedDesc.split('\n').map(line => `${theme.muted}${line}${ANSI.RESET}`).join('\n');
+        
+        output += `${coloredDesc}\n\n`;
         
         // Permissions
         if (license.permissions.length > 0) {

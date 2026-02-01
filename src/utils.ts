@@ -359,6 +359,34 @@ export const Layout = {
         }
         
         return result.join('\n');
+    },
+
+    /**
+     * Wraps a string to a specific visual width.
+     * Respects word boundaries where possible.
+     */
+    wrap(str: string, width: number): string {
+        const paragraphs = str.split('\n');
+        return paragraphs.map(para => {
+            const words = para.split(' ');
+            let currentLine = '';
+            const lines: string[] = [];
+            
+            for (const word of words) {
+                const wordWidth = stringWidth(word);
+                const currentWidth = stringWidth(currentLine);
+                const spaceWidth = currentLine ? 1 : 0;
+                
+                if (currentWidth + spaceWidth + wordWidth <= width) {
+                    currentLine += (currentLine ? ' ' : '') + word;
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            return lines.join('\n');
+        }).join('\n');
     }
 };
 
