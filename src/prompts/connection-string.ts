@@ -85,9 +85,10 @@ export async function connectionString(options: ConnectionStringOptions): Promis
             }).run();
             parts.user = user;
 
+            // Use TextPrompt with empty mask for secret handling
             const password = await new TextPrompt({
                 message: 'Password',
-                isPassword: true,
+                mask: '*', // Mask with asterisks
             }).run();
             parts.password = password;
         }

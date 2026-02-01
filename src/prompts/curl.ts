@@ -5,7 +5,6 @@ import { symbols } from '../symbols';
 import { MapPrompt } from './map';
 import { CodePrompt } from './code';
 import { highlightJson } from '../highlight';
-import { stringWidth } from '../utils';
 
 export interface CurlOptions {
     message: string;
@@ -125,15 +124,10 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         
         // Insert cursor for URL
         if (urlActive) {
-            // We can't use simple string insertion if there are ansi codes (placeholder), 
-            // but for simplicity, let's assume no placeholder if typing, or handle cursor visually.
-            // Actually, Prompt base handles cursor positioning if we tell it where.
-            // But here we are rendering a full UI. 
-            // We will simulate cursor with ANSI.REVERSE or Underline on the char.
-            
-            // However, typical behavior is to hide terminal cursor and show a block char or similar.
-            // Or we can rely on terminal cursor positioning at the end of render.
-            // Let's rely on terminal cursor for URL section.
+            const beforeCursor = urlDisplay.slice(0, this.urlCursor);
+            const atCursor = urlDisplay.slice(this.urlCursor, this.urlCursor + 1) || ' ';
+            const afterCursor = urlDisplay.slice(this.urlCursor + 1);
+            urlDisplay = `${beforeCursor}${theme.main}${ANSI.UNDERLINE}${atCursor}${ANSI.RESET}${afterCursor}`;
         }
 
         output += `${urlPrefix}${urlDisplay}\n`;
@@ -177,63 +171,12 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
 
         // Cursor Positioning
         if (this.section === Section.URL) {
-            // Calculate where the URL input starts
-            // Lines: Title(1) + Method(2) + URL(1) ...
-            // Wait, Method starts with \n.
-            
-            // Title: 1 line
-            // \n
-            // Method: 1 line
-            // URL: 1 line
-            
-            // We need exact line count.
-            // title \n
-            // \n method \n
-            // url \n
-            // headers \n
-            // body \n
-            // \n preview \n cmd \n
-            // \n instructions
-            
-            // Current Layout in renderFrame:
-            // Line 0: Title
-            // Line 1: empty
-            // Line 2: Method
-            // Line 3: URL Prefix + URL
-            
-            // So URL is on line 3 (0-indexed).
-            
-            // Calculate X position
-            // Prefix " URL: " length. 
-            // " URL: " is 6 chars.
-            // "URL" is bold if active? No, prefix is constructed.
-            // urlPrefix length without ANSI.
-            
             const prefixLen = 6; // " URL: "
             const cursorRow = 3;
             
             // We need to move cursor to (row 3, prefixLen + this.urlCursor)
             
-            const totalLines = output.split('\n').length; // Approximation
-            // Actually renderFrame calculates diff.
-            // We need to move relative to the BOTTOM of the output.
-            
-            // renderFrame moves cursor to bottom right.
-            
-            // Let's count lines from bottom.
-            // Instructions: 1
-            // \n: 1
-            // cmd: 1
-            // preview: 1
-            // \n: 1
-            // Body: 1
-            // Headers: 1
-            // URL: 1
-            
-            // Lines from bottom to URL line:
-            // Instructions(1) + PreviewBlock(4) + Body(1) + Headers(1) = 7 lines?
-            
-            // Let's count explicitly.
+            const totalLines = output.split('\n').length; 
             const lines = output.split('\n');
             const urlLineIndex = lines.findIndex(l => l.includes(' URL: '));
             const linesFromBottom = lines.length - 1 - urlLineIndex;
@@ -342,16 +285,6 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
 
     private async editHeaders() {
         this.pauseInput();
-        // Clear screen below or overlay? 
-        // MapPrompt renders its own frame.
-        // We probably want to clear our UI or let MapPrompt render over it.
-        // Since Prompts use linear scan, MapPrompt will overwrite our last lines.
-        // But MapPrompt might be shorter or taller.
-        
-        // To be safe, let's clear our output to avoid artifacts?
-        // Or just let MapPrompt handle it.
-        // Since we pause input, we just wait.
-        
         try {
             const result = await new MapPrompt({
                 message: 'Edit Headers',

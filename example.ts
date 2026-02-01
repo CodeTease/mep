@@ -860,7 +860,23 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Box Result:`, box);
 
-        // --- 69. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 69. Connection String Wizard ---
+        const connString = await MepCLI.connectionString({
+            message: "Configure Database Connection (Wizard):",
+            protocols: ['postgres', 'mysql', 'sqlite'] // Custom list
+        });
+        console.log(`\n Connection String Result:`, connString.raw);
+
+        // --- 70. Curl Prompt ---
+        const curlReq = await MepCLI.curl({
+            message: "Build API Request (CURL):",
+            defaultMethod: "POST",
+            defaultUrl: "https://api.myapp.com/v1/users",
+            defaultBody: '{\n  "name": "MepCLI"\n}'
+        });
+        console.log(`\n Curl Result:`, curlReq.command);
+
+        // --- 71. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
