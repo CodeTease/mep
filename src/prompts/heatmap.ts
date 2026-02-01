@@ -23,7 +23,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
         this.validValues = options.legend.map(l => l.value).sort((a, b) => a - b);
     }
 
-    protected render(firstRender: boolean): void {
+    protected render(_firstRender: boolean): void {
         let output = `${ANSI.FG_CYAN}? ${this.options.message}${ANSI.RESET}\n`;
         
         // Render Column Headers
@@ -83,7 +83,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
         }
     }
 
-    protected handleInput(char: string, key: Buffer): void {
+    protected handleInput(char: string, _key: Buffer): void {
         if (char === '\r' || char === '\n') { // Enter
             this.submit(this.grid);
             return;

@@ -68,7 +68,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
         super.cleanup();
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let symbol = '';
 
         if (this.status === 'running') {
@@ -83,7 +83,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(_char: string, _key: Buffer) {
         // Ignore input
     }
 }

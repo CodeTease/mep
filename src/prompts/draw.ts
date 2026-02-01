@@ -61,7 +61,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         }
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
         
         output += `${ANSI.FG_GRAY}┌${'─'.repeat(this.options.width + 2)}┐${ANSI.RESET}\n`;
@@ -92,7 +92,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         if (this.isLeft(char)) {
             this.cursorX = Math.max(0, this.cursorX - 1);
             this.render(false);

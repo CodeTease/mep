@@ -135,7 +135,6 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
             const newCursor = this.cursor - this.cols;
             if (newCursor >= 0) {
                 this.cursor = newCursor;
-            } else {
             }
             this.adjustScroll();
             this.render(false);

@@ -14,7 +14,7 @@ export class DialPrompt extends Prompt<number, DialOptions> {
         if (this.currentValue > this.options.max) this.currentValue = this.options.max;
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Round value for display if necessary
         const displayValue = Math.round(this.currentValue * 100) / 100;
         let output = `${theme.title}${this.options.message}${ANSI.RESET} ${theme.main}${displayValue}${ANSI.RESET}\n`;
@@ -84,7 +84,7 @@ export class DialPrompt extends Prompt<number, DialOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         const step = this.options.step || 1;
         
         if (this.isLeft(char) || this.isDown(char)) {

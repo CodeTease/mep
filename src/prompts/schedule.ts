@@ -42,7 +42,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         return Math.max(...this.tasks.map(t => stringWidth(t.name))) + 2;
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Dynamic Layout
         const termWidth = this.stdout.columns || 80;
         this.nameColWidth = Math.min(Math.max(this.maxNameWidth, 20), Math.floor(termWidth * 0.3));
@@ -143,7 +143,6 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         // If 1 char > 1 hour, show Date
         // Else show Time
         const msPerDay = 86400000;
-        const msPerHour = 3600000;
         
         if (this.msPerChar * 10 > msPerDay * 30) { // Very zoomed out
              return `${d.getMonth() + 1}/${d.getFullYear()}`;

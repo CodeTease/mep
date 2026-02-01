@@ -45,7 +45,7 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
         this.submit(this.options.choices[this.selectedIndex]);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         if (char === ' ' || char === '\r' || char === '\n') {
             if (!this.isSpinning) {
                 // Start spinning
@@ -60,7 +60,7 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
         }
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = '';
         
         // Header

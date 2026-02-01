@@ -37,7 +37,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         });
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = '';
 
         // Title

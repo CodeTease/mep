@@ -17,7 +17,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         this.scrollStates = new Array(this.columns.length).fill(0);
     }
 
-    protected render(firstRender: boolean): void {
+    protected render(_firstRender: boolean): void {
         const { columns } = this.stdout; // terminal width
         const colCount = this.columns.length;
         const colWidth = Math.floor(columns / colCount);
@@ -143,7 +143,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         }
     }
 
-    protected handleInput(char: string, key: Buffer): void {
+    protected handleInput(char: string, _key: Buffer): void {
         if (char === '\r' || char === '\n') { // Enter
             const result: Record<string, V[]> = {};
             this.columns.forEach(c => {

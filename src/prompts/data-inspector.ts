@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { DataInspectorOptions, MouseEvent } from '../types';
-import { stringWidth, stripAnsi } from '../utils';
+import { stripAnsi } from '../utils';
 import { symbols } from '../symbols';
 
 interface InspectorNode {
@@ -95,7 +95,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
         return String(value);
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         
         if (this.cursor < this.scrollTop) {
@@ -105,7 +105,6 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
         }
 
         const visible = this.flatList.slice(this.scrollTop, this.scrollTop + this.pageSize);
-        const maxKeyWidth = 20; // Or dynamic
 
         visible.forEach((node, index) => {
             const actualIndex = this.scrollTop + index;

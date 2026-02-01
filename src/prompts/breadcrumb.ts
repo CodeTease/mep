@@ -113,7 +113,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         }
     }
 
-    protected render(firstRender: boolean): void {
+    protected render(_firstRender: boolean): void {
         const width = this.stdout.columns || 80;
         let output = '';
 
@@ -194,7 +194,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer): void {
+    protected handleInput(char: string, _key: Buffer): void {
         if (this.isLoading) return;
 
         // Enter

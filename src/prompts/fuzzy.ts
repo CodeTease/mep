@@ -67,9 +67,6 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         }
         
         this.selectedIndex = 0;
-        // Ensure index is valid
-        if (this.filteredResults.length > 0) {
-        }
         this.render(false);
     }
 

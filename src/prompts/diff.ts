@@ -12,7 +12,7 @@ export class DiffPrompt extends Prompt<string, DiffOptions> {
         super(options);
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         // Render Diff
@@ -63,7 +63,7 @@ export class DiffPrompt extends Prompt<string, DiffOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         if (this.isLeft(char)) {
             this.activeAction = (this.activeAction - 1 + this.actions.length) % this.actions.length;
             this.render(false);
@@ -99,7 +99,7 @@ ${this.options.modified}
                 waitUserInput: false // Launch immediately
             }).run().then(result => {
                 this.submit(result); 
-            }).catch(err => {
+            }).catch(_err => {
                  this.submit(initial); 
             });
         }

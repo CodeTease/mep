@@ -89,7 +89,7 @@ export class GaugePrompt extends Prompt<string, GaugeOptions> {
         }, 800);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         if (!this.running) return;
 
         if (char === ' ') {
@@ -97,7 +97,7 @@ export class GaugePrompt extends Prompt<string, GaugeOptions> {
         }
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         let output = '';
         
         // Header

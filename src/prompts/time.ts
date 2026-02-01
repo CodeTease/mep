@@ -29,7 +29,7 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
         }
     }
 
-    protected render(firstRender: boolean): void {
+    protected render(_firstRender: boolean): void {
         const is12h = this.options.format === '12h';
         const step = this.options.step || 1;
 
@@ -142,9 +142,8 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
         }
     }
 
-    protected handleInput(char: string, key: Buffer): void {
+    protected handleInput(char: string, _key: Buffer): void {
         const is12h = this.options.format === '12h';
-        const step = this.options.step || 1;
         const maxCols = is12h ? 2 : 1; // 0, 1, 2 or 0, 1
 
         if (char === '\r' || char === '\n') { // Enter
