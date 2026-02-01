@@ -3,7 +3,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
          KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions } from './types';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, TerminalOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -69,6 +69,7 @@ import { ShortcutPrompt } from './prompts/shortcut';
 import { SeatPrompt } from './prompts/seat';
 import { SelectRangePrompt } from './prompts/select-range';
 import { SortGridPrompt } from './prompts/sort-grid';
+import { TerminalPrompt } from './prompts/terminal';
 
 /**
  * Public Facade for MepCLI
@@ -350,5 +351,9 @@ export class MepCLI {
 
     static sortGrid(options: SortGridOptions): Promise<string[][]> {
         return new SortGridPrompt(options).run();
+    }
+
+    static terminal(options: TerminalOptions): Promise<string> {
+        return new TerminalPrompt(options).run();
     }
 }

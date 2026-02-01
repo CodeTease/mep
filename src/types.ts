@@ -540,3 +540,10 @@ export interface SeatOptions extends BaseOptions {
     initial?: string[];
     multiple?: boolean;
 }
+
+// --- Terminal Types ---
+export interface TerminalOptions extends BaseOptions {
+    allowedCommands?: string[];
+    cwd?: string;
+    maxHeight?: number;
+}
