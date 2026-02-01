@@ -102,6 +102,33 @@ export abstract class Prompt<T, O> {
         });
     }
 
+    /**
+     * Pauses the input stream and removes listeners.
+     * Useful for yielding control to child processes.
+     */
+    protected pauseInput() {
+        if (this._onDataHandler) {
+            this.stdin.removeListener('data', this._onDataHandler);
+        }
+        if (typeof this.stdin.setRawMode === 'function') {
+            this.stdin.setRawMode(false);
+        }
+        this.stdin.pause();
+    }
+
+    /**
+     * Resumes the input stream and re-attaches listeners.
+     */
+    protected resumeInput() {
+        if (typeof this.stdin.setRawMode === 'function') {
+            this.stdin.setRawMode(true);
+        }
+        this.stdin.resume();
+        if (this._onDataHandler) {
+             this.stdin.on('data', this._onDataHandler);
+        }
+    }
+
     protected cleanup() {
         if (this._onDataHandler) {
             this.stdin.removeListener('data', this._onDataHandler);
