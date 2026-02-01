@@ -547,3 +547,17 @@ export interface TerminalOptions extends BaseOptions {
     cwd?: string;
     maxHeight?: number;
 }
+
+// --- Dependency Types ---
+export interface DependencyItem<V> extends CheckboxChoice<V> {
+    dependsOn?: V[]; // Values this item depends on
+    triggers?: V[]; // Values this item triggers ON
+    conflictsWith?: V[]; // Values this item forces OFF
+}
+
+export interface DependencyOptions<V> extends BaseOptions {
+    choices: DependencyItem<V>[];
+    min?: number;
+    max?: number;
+    autoResolve?: boolean; // Default true: automatically check dependencies
+}

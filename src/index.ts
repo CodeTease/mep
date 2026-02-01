@@ -36,3 +36,4 @@ export * from './prompts/seat';
 export * from './prompts/select-range';
 export * from './prompts/sort-grid';
 export * from './prompts/terminal';
+export * from './prompts/dependency';
