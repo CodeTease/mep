@@ -2,7 +2,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
-         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions } from './types';
+         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -68,6 +68,8 @@ import { ExecPrompt } from './prompts/exec';
 import { ShortcutPrompt } from './prompts/shortcut';
 import { SeatPrompt } from './prompts/seat';
 import { MnemonicPrompt } from './prompts/mnemonic';
+import { SelectRangePrompt } from './prompts/select-range';
+import { SortGridPrompt } from './prompts/sort-grid';
 
 /**
  * Public Facade for MepCLI
@@ -345,5 +347,13 @@ export class MepCLI {
 
     static mnemonic(options: MnemonicOptions): Promise<string> {
         return new MnemonicPrompt(options).run();
+    }
+
+    static selectRange<const V>(options: SelectRangeOptions<V>): Promise<V[]> {
+        return new SelectRangePrompt(options).run();
+    }
+
+    static sortGrid(options: SortGridOptions): Promise<string[][]> {
+        return new SortGridPrompt(options).run();
     }
 }

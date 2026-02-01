@@ -115,6 +115,10 @@ export interface RangeOptions extends BaseOptions {
     unit?: string;
 }
 
+export interface SelectRangeOptions<V> extends SelectOptions<V> {
+    initial?: [number, number]; // Start and End indices
+}
+
 export interface RatingOptions extends BaseOptions {
     min?: number;
     max?: number;
@@ -250,6 +254,10 @@ export interface GridOptions extends BaseOptions {
     rows: string[];
     columns: string[];
     initial?: boolean[][]; // Trạng thái selected ban đầu
+}
+
+export interface SortGridOptions extends BaseOptions {
+    data: string[][];
 }
 
 export interface CalendarOptions extends BaseOptions {
