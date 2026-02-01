@@ -561,3 +561,17 @@ export interface DependencyOptions<V> extends BaseOptions {
     max?: number;
     autoResolve?: boolean; // Default true: automatically check dependencies
 }
+
+// --- License Types ---
+export interface License {
+    id: string; // SPDX
+    name: string;
+    description: string;
+    permissions: string[];
+    conditions: string[];
+    limitations: string[];
+}
+
+export interface LicenseOptions extends BaseOptions {
+    defaultLicense?: string;
+}

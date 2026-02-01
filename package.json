@@ -26,9 +26,14 @@
     "cli",
     "prompt",
     "inquirer",
+    "enquirer",
     "interactive",
     "zero-dependency",
-    "codetease"
+    "codetease",
+    "command-line",
+    "typescript",
+    "color",
+    "ansi"
   ],
   "author": "CodeTease",
   "license": "MIT",
