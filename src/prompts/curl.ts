@@ -5,6 +5,7 @@ import { symbols } from '../symbols';
 import { MapPrompt } from './map';
 import { CodePrompt } from './code';
 import { highlightJson } from '../highlight';
+import { warn } from 'console';
 
 export interface CurlOptions {
     message: string;
@@ -44,6 +45,8 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
 
     constructor(options: CurlOptions) {
         super(options);
+        
+        this.warnExperimental();
         
         // Initialize state
         if (options.defaultMethod) {

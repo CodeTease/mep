@@ -12,6 +12,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
 
     constructor(options: ExecOptions) {
         super(options);
+        this.warnExperimental();
     }
 
     public run(): Promise<void> {

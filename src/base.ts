@@ -49,6 +49,22 @@ export abstract class Prompt<T, O> {
         }
     }
 
+    /**
+     * Warn about experimental prompts.
+     * Call this in the constructor of experimental prompts.
+     */
+    protected warnExperimental() {
+        const componentName = this.constructor.name;
+
+        if (!Prompt.warnedComponents.has(componentName)) {
+            console.warn(
+                `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} ${componentName} is an experimental prompt and may have bugs or unexpected behavior. ` +
+                `Use with caution.`
+            );
+            Prompt.warnedComponents.add(componentName);
+        }
+    }
+
     protected abstract render(firstRender: boolean): void;
     protected abstract handleInput(char: string, key: Buffer): void;
     protected handleMouse(_event: MouseEvent): void {}
