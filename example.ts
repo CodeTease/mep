@@ -816,7 +816,41 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n SortGrid Result:`, sortedGrid);
 
-        // --- 64. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 64. Terminal Prompt (Shell) ---
+        console.log("\n--- Terminal Prompt (Interactive Shell) ---");
+        try {
+            await MepCLI.terminal({
+                message: "Interactive Shell (Type 'exit' to finish):",
+                allowedCommands: ['ls', 'echo', 'pwd', 'whoami', 'date'],
+                maxHeight: 10
+            });
+            console.log("\n Terminal Session Finished.");
+        } catch (err) {
+            console.log("Terminal exited.");
+        }
+
+        // --- 65. Dependency Prompt ---
+        const deps = await MepCLI.dependency({
+            message: "Select Features (with Dependencies):",
+            choices: [
+                { title: "Core System", value: "core", selected: true },
+                { title: "Plugin A (Requires Core)", value: "plugin-a", dependsOn: ['core'] },
+                { title: "Plugin B (Conflicts A)", value: "plugin-b", conflictsWith: ['plugin-a'] },
+                { title: "Dev Tools (Triggers Docs)", value: "devtools", triggers: ['docs'] },
+                { title: "Documentation", value: "docs" }
+            ],
+            autoResolve: true
+        });
+        console.log(`\n Dependency Result: [${deps.join(', ')}]`);
+
+        // --- 66. License Prompt (Split View) ---
+        const license = await MepCLI.license({
+            message: "Choose an Open Source License:",
+            defaultLicense: 'MIT'
+        });
+        console.log(`\n License Result: ${license}`);
+
+        // --- 67. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

@@ -145,6 +145,13 @@ export class TerminalPrompt extends Prompt<string, TerminalOptions> {
     private runCommand(cmd: string) {
         // Validation
         if (this.options.allowedCommands) {
+            // Check for chaining operators that might bypass validation in shell mode
+            if (/;|&&|\|\|/.test(cmd)) {
+                 this.outputBuffer.push(`${ANSI.FG_RED}Command chaining is not allowed in restricted mode.${ANSI.RESET}`);
+                 this.render(false);
+                 return;
+            }
+
             const cmdName = cmd.split(' ')[0];
             if (!this.options.allowedCommands.includes(cmdName)) {
                 this.outputBuffer.push(`${ANSI.FG_RED}Command not allowed: ${cmdName}${ANSI.RESET}`);
