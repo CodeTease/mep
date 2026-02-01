@@ -543,7 +543,8 @@ export interface SeatOptions extends BaseOptions {
 
 // --- Mnemonic Types ---
 export interface MnemonicOptions extends BaseOptions {
-    wordlist?: string[]; // Defaults to BIP39 English if not provided
+    // Updated to accept readonly arrays since BIP39 wordlists are immutable
+    wordlist?: readonly string[];
     length?: 12 | 24;
     showInput?: boolean;
 }

@@ -10,7 +10,7 @@ export class MnemonicPrompt extends Prompt<string, MnemonicOptions> {
     private cursorIndex: number = 0;
     private suggestions: string[] = [];
     private suggestionIndex: number = 0;
-    private wordlist: string[];
+    private wordlist: readonly string[];
     private errorMsg: string = '';
     private length: number;
 
