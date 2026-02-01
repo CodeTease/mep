@@ -73,6 +73,8 @@ import { DependencyPrompt } from './prompts/dependency';
 import { LicensePrompt } from './prompts/license';
 import { RegexPrompt } from './prompts/regex';
 import { BoxPrompt } from './prompts/box';
+import { connectionString, ConnectionStringOptions, ConnectionStringResult } from './prompts/connection-string';
+import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
 
 /**
  * Public Facade for MepCLI
@@ -370,5 +372,13 @@ export class MepCLI {
 
     static box(options: BoxOptions): Promise<{top: number, right: number, bottom: number, left: number}> {
         return new BoxPrompt(options).run();
+    }
+
+    static connectionString(options: ConnectionStringOptions): Promise<ConnectionStringResult> {
+        return connectionString(options);
+    }
+
+    static curl(options: CurlOptions): Promise<CurlResult> {
+        return new CurlPrompt(options).run();
     }
 }

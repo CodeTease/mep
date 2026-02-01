@@ -23,12 +23,13 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         // Init values
         this.variableTokens.forEach(idx => {
             const name = this.tokens[idx].value;
-            this.values[name] = '';
+            this.values[name] = (this.options.values && this.options.values[name]) || '';
         });
         
         // Init cursor at end of first var
         if (this.variableTokens.length > 0) {
-             this.cursor = 0; // Start empty
+             const activeName = this.tokens[this.variableTokens[0]].value;
+             this.cursor = this.values[activeName].length;
         }
     }
 

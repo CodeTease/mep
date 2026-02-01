@@ -39,3 +39,5 @@ export * from './prompts/dependency';
 export * from './prompts/license';
 export * from './prompts/regex';
 export * from './prompts/box';
+export * from './prompts/connection-string';
+export * from './prompts/curl';

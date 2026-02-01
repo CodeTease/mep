@@ -228,6 +228,10 @@ export interface CodeOptions extends BaseOptions {
      * @default true
      */
     highlight?: boolean;
+    /**
+     * Initial values for variables in the template.
+     */
+    values?: Record<string, string>;
 }
 
 export interface TreeSelectNode<V> {
