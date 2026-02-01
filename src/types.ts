@@ -540,11 +540,3 @@ export interface SeatOptions extends BaseOptions {
     initial?: string[];
     multiple?: boolean;
 }
-
-// --- Mnemonic Types ---
-export interface MnemonicOptions extends BaseOptions {
-    // Updated to accept readonly arrays since BIP39 wordlists are immutable
-    wordlist?: readonly string[];
-    length?: 12 | 24;
-    showInput?: boolean;
-}

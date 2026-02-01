@@ -3,6 +3,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
          KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -53,7 +54,6 @@ import { MatchPrompt } from './prompts/match';
 import { DiffPrompt } from './prompts/diff';
 import { DialPrompt } from './prompts/dial';
 import { DrawPrompt } from './prompts/draw';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, MnemonicOptions } from './types';
 import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
 import { FuzzySelectPrompt } from './prompts/fuzzy';
 import { MillerPrompt } from './prompts/miller';
@@ -67,7 +67,6 @@ import { DataInspectorPrompt } from './prompts/data-inspector';
 import { ExecPrompt } from './prompts/exec';
 import { ShortcutPrompt } from './prompts/shortcut';
 import { SeatPrompt } from './prompts/seat';
-import { MnemonicPrompt } from './prompts/mnemonic';
 import { SelectRangePrompt } from './prompts/select-range';
 import { SortGridPrompt } from './prompts/sort-grid';
 
@@ -343,10 +342,6 @@ export class MepCLI {
 
     static seat(options: SeatOptions): Promise<string[]> {
         return new SeatPrompt(options).run();
-    }
-
-    static mnemonic(options: MnemonicOptions): Promise<string> {
-        return new MnemonicPrompt(options).run();
     }
 
     static selectRange<const V>(options: SelectRangeOptions<V>): Promise<V[]> {
