@@ -1,5 +1,5 @@
 import { Prompt } from '../base';
-import { BoxOptions } from '../types';
+import { BoxOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
 import { theme } from '../theme';
 
@@ -110,6 +110,22 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
         this.renderFrame(output);
     }
 
+    protected handleMouse(event: MouseEvent) {
+        if (event.name === 'mouse' && event.action === 'scroll') {
+            const order: Side[] = ['top', 'right', 'bottom', 'left'];
+            const idx = order.indexOf(this.focus);
+            
+            if (event.scroll === 'down') {
+                // Next (Down usually means going forward/down in list)
+                this.changeFocus(order[(idx + 1) % 4]);
+            } else if (event.scroll === 'up') {
+                // Previous
+                this.changeFocus(order[(idx + 3) % 4]); // +3 is same as -1 in mod 4
+            }
+            this.render(false);
+        }
+    }
+
     protected handleInput(char: string, key: Buffer) {
         // Enter -> Submit
         if (char === '\r' || char === '\n') {
@@ -156,6 +172,15 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
             const order: Side[] = ['top', 'right', 'bottom', 'left'];
             const idx = order.indexOf(this.focus);
             this.changeFocus(order[(idx + 1) % 4]);
+            this.render(false);
+            return;
+        }
+
+        // Shift+Tab Cycling (\u001b[Z)
+        if (char === '\u001b[Z') {
+            const order: Side[] = ['top', 'right', 'bottom', 'left'];
+            const idx = order.indexOf(this.focus);
+            this.changeFocus(order[(idx + 3) % 4]); // (idx - 1) % 4 handling negative
             this.render(false);
             return;
         }

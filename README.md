@@ -133,6 +133,8 @@ Complex interfaces for structured data.
 | `pattern` | Android-style pattern lock. |
 | `dependency` | Checkbox with logic (Depends/Conflict). |
 | `license` | License picker with Split View. |
+| `regex` | Real-time regex validator. |
+| `box` | Box model (CSS Margin/Padding) editor. |
 
 ### 🔹 Gamified & Fun
 Add some personality to your CLI.
@@ -477,6 +479,20 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Navigate Up/Down.
+
+</details>
+
+<details>
+<summary><b>Box Prompt</b></summary>
+
+*   **Keyboard:**
+    *   `Arrows` / `Tab`: Navigate (Top -> Right -> Bottom -> Left).
+    *   `Shift + Tab`: Navigate backwards.
+    *   `+` / `-`: Increment/Decrement value.
+    *   `0-9`: Type value directly.
+
+*   **Mouse:**
+    *   `Scroll`: Cycle focus (Up=Backwards, Down=Forwards).
 
 </details>
 
