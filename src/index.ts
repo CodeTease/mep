@@ -33,6 +33,5 @@ export * from './prompts/data-inspector';
 export * from './prompts/exec';
 export * from './prompts/shortcut';
 export * from './prompts/seat';
-export * from './prompts/mnemonic';
 export * from './prompts/select-range';
 export * from './prompts/sort-grid';

@@ -7,7 +7,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, `scroll`, `schedule`, `inspector`, `exec`, `shortcut`, `seat`, and `mnemonic`.
+- **Comprehensive Prompts:** Includes `text`, `password`, `secret`, `select`, `checkbox`, `confirm`, `number`, `toggle`, `list`, `slider`, `range`, `date`, `file`, `breadcrumb`, `multiSelect`, `multiColumnSelect`, `fuzzySelect`, `miller`, `autocomplete`, `sort`, `transfer`, `cron`, `table`, `rating`, `editor`, `tree`, `keypress`, `color`, `grid`, `calendar`, `map`, `semver`, `ip`, `otp`, `quizSelect`, `quizText`, `kanban`, `time`, `byte`, `heatmap`, `slot`, `gauge`, `calculator`, `emoji`, `match`, `diff`, `dial`, `draw`, `scroll`, `schedule`, `inspector`, `exec`, `shortcut`, and `seat`.
 - **Mouse Support:** Built-in support for mouse interaction (SGR 1006 protocol). Scroll to navigate lists or change values.
 - **Responsive Input:** Supports cursor movement (Left/Right) and character insertion/deletion in text-based prompts.
 - **Validation:** Built-in support for input validation (sync and async) with custom error messages.
@@ -428,12 +428,6 @@ async function main() {
         multiple: true
     });
 
-    // Mnemonic (Secure Wordlist Input)
-    const seed = await MepCLI.mnemonic({
-        message: "Enter your 12-word recovery phrase:",
-        length: 12
-    });
-
     // Select Range (Continuous Selection)
     const selectedRange = await MepCLI.selectRange({
         message: "Select a range of commits to squash:",
@@ -455,7 +449,7 @@ async function main() {
         ]
     });
 
-    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet, timeline, configData, keybind, seats, seed, selectedRange, sortedGrid });
+    console.log({ name, age, newsletter, lang, tools, stars, city, priorities, user, color, permissions, booking, envVars, serverIp, nextVersion, bio, userDetails, commitMsg, config, selectedFiles, tech, pkg, location, pattern, region, sheet, timeline, configData, keybind, seats, selectedRange, sortedGrid });
 }
 
 main();
@@ -485,7 +479,6 @@ main();
 *   `exec(options)` - Run a shell command in the background with a minimalist status UI (Running/Success/Error).
 *   `shortcut(options)` - Record raw key combinations (Ctrl/Alt/Shift + Key).
 *   `seat(options)` - Select items from a 2D layout with gaps and "jump" navigation.
-*   `mnemonic(options)` - Securely enter BIP39 phrases with autocomplete and validation.
 *   `selectRange(options)` - Select a continuous range of items from a list using an anchor.
 *   `sortGrid(options)` - Rearrange items in a 2D grid using drag-and-drop.
 *   `checkbox(options)` - Classic checkbox selection.
@@ -762,15 +755,6 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Navigate Up/Down.
-
-### Mnemonic Prompt
-*   **Keyboard:**
-    *   `Arrows (Left/Right)`: Navigate suggestions.
-    *   `Tab`: Auto-complete selected suggestion.
-    *   `Space`: Confirm word.
-
-*   **Mouse:**
-    *   `Scroll`: Navigate suggestions.
 
 ### Select Range Prompt
 *   **Keyboard:**
