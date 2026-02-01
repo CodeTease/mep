@@ -48,9 +48,9 @@ export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
         displayInput = theme.main + beforeCursor + ANSI.UNDERLINE + (afterCursor[0] || ' ') + ANSI.RESET + '\x1b[24m' + theme.main + afterCursor.slice(1);
         
         if (this.segments.length === 0) {
-            displayInput = theme.muted + '(Type regex pattern)' + ANSI.RESET;
+            const placeholder = '(Type regex pattern)';
              // If empty, show cursor on the start of placeholder
-             displayInput = ANSI.UNDERLINE + displayInput[0] + ANSI.RESET + '\x1b[24m' + theme.muted + displayInput.slice(1);
+             displayInput = theme.muted + ANSI.UNDERLINE + placeholder[0] + ANSI.RESET + '\x1b[24m' + theme.muted + placeholder.slice(1) + ANSI.RESET;
         } else if (this.cursor >= this.segments.length) {
             // Cursor at end
             displayInput = theme.main + this.segments.join('') + ANSI.UNDERLINE + ' ' + ANSI.RESET + '\x1b[24m';

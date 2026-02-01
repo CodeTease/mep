@@ -837,7 +837,30 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n License Result: ${license}`);
 
-        // --- 67. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 67. Regex Prompt ---
+        const regex = await MepCLI.regex({
+            message: "Enter a regex to match email-like patterns:",
+            tests: [
+                'test@example.com',
+                'invalid-email',
+                'user.name@sub.domain.co.uk',
+                '@missinguser.com',
+                '123456'
+            ]
+        });
+        console.log(`\n Regex Result: ${regex}`);
+
+        // --- 68. Box Prompt ---
+        const box = await MepCLI.box({
+            message: "Set Box Model (Margin):",
+            initial: 10,
+            step: 5,
+            min: 0,
+            max: 100
+        });
+        console.log(`\n Box Result:`, box);
+
+        // --- 69. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
