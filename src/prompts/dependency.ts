@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { DependencyOptions, DependencyItem } from '../types';
+import { DependencyOptions, DependencyItem, MouseEvent } from '../types';
 import { Graph } from '../utils';
 
 export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
@@ -173,6 +173,18 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
         }
         
         this.renderFrame(output);
+    }
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.choices.length - 1;
+                this.render(false);
+            } else if (event.scroll === 'down') {
+                this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
+                this.render(false);
+            }
+        }
     }
 
     protected handleInput(char: string) {
