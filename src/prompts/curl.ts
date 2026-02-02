@@ -74,6 +74,14 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         return this.currentMethod !== 'GET' && this.currentMethod !== 'HEAD';
     }
 
+    /**
+     * Escape a string for safe inclusion inside a double-quoted shell argument.
+     * This escapes backslashes first, then double quotes.
+     */
+    private shellEscapeDoubleQuoted(value: string): string {
+        return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    }
+
     private generateCommand(): string {
         let cmd = `curl -X ${this.currentMethod}`;
         
@@ -84,8 +92,8 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         
         // Body
         if (this.hasBody && this.body) {
-            // Escape quotes for shell
-            const escapedBody = this.body.replace(/"/g, '\\"');
+            // Escape body for shell
+            const escapedBody = this.shellEscapeDoubleQuoted(this.body);
             cmd += ` -d "${escapedBody}"`;
         }
         
