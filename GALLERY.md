@@ -91,6 +91,30 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Sort Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/sort.png)
 ![Sort Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/sort.gif)
 
+### Transfer Prompt
+
+![Transfer Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/transfer.png)
+![Transfer Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/transfer.gif)
+
+### Table Prompt
+
+![Table Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/table.png)
+![Table Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/table.gif)
+
+### Confirm Prompt
+
+![Confirm Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/confirm.png)
+
+### Editor Prompt
+
+*Not available due to terminal limitations.*
+
+### Keypress Prompt
+
+![Keypress Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/keypress.png)
+![Keypress Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/keypress.gif)
+
+
 ### Box Prompt
 
 ![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.png)
@@ -107,6 +131,7 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ![Dependency Prompt - 1](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/dependency-1.png)
 ![Dependency Prompt - 2](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/dependency-2.png)
+![Dependency Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/dependency.gif)
 > *Example media of [Dependency Prompt](examples/dependency-prompts.ts)*
 
 ### License Prompt
