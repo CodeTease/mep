@@ -63,6 +63,8 @@ main();
 
 ## Prompt Types 
 
+Feature mark with "(experimental)" are still in active development and may have limited functionality or stability.
+
 ### 🔹 The Basics
 Essential prompts for everyday input.
 
