@@ -62,8 +62,6 @@ export class SortPrompt extends Prompt<string[], SortOptions> {
             } else if (isSelected) {
                 content = `${theme.main}${content}${ANSI.RESET}`;
             }
-
-            // Index indicator? Maybe not needed, minimalist.
             
             output += `${prefix}${content}`;
         });

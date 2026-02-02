@@ -23,12 +23,13 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         // Init values
         this.variableTokens.forEach(idx => {
             const name = this.tokens[idx].value;
-            this.values[name] = '';
+            this.values[name] = (this.options.values && this.options.values[name]) || '';
         });
         
         // Init cursor at end of first var
         if (this.variableTokens.length > 0) {
-             this.cursor = 0; // Start empty
+             const activeName = this.tokens[this.variableTokens[0]].value;
+             this.cursor = this.values[activeName].length;
         }
     }
 
@@ -76,9 +77,11 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
 
         // 2. Highlight
         let highlighted = '';
-        const shouldHighlight = this.options.highlight !== false; // Default true
+        let warningMsg = '';
+        const shouldHighlight = this.options.highlight !== false; 
 
         if (shouldHighlight) {
+            warningMsg = `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} Syntax highlighting is an experimental feature.\n`;
             highlighted = highlightJson(rawWithPlaceholder);
         } else {
             highlighted = rawWithPlaceholder;
@@ -92,7 +95,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         highlighted = highlighted.replace(ACTIVE_PLACEHOLDER, styledActive);
 
         // 4. Output
-        const prefix = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
+        const prefix = `${warningMsg}${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         const suffix = `\n${theme.muted}(Tab to next, Enter to submit)${ANSI.RESET}`;
         const fullOutput = prefix + highlighted + suffix;
 

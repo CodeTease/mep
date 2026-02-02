@@ -17,6 +17,7 @@ export abstract class Prompt<T, O> {
     private _inputParser: InputParser;
     private _onKeyHandler?: (char: string, key: Buffer) => void;
     private _onDataHandler?: (chunk: Buffer) => void;
+    private static warnedComponents = new Set<string>();
 
     protected lastRenderLines: string[] = [];
     protected lastRenderHeight: number = 0;
@@ -29,6 +30,39 @@ export abstract class Prompt<T, O> {
         this.stdout = process.stdout;
         this._inputParser = new InputParser();
         this.capabilities = detectCapabilities();
+    }
+
+    /**
+     * Checks if running on Windows and logs a warning message once per component type.
+     * Call this in the constructor of problematic prompts.
+     */
+    protected checkWindowsAttention() {
+        const componentName = this.constructor.name;
+
+        // Check platform and if already warned
+        if (process.platform === 'win32' && !Prompt.warnedComponents.has(componentName)) {
+            console.warn(
+                `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} ${componentName} may hang on Windows TTY after multiple cycles. ` +
+                `Press 'Enter' if unresponsive.`
+            );
+            Prompt.warnedComponents.add(componentName);
+        }
+    }
+
+    /**
+     * Warn about experimental prompts.
+     * Call this in the constructor of experimental prompts.
+     */
+    protected warnExperimental() {
+        const componentName = this.constructor.name;
+
+        if (!Prompt.warnedComponents.has(componentName)) {
+            console.warn(
+                `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} ${componentName} is an experimental prompt and may have bugs or unexpected behavior. ` +
+                `Use with caution.`
+            );
+            Prompt.warnedComponents.add(componentName);
+        }
     }
 
     protected abstract render(firstRender: boolean): void;
@@ -84,6 +118,33 @@ export abstract class Prompt<T, O> {
         });
     }
 
+    /**
+     * Pauses the input stream and removes listeners.
+     * Useful for yielding control to child processes.
+     */
+    protected pauseInput() {
+        if (this._onDataHandler) {
+            this.stdin.removeListener('data', this._onDataHandler);
+        }
+        if (typeof this.stdin.setRawMode === 'function') {
+            this.stdin.setRawMode(false);
+        }
+        this.stdin.pause();
+    }
+
+    /**
+     * Resumes the input stream and re-attaches listeners.
+     */
+    protected resumeInput() {
+        if (typeof this.stdin.setRawMode === 'function') {
+            this.stdin.setRawMode(true);
+        }
+        this.stdin.resume();
+        if (this._onDataHandler) {
+             this.stdin.on('data', this._onDataHandler);
+        }
+    }
+
     protected cleanup() {
         if (this._onDataHandler) {
             this.stdin.removeListener('data', this._onDataHandler);
@@ -105,6 +166,12 @@ export abstract class Prompt<T, O> {
         this.cleanup();
         this.print('\n'); 
         if (this._resolve) this._resolve(result);
+    }
+
+    protected cancel(reason: any) {
+        this.cleanup();
+        this.print('\n');
+        if (this._reject) this._reject(reason);
     }
 
     /**

@@ -34,6 +34,7 @@ export interface TextOptions extends BaseOptions {
     isPassword?: boolean;
     multiline?: boolean;
     mask?: string;
+    suggest?: (input: string) => string | Promise<string>;
 }
 
 export interface Separator {
@@ -112,6 +113,10 @@ export interface RangeOptions extends BaseOptions {
     initial?: [number, number];
     step?: number;
     unit?: string;
+}
+
+export interface SelectRangeOptions<V> extends Omit<SelectOptions<V>, 'initial'> {
+    initial?: [number, number]; // Start and End indices
 }
 
 export interface RatingOptions extends BaseOptions {
@@ -217,12 +222,16 @@ export interface WaitOptions extends BaseOptions {
 
 export interface CodeOptions extends BaseOptions {
     template: string;
-    language?: 'json' | 'yaml';
+    language?: 'json';
     /**
      * Enable syntax highlighting (Experimental).
      * @default true
      */
     highlight?: boolean;
+    /**
+     * Initial values for variables in the template.
+     */
+    values?: Record<string, string>;
 }
 
 export interface TreeSelectNode<V> {
@@ -251,10 +260,329 @@ export interface GridOptions extends BaseOptions {
     initial?: boolean[][]; // Trạng thái selected ban đầu
 }
 
+export interface SortGridOptions extends BaseOptions {
+    data: string[][];
+}
+
 export interface CalendarOptions extends BaseOptions {
     mode?: 'single' | 'range';
     initial?: Date | [Date, Date]; // Single date or Range tuple
     min?: Date;
     max?: Date;
     weekStart?: 0 | 1; // 0 = Sunday, 1 = Monday
+}
+
+// --- New Prompts ---
+export interface MapOptions extends BaseOptions {
+    initial?: Record<string, string>;
+}
+
+export interface SemVerOptions extends BaseOptions {
+    currentVersion: string;
+}
+
+export interface IPOptions extends BaseOptions {
+    initial?: string;
+}
+
+export interface OTPOptions extends BaseOptions {
+    length?: number;
+    mask?: string;
+    secure?: boolean;
+    placeholder?: string;
+}
+
+export interface QuizSelectOptions<V> extends SelectOptions<V> {
+    correctValue: V;
+    explanation?: string;
+}
+
+export interface QuizTextOptions extends TextOptions {
+    verify?: (value: string) => boolean | Promise<boolean>;
+    correctAnswer: string;
+    explanation?: string;
+}
+
+// --- Kanban Types ---
+export interface KanbanItem {
+    id: string;
+    title: string;
+    [key: string]: any;
+}
+
+export interface KanbanColumn<V extends KanbanItem> {
+    id: string;
+    title: string;
+    items: V[];
+}
+
+export interface KanbanOptions<V extends KanbanItem> extends BaseOptions {
+    columns: KanbanColumn<V>[];
+}
+
+// --- Time Scroller Types ---
+export interface TimeOptions extends BaseOptions {
+    format?: '12h' | '24h';
+    step?: number;
+    initial?: Date | string;
+}
+
+// --- Heatmap Types ---
+export interface HeatmapLegend {
+    value: number;
+    char: string;
+    color: (str: string) => string;
+}
+
+export interface HeatmapOptions extends BaseOptions {
+    rows: string[];
+    columns: string[];
+    legend: HeatmapLegend[];
+    initial?: number[][];
+}
+
+export interface ByteOptions extends BaseOptions {
+    initial?: number; // Field initial in bytes
+    min?: number;     // Min bytes
+    max?: number;     // Max bytes
+}
+
+// --- Slot Machine Types ---
+export interface SlotOptions extends BaseOptions {
+    choices: string[];
+    rows?: number; // Default: 3
+    initial?: number; // Default: 0
+}
+
+// --- Rhythm Gauge Types ---
+export interface GaugeOptions extends BaseOptions {
+    theme?: Partial<ThemeConfig>;
+    width?: number; // Default: 40
+    /** Safe zone width as a percentage (0-1) or absolute character count (>1). Default: 0.2 (20%) */
+    safeZone?: number; 
+}
+
+// --- Calculator Types ---
+export interface CalculatorOptions extends BaseOptions {
+    initial?: string;
+    variables?: Record<string, number>;
+    precision?: number;
+    placeholder?: string;
+}
+
+// --- Emoji Types ---
+export interface EmojiItem {
+    char: string;
+    name: string;
+    description?: string;
+}
+
+export interface EmojiOptions extends BaseOptions {
+    emojis: EmojiItem[];
+    recent?: string[]; // Array of emoji names
+    cols?: number;
+}
+
+// --- Match Types ---
+export interface MatchItem {
+    id: string;
+    label: string;
+    value?: any;
+}
+
+export interface MatchOptions extends BaseOptions {
+    source: (string | MatchItem)[];
+    target: (string | MatchItem)[];
+    constraints?: {
+        required?: boolean; // Must link all source items?
+        oneToMany?: boolean; // Can a target receive multiple sources?
+    };
+}
+
+// --- Diff Types ---
+export interface DiffOptions extends BaseOptions {
+    original: string;
+    modified: string;
+    context?: number;
+    mode?: 'inline' | 'split';
+}
+
+// --- Dial Types ---
+export interface DialOptions extends BaseOptions {
+    min: number;
+    max: number;
+    step?: number;
+    radius?: number;
+    pointerSymbol?: string;
+    initial?: number;
+}
+
+// --- Draw Types ---
+export interface DrawOptions extends BaseOptions {
+    width: number; // Width in characters
+    height: number; // Height in characters
+    exportType?: 'matrix' | 'text';
+    initial?: boolean[][];
+}
+
+// --- Multi-Column Select Types ---
+export interface MultiColumnSelectOptions<V> extends SelectOptions<V> {
+    cols?: number | 'auto';
+}
+
+// --- Fuzzy Match Types ---
+export interface FuzzySelectOptions<V> extends SelectOptions<V> {
+    // Inherits choices
+}
+
+// --- Miller Columns Types ---
+export interface MillerOptions<V> extends BaseOptions {
+    data: TreeNode<V>[];
+    initial?: V[]; // Path of values to pre-select
+    separator?: string;
+}
+
+// --- Pattern Lock Types ---
+export interface PatternOptions extends BaseOptions {
+    rows?: number; // Default 3
+    cols?: number; // Default 3
+    nodeChar?: string; // Default ●
+    lineChar?: string; // Default based on symbols
+}
+
+// --- Region/Map Selector Types ---
+export interface MapRegion {
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+    description?: string;
+}
+
+export interface RegionOptions extends BaseOptions {
+    mapArt: string;
+    regions: MapRegion[];
+    initial?: string; // Initial selected region ID
+}
+
+// --- Spreadsheet Types ---
+export interface SpreadsheetColumn {
+    name: string;
+    key: string;
+    width?: number; // Fixed width, or auto if undefined
+    editable?: boolean;
+}
+
+export interface SpreadsheetOptions extends BaseOptions {
+    columns: SpreadsheetColumn[];
+    data: Record<string, any>[];
+    rows?: number; // Viewport height
+    keyBindings?: {
+        save?: string[];
+        cancel?: string[];
+    };
+}
+
+// --- Scroll Prompt Types ---
+export interface ScrollOptions extends BaseOptions {
+    content: string;
+    height?: number; // Default: 10-15
+    requireScrollToBottom?: boolean;
+}
+
+// --- Breadcrumb Types ---
+export interface BreadcrumbOptions extends BaseOptions {
+    root?: string;
+    separator?: string;
+    showHidden?: boolean;
+}
+
+// --- Schedule Types ---
+export interface ScheduleTask {
+    name: string;
+    start: Date;
+    end: Date;
+    metadata?: any;
+}
+
+export interface ScheduleOptions extends BaseOptions {
+    data: ScheduleTask[];
+}
+
+// --- Data Inspector Types ---
+export interface DataInspectorOptions extends BaseOptions {
+    data: any;
+    maxDepth?: number;
+}
+
+// --- Exec Types ---
+export interface ExecOptions extends BaseOptions {
+    command: string;
+    timeout?: number; // ms, default 0 (infinite)
+    cwd?: string;
+    streamOutput?: boolean; // default false
+}
+
+// --- Shortcut Types ---
+export interface ShortcutResult {
+    name: string;
+    ctrl: boolean;
+    shift: boolean;
+    meta: boolean;
+    sequence: string;
+}
+
+export interface ShortcutOptions extends BaseOptions {
+    initial?: ShortcutResult;
+}
+
+// --- Seat Types ---
+export interface SeatOptions extends BaseOptions {
+    layout: string[];
+    rows?: string[];
+    cols?: string[];
+    initial?: string[];
+    multiple?: boolean;
+}
+
+// --- Dependency Types ---
+export interface DependencyItem<V> extends CheckboxChoice<V> {
+    dependsOn?: V[]; // Values this item depends on
+    triggers?: V[]; // Values this item triggers ON
+    conflictsWith?: V[]; // Values this item forces OFF
+}
+
+export interface DependencyOptions<V> extends BaseOptions {
+    choices: DependencyItem<V>[];
+    min?: number;
+    max?: number;
+    autoResolve?: boolean; // Default true: automatically check dependencies
+}
+
+// --- License Types ---
+export interface License {
+    id: string; // SPDX
+    name: string;
+    description: string;
+    permissions: string[];
+    conditions: string[];
+    limitations: string[];
+}
+
+export interface LicenseOptions extends BaseOptions {
+    defaultLicense?: string;
+}
+
+// --- Regex Types ---
+export interface RegexOptions extends BaseOptions {
+    tests: string[];
+    flags?: string;
+}
+
+// --- Box Model Types ---
+export interface BoxOptions extends BaseOptions {
+    initial?: number | { top: number; right: number; bottom: number; left: number };
+    min?: number;
+    max?: number;
+    step?: number;
 }

@@ -18,6 +18,15 @@ export const ANSI = {
     FG_RED: '\x1b[31m',
     FG_GRAY: '\x1b[90m',
     FG_WHITE: '\x1b[37m',
+    FG_BLUE: '\x1b[34m',
+    FG_MAGENTA: '\x1b[35m',
+    FG_BLACK: '\x1b[30m',
+
+    BG_YELLOW: '\x1b[43m',
+    BG_BLUE: '\x1b[44m',
+    BG_CYAN: '\x1b[46m',
+    BG_GREEN: '\x1b[42m',
+    BG_RED: '\x1b[41m',
 
     // Cursor & Erasing
     ERASE_LINE: '\x1b[2K',      // Clear current line

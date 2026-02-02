@@ -6,20 +6,52 @@ import { TextOptions } from '../types';
 import { safeSplit, stringWidth } from '../utils';
 
 // --- Implementation: Text Prompt ---
-export class TextPrompt extends Prompt<string, TextOptions> {
-    private errorMsg: string = '';
+export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<string, O> {
+    protected errorMsg: string = '';
     // cursor is now an index into the grapheme segments array
-    private cursor: number = 0;
-    private hasTyped: boolean = false;
-    private segments: string[] = [];
-    private lastLinesUp: number = 0;
+    protected cursor: number = 0;
+    protected hasTyped: boolean = false;
+    protected segments: string[] = [];
+    protected lastLinesUp: number = 0;
+    private ghost: string = '';
 
-    constructor(options: TextOptions) {
+    constructor(options: O) {
         super(options);
         this.value = options.initial || '';
         // Initialize segments from value
         this.segments = safeSplit(this.value);
         this.cursor = this.segments.length;
+    }
+
+    private triggerSuggest() {
+        if (!this.options.suggest || this.cursor !== this.segments.length) {
+            this.ghost = '';
+            return;
+        }
+
+        const currentValue = this.segments.join('');
+        const result = this.options.suggest(currentValue);
+
+        if (result instanceof Promise) {
+            result.then(suggestion => {
+                // Check if value is still the same (avoid race condition)
+                if (this.segments.join('') === currentValue) {
+                    if (suggestion.startsWith(currentValue) && suggestion.length > currentValue.length) {
+                         this.ghost = suggestion.slice(currentValue.length);
+                    } else {
+                         this.ghost = '';
+                    }
+                    this.render(false);
+                }
+            });
+        } else {
+            if (result.startsWith(currentValue) && result.length > currentValue.length) {
+                this.ghost = result.slice(currentValue.length);
+            } else {
+                this.ghost = '';
+            }
+            // render will be called by the caller of triggerSuggest usually, but here we might need to ensure it
+        }
     }
 
     protected render(firstRender: boolean) {
@@ -115,6 +147,11 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                 
                 displayValueLines.push(theme.main + visibleLine + ANSI.RESET);
             });
+
+            // Append ghost text if applicable
+            if (this.ghost && this.cursor === this.segments.length && displayValueLines.length > 0) {
+                displayValueLines[displayValueLines.length - 1] += theme.muted + this.ghost + ANSI.RESET;
+            }
         }
         
         // 3. Assemble Output
@@ -165,6 +202,20 @@ export class TextPrompt extends Prompt<string, TextOptions> {
     }
 
     protected handleInput(char: string) {
+        // Tab (Accept Suggestion)
+        if (char === '\t') {
+            if (this.ghost) {
+                const ghostSegments = safeSplit(this.ghost);
+                this.segments.splice(this.cursor, 0, ...ghostSegments);
+                this.cursor += ghostSegments.length;
+                this.ghost = '';
+                this.errorMsg = '';
+                this.triggerSuggest(); // Maybe fetch next suggestion?
+                this.render(false);
+            }
+            return;
+        }
+
         // Enter
         if (char === '\r' || char === '\n') {
             if (this.options.multiline) {
@@ -193,6 +244,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
                 this.segments.splice(this.cursor - 1, 1);
                 this.cursor--;
                 this.errorMsg = '';
+                this.triggerSuggest();
                 this.render(false);
             }
             return;
@@ -222,6 +274,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
              if (this.cursor < this.segments.length) {
                  this.segments.splice(this.cursor, 1);
                  this.errorMsg = '';
+                 this.triggerSuggest();
                  this.render(false);
              }
              return;
@@ -235,6 +288,7 @@ export class TextPrompt extends Prompt<string, TextOptions> {
             this.segments.splice(this.cursor, 0, ...newSegments);
             this.cursor += newSegments.length;
             this.errorMsg = '';
+            this.triggerSuggest();
             this.render(false);
         }
     }

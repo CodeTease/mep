@@ -152,9 +152,6 @@ export class InputParser extends EventEmitter {
         // Normalize Enter
         if (key === '\r') key = '\n';
         
-        // We emit both the raw sequence and a normalized representation if needed,
-        // but existing prompt logic handles raw strings like \x1b[A.
-        // So we just emit the reconstructed sequence.
         this.emit('keypress', key, Buffer.from(key));
     }
 }
