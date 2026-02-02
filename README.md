@@ -2,10 +2,9 @@
 
 
 <p align="center">
-  <sub>(Mep <a href="examples/basic-prompts.ts ">Basic Prompts</a>)</a></sub>
+  <sub>(Mep <a href="examples/basic-prompts.ts">Basic Prompts</a>)</a></sub>
   <img src="media/basic.gif" alt="Enquirer Survey Prompt" width="750">
-    <a href="GALLERY.md"><strong>See more prompt gallery</strong></a>
-</p>
+  <sub>(See more <a href="GALLERY.md">gallery</a>)</a></sub>
 
 **Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling.
 
