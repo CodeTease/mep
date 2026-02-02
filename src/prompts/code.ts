@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { CodeOptions, MouseEvent } from '../types';
-import { highlightJson } from '../highlight';
+import { stringWidth } from '../utils';
 
 interface Token {
     type: 'static' | 'variable';
@@ -52,89 +52,115 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         }
     }
 
+    // FIX: Override cleanup to ensure cursor is reset to bottom
+    protected cleanup() {
+        // If the cursor is currently moved up (editing mode), move it back down
+        // before the prompt exits. This prevents the next output (or result)
+        // from overwriting the bottom part of our UI.
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
+
     protected render(firstRender: boolean) {
-        // Reset cursor from previous render relative position
         if (!firstRender && this.lastLinesUp > 0) {
             this.print(`\x1b[${this.lastLinesUp}B`);
         }
         this.lastLinesUp = 0;
 
-        // 1. Construct Raw String for Highlighting
-        const ACTIVE_PLACEHOLDER = '___ACTIVE___';
-        let rawWithPlaceholder = '';
+        // 1. Build Full Raw Text & Identify Active Variable Range
+        let fullRawText = '';
+        let activeVarStart = -1;
+        let activeVarEnd = -1;
+        
+        const activeTokenIdx = this.variableTokens[this.activeVarIndex];
+        const activeVarName = this.tokens[activeTokenIdx].value;
         
         this.tokens.forEach((token, idx) => {
-            if (token.type === 'static') {
-                rawWithPlaceholder += token.value;
-            } else {
-                if (this.variableTokens[this.activeVarIndex] === idx) {
-                    rawWithPlaceholder += ACTIVE_PLACEHOLDER;
-                } else {
-                    rawWithPlaceholder += this.values[token.value] || '';
-                }
+            const val = (token.type === 'static') ? token.value : (this.values[token.value] || '');
+            
+            if (idx === activeTokenIdx) {
+                activeVarStart = fullRawText.length;
+                activeVarEnd = activeVarStart + val.length;
             }
+            
+            fullRawText += val;
         });
 
-        // 2. Highlight
+        // 2. Syntax Highlight with Overlap Logic
         let highlighted = '';
-        let warningMsg = '';
-        const shouldHighlight = this.options.highlight !== false; 
+        const shouldHighlight = this.options.highlight !== false;
 
         if (shouldHighlight) {
-            warningMsg = `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} Syntax highlighting is an experimental feature.\n`;
-            highlighted = highlightJson(rawWithPlaceholder);
+            const jsonTokenRegex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"?)|(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|(true|false|null)|([{}[\],:])/g;
+            
+            let match;
+            let lastIndex = 0;
+
+            while ((match = jsonTokenRegex.exec(fullRawText)) !== null) {
+                if (match.index > lastIndex) {
+                    const gap = fullRawText.substring(lastIndex, match.index);
+                    this.appendSegment(gap, lastIndex, activeVarStart, activeVarEnd, ANSI.FG_WHITE, (s) => highlighted += s);
+                }
+
+                const tokenText = match[0];
+                const tokenStart = match.index;
+                
+                let color = theme.syntax?.punctuation || ANSI.FG_WHITE;
+                
+                if (tokenText.startsWith('"')) {
+                    const remaining = fullRawText.substring(jsonTokenRegex.lastIndex);
+                    if (/^\s*:/.test(remaining)) {
+                        color = theme.syntax?.key || ANSI.FG_CYAN;
+                    } else {
+                        color = theme.syntax?.string || ANSI.FG_GREEN;
+                    }
+                } else if (/^-?\d/.test(tokenText)) {
+                    color = theme.syntax?.number || ANSI.FG_YELLOW;
+                } else if (/^(true|false|null)$/.test(tokenText)) {
+                     color = (tokenText === 'null') 
+                        ? (theme.syntax?.null || ANSI.FG_RED) 
+                        : (theme.syntax?.boolean || ANSI.FG_MAGENTA);
+                } else if (/^[{}[\],:]$/.test(tokenText)) {
+                    color = theme.syntax?.punctuation || ANSI.FG_WHITE;
+                }
+
+                this.appendSegment(tokenText, tokenStart, activeVarStart, activeVarEnd, color, (s) => highlighted += s);
+                lastIndex = jsonTokenRegex.lastIndex;
+            }
+
+            if (lastIndex < fullRawText.length) {
+                const tail = fullRawText.substring(lastIndex);
+                this.appendSegment(tail, lastIndex, activeVarStart, activeVarEnd, ANSI.FG_WHITE, (s) => highlighted += s);
+            }
+
         } else {
-            highlighted = rawWithPlaceholder;
+            this.appendSegment(fullRawText, 0, activeVarStart, activeVarEnd, ANSI.RESET, (s) => highlighted += s);
         }
 
-        // 3. Replace Placeholder with Styled Active Value
-        const activeVarName = this.tokens[this.variableTokens[this.activeVarIndex]].value;
-        const activeVal = this.values[activeVarName] || '';
-        // Use Main color + Underline. RESET restores default.
-        const styledActive = `${theme.main}${ANSI.UNDERLINE}${activeVal}${ANSI.RESET}`;
-        highlighted = highlighted.replace(ACTIVE_PLACEHOLDER, styledActive);
-
-        // 4. Output
+        // 3. Output Frame
+        const warningMsg = shouldHighlight 
+            ? `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} Syntax highlighting is an experimental feature.\n` 
+            : '';
+            
         const prefix = `${warningMsg}${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         const suffix = `\n${theme.muted}(Tab to next, Enter to submit)${ANSI.RESET}`;
         const fullOutput = prefix + highlighted + suffix;
 
         this.renderFrame(fullOutput);
 
-        // 5. Cursor Calculation
-        // Calculate (row, col) relative to start of snippet
-        let textBeforeCursor = '';
-        for (let i = 0; i < this.tokens.length; i++) {
-            const token = this.tokens[i];
-            if (token.type === 'static') {
-                textBeforeCursor += token.value;
-            } else {
-                if (this.variableTokens[this.activeVarIndex] === i) {
-                    textBeforeCursor += activeVal.substring(0, this.cursor);
-                    break;
-                } else {
-                    textBeforeCursor += this.values[token.value] || '';
-                }
-            }
-        }
+        // 4. Cursor Calculation
+        const cursorAbsPos = activeVarStart + this.cursor;
+        const textBeforeCursor = fullRawText.substring(0, cursorAbsPos);
         
         const rowsBefore = textBeforeCursor.split('\n');
         const cursorRow = rowsBefore.length - 1; 
-        const cursorCol = rowsBefore[rowsBefore.length - 1].length;
+        const cursorCol = stringWidth(rowsBefore[rowsBefore.length - 1]);
 
-        // Calculate total lines in snippet
-        let fullRaw = '';
-        this.tokens.forEach(token => {
-            fullRaw += (token.type === 'static' ? token.value : (this.values[token.value] || ''));
-        });
-        const totalSnippetLines = fullRaw.split('\n').length;
-        
-        // Calculate linesUp from the bottom of snippet
-        // Suffix is 1 line.
-        // CursorRow is 0-based index from top of snippet.
-        // If cursorRow is at bottom (totalSnippetLines-1), linesUp = 1 (Suffix).
-        // If cursorRow is at top (0), linesUp = 1 + (totalSnippetLines - 1).
-        
+        const totalSnippetLines = fullRawText.split('\n').length;
+        // linesUp calculation: 1 (suffix) + remaining snippet lines
         const linesUp = 1 + (totalSnippetLines - 1 - cursorRow);
         
         this.print(ANSI.SHOW_CURSOR);
@@ -149,30 +175,51 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         }
     }
 
-    protected handleInput(char: string, _key: Buffer) {
-        // Nav
-        if (char === '\u001b[Z') { // Shift Tab
-             this.moveFocus(-1);
-             return;
-        }
+    private appendSegment(
+        text: string, 
+        absStart: number, 
+        activeStart: number, 
+        activeEnd: number, 
+        syntaxColor: string, 
+        append: (s: string) => void
+    ) {
+        const absEnd = absStart + text.length;
+        const overlapStart = Math.max(absStart, activeStart);
+        const overlapEnd = Math.min(absEnd, activeEnd);
 
-        if (char === '\t') {
-            this.moveFocus(1);
-            return;
+        if (overlapStart < overlapEnd) {
+            if (absStart < overlapStart) {
+                const part = text.substring(0, overlapStart - absStart);
+                append(`${syntaxColor}${part}${ANSI.RESET}`);
+            }
+            const activePart = text.substring(overlapStart - absStart, overlapEnd - absStart);
+            append(`${theme.main}${ANSI.UNDERLINE}${activePart}${ANSI.RESET}`);
+            
+            if (absEnd > overlapEnd) {
+                const part = text.substring(overlapEnd - absStart);
+                append(`${syntaxColor}${part}${ANSI.RESET}`);
+            }
+        } else {
+            append(`${syntaxColor}${text}${ANSI.RESET}`);
         }
-        
-        // Enter
+    }
+
+    protected handleInput(char: string, _key: Buffer) {
+        if (char === '\u001b[Z') { 
+             this.moveFocus(-1); return;
+        }
+        if (char === '\t') {
+            this.moveFocus(1); return;
+        }
         if (char === '\r' || char === '\n') {
-             this.submitCode();
-             return;
+             this.submitCode(); return;
         }
 
         const activeTokenIdx = this.variableTokens[this.activeVarIndex];
         const varName = this.tokens[activeTokenIdx].value;
         const val = this.values[varName] || '';
 
-        // Editing
-        if (char === '\u0008' || char === '\x7f') { // Backspace
+        if (char === '\u0008' || char === '\x7f') { 
             if (this.cursor > 0) {
                 const pre = val.slice(0, this.cursor - 1);
                 const post = val.slice(this.cursor);
@@ -205,11 +252,8 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-            if (event.scroll === 'up') {
-                this.moveFocus(-1);
-            } else if (event.scroll === 'down') {
-                this.moveFocus(1);
-            }
+            if (event.scroll === 'up') this.moveFocus(-1);
+            else if (event.scroll === 'down') this.moveFocus(1);
         }
     }
 
@@ -218,7 +262,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         if (nextIndex >= 0 && nextIndex < this.variableTokens.length) {
             this.activeVarIndex = nextIndex;
             const varName = this.tokens[this.variableTokens[this.activeVarIndex]].value;
-            this.cursor = (this.values[varName] || '').length; // Move cursor to end
+            this.cursor = (this.values[varName] || '').length; 
             this.render(false);
         }
     }

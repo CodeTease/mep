@@ -8,6 +8,14 @@ export interface ThemeConfig {
     error: string;   // Error messages, cross marks
     muted: string;   // Placeholders, help text, unselected items
     title: string;   // Questions/Titles
+    syntax: {
+        key: string;         // JSON Key color
+        string: string;      // JSON String value color
+        number: string;      // JSON Number value color
+        boolean: string;     // JSON Boolean value color
+        null: string;       // JSON Null value color
+        punctuation: string; // JSON Punctuation color
+    };
 }
 
 export interface BaseOptions {
