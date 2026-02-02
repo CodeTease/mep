@@ -72,6 +72,25 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Date Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/date.png)
 ![Date Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/date.gif)
 
+### File Prompt
+
+![File Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/file.gif)
+
+### Multi-Select Prompt
+
+![Multi-Select Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/multi-select.png)
+![Multi-Select Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/multi-select.gif)
+
+### Autocomplete Prompt
+
+![Autocomplete Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/autocomplete.png)
+![Autocomplete Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/autocomplete.gif)
+
+### Sort Prompt
+
+![Sort Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/sort.png)
+![Sort Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/sort.gif)
+
 ### Box Prompt
 
 ![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.png)
