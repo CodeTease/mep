@@ -602,3 +602,26 @@ export interface PhoneOptions extends BaseOptions {
     strict?: boolean;        // Enforce strict mask length
     validate?: (value: string) => string | boolean | Promise<string | boolean>;
 }
+
+// --- TaskRunner Types ---
+
+export type TaskStatus = 'pending' | 'loading' | 'success' | 'error' | 'warning';
+
+export interface TaskConfig {
+    id: string;
+    title: string;
+    type?: 'spinner' | 'progress'; // Mặc định là spinner
+    total?: number; // Chỉ dùng cho progress bar
+}
+
+// State nội bộ của từng Task
+export interface TaskState extends TaskConfig {
+    status: TaskStatus;
+    current: number; // Progress value
+    message?: string; // Message phụ (vd: "Downloading 5MB/s...")
+}
+
+export interface TaskGroupOptions {
+    concurrency?: number; // (Optional) Giới hạn số task chạy cùng lúc (cho Pipeline)
+    renderer?: 'default' | 'minimal'; // Minimal cho môi trường CI
+}

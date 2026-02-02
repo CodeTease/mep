@@ -43,3 +43,4 @@ export * from './prompts/connection-string';
 export * from './prompts/curl';
 export * from './prompts/phone';
 export * from './pipeline';
+export * from './tasks';

@@ -77,6 +77,8 @@ import { PhonePrompt } from './prompts/phone';
 import { connectionString, ConnectionStringOptions, ConnectionStringResult } from './prompts/connection-string';
 import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
 import { Pipeline } from './pipeline';
+import { TaskRunner } from './tasks';
+import { TaskGroupOptions } from './types';
 
 /**
  * Public Facade for MepCLI
@@ -89,6 +91,13 @@ export class MepCLI {
      */
     static spinner(message: string): Spinner {
         return new Spinner(message);
+    }
+
+    /**
+     * Creates a new TaskRunner for managing multiple concurrent tasks (spinners/progress bars).
+     */
+    static tasks(options?: TaskGroupOptions): TaskRunner {
+        return new TaskRunner(options);
     }
 
     /**

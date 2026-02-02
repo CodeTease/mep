@@ -1,4 +1,6 @@
-export type PipelineAction<Ctx, T> = (context: Ctx) => Promise<T>;
+import { TaskRunner } from './tasks';
+
+export type PipelineAction<Ctx, T> = (context: Ctx, tasks?: TaskRunner) => Promise<T>;
 export type PipelineCondition<Ctx> = (context: Ctx) => boolean;
 
 export interface PipelineStep<Ctx> {
@@ -48,8 +50,9 @@ export class Pipeline<Ctx extends Record<string, any> = Record<string, any>> {
   /**
    * Executes the pipeline steps sequentially.
    * @param initialContext Optional initial context.
+   * @param tasks Optional TaskRunner instance to pass to steps.
    */
-  public async run(initialContext: Partial<Ctx> = {}): Promise<Ctx> {
+  public async run(initialContext: Partial<Ctx> = {}, tasks?: TaskRunner): Promise<Ctx> {
     const context: Ctx = { ...initialContext } as Ctx;
 
     for (const step of this.steps) {
@@ -59,7 +62,7 @@ export class Pipeline<Ctx extends Record<string, any> = Record<string, any>> {
 
       // In EAF (Enter-And-Forget) philosophy, if a prompt fails or is cancelled,
       // the exception will propagate up and stop the pipeline.
-      const result = await step.action(context);
+      const result = await step.action(context, tasks);
       context[step.name] = result;
     }
 
