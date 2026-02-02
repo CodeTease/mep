@@ -63,8 +63,6 @@ main();
 
 ## Prompt Types 
 
-Feature mark with "(experimental)" are still in active development and may have limited functionality or stability.
-
 ### 🔹 The Basics
 Essential prompts for everyday input.
 
@@ -172,6 +170,24 @@ Helper functions for better CLI UX.
 | `keypress` | Wait for a specific key press. |
 | `wait` | Pause for a few seconds. |
 | `spinner` | Simple loading spinner control. |
+
+## Pipeline (Workflow Engine) <sub style="color:orange">(Experimental)</sub>
+
+The **Pipeline** API allows you to orchestrate a sequence of prompts that share a common context. It follows the **Enter-and-Forget** philosophy (exceptions stop the flow) and uses a fluent Builder pattern.
+
+```typescript
+const result = await MepCLI.pipeline()
+    .step('name', () => MepCLI.text({ message: 'Name:' }))
+    .stepIf(
+        (ctx) => ctx.name === 'admin', 
+        'role', 
+        () => MepCLI.select({ 
+            message: 'Role:', 
+            choices: ['SuperUser', 'Maintainer'] 
+        })
+    )
+    .run();
+```
 
 ## Keyboard & Mouse Support
 
