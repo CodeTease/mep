@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Test
-    runs-on: self-hosted # Temporary due GitHub Actions issue
+    runs-on: ubuntu-latest
     steps:
       - name: Install Bun
         uses: oven-sh/setup-bun@v2.1.2
