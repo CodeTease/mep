@@ -76,7 +76,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         let activeVarEnd = -1;
         
         const activeTokenIdx = this.variableTokens[this.activeVarIndex];
-        const activeVarName = this.tokens[activeTokenIdx].value;
+        // const activeVarName = this.tokens[activeTokenIdx].value;
         
         this.tokens.forEach((token, idx) => {
             const val = (token.type === 'static') ? token.value : (this.values[token.value] || '');

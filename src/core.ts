@@ -75,6 +75,7 @@ import { RegexPrompt } from './prompts/regex';
 import { BoxPrompt } from './prompts/box';
 import { connectionString, ConnectionStringOptions, ConnectionStringResult } from './prompts/connection-string';
 import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
+import { Pipeline } from './pipeline';
 
 /**
  * Public Facade for MepCLI
@@ -87,6 +88,13 @@ export class MepCLI {
      */
     static spinner(message: string): Spinner {
         return new Spinner(message);
+    }
+
+    /**
+     * Creates a new Pipeline instance.
+     */
+    static pipeline<Ctx extends Record<string, any> = Record<string, any>>(): Pipeline<Ctx> {
+        return new Pipeline<Ctx>();
     }
 
     static text(options: TextOptions): Promise<string> {

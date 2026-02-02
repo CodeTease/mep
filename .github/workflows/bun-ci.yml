@@ -2,7 +2,16 @@ name: CI via Bun
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
+    paths: [
+      "**.ts",
+      "**.tsx",
+      "**.js",
+      "**.jsx",
+      "**.json",
+      "**.md",
+      ".github/workflows/bun-ci.yml"
+    ]
   pull_request:
     branches: [ "main" ]
 

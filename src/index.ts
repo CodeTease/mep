@@ -41,3 +41,4 @@ export * from './prompts/regex';
 export * from './prompts/box';
 export * from './prompts/connection-string';
 export * from './prompts/curl';
+export * from './pipeline';
