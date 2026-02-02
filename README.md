@@ -172,6 +172,33 @@ Helper functions for better CLI UX.
 | `wait` | Pause for a few seconds. |
 | `spinner` | Simple loading spinner control. |
 
+## Task Runner (Parallel Execution)
+
+The **Task Runner** allows you to manage multiple concurrent tasks (Spinners & Progress Bars) with a flicker-free rendering engine. It supports real-time updates and is completely zero-dependency.
+
+```typescript
+const tasks = MepCLI.tasks();
+
+// 1. Define Tasks
+tasks.add('install', { title: 'Installing dependencies', type: 'spinner' });
+tasks.add('download', { title: 'Downloading core', type: 'progress', total: 100 });
+
+// 2. Start Loop
+tasks.run();
+
+// 3. Update Tasks
+tasks.start('install');
+tasks.start('download', 'Connecting...');
+
+// ...Async operations...
+tasks.update('download', { current: 50, message: '50/100 MB' });
+
+// 4. Complete
+tasks.success('install', 'Done!');
+tasks.success('download', 'Downloaded');
+tasks.stop();
+```
+
 ## Pipeline (Workflow Engine) <sub style="color:orange">(Experimental)</sub>
 
 The **Pipeline** API allows you to orchestrate a sequence of prompts that share a common context. It follows the **Enter-and-Forget** philosophy (exceptions stop the flow) and uses a fluent Builder pattern.
