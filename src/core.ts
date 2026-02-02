@@ -3,7 +3,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
          KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions } from './types';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions, RegexOptions, BoxOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions, RegexOptions, BoxOptions, PhoneOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -73,6 +73,7 @@ import { DependencyPrompt } from './prompts/dependency';
 import { LicensePrompt } from './prompts/license';
 import { RegexPrompt } from './prompts/regex';
 import { BoxPrompt } from './prompts/box';
+import { PhonePrompt } from './prompts/phone';
 import { connectionString, ConnectionStringOptions, ConnectionStringResult } from './prompts/connection-string';
 import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
 import { Pipeline } from './pipeline';
@@ -388,5 +389,9 @@ export class MepCLI {
 
     static curl(options: CurlOptions): Promise<CurlResult> {
         return new CurlPrompt(options).run();
+    }
+
+    static phone(options: PhoneOptions): Promise<string> {
+        return new PhonePrompt(options).run();
     }
 }

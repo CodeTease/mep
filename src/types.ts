@@ -594,3 +594,11 @@ export interface BoxOptions extends BaseOptions {
     max?: number;
     step?: number;
 }
+
+// --- Phone Types ---
+export interface PhoneOptions extends BaseOptions {
+    defaultCountry?: string; // ISO Code (e.g., 'VN')
+    placeholder?: string;    // Custom placeholder if no default mask
+    strict?: boolean;        // Enforce strict mask length
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
+}
