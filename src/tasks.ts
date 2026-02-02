@@ -136,9 +136,9 @@ export class TaskRunner {
             error: console.error
         };
 
-        const logger = (type: string) => (...args: any[]) => {
+        const logger = (_type: string) => (...args: any[]) => {
              // Use util.format for proper string interpolation
-             // eslint-disable-next-line @typescript-eslint/no-var-requires
+             // eslint-disable-next-line @typescript-eslint/no-require-imports
              const util = require('util');
              const msg = util.format(...args);
              this.logBuffer.push(msg);
@@ -175,81 +175,10 @@ export class TaskRunner {
         let output = '';
 
         // 2. Return Cursor to Top
-        if (this.lastOutputHeight > 0) {
-            output += `\x1b[${this.lastOutputHeight}A`; // Move up N lines
-            output += '\r'; // Move to start of line
+        if (this.lastOutputHeight > 1) {
+            output += `\x1b[${this.lastOutputHeight - 1}A`; // Move up N-1 lines
         }
-
-        // 3. Diffing & Overwrite
-        for (let i = 0; i < lines.length; i++) {
-            const newLine = lines[i];
-            
-            // Optimization: Only rewrite if changed (though with spinner, it often changes)
-            // But we must move cursor down regardless if we skip writing
-            
-            if (i < this.lastOutputLines.length) {
-                 if (newLine !== this.lastOutputLines[i]) {
-                     output += ANSI.ERASE_LINE + newLine;
-                 } else {
-                     // Even if line is same, we might need to move cursor down if we are not writing?
-                     // Actually, easiest strategy for multi-line fixed block is just rewrite 
-                     // OR use explicit moves.
-                     
-                     // If we don't write, the cursor stays at start of this line.
-                     // We need to move down for next iteration.
-                     // BUT, if we write, the cursor ends at end of line (usually).
-                     // So we should just erase and rewrite to be safe and simple, 
-                     // unless we want complex cursor management.
-                     
-                     // Let's stick to "Move Down" if same, "Erase+Write" if diff.
-                     // But wait, if we moved UP at the start, we are at line 0.
-                     
-                     // Refined Logic:
-                     // We are at line `i` (relative to start of block).
-                     // If match: move down 1 line.
-                     // If diff: erase line, write content, then move to next line?
-                     // Standard terminals: writing \n moves down.
-                     // But we want to control it tightly.
-                     
-                     // Let's use the Base.ts approach: 
-                     // It writes the line.
-                     // Between lines it does `\n` (if appending) or `\x1b[B` (if moving down existing).
-                 }
-            } else {
-                // Appending new lines
-                 output += '\n' + newLine;
-                 continue; 
-            }
-            
-            // Move to next line if not last
-            if (i < lines.length - 1) {
-                // If we wrote something, we might be at end of line. 
-                // If we didn't write, we are at start.
-                // It's safer to always use explicit "Down + CR"
-                
-                if (newLine !== this.lastOutputLines[i]) {
-                    // We just wrote a line. Ideally usage of \n is implicit if we wrapped, 
-                    // but we truncated.
-                    // Let's just output \n to go down? 
-                    // No, that might scroll if at bottom.
-                    output += '\n'; 
-                } else {
-                    // We skipped writing. Move down.
-                    output += '\x1b[B\r';
-                }
-            }
-        }
-        
-        // Re-simplifying logic to match `Prompt.renderFrame` roughly:
-        // Actually, since this is a dedicated runner, let's just do the "Erase + Rewrite All" 
-        // if *any* line changed, or careful per-line.
-        // Given `base.ts` logic:
-        
-        output = '';
-        if (this.lastOutputHeight > 0) {
-            output += `\x1b[${this.lastOutputHeight}A`; // Up
-            output += '\r'; 
-        }
+        output += '\r'; // Move to start of line
 
         for (let i = 0; i < lines.length; i++) {
             const newLine = lines[i];
