@@ -43,7 +43,7 @@ export async function connectionString(options: ConnectionStringOptions): Promis
         choices: protocols.map(p => ({ title: p, value: p })),
     }).run();
 
-    let parts: ConnectionStringResult['parts'] = { protocol };
+    const parts: ConnectionStringResult['parts'] = { protocol };
     let raw = '';
 
     if (protocol === 'sqlite') {
@@ -106,7 +106,7 @@ export async function connectionString(options: ConnectionStringOptions): Promis
             if (parts.user) u.username = parts.user;
             if (parts.password) u.password = parts.password;
             raw = u.toString();
-        } catch (e) {
+        } catch (_e) {
             // Fallback manual construction with encoding
             const userEncoded = parts.user ? encodeURIComponent(parts.user) : '';
             const passEncoded = parts.password ? encodeURIComponent(parts.password) : '';

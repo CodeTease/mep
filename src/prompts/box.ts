@@ -20,7 +20,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
     constructor(options: BoxOptions) {
         super(options);
         
-        let initial: any = options.initial;
+        const initial: any = options.initial;
         if (typeof initial === 'number') {
             this.values = { top: initial, right: initial, bottom: initial, left: initial };
         } else if (typeof initial === 'object') {
@@ -66,7 +66,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
         this.inputBuffer = val.toString();
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         const title = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} (Arrows to navigate, Numbers to edit)`;
         
         // Format value function
@@ -126,7 +126,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
         }
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         // Enter -> Submit
         if (char === '\r' || char === '\n') {
             this.commitBuffer();

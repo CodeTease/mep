@@ -34,7 +34,7 @@ export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
         }
     }
 
-    protected render(firstRender: boolean) {
+    protected render(_firstRender: boolean) {
         // Line 1: Header + Input
         const icon = this.error ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const prefix = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
@@ -82,7 +82,7 @@ export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
         this.renderFrame(output);
     }
 
-    protected handleInput(char: string, key: Buffer) {
+    protected handleInput(char: string, _key: Buffer) {
         // Enter
         if (char === '\r' || char === '\n') {
             if (this.regex && !this.error) {

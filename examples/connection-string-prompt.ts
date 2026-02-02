@@ -33,7 +33,7 @@ async function main() {
         console.log("\n--- Result 2 ---");
         console.log("Raw URL:", result2.raw);
 
-    } catch (e) {
+    } catch (_e) {
         console.log("Cancelled by user");
     }
 }

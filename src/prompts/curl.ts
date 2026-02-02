@@ -4,8 +4,6 @@ import { theme } from '../theme';
 import { symbols } from '../symbols';
 import { MapPrompt } from './map';
 import { CodePrompt } from './code';
-import { highlightJson } from '../highlight';
-import { warn } from 'console';
 
 export interface CurlOptions {
     message: string;
@@ -183,11 +181,9 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         // Cursor Positioning
         if (this.section === Section.URL) {
             const prefixLen = 6; // " URL: "
-            const cursorRow = 3;
             
             // We need to move cursor to (row 3, prefixLen + this.urlCursor)
             
-            const totalLines = output.split('\n').length; 
             const lines = output.split('\n');
             const urlLineIndex = lines.findIndex(l => l.includes(' URL: '));
             const linesFromBottom = lines.length - 1 - urlLineIndex;
@@ -205,7 +201,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         }
     }
 
-    protected handleInput(char: string, buffer: Buffer) {
+    protected handleInput(char: string, _buffer: Buffer) {
         // Navigation
         if (char === '\t') {
             this.cycleSection(1);
@@ -302,7 +298,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
                 initial: this.headers,
             }).run();
             this.headers = result;
-        } catch (e) {
+        } catch (_e) {
             // Cancelled or error
         }
         
@@ -321,7 +317,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
                 values: this.body ? { json: this.body } : undefined
             }).run();
             this.body = result;
-        } catch (e) {
+        } catch (_e) {
             // Cancelled
         }
         

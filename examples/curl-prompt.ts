@@ -31,7 +31,7 @@ async function main() {
         console.log("Headers:", result.headers);
         console.log("Body Length:", result.body ? result.body.length : 0);
 
-    } catch (e) {
+    } catch (_e) {
         console.log("Cancelled by user");
     }
 }
