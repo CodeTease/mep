@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   publish-npm:
-    runs-on: self-hosted # Temporary due GitHub Actions issue 
+    runs-on: ubuntu-latest
     environment: npm
     
     steps:
