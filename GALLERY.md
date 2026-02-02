@@ -4,6 +4,32 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ## Examples
 
+### Text Prompt
+
+**Normal:** 
+![Text Prompt - Normal](media/text-1.png)
+**Suggestion:** 
+![Text Prompt - Suggestion](media/text-2.png)
+![Text Prompt - Suggestion GIF](media/text-suggestion.gif)
+
+### Password Prompt
+
+![Password Prompt - 1](media/password-1.png)
+![Password Prompt - 2](media/password-2.png)
+
+### Secret Prompt
+
+![Secret Prompt](media/secret.gif)
+
+### Select Prompt
+
+![Select Prompt - Image](media/select.png)
+![Select Prompt - GIF](media/select.gif)
+
+### Checkbox Prompt
+
+![Checkbox Prompt](media/checkbox.png)
+
 ### Box Prompt
 
 ![Box Prompt](media/box.png)
@@ -31,3 +57,5 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Regex Prompt - Image](media/regex.png)
 ![Regex Prompt - GIF](media/regex.gif)
 > *Example media of [Regex Prompt](examples/regex-prompt.ts)*
+
+*More coming soon...*
