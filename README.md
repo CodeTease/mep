@@ -4,6 +4,8 @@
 <p align="center">
   <sub>(Mep <a href="examples/basic-prompts.ts ">Basic Prompts</a>)</a></sub>
   <img src="media/basic.gif" alt="Enquirer Survey Prompt" width="750">
+    <a href="GALLERY.md"><strong>See more prompt gallery</strong></a>
+</p>
 
 **Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling.
 
@@ -57,11 +59,11 @@ async function main() {
 main();
 ```
 
-> ≡ƒÆí **Want more?** Check out the full feature demo in [`example.ts`](example.ts) or browse the `examples/` directory.
+> 💡 **Want more?** Check out the full feature demo in [`example.ts`](example.ts) or browse the `examples/` directory.
 
 ## Prompt Types 
 
-### ≡ƒö╣ The Basics
+### 🔹 The Basics
 Essential prompts for everyday input.
 
 | Function | Description |
@@ -75,7 +77,7 @@ Essential prompts for everyday input.
 | `select` | Single item selection from a list. |
 | `list` | Enter a list of tags/strings. |
 
-### ≡ƒö╣ Selection & Pickers
+### 🔹 Selection & Pickers
 Powerful tools for selecting dates, files, colors, and more.
 
 | Function | Description |
@@ -99,7 +101,7 @@ Powerful tools for selecting dates, files, colors, and more.
 | `miller` | Miller columns navigation. |
 | `tree` | Hierarchical tree navigation. |
 
-### ≡ƒö╣ Advanced Layouts
+### 🔹 Advanced Layouts
 Complex interfaces for structured data.
 
 | Function | Description |
@@ -120,7 +122,7 @@ Complex interfaces for structured data.
 | `cron` | Cron schedule builder. |
 | `code` | Code/JSON editor with syntax highlighting. |
 
-### ≡ƒö╣ Specialized Inputs
+### 🔹 Specialized Inputs
  tailored for specific data formats.
 
 | Function | Description |
@@ -143,7 +145,7 @@ Complex interfaces for structured data.
 | `connectionString` | Database URL wizard. |
 | `curl` (experimental) | Interactive HTTP request builder. |
 
-### ≡ƒö╣ Gamified & Fun
+### 🔹 Gamified & Fun
 Add some personality to your CLI.
 
 | Function | Description |
@@ -155,7 +157,7 @@ Add some personality to your CLI.
 | `quizText` | Text answer quiz. |
 | `spam` | Mash keys to confirm (fun mode). |
 
-### ≡ƒö╣ Utilities
+### 🔹 Utilities
 Helper functions for better CLI UX.
 
 | Function | Description |
@@ -173,7 +175,7 @@ Helper functions for better CLI UX.
 
 MepCLI automatically detects modern terminals and enables **Mouse Tracking** (using SGR 1006 protocol) for scrolling and clicking.
 
-### Γî¿∩╕Å Advanced Shortcuts
+### ⌨️ Advanced Shortcuts
 
 <details>
 <summary><b>Calendar Prompt</b></summary>
