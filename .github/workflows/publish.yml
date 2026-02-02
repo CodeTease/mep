@@ -1,6 +1,5 @@
 name: Publish to NPM via OIDC
 
-# Chạy khi push lên branch chính hoặc khi tạo tag
 on:
   push:
     tags:
@@ -9,11 +8,10 @@ on:
 env:
   NODE_VERSION: 22
 
-# Cấu hình quyền OIDC (Bắt buộc cho Trusted Publishing)
 permissions:
-  contents: read # Cần quyền đọc code
-  id-token: write # Cần quyền tạo JWT cho OIDC
-  
+  contents: read
+  id-token: write 
+
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
@@ -21,25 +19,42 @@ jobs:
     
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
       
-      # 1. Cấu hình Node.js và Registry (Sử dụng OIDC)
-      - name: Setup Node.js & Configure Registry
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.2.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
-          # Bỏ qua dòng 'scope' vì gói không có scope
-          
-      # 2. Cập nhật NPM (Trusted Publishing chỉ khả dụng ở 11.5.1+)
+          cache: 'npm'
+
+      # OIDC trusted publishing requires modern npm
       - name: Update NPM
-        run: npm install -g npm@^11.5.1
+        run: npm install -g npm@latest
         
-      # 3. Cài đặt dependency sạch sẽ và ổn định
-      - name: Clean Install Dependencies (npm ci)
+      - name: Install Dependencies
         run: npm ci
         
-      # 4. Publish gói lên NPM
-      - name: Publish to NPM 
-        # Thêm cờ '--access public' (cho gói unscoped)
-        run: npm publish --access public 
+      - name: Build Project
+        run: npm run build --if-present
+
+      - name: Determine Distribution Tag
+        id: dist_tag
+        shell: bash
+        run: |
+          # Extract tag name from ref (e.g., v1.0.0-alpha.1 -> 1.0.0-alpha.1)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          
+          # Default distribution tag
+          NPM_TAG="latest"
+          
+          # Check for pre-release patterns using regex
+          if [[ $VERSION =~ -(alpha|beta|rc|next)\.?[0-9]*$ ]]; then
+            NPM_TAG=${BASH_REMATCH[1]}
+          fi
+          
+          echo "tag=$NPM_TAG" >> $GITHUB_OUTPUT
+          echo "Target NPM distribution tag: $NPM_TAG"
+
+      - name: Publish to NPM
+        run: npm publish --tag ${{ steps.dist_tag.outputs.tag }} --access public --provenance
