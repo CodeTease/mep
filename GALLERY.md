@@ -1,8 +1,8 @@
-# Mep prompt gallery
+# Mep gallery
 
 This gallery showcases a variety of interactive command-line prompts created using the Mep library. Each example demonstrates different types of prompts and input handling capabilities.
 
-## Examples
+## Prompts
 
 ### Text Prompt
 
@@ -147,3 +147,18 @@ This gallery showcases a variety of interactive command-line prompts created usi
 > *Example media of [Regex Prompt](examples/regex-prompt.ts)*
 
 *More coming soon...*
+
+--- 
+
+## Other Features
+
+### Task Runner
+
+![Task Runner](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/task-runner.gif)
+> *Example media of [Task Runner](examples/task-runner.ts)*
+
+### Pipeline
+
+![Pipeline - 1](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/pipeline-1.gif)
+![Pipeline - 2](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/pipeline-2.gif)
+> *Example media of [Pipeline](examples/pipeline-demo.ts)*
