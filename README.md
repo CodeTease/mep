@@ -7,6 +7,8 @@
 
 **Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling.
 
+[Try the demo](https://stackblitz.com/edit/mepcli?file=index.js)
+
 A **CodeTease** project.
 
 ## Features
