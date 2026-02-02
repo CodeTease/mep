@@ -1,6 +1,7 @@
 export type CountryEntry = [string, string, string, string]; // ISO, Name, Dial, Mask
 
 export const COUNTRIES: CountryEntry[] = [
+    // --- Major & Original List ---
     ['US', 'United States', '1', '### ### ####'],
     ['GB', 'United Kingdom', '44', '#### ######'],
     ['VN', 'Vietnam', '84', '### #### ###'],
@@ -50,5 +51,62 @@ export const COUNTRIES: CountryEntry[] = [
     ['RO', 'Romania', '40', '## ### ####'],
     ['CL', 'Chile', '56', '# #### ####'],
     ['CO', 'Colombia', '57', '### ### ####'],
-    ['NG', 'Nigeria', '234', '### ### ####']
+    ['NG', 'Nigeria', '234', '### ### ####'],
+    
+    // --- Newly Added Countries ---
+    
+    // Southeast Asia Neighbors
+    ['KH', 'Cambodia', '855', '## ### ###'],
+    ['LA', 'Laos', '856', '## ## ####'],
+    ['MM', 'Myanmar', '95', '## ### ###'],
+
+    // South Asia
+    ['BD', 'Bangladesh', '880', '####-######'],
+    ['LK', 'Sri Lanka', '94', '## # ### ###'],
+    ['NP', 'Nepal', '977', '##-######'],
+
+    // Middle East
+    ['AE', 'United Arab Emirates', '971', '## ### ####'],
+    ['QA', 'Qatar', '974', '#### ####'],
+    ['KW', 'Kuwait', '965', '#### ####'],
+    ['BH', 'Bahrain', '973', '#### ####'],
+    ['OM', 'Oman', '968', '#### ####'],
+    ['JO', 'Jordan', '962', '# #### ####'],
+    ['LB', 'Lebanon', '961', '## ######'],
+    ['IR', 'Iran', '98', '### ### ####'],
+    ['IQ', 'Iraq', '964', '### ### ####'],
+
+    // Europe
+    ['BG', 'Bulgaria', '359', '## ### ###'],
+    ['HR', 'Croatia', '385', '## ### ####'],
+    ['RS', 'Serbia', '381', '## #######'],
+    ['SK', 'Slovakia', '421', '### ### ###'],
+    ['SI', 'Slovenia', '386', '## ### ###'],
+    ['EE', 'Estonia', '372', '#### ####'],
+    ['LV', 'Latvia', '371', '## ### ###'],
+    ['LT', 'Lithuania', '370', '### ## ###'],
+
+    // Americas
+    ['PE', 'Peru', '51', '### ### ###'],
+    ['VE', 'Venezuela', '58', '###-#######'],
+    ['EC', 'Ecuador', '593', '## ### ####'],
+    ['UY', 'Uruguay', '598', '# ### ## ##'],
+    ['PY', 'Paraguay', '595', '### ### ###'],
+    ['CR', 'Costa Rica', '506', '#### ####'],
+    ['PA', 'Panama', '507', '####-####'],
+    ['DO', 'Dominican Republic', '1', '### ### ####'],
+
+    // Africa
+    ['MA', 'Morocco', '212', '##-####-###'],
+    ['DZ', 'Algeria', '213', '## ## ## ##'],
+    ['TN', 'Tunisia', '216', '## ### ###'],
+    ['KE', 'Kenya', '254', '### ######'],
+    ['GH', 'Ghana', '233', '## ### ####'],
+    ['ET', 'Ethiopia', '251', '## ### ####'],
+    ['UG', 'Uganda', '256', '### ######'],
+    ['TZ', 'Tanzania', '255', '## ### ####'],
+
+    // Central Asia
+    ['KZ', 'Kazakhstan', '7', '### ###-##-##'], // Shares code with Russia
+    ['UZ', 'Uzbekistan', '998', '## ### ## ##']
 ];
