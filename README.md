@@ -142,6 +142,7 @@ Complex interfaces for structured data.
 | `license` | License picker with Split View. |
 | `regex` | Real-time regex validator. |
 | `box` | Box model (CSS Margin/Padding) editor. |
+| `phone` | International phone input with masking & country search. |
 | `connectionString` | Database URL wizard. |
 | `curl` (experimental) | Interactive HTTP request builder. |
 
@@ -520,6 +521,20 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Cycle focus (Up=Backwards, Down=Forwards).
+
+</details>
+
+<details>
+<summary><b>Phone Prompt</b></summary>
+
+*   **Keyboard:**
+    *   `Tab`: Switch between **Country Code** and **Number** sections.
+    *   `Typing` (in Country section): Fuzzy search for country (e.g., "Viet", "US").
+    *   `Arrows (Up/Down)`: Cycle through countries.
+    *   `Backspace`: Delete digit or clear search.
+
+*   **Mouse:**
+    *   `Scroll`: Cycle through countries (when Country section is active).
 
 </details>
 
