@@ -7,8 +7,14 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ### Text Prompt
 
 **Normal:** 
+
+
 ![Text Prompt - Normal](media/text-1.png)
+
+
 **Suggestion:** 
+
+
 ![Text Prompt - Suggestion](media/text-2.png)
 ![Text Prompt - Suggestion GIF](media/text-suggestion.gif)
 
@@ -28,11 +34,38 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ### Checkbox Prompt
 
-![Checkbox Prompt](media/checkbox.png)
+![Checkbox Prompt - Image](media/checkbox.png)
+![Checkbox Prompt - GIF](media/checkbox.gif)
+
+### Number Prompt
+
+![Number Prompt - Image](media/number.png)
+![Number Prompt - GIF](media/number.gif)
+
+### Toggle Prompt
+
+![Toggle Prompt - Image](media/toggle.png)
+![Toggle Prompt - GIF](media/toggle.gif)
+
+### List Prompt
+
+![List Prompt - Image](media/list.png)
+![List Prompt - GIF](media/list.gif)
+
+### Slider Prompt
+
+![Slider Prompt - Image](media/slider.png)
+![Slider Prompt - GIF](media/slider.gif)
+
+### Range Prompt
+
+![Range Prompt - Image](media/range.png)
+![Range Prompt - GIF](media/range.gif)
 
 ### Box Prompt
 
-![Box Prompt](media/box.png)
+![Box Prompt - Image](media/box.png)
+![Box Prompt - GIF](media/box.gif)
 > *Example media of [Box Prompt](examples/box-prompt.ts)*
 
 ### Calendar Prompt
@@ -49,7 +82,8 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ### License Prompt
 
-![License Prompt](media/license.png)
+![License Prompt - Image](media/license.png)
+![License Prompt - GIF](media/license.gif)
 > *Example media of [License Prompt](examples/license-prompts.ts)*
 
 ### Regex Prompt
