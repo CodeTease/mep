@@ -1,7 +1,7 @@
 {
   "name": "mepcli",
-  "version": "1.0.0-beta.1",
-  "description": "Zero-dependency, interactive CLI prompt for Node.js",
+  "version": "1.0.0",
+  "description": "Zero-dependency, interactive CLI prompt",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/CodeTease/mep.git"
@@ -11,8 +11,7 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE",
-    "example.ts"
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc",
@@ -25,15 +24,22 @@
   "keywords": [
     "cli",
     "prompt",
+    "prompts",
     "inquirer",
     "enquirer",
     "interactive",
+    "interact",
     "zero-dependency",
     "codetease",
     "command-line",
     "typescript",
     "color",
-    "ansi"
+    "ansi",
+    "ui",
+    "terminal",
+    "command-line",
+    "mep",
+    "mepcli"
   ],
   "author": "CodeTease",
   "license": "MIT",

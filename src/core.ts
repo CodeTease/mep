@@ -3,7 +3,7 @@ import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfi
          KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
          ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
          KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions } from './types';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions, RegexOptions, BoxOptions } from './types';
+import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions, RegexOptions, BoxOptions, PhoneOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
 import { TextPrompt } from './prompts/text';
@@ -73,8 +73,15 @@ import { DependencyPrompt } from './prompts/dependency';
 import { LicensePrompt } from './prompts/license';
 import { RegexPrompt } from './prompts/regex';
 import { BoxPrompt } from './prompts/box';
+import { PhonePrompt } from './prompts/phone';
+import { FuzzyMultiColumnPrompt } from './prompts/fuzzy-multi-column';
+import { MultiRangePrompt } from './prompts/multi-range';
+import { BreadcrumbSearchPrompt } from './prompts/breadcrumb-search';
 import { connectionString, ConnectionStringOptions, ConnectionStringResult } from './prompts/connection-string';
 import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
+import { Pipeline } from './pipeline';
+import { TaskRunner } from './tasks';
+import { TaskGroupOptions } from './types';
 
 /**
  * Public Facade for MepCLI
@@ -87,6 +94,20 @@ export class MepCLI {
      */
     static spinner(message: string): Spinner {
         return new Spinner(message);
+    }
+
+    /**
+     * Creates a new TaskRunner for managing multiple concurrent tasks (spinners/progress bars).
+     */
+    static tasks(options?: TaskGroupOptions): TaskRunner {
+        return new TaskRunner(options);
+    }
+
+    /**
+     * Creates a new Pipeline instance.
+     */
+    static pipeline<Ctx extends Record<string, any> = Record<string, any>>(): Pipeline<Ctx> {
+        return new Pipeline<Ctx>();
     }
 
     static text(options: TextOptions): Promise<string> {
@@ -223,7 +244,7 @@ export class MepCLI {
     }
 
     static calendar(options: CalendarOptions): Promise<Date | [Date, Date]> {
-        return new CalendarPrompt(options).run();
+        return new CalendarPrompt(options).run() as Promise<Date | [Date, Date]>;
     }
 
     static map(options: MapOptions): Promise<Record<string, string>> {
@@ -380,5 +401,21 @@ export class MepCLI {
 
     static curl(options: CurlOptions): Promise<CurlResult> {
         return new CurlPrompt(options).run();
+    }
+
+    static phone(options: PhoneOptions): Promise<string> {
+        return new PhonePrompt(options).run();
+    }
+
+    static fuzzyMultiColumn<V>(options: MultiColumnSelectOptions<V>): Promise<V> {
+        return new FuzzyMultiColumnPrompt(options).run();
+    }
+
+    static multiRange<V>(options: SelectRangeOptions<V>): Promise<V[]> {
+        return new MultiRangePrompt(options).run();
+    }
+
+    static breadcrumbSearch(options: BreadcrumbOptions): Promise<string> {
+        return new BreadcrumbSearchPrompt(options).run();
     }
 }

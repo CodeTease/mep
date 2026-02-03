@@ -18,17 +18,17 @@ interface DirEntry {
 }
 
 export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
-    private stack: StackItem[] = [];
-    private currentEntries: DirEntry[] = [];
-    private cursor: number = 0;
-    private scrollTop: number = 0;
-    private root: string;
-    private currentPath: string;
-    private separator: string;
-    private showHidden: boolean;
-    private isLoading: boolean = false;
-    private error: string | null = null;
-    private readonly pageSize: number = 10;
+    protected stack: StackItem[] = [];
+    protected currentEntries: DirEntry[] = [];
+    protected cursor: number = 0;
+    protected scrollTop: number = 0;
+    protected root: string;
+    protected currentPath: string;
+    protected separator: string;
+    protected showHidden: boolean;
+    protected isLoading: boolean = false;
+    protected error: string | null = null;
+    protected readonly pageSize: number = 10;
 
     constructor(options: BreadcrumbOptions) {
         super(options);
@@ -40,7 +40,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         this.loadDirectory(this.currentPath);
     }
 
-    private async loadDirectory(dir: string) {
+    protected async loadDirectory(dir: string) {
         this.isLoading = true;
         this.error = null;
         this.render(false); 
@@ -81,7 +81,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         }
     }
 
-    private async drillDown() {
+    protected async drillDown() {
         const entry = this.currentEntries[this.cursor];
         if (!entry || !entry.isDirectory) return;
 
@@ -100,7 +100,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         await this.loadDirectory(nextPath);
     }
 
-    private async goUp() {
+    protected async goUp() {
         if (this.stack.length === 0) return;
 
         const prevState = this.stack.pop();

@@ -8,6 +8,14 @@ export interface ThemeConfig {
     error: string;   // Error messages, cross marks
     muted: string;   // Placeholders, help text, unselected items
     title: string;   // Questions/Titles
+    syntax: {
+        key: string;         // JSON Key color
+        string: string;      // JSON String value color
+        number: string;      // JSON Number value color
+        boolean: string;     // JSON Boolean value color
+        null: string;       // JSON Null value color
+        punctuation: string; // JSON Punctuation color
+    };
 }
 
 export interface BaseOptions {
@@ -266,6 +274,7 @@ export interface SortGridOptions extends BaseOptions {
 
 export interface CalendarOptions extends BaseOptions {
     mode?: 'single' | 'range';
+    multiple?: boolean; // Allow picking multiple dates or multiple ranges
     initial?: Date | [Date, Date]; // Single date or Range tuple
     min?: Date;
     max?: Date;
@@ -585,4 +594,35 @@ export interface BoxOptions extends BaseOptions {
     min?: number;
     max?: number;
     step?: number;
+}
+
+// --- Phone Types ---
+export interface PhoneOptions extends BaseOptions {
+    defaultCountry?: string; // ISO Code (e.g., 'VN')
+    placeholder?: string;    // Custom placeholder if no default mask
+    strict?: boolean;        // Enforce strict mask length
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
+}
+
+// --- TaskRunner Types ---
+
+export type TaskStatus = 'pending' | 'loading' | 'success' | 'error' | 'warning';
+
+export interface TaskConfig {
+    id: string;
+    title: string;
+    type?: 'spinner' | 'progress'; // Mặc định là spinner
+    total?: number; // Chỉ dùng cho progress bar
+}
+
+// State nội bộ của từng Task
+export interface TaskState extends TaskConfig {
+    status: TaskStatus;
+    current: number; // Progress value
+    message?: string; // Message phụ (vd: "Downloading 5MB/s...")
+}
+
+export interface TaskGroupOptions {
+    concurrency?: number; // (Optional) Giới hạn số task chạy cùng lúc (cho Pipeline)
+    renderer?: 'default' | 'minimal'; // Minimal cho môi trường CI
 }

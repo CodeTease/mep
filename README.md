@@ -3,7 +3,7 @@
 
 <p align="center">
   <sub>(Mep <a href="examples/basic-prompts.ts">Basic Prompts</a>)</a></sub>
-  <img src="media/basic.gif" alt="Enquirer Survey Prompt" width="750">
+  <img src="https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/basic.gif" alt="Enquirer Survey Prompt" width="750">
 
 **Mep** is a lightweight and zero-dependency library for creating interactive command-line prompts in Node.js. It focuses on simplicity, modern design, and robust input handling.
 
@@ -14,7 +14,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive:** 60+ prompt types for every need.
+- **Comprehensive:** 70+ prompt types for every need.
 - **Mouse Support:** Built-in scroll and click interaction.
 - **Responsive:** Fluid cursor movement and validation.
 - **Elegant:** Modern ANSI color styling.
@@ -85,9 +85,11 @@ Powerful tools for selecting dates, files, colors, and more.
 | `checkbox` | Multiple choice selection. |
 | `multiSelect` | Multiple selection with filtering. |
 | `multiColumnSelect` | Selection with grid layout. |
+| `fuzzyMultiColumn` | Grid layout + Fuzzy search combination. |
 | `fuzzySelect` | Selection with fuzzy search. |
 | `autocomplete` | Async searchable selection. |
 | `selectRange` | Select a continuous range (start-end). |
+| `multiRange` | Select multiple discontinuous ranges. |
 | `treeSelect` | Hierarchical multi-selection. |
 | `grid` | 2D matrix selection (rows x columns). |
 | `seat` | Seat selection map with gaps. |
@@ -98,6 +100,7 @@ Powerful tools for selecting dates, files, colors, and more.
 | `time` | Time picker. |
 | `file` | File system navigator. |
 | `breadcrumb` | Breadcrumb navigation style. |
+| `breadcrumbSearch` | Breadcrumb navigation with local fuzzy search. |
 | `miller` | Miller columns navigation. |
 | `tree` | Hierarchical tree navigation. |
 
@@ -142,6 +145,7 @@ Complex interfaces for structured data.
 | `license` | License picker with Split View. |
 | `regex` | Real-time regex validator. |
 | `box` | Box model (CSS Margin/Padding) editor. |
+| `phone` | International phone input with masking & country search. |
 | `connectionString` | Database URL wizard. |
 | `curl` (experimental) | Interactive HTTP request builder. |
 
@@ -170,6 +174,51 @@ Helper functions for better CLI UX.
 | `keypress` | Wait for a specific key press. |
 | `wait` | Pause for a few seconds. |
 | `spinner` | Simple loading spinner control. |
+
+## Task Runner (Parallel Execution)
+
+The **Task Runner** allows you to manage multiple concurrent tasks (Spinners & Progress Bars) with a flicker-free rendering engine. It supports real-time updates and is completely zero-dependency.
+
+```typescript
+const tasks = MepCLI.tasks();
+
+// 1. Define Tasks
+tasks.add('install', { title: 'Installing dependencies', type: 'spinner' });
+tasks.add('download', { title: 'Downloading core', type: 'progress', total: 100 });
+
+// 2. Start Loop
+tasks.run();
+
+// 3. Update Tasks
+tasks.start('install');
+tasks.start('download', 'Connecting...');
+
+// ...Async operations...
+tasks.update('download', { current: 50, message: '50/100 MB' });
+
+// 4. Complete
+tasks.success('install', 'Done!');
+tasks.success('download', 'Downloaded');
+tasks.stop();
+```
+
+## Pipeline (Workflow Engine) <sub style="color:orange">(Experimental)</sub>
+
+The **Pipeline** API allows you to orchestrate a sequence of prompts that share a common context. It follows the **Enter-and-Forget** philosophy (exceptions stop the flow) and uses a fluent Builder pattern.
+
+```typescript
+const result = await MepCLI.pipeline()
+    .step('name', () => MepCLI.text({ message: 'Name:' }))
+    .stepIf(
+        (ctx) => ctx.name === 'admin', 
+        'role', 
+        () => MepCLI.select({ 
+            message: 'Role:', 
+            choices: ['SuperUser', 'Maintainer'] 
+        })
+    )
+    .run();
+```
 
 ## Keyboard & Mouse Support
 
@@ -455,12 +504,23 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 </details>
 
 <details>
-<summary><b>Select Range Prompt</b></summary>
+<summary><b>Select Range Prompt & Multi Range Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Arrows (Up/Down)`: Navigate items.
-    *   `Space`: Set/Unset anchor point.
-    *   `Enter`: Submit selected range.
+    *   `Space`: Set/Unset anchor point (drag start) or commit range (drag end).
+    *   `Enter`: Submit selected range(s).
+
+</details>
+
+<details>
+<summary><b>Breadcrumb Search Prompt</b></summary>
+
+*   **Keyboard:**
+    *   `Arrows`: Navigate.
+    *   `Typing`: Enter **Search Mode** (filters current folder).
+    *   `Esc`: Exit Search Mode.
+    *   `Enter`: Drill down (Folder) or Select (File).
 
 </details>
 
@@ -502,6 +562,20 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Cycle focus (Up=Backwards, Down=Forwards).
+
+</details>
+
+<details>
+<summary><b>Phone Prompt</b></summary>
+
+*   **Keyboard:**
+    *   `Tab`: Switch between **Country Code** and **Number** sections.
+    *   `Typing` (in Country section): Fuzzy search for country (e.g., "Viet", "US").
+    *   `Arrows (Up/Down)`: Cycle through countries.
+    *   `Backspace`: Delete digit or clear search.
+
+*   **Mouse:**
+    *   `Scroll`: Cycle through countries (when Country section is active).
 
 </details>
 

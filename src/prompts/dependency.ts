@@ -62,7 +62,7 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
 
             if (current.val) {
                 // Turning ON
-                // 1. Check Conflicts (Disable them)
+                // 1. Check Conflicts (Disable items that THIS item conflicts with)
                 if (currentItem.conflictsWith) {
                     currentItem.conflictsWith.forEach(conflictVal => {
                          const conflictIdx = choices.findIndex(c => c.value === conflictVal);
@@ -75,6 +75,21 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
                          }
                     });
                 }
+
+                // [FIX] 1.5. Reverse Conflict Check (Disable items that conflict with THIS item)
+                // Check if any currently SELECTED item has a conflict with the item we are enabling
+                choices.forEach((other, otherIdx) => {
+                    // Skip self and unchecked items
+                    if (otherIdx === current.idx || !this.checkedState[otherIdx]) return;
+
+                    if (other.conflictsWith && other.conflictsWith.includes(currentItem.value)) {
+                         queue.push({
+                             idx: otherIdx,
+                             val: false,
+                             reason: `Disabled ${other.title} because it conflicts with ${currentItem.title}`
+                         });
+                    }
+                });
                 // 2. Check Dependencies (Enable them)
                 if (currentItem.dependsOn) {
                     currentItem.dependsOn.forEach(depVal => {

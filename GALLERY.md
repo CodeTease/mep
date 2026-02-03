@@ -1,95 +1,164 @@
-# Mep prompt gallery
+# Mep gallery
 
 This gallery showcases a variety of interactive command-line prompts created using the Mep library. Each example demonstrates different types of prompts and input handling capabilities.
 
-## Examples
+## Prompts
 
 ### Text Prompt
 
 **Normal:** 
 
 
-![Text Prompt - Normal](media/text-1.png)
+![Text Prompt - Normal](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/text-1.png)
 
 
 **Suggestion:** 
 
 
-![Text Prompt - Suggestion](media/text-2.png)
-![Text Prompt - Suggestion GIF](media/text-suggestion.gif)
+![Text Prompt - Suggestion](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/text-2.png)
+![Text Prompt - Suggestion GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/text-suggestion.gif)
 
 ### Password Prompt
 
-![Password Prompt - 1](media/password-1.png)
-![Password Prompt - 2](media/password-2.png)
+![Password Prompt - 1](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/password-1.png)
+![Password Prompt - 2](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/password-2.png)
 
 ### Secret Prompt
 
-![Secret Prompt](media/secret.gif)
+![Secret Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/secret.gif)
 
 ### Select Prompt
 
-![Select Prompt - Image](media/select.png)
-![Select Prompt - GIF](media/select.gif)
+![Select Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/select.png)
+![Select Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/select.gif)
 
 ### Checkbox Prompt
 
-![Checkbox Prompt - Image](media/checkbox.png)
-![Checkbox Prompt - GIF](media/checkbox.gif)
+![Checkbox Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/checkbox.png)
+![Checkbox Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/checkbox.gif)
 
 ### Number Prompt
 
-![Number Prompt - Image](media/number.png)
-![Number Prompt - GIF](media/number.gif)
+![Number Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/number.png)
+![Number Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/number.gif)
 
 ### Toggle Prompt
 
-![Toggle Prompt - Image](media/toggle.png)
-![Toggle Prompt - GIF](media/toggle.gif)
+![Toggle Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/toggle.png)
+![Toggle Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/toggle.gif)
 
 ### List Prompt
 
-![List Prompt - Image](media/list.png)
-![List Prompt - GIF](media/list.gif)
+![List Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/list.png)
+![List Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/list.gif)
 
 ### Slider Prompt
 
-![Slider Prompt - Image](media/slider.png)
-![Slider Prompt - GIF](media/slider.gif)
+![Slider Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/slider.png)
+![Slider Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/slider.gif)
 
 ### Range Prompt
 
-![Range Prompt - Image](media/range.png)
-![Range Prompt - GIF](media/range.gif)
+![Range Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/range.png)
+![Range Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/range.gif)
+
+### Rating Prompt
+
+![Rating Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/rating.png)
+![Rating Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/rating.gif)
+
+### Date Prompt
+
+![Date Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/date.png)
+![Date Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/date.gif)
+
+### File Prompt
+
+![File Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/file.gif)
+
+### Multi-Select Prompt
+
+![Multi-Select Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/multi-select.png)
+![Multi-Select Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/multi-select.gif)
+
+### Autocomplete Prompt
+
+![Autocomplete Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/autocomplete.png)
+![Autocomplete Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/autocomplete.gif)
+
+### Sort Prompt
+
+![Sort Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/sort.png)
+![Sort Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/sort.gif)
+
+### Transfer Prompt
+
+![Transfer Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/transfer.png)
+![Transfer Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/transfer.gif)
+
+### Table Prompt
+
+![Table Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/table.png)
+![Table Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/table.gif)
+
+### Confirm Prompt
+
+![Confirm Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/confirm.png)
+
+### Editor Prompt
+
+*Not available due to terminal limitations.*
+
+### Keypress Prompt
+
+![Keypress Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/keypress.png)
+![Keypress Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/keypress.gif)
+
 
 ### Box Prompt
 
-![Box Prompt - Image](media/box.png)
-![Box Prompt - GIF](media/box.gif)
+![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.png)
+![Box Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.gif)
 > *Example media of [Box Prompt](examples/box-prompt.ts)*
 
 ### Calendar Prompt
 
-![Calendar Prompt - Image](media/calendar.png)
-![Calendar Prompt - GIF](media/calendar.gif)
+![Calendar Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar.png)
+![Calendar Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar.gif)
 > *Example media of [Calendar Prompt](examples/calendar-prompt.ts)*
 
 ### Dependency Prompt
 
-![Dependency Prompt - 1](media/dependency-1.png)
-![Dependency Prompt - 2](media/dependency-2.png)
+![Dependency Prompt - 1](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/dependency-1.png)
+![Dependency Prompt - 2](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/dependency-2.png)
+![Dependency Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/dependency.gif)
 > *Example media of [Dependency Prompt](examples/dependency-prompts.ts)*
 
 ### License Prompt
 
-![License Prompt - Image](media/license.png)
-![License Prompt - GIF](media/license.gif)
+![License Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/license.png)
+![License Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/license.gif)
 > *Example media of [License Prompt](examples/license-prompts.ts)*
 
 ### Regex Prompt
 
-![Regex Prompt - Image](media/regex.png)
-![Regex Prompt - GIF](media/regex.gif)
+![Regex Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/regex.png)
+![Regex Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/regex.gif)
 > *Example media of [Regex Prompt](examples/regex-prompt.ts)*
 
 *More coming soon...*
+
+--- 
+
+## Other Features
+
+### Task Runner
+
+![Task Runner](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/task-runner.gif)
+> *Example media of [Task Runner](examples/task-runner.ts)*
+
+### Pipeline
+
+![Pipeline - 1](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/pipeline-1.gif)
+![Pipeline - 2](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/pipeline-2.gif)
+> *Example media of [Pipeline](examples/pipeline-demo.ts)*

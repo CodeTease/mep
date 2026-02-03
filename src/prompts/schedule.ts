@@ -13,6 +13,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
     // Viewport State
     private viewStartDate: number;
     private msPerChar: number; // Zoom level
+    private minViewDate?: number;
 
     // Layout
     private nameColWidth: number = 20;
@@ -27,15 +28,23 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         }));
 
         // Initial Calculations
-        const minDate = Math.min(...this.tasks.map(t => t.start.getTime()));
-        const maxDate = Math.max(...this.tasks.map(t => t.end.getTime()));
+        const minTaskDate = Math.min(...this.tasks.map(t => t.start.getTime()));
+        const maxTaskDate = Math.max(...this.tasks.map(t => t.end.getTime()));
+
+        const opts = options as (ScheduleOptions & { startDate?: Date, endDate?: Date });
+        const minDate = opts.startDate ? opts.startDate.getTime() : minTaskDate;
+        const maxDate = opts.endDate ? opts.endDate.getTime() : maxTaskDate;
+
+        if (opts.startDate) this.minViewDate = minDate;
         
         // Default Zoom: Fit the whole range into ~60 chars
         const range = maxDate - minDate || 86400000; // default 1 day if 0
         this.msPerChar = range / 60; 
         
         // Start view slightly before the earliest task
-        this.viewStartDate = minDate - (this.msPerChar * 5); 
+        this.viewStartDate = opts.startDate 
+            ? minDate 
+            : minDate - (this.msPerChar * 5); 
     }
 
     private get maxNameWidth(): number {
@@ -132,7 +141,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         });
 
         // Footer Help
-        output += `\n${theme.muted}(Arrows: Move/Nav, Shift+Arrows: Resize, PgUp/PgDn: Scroll Time)${ANSI.RESET}`;
+        output += `\n${theme.muted}(Arrows/Scroll: Move Task, Shift+Arrows: Resize, Ctrl+Scroll/PgUp/Dn: Scroll View)${ANSI.RESET}`;
 
         this.renderFrame(output);
     }
@@ -162,7 +171,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
 
     protected handleInput(char: string, key: Buffer) {
         const task = this.tasks[this.cursor];
-        const step = this.msPerChar; // Move by 1 char equivalent
+        const step = Math.max(1, this.msPerChar); // Move by 1 char equivalent
 
         // Tab Handling
         if (char === '\t') {
@@ -189,14 +198,28 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         
         // PageUp/Down: Horizontal Scroll
         if (key.toString() === '\x1b[5~') { // PageUp
-             this.viewStartDate -= (this.msPerChar * 10);
+             this.scrollView(-10);
              this.render(false);
              return;
         }
         if (key.toString() === '\x1b[6~') { // PageDown
-             this.viewStartDate += (this.msPerChar * 10);
+             this.scrollView(10);
              this.render(false);
              return;
+        }
+        
+        // Vim keys for movement (h/l) - Alternative to arrows
+        if (char === 'h') {
+            task.start = new Date(task.start.getTime() - step);
+            task.end = new Date(task.end.getTime() - step);
+            this.render(false);
+            return;
+        }
+        if (char === 'l') {
+            task.start = new Date(task.start.getTime() + step);
+            task.end = new Date(task.end.getTime() + step);
+            this.render(false);
+            return;
         }
 
         // Shift + Arrows (Resize)
@@ -240,15 +263,40 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             // Scroll timeline horizontally
-             if (event.scroll === 'up') {
-                 // Move view to earlier (left)
-                 this.viewStartDate -= (this.msPerChar * 5); 
-             } else if (event.scroll === 'down') {
-                 // Move view to later (right)
-                 this.viewStartDate += (this.msPerChar * 5);
+             const isCtrl = (event as any).ctrl;
+
+             if (isCtrl) {
+                 // Scroll View
+                 if (event.scroll === 'up') {
+                     this.scrollView(-5);
+                 } else if (event.scroll === 'down') {
+                     this.scrollView(5);
+                 }
+             } else {
+                 // Move Task
+                 const task = this.tasks[this.cursor];
+                 const step = Math.max(1, this.msPerChar);
+
+                 if (event.scroll === 'up') {
+                     task.start = new Date(task.start.getTime() - step);
+                     task.end = new Date(task.end.getTime() - step);
+                 } else if (event.scroll === 'down') {
+                     task.start = new Date(task.start.getTime() + step);
+                     task.end = new Date(task.end.getTime() + step);
+                 }
              }
              this.render(false);
         }
+    }
+
+    private scrollView(chars: number) {
+        let newStart = this.viewStartDate + (chars * this.msPerChar);
+        
+        // Clamp if fixed start is provided to prevent scrolling before the start date
+        if (this.minViewDate !== undefined && newStart < this.minViewDate) {
+            newStart = this.minViewDate;
+        }
+        
+        this.viewStartDate = newStart;
     }
 }

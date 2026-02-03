@@ -453,3 +453,19 @@ export const Graph = {
         return order;
     }
 };
+
+/**
+ * Generates a progress bar string.
+ */
+export function generateProgressBar(current: number, total: number, width: number = 20): string {
+    const percentage = Math.min(Math.max(current / total, 0), 1);
+    const barWidth = width; 
+    const filledWidth = Math.round(barWidth * percentage);
+    const emptyWidth = barWidth - filledWidth;
+    
+    const filled = '█'.repeat(filledWidth);
+    const empty = '-'.repeat(emptyWidth);
+    const percentStr = Math.round(percentage * 100) + '%';
+    
+    return `[${filled}${empty}] ${percentStr}`;
+}
