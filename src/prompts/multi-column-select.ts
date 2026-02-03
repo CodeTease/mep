@@ -6,8 +6,8 @@ import { stringWidth } from '../utils';
 import { symbols } from '../symbols';
 
 export class MultiColumnSelectPrompt<V> extends SelectPrompt<V, MultiColumnSelectOptions<V>> {
-    private cols: number = 1;
-    private colWidth: number = 0;
+    protected cols: number = 1;
+    protected colWidth: number = 0;
 
     constructor(options: MultiColumnSelectOptions<V>) {
         super(options);
