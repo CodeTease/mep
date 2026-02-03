@@ -68,9 +68,6 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
             const entry = this.filteredEntries[this.searchCursor];
             if (entry.isDirectory) {
                 // Drill down
-                // We need to match the cursor in the real currentEntries list to call drillDown?
-                // Or just implement custom drillDown logic here.
-                // Because `drillDown` uses `this.cursor` and `this.currentEntries`.
                 
                 // Hack: Find index in currentEntries
                 const realIndex = this.currentEntries.findIndex(e => e.name === entry.name);
@@ -159,17 +156,6 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
         } else {
             const pageSize = this.pageSize;
             let start = 0;
-             // Adjust Scroll Top for Search
-             // Since `render` is called frequently, we just compute a simple window each time.
-             // To keep it simple, we can center the cursor or just standard scroll.
-             
-             // Simplest: Always show cursor in view. 
-             // We can't really do smooth scrolling without state. 
-             // Let's assume we show a window where cursor is roughly middle or just clamped.
-             // Actually, the base class persists `scrollTop`. We can use a separate property if we want,
-             // but `this.scrollTop` is protected. We can use it for search mode too?
-             // But switching back and forth might mess it up.
-             // Let's rely on calculating start index.
              
              const half = Math.floor(pageSize / 2);
              start = Math.max(0, this.searchCursor - half);

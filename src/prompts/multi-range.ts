@@ -56,10 +56,7 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                     allIndices.add(i);
                 }
             }
-            
-            // If no ranges committed, maybe they just wanted to select the current item?
-            // "MultiRange" implies multiple ranges. If empty, maybe just current item?
-            // Behavior: if empty, select current item (as a range of 1).
+
             if (allIndices.size === 0) {
                  allIndices.add(this.selectedIndex);
             }
@@ -98,20 +95,6 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
             this.render(false);
             return;
         }
-
-        // Delegate navigation and search to SelectPrompt (parent of SelectRangePrompt)
-        // We skip SelectRangePrompt.handleInput because we overrode the logic completely for Space/Enter
-        // But we want SelectPrompt's navigation. SelectRangePrompt inherits SelectPrompt.
-        // `super` here refers to SelectRangePrompt. 
-        // SelectRangePrompt calls super.handleInput for navigation.
-        // So we can call super.handleInput for non-special keys?
-        // Wait, SelectRangePrompt.handleInput handles Space and Enter. 
-        // If we call super.handleInput(char), it might handle Space/Enter incorrectly (SelectRangePrompt logic).
-        
-        // So we should call SelectPrompt.prototype.handleInput if we could, but we can't easily.
-        // Or we can manually check for navigation keys, OR just rely on the fact that we handled Space/Enter above,
-        // so if we pass other keys to super.handleInput, they will fall through to SelectPrompt logic.
-        
         super.handleInput(char, key);
     }
 
