@@ -376,6 +376,10 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                 if (!this.tempRangeStart) {
                     // Start new range selection
                     this.tempRangeStart = this.cursor; 
+
+                    if (!this.options.multiple) {
+                        this.selections = [];
+                    }
                 } else {
                     // Finish range selection
                     const start = this.tempRangeStart;
