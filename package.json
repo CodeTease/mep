@@ -1,6 +1,6 @@
 {
   "name": "mepcli",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0",
   "description": "Zero-dependency, interactive CLI prompt",
   "repository": {
     "type": "git",
