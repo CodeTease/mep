@@ -53,7 +53,6 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             if (rawCounter === rawIndex) {
                 if (mask[i] === '#') {
                     return i;
-                } else {
                 }
             }
             
@@ -175,7 +174,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         
         // Input Section
         const formatted = this.renderFormattedNumber();
-        let inputRender = formatted;
+        const inputRender = formatted;
         
         // Layout: [Prefix] [Input]
         const line = `${prefixRender} ${inputRender}`;
@@ -274,7 +273,6 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
                 } else {
                     this.activeSection = 'country';
                 }
-            } else {
             }
             this.render(false);
             return;

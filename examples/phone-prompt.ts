@@ -19,7 +19,7 @@ async function main() {
         });
         console.log(`Result 2: ${phone2}`);
 
-    } catch (e) {
+    } catch (_e) {
         console.log("Cancelled");
     }
 }

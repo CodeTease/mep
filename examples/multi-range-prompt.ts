@@ -16,7 +16,7 @@ async function main() {
         });
 
         console.log(`\nSelected Commits: [${selectedValues.join(', ')}]`);
-    } catch (error) {
+    } catch (_error) {
         console.log("\nCancelled.");
     }
 }

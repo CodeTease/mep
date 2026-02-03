@@ -33,7 +33,7 @@ async function main() {
         });
 
         console.log(`\nSelected: ${selected}`);
-    } catch (error) {
+    } catch (_error) {
         console.log("\nCancelled.");
     }
 }

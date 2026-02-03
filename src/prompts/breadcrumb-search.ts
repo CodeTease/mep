@@ -144,7 +144,6 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
         }
 
         // Render Search Overlay
-        const width = this.stdout.columns || 80;
         let output = '';
 
         // Breadcrumb + Search Bar

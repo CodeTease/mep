@@ -15,7 +15,7 @@ async function main() {
         });
 
         console.log(`\nSelected Path: ${path}`);
-    } catch (error) {
+    } catch (_error) {
         console.log("\nCancelled.");
     }
 }
