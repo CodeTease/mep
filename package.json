@@ -1,6 +1,6 @@
 {
   "name": "mepcli",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-rc.1",
   "description": "Zero-dependency, interactive CLI prompt for Node.js",
   "repository": {
     "type": "git",
