@@ -264,7 +264,13 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
     private submitResult() {
         if (this.options.multiple) {
-            this.submit(this.selections);
+            if (this.options.mode === 'range') {
+                // Only RangeSelection[]
+                this.submit(this.selections.filter(Array.isArray) as RangeSelection[]);
+            } else {
+                // Only Date[]
+                this.submit(this.selections.filter(sel => !Array.isArray(sel)) as Date[]);
+            }
         } else {
             // Single Mode (Single Date or Single Range)
             this.submit(this.selections[0] || null);
