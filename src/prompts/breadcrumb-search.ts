@@ -161,20 +161,8 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
             const pageSize = this.pageSize;
             let start = 0;
              // Adjust Scroll Top for Search
-             // We reuse `scrollTop`? No, let's just calc dynamically or use local var?
-             // Since `render` is called frequently, let's just show top N for now or simple scroll logic
-             // To keep it simple, we can center the cursor or just standard scroll
-             
-             // Reuse scrollTop logic but locally
-             let localScrollTop = 0;
-             if (this.searchCursor < localScrollTop) {
-                 localScrollTop = this.searchCursor;
-             } else if (this.searchCursor >= localScrollTop + pageSize) {
-                 localScrollTop = this.searchCursor - pageSize + 1;
-             }
-             // But wait, `localScrollTop` isn't persisted across renders.
-             // We should persist it or derive it from searchCursor assuming we want to keep cursor in view.
-             // Since we re-render whole frame, we can just compute "window" around searchCursor.
+             // Since `render` is called frequently, we just compute a simple window each time.
+             // To keep it simple, we can center the cursor or just standard scroll.
              
              // Simplest: Always show cursor in view. 
              // We can't really do smooth scrolling without state. 
