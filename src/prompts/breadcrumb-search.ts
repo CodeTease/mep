@@ -1,5 +1,5 @@
 import { BreadcrumbPrompt } from './breadcrumb';
-import { BreadcrumbOptions } from '../types';
+import { BreadcrumbOptions, MouseEvent } from '../types';
 import { theme } from '../theme';
 import { ANSI } from '../ansi';
 import { symbols } from '../symbols';
@@ -132,6 +132,29 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
         }));
         
         this.searchCursor = 0;
+    }
+
+    protected handleMouse(event: MouseEvent): void {
+        if (!this.isSearchMode) {
+            super.handleMouse(event);
+            return;
+        }
+
+        if (this.isLoading) return;
+
+        if (event.action === 'scroll') {
+            if (event.scroll === 'up') {
+                if (this.searchCursor > 0) {
+                    this.searchCursor--;
+                    this.render(false);
+                }
+            } else if (event.scroll === 'down') {
+                if (this.searchCursor < this.filteredEntries.length - 1) {
+                    this.searchCursor++;
+                    this.render(false);
+                }
+            }
+        }
     }
 
     protected render(firstRender: boolean) {
