@@ -114,6 +114,12 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Keypress Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/keypress.png)
 ![Keypress Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/keypress.gif)
 
+### Tree Prompt
+
+![Tree Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/tree.png)
+![Tree Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/tree.gif)
+> *Example media of [Tree Prompt](examples/tree-prompt.ts)*
+
 
 ### Box Prompt
 

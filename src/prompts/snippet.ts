@@ -140,6 +140,14 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         }
     }
 
+    protected cleanup() {
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
+
     protected handleInput(char: string, _key: Buffer) {
         // Navigation: Tab / Shift+Tab
         if (char === '\u001b[Z') {

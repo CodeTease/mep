@@ -162,6 +162,14 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
         return width;
     }
 
+    protected cleanup() {
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
+
     protected handleInput(char: string) {
         // Enter
         if (char === '\r' || char === '\n') {

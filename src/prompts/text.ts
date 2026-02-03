@@ -201,6 +201,14 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         return stringWidth(seg);
     }
 
+    protected cleanup() {
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
+
     protected handleInput(char: string) {
         // Tab (Accept Suggestion)
         if (char === '\t') {
