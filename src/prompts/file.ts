@@ -116,6 +116,14 @@ export class FilePrompt extends Prompt<string, FileOptions> {
         this.print(ANSI.SHOW_CURSOR);
     }
 
+    protected cleanup() {
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
+
     protected handleInput(char: string) {
         if (char === '\t') {
             if (this.suggestions.length > 0) {
@@ -139,11 +147,6 @@ export class FilePrompt extends Prompt<string, FileOptions> {
         }
 
         if (char === '\r' || char === '\n') {
-            // Move cursor to the bottom to ensure clean exit UI
-            if (this.lastLinesUp > 0) {
-                this.print(`\x1b[${this.lastLinesUp}B`);
-                this.lastLinesUp = 0;
-            }
             this.submit(this.input);
             return;
         }

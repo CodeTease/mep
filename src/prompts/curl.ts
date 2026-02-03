@@ -201,6 +201,14 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         }
     }
 
+    protected cleanup() {
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
+
     protected handleInput(char: string, _buffer: Buffer) {
         // Navigation
         if (char === '\t') {

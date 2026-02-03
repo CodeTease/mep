@@ -226,6 +226,14 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         
         this.print(ANSI.SHOW_CURSOR);
     }
+
+    protected cleanup() {
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
     
     protected handleInput(char: string) {
         // Handle common keys

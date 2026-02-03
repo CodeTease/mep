@@ -220,6 +220,14 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         return true;
     }
 
+    protected cleanup() {
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+        super.cleanup();
+    }
+
     private async submitForm() {
         this.globalError = '';
         
