@@ -876,7 +876,48 @@ async function runComprehensiveDemo() {
         });
         console.log(`\n Curl Result:`, curlReq.command);
 
-        // --- 71. Spin Utility (Loading/Async Task Indicator) ---
+        // --- 71. Phone Prompt ---
+        const phoneNumber = await MepCLI.phone({
+            message: "Enter Phone Number:",
+            defaultCountry: "US",
+            validate: (p) => p.length > 8 || "Too short"
+        });
+        console.log(`\n Phone Result: ${phoneNumber}`);
+
+        // --- 72. Fuzzy Multi Column Select Prompt ---
+        const fuzzyMcResult = await MepCLI.fuzzyMultiColumn({
+            message: "Pick a pokemon (Fuzzy + Grid):",
+            choices: [
+                { title: 'Bulbasaur', value: 'bulbasaur' },
+                { title: 'Ivysaur', value: 'ivysaur' },
+                { title: 'Venusaur', value: 'venusaur' },
+                { title: 'Charmander', value: 'charmander' },
+                { title: 'Charmeleon', value: 'charmeleon' },
+                { title: 'Charizard', value: 'charizard' },
+                { title: 'Squirtle', value: 'squirtle' },
+                { title: 'Wartortle', value: 'wartortle' },
+                { title: 'Blastoise', value: 'blastoise' }
+            ],
+            cols: 3
+        });
+        console.log(`\n Fuzzy Multi-Column Result: ${fuzzyMcResult}`);
+
+        // --- 73. Multi Range Prompt ---
+        const multiRangeResult = await MepCLI.multiRange({
+            message: "Select ranges (Space to anchor/commit, Enter to submit):",
+            choices: Array.from({ length: 15 }, (_, i) => ({ title: `Item ${i + 1}`, value: i + 1 }))
+        });
+        console.log(`\n Multi-Range Result:`, multiRangeResult);
+
+        // --- 74. Breadcrumb Search Prompt ---
+        const bcSearchResult = await MepCLI.breadcrumbSearch({
+            message: "Navigate & Search Files:",
+            root: process.cwd(),
+            showHidden: false
+        });
+        console.log(`\n Breadcrumb Search Result: ${bcSearchResult}`);
+
+        // --- 75. Spin Utility (Loading/Async Task Indicator) ---
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();

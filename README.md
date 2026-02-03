@@ -85,9 +85,11 @@ Powerful tools for selecting dates, files, colors, and more.
 | `checkbox` | Multiple choice selection. |
 | `multiSelect` | Multiple selection with filtering. |
 | `multiColumnSelect` | Selection with grid layout. |
+| `fuzzyMultiColumn` | Grid layout + Fuzzy search combination. |
 | `fuzzySelect` | Selection with fuzzy search. |
 | `autocomplete` | Async searchable selection. |
 | `selectRange` | Select a continuous range (start-end). |
+| `multiRange` | Select multiple discontinuous ranges. |
 | `treeSelect` | Hierarchical multi-selection. |
 | `grid` | 2D matrix selection (rows x columns). |
 | `seat` | Seat selection map with gaps. |
@@ -98,6 +100,7 @@ Powerful tools for selecting dates, files, colors, and more.
 | `time` | Time picker. |
 | `file` | File system navigator. |
 | `breadcrumb` | Breadcrumb navigation style. |
+| `breadcrumbSearch` | Breadcrumb navigation with local fuzzy search. |
 | `miller` | Miller columns navigation. |
 | `tree` | Hierarchical tree navigation. |
 
@@ -501,12 +504,23 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 </details>
 
 <details>
-<summary><b>Select Range Prompt</b></summary>
+<summary><b>Select Range Prompt & Multi Range Prompt</b></summary>
 
 *   **Keyboard:**
     *   `Arrows (Up/Down)`: Navigate items.
-    *   `Space`: Set/Unset anchor point.
-    *   `Enter`: Submit selected range.
+    *   `Space`: Set/Unset anchor point (drag start) or commit range (drag end).
+    *   `Enter`: Submit selected range(s).
+
+</details>
+
+<details>
+<summary><b>Breadcrumb Search Prompt</b></summary>
+
+*   **Keyboard:**
+    *   `Arrows`: Navigate.
+    *   `Typing`: Enter **Search Mode** (filters current folder).
+    *   `Esc`: Exit Search Mode.
+    *   `Enter`: Drill down (Folder) or Select (File).
 
 </details>
 

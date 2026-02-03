@@ -42,5 +42,8 @@ export * from './prompts/box';
 export * from './prompts/connection-string';
 export * from './prompts/curl';
 export * from './prompts/phone';
+export * from './prompts/fuzzy-multi-column';
+export * from './prompts/multi-range';
+export * from './prompts/breadcrumb-search';
 export * from './pipeline';
 export * from './tasks';

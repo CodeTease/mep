@@ -74,6 +74,9 @@ import { LicensePrompt } from './prompts/license';
 import { RegexPrompt } from './prompts/regex';
 import { BoxPrompt } from './prompts/box';
 import { PhonePrompt } from './prompts/phone';
+import { FuzzyMultiColumnPrompt } from './prompts/fuzzy-multi-column';
+import { MultiRangePrompt } from './prompts/multi-range';
+import { BreadcrumbSearchPrompt } from './prompts/breadcrumb-search';
 import { connectionString, ConnectionStringOptions, ConnectionStringResult } from './prompts/connection-string';
 import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
 import { Pipeline } from './pipeline';
@@ -402,5 +405,17 @@ export class MepCLI {
 
     static phone(options: PhoneOptions): Promise<string> {
         return new PhonePrompt(options).run();
+    }
+
+    static fuzzyMultiColumn<V>(options: MultiColumnSelectOptions<V>): Promise<V> {
+        return new FuzzyMultiColumnPrompt(options).run();
+    }
+
+    static multiRange<V>(options: SelectRangeOptions<V>): Promise<V[]> {
+        return new MultiRangePrompt(options).run();
+    }
+
+    static breadcrumbSearch(options: BreadcrumbOptions): Promise<string> {
+        return new BreadcrumbSearchPrompt(options).run();
     }
 }
