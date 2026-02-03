@@ -244,7 +244,7 @@ export class MepCLI {
     }
 
     static calendar(options: CalendarOptions): Promise<Date | [Date, Date]> {
-        return new CalendarPrompt(options).run();
+        return new CalendarPrompt(options).run() as Promise<Date | [Date, Date]>;
     }
 
     static map(options: MapOptions): Promise<Record<string, string>> {
