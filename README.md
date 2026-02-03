@@ -14,7 +14,7 @@ A **CodeTease** project.
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
-- **Comprehensive:** 60+ prompt types for every need.
+- **Comprehensive:** 70+ prompt types for every need.
 - **Mouse Support:** Built-in scroll and click interaction.
 - **Responsive:** Fluid cursor movement and validation.
 - **Elegant:** Modern ANSI color styling.
