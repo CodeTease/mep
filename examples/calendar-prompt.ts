@@ -30,7 +30,7 @@ async function runExamples() {
             mode: 'range',
             initial: [new Date(2026, 5, 1), new Date(2026, 5, 10)] // June 1st to 10th
         });
-        if (vacation) {
+        if (Array.isArray(vacation)) {
             console.log(`Vacation planned from: ${vacation[0]} to ${vacation[1]}`);
         }
     } catch (e) {
