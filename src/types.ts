@@ -274,6 +274,7 @@ export interface SortGridOptions extends BaseOptions {
 
 export interface CalendarOptions extends BaseOptions {
     mode?: 'single' | 'range';
+    multiple?: boolean; // Allow picking multiple dates or multiple ranges
     initial?: Date | [Date, Date]; // Single date or Range tuple
     min?: Date;
     max?: Date;

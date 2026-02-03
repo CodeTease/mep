@@ -3,40 +3,77 @@ import { Prompt } from '../base';
 import { theme } from '../theme';
 import { CalendarOptions, MouseEvent } from '../types';
 
-export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions> {
+// Helper types for internal state management
+type SingleSelection = Date;
+type RangeSelection = [Date, Date];
+type CalendarValue = SingleSelection | RangeSelection | SingleSelection[] | RangeSelection[];
+
+// Extend options locally to support 'multiple' without breaking if types.ts isn't updated yet
+interface ExtendedCalendarOptions extends CalendarOptions {
+    multiple?: boolean;
+}
+
+export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOptions> {
     private cursor: Date;
     private viewDate: Date; // The month currently being viewed
-    private selection: Date | [Date, Date] | null = null;
-    private selectingRange: boolean = false; // Internal state for range selection
+    
+    // Store all selections here. Can be an array of Dates or Ranges.
+    private selections: (SingleSelection | RangeSelection)[] = [];
+    
+    // Internal state for dragging/selecting a range before it is finalized
+    private tempRangeStart: Date | null = null;
 
-    constructor(options: CalendarOptions) {
+    constructor(options: ExtendedCalendarOptions) {
         super(options);
-        // Normalize initial value
-        if (Array.isArray(options.initial)) {
-             this.selection = [new Date(options.initial[0]), new Date(options.initial[1])];
-             this.cursor = new Date(options.initial[1]); // Cursor at end of range
-        } else if (options.initial) {
-             this.selection = new Date(options.initial);
-             this.cursor = new Date(options.initial);
+        
+        // Initialize cursor
+        this.cursor = new Date();
+        this.viewDate = new Date();
+        this.viewDate.setDate(1);
+
+        // Normalize initial value into selections array
+        if (options.initial) {
+            // Handle array inputs (Range or Multiple Dates)
+            if (Array.isArray(options.initial)) {
+                const init = options.initial as any[];
+                if (init.length > 0) {
+                    // Detect if it is [Date, Date] (Single Range)
+                    if (options.mode === 'range' && !options.multiple && init.length === 2 && init[0] instanceof Date) {
+                         this.selections = [[init[0], init[1]]];
+                         this.cursor = new Date(init[1]);
+                    } 
+                    // Detect [Date, Date][] (Multiple Ranges)
+                    else if (Array.isArray(init[0])) {
+                        this.selections = [...init];
+                        const lastRange = init[init.length - 1];
+                        this.cursor = new Date(lastRange[1]);
+                    }
+                    // Detect Date[] (Multiple Singles)
+                    else {
+                        this.selections = [...init];
+                        this.cursor = new Date(init[init.length - 1]);
+                    }
+                }
+            } else {
+                // Single Date
+                this.selections = [options.initial as Date];
+                this.cursor = new Date(options.initial as Date);
+            }
         } else {
-             this.cursor = new Date();
-             // If range mode but no initial, selection remains null until user picks
-             if (this.options.mode !== 'range') {
-                 this.selection = new Date();
+            // If no initial value, and NOT range mode, we might optionally start with today selected?
+            // For now, let's keep it empty or follow original logic behavior if needed.
+             if (this.options.mode !== 'range' && !this.options.multiple) {
+                 this.selections = [new Date()];
              }
         }
         
-        // Clone cursor to viewDate to track month view independently
+        // Sync viewDate to cursor so we see the selected date
         this.viewDate = new Date(this.cursor);
         this.viewDate.setDate(1);
     }
 
     private getDaysInMonth(year: number, month: number): number {
         return new Date(year, month + 1, 0).getDate();
-    }
-
-    private getDayOfWeek(year: number, month: number, day: number): number {
-        return new Date(year, month, day).getDay();
     }
 
     private generateMonthGrid(year: number, month: number): { date: Date, inMonth: boolean }[] {
@@ -48,12 +85,7 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         const weekStart = this.options.weekStart || 0;
         
         // Calculate days from previous month to fill the first row
-        // If startDayOfWeek is 2 (Tue) and weekStart is 0 (Sun), we need 2 days from prev month.
-        // If startDayOfWeek is 0 (Sun) and weekStart is 1 (Mon), we need 6 days from prev month.
         const daysFromPrevMonth = (startDayOfWeek - weekStart + 7) % 7;
-        if (daysFromPrevMonth === 0 && startDayOfWeek !== weekStart) {
-             // Logic check: if starts on same day, 0. 
-        }
 
         const prevMonthDate = new Date(year, month, 0); // Last day of prev month
         const prevMonthDaysCount = prevMonthDate.getDate();
@@ -93,36 +125,38 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
                d1.getDate() === d2.getDate();
     }
 
+    /**
+     * Check if a date is part of any committed selection
+     */
     private isSelected(d: Date): boolean {
-        if (!this.selection) return false;
-        
-        if (this.options.mode === 'range') {
-            if (Array.isArray(this.selection)) {
-                const [start, end] = this.selection;
-                const s = start < end ? start : end;
-                const e = start < end ? end : start;
-                
-                // Set times to midnight for comparison
-                const dTime = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-                const sTime = new Date(s.getFullYear(), s.getMonth(), s.getDate()).getTime();
-                const eTime = new Date(e.getFullYear(), e.getMonth(), e.getDate()).getTime();
-                
-                return dTime >= sTime && dTime <= eTime;
+        const dTime = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+        return this.selections.some(sel => {
+            if (Array.isArray(sel)) {
+                // Range logic
+                const [start, end] = sel;
+                const sTime = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
+                const eTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
+                return dTime >= Math.min(sTime, eTime) && dTime <= Math.max(sTime, eTime);
             } else {
-                 return this.isSameDay(d, this.selection as Date);
+                // Single date logic
+                const sTime = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate()).getTime();
+                return dTime === sTime;
             }
-        } else {
-             return this.isSameDay(d, this.selection as Date);
-        }
+        });
     }
-    
-    // Helper to check if selection is 'in progress' (only one end picked) for visual feedback
-    private isRangeStart(d: Date): boolean {
-         if (this.options.mode !== 'range' || !this.selection) return false;
-         if (Array.isArray(this.selection)) {
-             return this.isSameDay(d, this.selection[0]) || this.isSameDay(d, this.selection[1]);
-         }
-         return this.isSameDay(d, this.selection as Date);
+
+    /**
+     * Visual feedback for the range currently being defined (before Enter is pressed the 2nd time)
+     */
+    private isInTempRange(d: Date): boolean {
+        if (!this.tempRangeStart) return false;
+        
+        const dTime = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        const sTime = new Date(this.tempRangeStart.getFullYear(), this.tempRangeStart.getMonth(), this.tempRangeStart.getDate()).getTime();
+        const cTime = new Date(this.cursor.getFullYear(), this.cursor.getMonth(), this.cursor.getDate()).getTime();
+
+        return dTime >= Math.min(sTime, cTime) && dTime <= Math.max(sTime, cTime);
     }
 
     protected render(_firstRender: boolean): void {
@@ -134,11 +168,6 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         const month = this.viewDate.getMonth();
         
         const header = `${ANSI.BOLD}${monthNames[month]} ${year}${ANSI.RESET}`;
-        // Centered header roughly
-        // 20 is approx width of calendar (3 chars * 7 cols - 1 space = 20)
-        
-        // Actually grid width: 7 columns. Each cell is usually "DD ". Last col "DD".
-        // Let's say cell width is 3 chars (2 digits + 1 space). Total 21 chars.
         
         const weekDays = this.options.weekStart === 1 
             ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
@@ -147,14 +176,9 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         const grid = this.generateMonthGrid(year, month);
         
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
-        
-        // Controls hint
         output += `${theme.muted}< ${header} >${ANSI.RESET}\n`;
-        
-        // Weekday Header
         output += weekDays.map(d => `${theme.muted}${d}${ANSI.RESET}`).join(' ') + '\n';
         
-        // Grid
         let rowLine = '';
         for (let i = 0; i < grid.length; i++) {
             const cell = grid[i];
@@ -164,19 +188,19 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
             
             const isCursor = this.isSameDay(cell.date, this.cursor);
             const isSel = this.isSelected(cell.date);
+            const isTemp = this.isInTempRange(cell.date);
             const isToday = this.isSameDay(cell.date, new Date());
             
-            // Base style
             if (!cell.inMonth) {
                 style = theme.muted;
             }
             
-            if (isSel) {
-                // If it is selected, use main color
+            // Priority: Cursor > Temp/Selected > Today
+            if (isSel || isTemp) {
                 style = theme.main;
             }
             
-            if (isToday && !isSel) {
+            if (isToday && !isSel && !isTemp) {
                 style += ANSI.UNDERLINE;
             }
             
@@ -184,8 +208,6 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
                 style += ANSI.REVERSE; // Invert colors for cursor
             }
             
-            // Apply
-            // Reset must be applied after each cell to prevent bleeding
             rowLine += `${style}${dateStr}${ANSI.RESET}`;
             
             if ((i + 1) % 7 === 0) {
@@ -196,10 +218,26 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
             }
         }
         
-        // Helper text
-        const help = this.options.mode === 'range' 
-             ? 'Enter: Select start/end' 
-             : 'Enter: Select';
+        // Helper text logic
+        let help = '';
+        if (this.options.mode === 'range') {
+             if (this.options.multiple) {
+                 help = 'Enter: Range Points | D: Done';
+             } else {
+                 help = 'Enter: Start/End';
+             }
+        } else {
+             if (this.options.multiple) {
+                 help = 'Space/Enter: Toggle | D: Done';
+             } else {
+                 help = 'Enter: Select';
+             }
+        }
+        
+        if (this.tempRangeStart) {
+            help += ` ${theme.muted}(Selecting range...)${ANSI.RESET}`;
+        }
+
         output += `${theme.muted}${help}${ANSI.RESET}`;
 
         this.renderFrame(output);
@@ -224,7 +262,16 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
         this.cursor = new Date(year, month, newDay);
     }
 
-    protected handleInput(char: string, _key: Buffer): void {
+    private submitResult() {
+        if (this.options.multiple) {
+            this.submit(this.selections);
+        } else {
+            // Single Mode (Single Date or Single Range)
+            this.submit(this.selections[0] || null);
+        }
+    }
+
+    protected handleInput(char: string, _key: any): void {
         const isUp = this.isUp(char);
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);
@@ -311,33 +358,53 @@ export class CalendarPrompt extends Prompt<Date | [Date, Date], CalendarOptions>
              return;
         }
 
-        // Selection
+        // Done key (only for multiple mode)
+        if ((char === 'd' || char === 'D') && this.options.multiple) {
+            this.submitResult();
+            return;
+        }
+
+        // Selection Trigger
         if (char === '\r' || char === '\n' || char === ' ') {
             if (this.options.mode === 'range') {
-                if (!this.selectingRange) {
+                if (!this.tempRangeStart) {
                     // Start new range selection
-                    this.selection = this.cursor; // First point (single date temporary)
-                    this.selectingRange = true;
+                    this.tempRangeStart = this.cursor; 
                 } else {
                     // Finish range selection
-                    const start = this.selection as Date;
+                    const start = this.tempRangeStart;
                     const end = this.cursor;
                     
-                    // Order them
-                    if (start > end) {
-                        this.selection = [end, start];
+                    // Normalize order
+                    const newRange: RangeSelection = start < end ? [start, end] : [end, start];
+
+                    if (this.options.multiple) {
+                        this.selections.push(newRange);
+                        this.tempRangeStart = null; // Reset for next range
                     } else {
-                        this.selection = [start, end];
+                        // Single Mode: Finish and Submit
+                        this.selections = [newRange];
+                        this.submitResult();
+                        return;
                     }
-                    this.selectingRange = false;
-                    this.submit(this.selection as [Date, Date]);
-                    return;
                 }
             } else {
-                // Single mode
-                this.selection = this.cursor;
-                this.submit(this.selection as Date);
-                return;
+                // Single Date Mode
+                const date = this.cursor;
+                if (this.options.multiple) {
+                    // Toggle selection
+                    const idx = this.selections.findIndex(s => !Array.isArray(s) && this.isSameDay(s, date));
+                    if (idx >= 0) {
+                        this.selections.splice(idx, 1);
+                    } else {
+                        this.selections.push(date);
+                    }
+                } else {
+                    // Single Mode: Finish and Submit
+                    this.selections = [date];
+                    this.submitResult();
+                    return;
+                }
             }
             this.render(false);
             return;
