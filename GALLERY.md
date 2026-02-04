@@ -120,6 +120,19 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Tree Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/tree.gif)
 > *Example media of [Tree Prompt](examples/tree-prompt.ts)*
 
+### Form Prompt
+
+![Form Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/form.gif)
+> *Example media of [Form Prompt](examples/form-prompt.ts)*
+
+### Snippet Prompt
+
+![Snippet Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/snippet.gif)
+
+### Spam Prompt
+
+![Spam Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/spam.gif)
+> *Example media of [Spam Prompt](examples/spam-prompt.ts)*
 
 ### Box Prompt
 
