@@ -154,6 +154,11 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Color Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/color.gif)
 > *Example media of [Color Prompt](examples/color-prompt.ts)*
 
+### Grid Prompt
+
+![Grid Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/grid.gif)
+> *Example media of [Grid Prompt](examples/grid-prompt.ts)*
+
 ### Box Prompt
 
 ![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.png)
