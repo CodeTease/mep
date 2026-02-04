@@ -149,6 +149,11 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Cron Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/cron.gif)
 > *Example media of [Cron Prompt](examples/cron-prompt.ts)*
 
+### Color Prompt
+
+![Color Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/color.gif)
+> *Example media of [Color Prompt](examples/color-prompt.ts)*
+
 ### Box Prompt
 
 ![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.png)
