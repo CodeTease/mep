@@ -134,6 +134,11 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Spam Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/spam.gif)
 > *Example media of [Spam Prompt](examples/spam-prompt.ts)*
 
+### Wait Prompt
+
+![Wait Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/wait.gif)
+> *Example media of [Wait Prompt](examples/wait-prompt.ts)*
+
 ### Box Prompt
 
 ![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.png)
