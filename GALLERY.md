@@ -129,8 +129,29 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ### Calendar Prompt
 
-![Calendar Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar.png)
-![Calendar Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar.gif)
+**Single:**
+
+
+![Calendar Prompt - Single](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-single.gif)
+
+
+**Multi-Single:**
+
+
+![Calendar Prompt - Multi-Single](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-multi-single.gif)
+
+
+**Range:**
+
+
+![Calendar Prompt - Range](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-range.gif)
+
+
+**Multi-Range:**
+
+
+![Calendar Prompt - Multi-Range](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-multi-range.gif)
+
 > *Example media of [Calendar Prompt](examples/calendar-prompt.ts)*
 
 ### Dependency Prompt
