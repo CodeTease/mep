@@ -99,8 +99,6 @@ export interface ToggleOptions extends BaseOptions {
     inactiveText?: string;
 }
 
-// --- New Types ---
-
 export interface ListOptions extends BaseOptions {
     placeholder?: string;
     initial?: string[];
@@ -230,7 +228,7 @@ export interface WaitOptions extends BaseOptions {
 
 export interface CodeOptions extends BaseOptions {
     template: string;
-    language?: 'json';
+    language?: 'json' | 'env' | 'toml';
     /**
      * Enable syntax highlighting (Experimental).
      * @default true
@@ -265,7 +263,7 @@ export interface ColorOptions extends BaseOptions {
 export interface GridOptions extends BaseOptions {
     rows: string[];
     columns: string[];
-    initial?: boolean[][]; // Trạng thái selected ban đầu
+    initial?: boolean[][]; // Initial selected state
 }
 
 export interface SortGridOptions extends BaseOptions {
@@ -611,18 +609,18 @@ export type TaskStatus = 'pending' | 'loading' | 'success' | 'error' | 'warning'
 export interface TaskConfig {
     id: string;
     title: string;
-    type?: 'spinner' | 'progress'; // Mặc định là spinner
-    total?: number; // Chỉ dùng cho progress bar
+    type?: 'spinner' | 'progress'; // Defaults to spinner
+    total?: number; // Only used for progress bar
 }
 
-// State nội bộ của từng Task
+// Internal state of each Task
 export interface TaskState extends TaskConfig {
     status: TaskStatus;
     current: number; // Progress value
-    message?: string; // Message phụ (vd: "Downloading 5MB/s...")
+    message?: string; // Secondary message (e.g. "Downloading 5MB/s...")
 }
 
 export interface TaskGroupOptions {
-    concurrency?: number; // (Optional) Giới hạn số task chạy cùng lúc (cho Pipeline)
-    renderer?: 'default' | 'minimal'; // Minimal cho môi trường CI
+    concurrency?: number; // (Optional) Limit concurrent tasks (for Pipeline)
+    renderer?: 'default' | 'minimal'; // Minimal for CI environments
 }
