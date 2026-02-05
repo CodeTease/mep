@@ -74,3 +74,57 @@ export function highlightJson(json: string): string {
 
     return result;
 }
+
+export function highlightEnv(env: string): string {
+    if (!env) return '';
+    const lines = env.split('\n');
+    return lines.map(line => {
+        // Comment
+        if (line.trim().startsWith('#')) {
+            return `${theme.muted}${line}${ANSI.RESET}`;
+        }
+        // KEY=VALUE
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+            const [, key, value] = match;
+            return `${theme.syntax.key}${key}${theme.syntax.punctuation}=${theme.syntax.string}${value}${ANSI.RESET}`;
+        }
+        return line;
+    }).join('\n');
+}
+
+export function highlightToml(toml: string): string {
+    if (!toml) return '';
+    const lines = toml.split('\n');
+    return lines.map(line => {
+        const trimmed = line.trim();
+        // Comment
+        if (trimmed.startsWith('#')) {
+            return `${theme.muted}${line}${ANSI.RESET}`;
+        }
+        // Section [section]
+        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+             return `${theme.syntax.boolean}${line}${ANSI.RESET}`;
+        }
+        // Key = Value
+        const match = line.match(/^(\s*[\w\d_-]+)(\s*=)/);
+        if (match) {
+             const fullMatch = match[0];
+             const keyPart = match[1];
+             const eqPart = match[2];
+             
+             const rest = line.substring(fullMatch.length);
+             return `${theme.syntax.key}${keyPart}${ANSI.RESET}${eqPart}${rest}`;
+        }
+        return line;
+    }).join('\n');
+}
+
+export function highlight(code: string, language: string): string {
+    switch (language.toLowerCase()) {
+        case 'json': return highlightJson(code);
+        case 'env': return highlightEnv(code);
+        case 'toml': return highlightToml(code);
+        default: return code;
+    }
+}
