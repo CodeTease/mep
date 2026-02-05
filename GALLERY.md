@@ -120,6 +120,89 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Tree Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/tree.gif)
 > *Example media of [Tree Prompt](examples/tree-prompt.ts)*
 
+### Form Prompt
+
+![Form Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/form.gif)
+> *Example media of [Form Prompt](examples/form-prompt.ts)*
+
+### Snippet Prompt
+
+![Snippet Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/snippet.gif)
+
+### Spam Prompt
+
+![Spam Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/spam.gif)
+> *Example media of [Spam Prompt](examples/spam-prompt.ts)*
+
+### Wait Prompt
+
+![Wait Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/wait.gif)
+> *Example media of [Wait Prompt](examples/wait-prompt.ts)*
+
+### Code Prompt
+
+![Code Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/code.gif)
+> *Example media of [Code Prompt](examples/code-prompt.ts)*
+
+### Cron Prompt
+
+![Cron Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/cron.gif)
+> *Example media of [Cron Prompt](examples/cron-prompt.ts)*
+
+### Color Prompt
+
+![Color Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/color.gif)
+> *Example media of [Color Prompt](examples/color-prompt.ts)*
+
+### Grid Prompt
+
+![Grid Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/grid.gif)
+> *Example media of [Grid Prompt](examples/grid-prompt.ts)*
+
+### Map Prompt
+
+![Map Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/map.gif)
+> *Example media of [Map Prompt](examples/map-prompt.ts)*
+
+### IP Prompt
+
+![IP Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/ip.gif)
+> *Example media of [IP Prompt](examples/ip-prompt.ts)*
+
+### SemVer Prompt
+
+![SemVer Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/semver.gif)
+> *Example media of [SemVer Prompt](examples/semver-prompt.ts)*
+
+### OTP Prompt
+
+![OTP Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/otp.gif)
+> *Example media of [OTP Prompt](examples/otp-prompt.ts)*
+
+### Quiz Select Prompt
+
+![Quiz Select Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/quiz-select.gif)
+> *Example media of [Quiz Select Prompt](examples/quiz-select-prompt.ts)*
+
+### Quiz Text Prompt
+
+![Quiz Text Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/quiz-text.gif)
+> *Example media of [Quiz Text Prompt](examples/quiz-text-prompt.ts)*
+
+### Kanban Prompt
+
+![Kanban Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/kanban.gif)
+> *Example media of [Kanban Prompt](examples/kanban-prompt.ts)*
+
+### Time Prompt
+
+![Time Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/time.gif)
+> *Example media of [Time Prompt](examples/time-prompt.ts)*
+
+### Heatmap Prompt
+
+![Heatmap Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/heatmap.gif)
+> *Example media of [Heatmap Prompt](examples/heatmap-prompt.ts)*
 
 ### Box Prompt
 
@@ -129,8 +212,29 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ### Calendar Prompt
 
-![Calendar Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar.png)
-![Calendar Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar.gif)
+**Single:**
+
+
+![Calendar Prompt - Single](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-single.gif)
+
+
+**Multi-Single:**
+
+
+![Calendar Prompt - Multi-Single](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-multi-single.gif)
+
+
+**Range:**
+
+
+![Calendar Prompt - Range](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-range.gif)
+
+
+**Multi-Range:**
+
+
+![Calendar Prompt - Multi-Range](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/calendar-multi-range.gif)
+
 > *Example media of [Calendar Prompt](examples/calendar-prompt.ts)*
 
 ### Dependency Prompt
