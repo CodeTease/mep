@@ -130,7 +130,7 @@ export function highlightShell(script: string): string {
         
         // Temporarily hide strings properly is hard with regex replace, 
         // so we just do best-effort highlights for keywords and vars outside of checking quote context.
-        let processed = line
+        const processed = line
             .replace(keywords, match => `${theme.syntax.boolean}${match}${ANSI.RESET}`)
             .replace(/(\$[\w\d_]+|\$\{[^}]+\})/g, match => `${theme.syntax.key}${match}${ANSI.RESET}`)
             .replace(/(\s|^)(-{1,2}[a-zA-Z0-9_-]+)/g, (_match, prefix, flag) => `${prefix}${theme.syntax.number}${flag}${ANSI.RESET}`);
