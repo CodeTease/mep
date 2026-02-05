@@ -164,6 +164,11 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Map Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/map.gif)
 > *Example media of [Map Prompt](examples/map-prompt.ts)*
 
+### IP Prompt
+
+![IP Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/ip.gif)
+> *Example media of [IP Prompt](examples/ip-prompt.ts)*
+
 ### Box Prompt
 
 ![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/box.png)
