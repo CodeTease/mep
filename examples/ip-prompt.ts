@@ -1,5 +1,5 @@
 // Originally from example.ts
-// with a litlle change
+// with a little change
 
 import { MepCLI } from "../src"
 

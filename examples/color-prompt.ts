@@ -1,4 +1,4 @@
-// Orignally from example.ts
+// Originally from example.ts
 
 import { MepCLI } from "../src"
 
