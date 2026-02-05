@@ -1,4 +1,4 @@
-import { highlight, highlightEnv, highlightToml, highlightJson } from '../src/highlight';
+import { highlight, highlightEnv, highlightToml, highlightJson, highlightCsv, highlightShell, highlightProperties } from '../src/highlight';
 import { theme } from '../src/theme';
 import { ANSI } from '../src/ansi';
 
@@ -30,7 +30,7 @@ describe('Highlighting', () => {
     describe('highlightToml', () => {
         it('should highlight sections', () => {
             const input = '[section]';
-            const expected = `${theme.syntax.boolean}[section]${ANSI.RESET}`;
+            const expected = `${theme.syntax.key}[section]${ANSI.RESET}`;
             expect(highlightToml(input)).toBe(expected);
         });
 
@@ -39,7 +39,7 @@ describe('Highlighting', () => {
             // Regex: /^(\s*[\w\d_-]+)(\s*=)/
             // keyPart: "key"
             // eqPart: " = "
-            const expected = `${theme.syntax.key}key${ANSI.RESET} = "value"`;
+            const expected = `${theme.syntax.key}key${ANSI.RESET}${theme.syntax.punctuation} =${theme.syntax.string} "value"${ANSI.RESET}`;
             expect(highlightToml(input)).toBe(expected);
         });
 
@@ -51,7 +51,7 @@ describe('Highlighting', () => {
         
         it('should handle indentation in keys', () => {
              const input = '  key = value';
-             const expected = `${theme.syntax.key}  key${ANSI.RESET} = value`;
+             const expected = `${theme.syntax.key}  key${ANSI.RESET}${theme.syntax.punctuation} =${theme.syntax.string} value${ANSI.RESET}`;
              expect(highlightToml(input)).toBe(expected);
         });
     });
@@ -59,15 +59,6 @@ describe('Highlighting', () => {
     describe('highlightJson', () => {
         it('should highlight keys', () => {
             const input = '{"key": "value"}';
-            // "key" -> key color
-            // : -> punctuation
-            // "value" -> string color
-            // { } -> punctuation
-            
-            // The regex in highlightJson:
-            // /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"?)|(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|(true|false|null)|([{}[\],:])/g
-            // It matches "key", ":", "value", "{", "}". Spaces are skipped by regex and appended manually.
-            
             expect(highlightJson(input)).toContain(theme.syntax.key);
             expect(highlightJson(input)).toContain('"key"');
         });
@@ -90,6 +81,94 @@ describe('Highlighting', () => {
         });
     });
 
+    describe('highlightCsv', () => {
+        it('should highlight columns with cycling colors', () => {
+            const input = 'a,b,c,d,e';
+            // colors: string, key, number, boolean
+            const expected = `${theme.syntax.string}a${ANSI.RESET}${theme.syntax.punctuation},${ANSI.RESET}` +
+                             `${theme.syntax.key}b${ANSI.RESET}${theme.syntax.punctuation},${ANSI.RESET}` +
+                             `${theme.syntax.number}c${ANSI.RESET}${theme.syntax.punctuation},${ANSI.RESET}` +
+                             `${theme.syntax.boolean}d${ANSI.RESET}${theme.syntax.punctuation},${ANSI.RESET}` +
+                             `${theme.syntax.string}e${ANSI.RESET}`;
+            expect(highlightCsv(input)).toBe(expected);
+        });
+
+        it('should handle quoted values containing commas', () => {
+            // Regex: line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const input = '"a,b",c';
+            // "a,b" is one part (index 0 -> string color)
+            // c is second part (index 1 -> key color)
+            const expected = `${theme.syntax.string}"a,b"${ANSI.RESET}${theme.syntax.punctuation},${ANSI.RESET}` +
+                             `${theme.syntax.key}c${ANSI.RESET}`;
+            expect(highlightCsv(input)).toBe(expected);
+        });
+        
+        it('should handle empty input', () => {
+             expect(highlightCsv('')).toBe('');
+        });
+    });
+
+    describe('highlightShell', () => {
+        it('should highlight comments', () => {
+            const input = '# comment';
+            const expected = `${theme.muted}# comment${ANSI.RESET}`;
+            expect(highlightShell(input)).toBe(expected);
+        });
+
+        it('should highlight keywords', () => {
+            const input = 'if';
+            const expected = `${theme.syntax.boolean}if${ANSI.RESET}`;
+            expect(highlightShell(input)).toBe(expected);
+        });
+
+        it('should highlight variables', () => {
+            const input = '$VAR';
+            const expected = `${theme.syntax.key}$VAR${ANSI.RESET}`;
+            expect(highlightShell(input)).toBe(expected);
+        });
+
+        it('should highlight flags', () => {
+            const input = '-f --flag';
+            // space is preserved
+            const expected = `${theme.syntax.number}-f${ANSI.RESET} ${theme.syntax.number}--flag${ANSI.RESET}`;
+            expect(highlightShell(input)).toBe(expected);
+        });
+        
+         it('should handle empty input', () => {
+             expect(highlightShell('')).toBe('');
+        });
+    });
+
+    describe('highlightProperties', () => {
+        it('should highlight comments with #', () => {
+            const input = '# comment';
+            const expected = `${theme.muted}# comment${ANSI.RESET}`;
+            expect(highlightProperties(input)).toBe(expected);
+        });
+
+        it('should highlight comments with !', () => {
+            const input = '! comment';
+            const expected = `${theme.muted}! comment${ANSI.RESET}`;
+            expect(highlightProperties(input)).toBe(expected);
+        });
+
+        it('should highlight key=value', () => {
+            const input = 'key=value';
+            const expected = `${theme.syntax.key}key${theme.syntax.punctuation}=${theme.syntax.string}value${ANSI.RESET}`;
+            expect(highlightProperties(input)).toBe(expected);
+        });
+
+        it('should highlight key:value', () => {
+            const input = 'key:value';
+            const expected = `${theme.syntax.key}key${theme.syntax.punctuation}:${theme.syntax.string}value${ANSI.RESET}`;
+            expect(highlightProperties(input)).toBe(expected);
+        });
+        
+        it('should handle empty input', () => {
+             expect(highlightProperties('')).toBe('');
+        });
+    });
+
     describe('highlight generic', () => {
         it('should route to env', () => {
              const input = 'K=V';
@@ -102,6 +181,22 @@ describe('Highlighting', () => {
         it('should route to json', () => {
              const input = '{"a":1}';
              expect(highlight(input, 'json')).toBe(highlightJson(input));
+        });
+        it('should route to csv', () => {
+             const input = 'a,b';
+             expect(highlight(input, 'csv')).toBe(highlightCsv(input));
+        });
+        it('should route to shell', () => {
+             const input = 'echo hi';
+             expect(highlight(input, 'sh')).toBe(highlightShell(input));
+             expect(highlight(input, 'bash')).toBe(highlightShell(input));
+             expect(highlight(input, 'zsh')).toBe(highlightShell(input));
+        });
+        it('should route to properties', () => {
+             const input = 'k=v';
+             expect(highlight(input, 'properties')).toBe(highlightProperties(input));
+             expect(highlight(input, 'props')).toBe(highlightProperties(input));
+             expect(highlight(input, 'conf')).toBe(highlightProperties(input));
         });
         it('should return raw for unknown', () => {
              const input = 'plain text';

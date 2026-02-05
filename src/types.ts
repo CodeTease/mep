@@ -228,7 +228,7 @@ export interface WaitOptions extends BaseOptions {
 
 export interface CodeOptions extends BaseOptions {
     template: string;
-    language?: 'json' | 'env' | 'toml';
+    language?: 'json' | 'env' | 'toml' | 'csv' | 'sh' | 'bash' | 'zsh' | 'properties' | 'props' | 'conf';
     /**
      * Enable syntax highlighting (Experimental).
      * @default true
