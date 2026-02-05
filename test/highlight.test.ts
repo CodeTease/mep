@@ -63,12 +63,6 @@ describe('Highlighting', () => {
             // : -> punctuation
             // "value" -> string color
             // { } -> punctuation
-            const expected = 
-                `${theme.syntax.punctuation}{${ANSI.RESET}` +
-                `${theme.syntax.key}"key"${ANSI.RESET}` +
-                `${theme.syntax.punctuation}:${ANSI.RESET} ` + // Note: space is not matched by regex so it's kept as is? Wait, regex doesn't match space.
-                `${theme.syntax.string}"value"${ANSI.RESET}` +
-                `${theme.syntax.punctuation}}${ANSI.RESET}`;
             
             // Wait, the regex in highlightJson:
             // /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"?)|(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|(true|false|null)|([{}[\],:])/g
