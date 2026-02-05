@@ -16,7 +16,7 @@ export function detectCapabilities() {
     const isTTY = process.stdout.isTTY;
     const isWindows = process.platform === 'win32';
 
-    // Logic detect Unicode xịn hơn
+    // Better Unicode detection logic
     const isUnicodeSupported = () => {
         // 1. Windows: Check specific environmental variables
         if (isWindows) {

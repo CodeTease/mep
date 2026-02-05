@@ -3,6 +3,7 @@ import { Prompt } from '../base';
 import { theme } from '../theme';
 import { CodeOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
+import { highlight } from '../highlight';
 
 interface Token {
     type: 'static' | 'variable';
@@ -94,51 +95,67 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         const shouldHighlight = this.options.highlight !== false;
 
         if (shouldHighlight) {
-            const jsonTokenRegex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"?)|(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|(true|false|null)|([{}[\],:])/g;
+            const lang = this.options.language || 'json';
+            const highlightedText = highlight(fullRawText, lang);
             
-            let match;
-            let lastIndex = 0;
-
-            while ((match = jsonTokenRegex.exec(fullRawText)) !== null) {
-                if (match.index > lastIndex) {
-                    const gap = fullRawText.substring(lastIndex, match.index);
-                    this.appendSegment(gap, lastIndex, activeVarStart, activeVarEnd, ANSI.FG_WHITE, (s) => highlighted += s);
-                }
-
-                const tokenText = match[0];
-                const tokenStart = match.index;
+            let visibleIdx = 0;
+            let activeColor = ''; // Tracks the last set color
+            
+            for (let i = 0; i < highlightedText.length; i++) {
+                const char = highlightedText[i];
                 
-                let color = theme.syntax?.punctuation || ANSI.FG_WHITE;
-                
-                if (tokenText.startsWith('"')) {
-                    const remaining = fullRawText.substring(jsonTokenRegex.lastIndex);
-                    if (/^\s*:/.test(remaining)) {
-                        color = theme.syntax?.key || ANSI.FG_CYAN;
-                    } else {
-                        color = theme.syntax?.string || ANSI.FG_GREEN;
+                if (char === '\x1b') {
+                    // Start of ANSI sequence
+                    let sequence = char;
+                    i++;
+                    while (i < highlightedText.length && highlightedText[i] !== 'm') {
+                        sequence += highlightedText[i];
+                        i++;
                     }
-                } else if (/^-?\d/.test(tokenText)) {
-                    color = theme.syntax?.number || ANSI.FG_YELLOW;
-                } else if (/^(true|false|null)$/.test(tokenText)) {
-                     color = (tokenText === 'null') 
-                        ? (theme.syntax?.null || ANSI.FG_RED) 
-                        : (theme.syntax?.boolean || ANSI.FG_MAGENTA);
-                } else if (/^[{}[\],:]$/.test(tokenText)) {
-                    color = theme.syntax?.punctuation || ANSI.FG_WHITE;
+                    if (i < highlightedText.length) sequence += 'm'; // Append terminator
+                    
+                    // Interpret sequence (naive)
+                    if (sequence === ANSI.RESET || sequence === '\x1b[0m') {
+                        activeColor = ''; 
+                    } else {
+                        // Assuming it's a color code.
+                        activeColor = sequence;
+                    }
+                    
+                    // If we are INSIDE the active range, and we encounter a color change/reset,
+                    // we must ensure UNDERLINE is kept/restored.
+                    if (visibleIdx >= activeVarStart && visibleIdx < activeVarEnd) {
+                         // Output the sequence (e.g. a color change)
+                         highlighted += sequence;
+                         // Then re-assert underline
+                         highlighted += ANSI.UNDERLINE;
+                    } else {
+                        highlighted += sequence;
+                    }
+                    continue;
                 }
-
-                this.appendSegment(tokenText, tokenStart, activeVarStart, activeVarEnd, color, (s) => highlighted += s);
-                lastIndex = jsonTokenRegex.lastIndex;
+                
+                // Normal char
+                if (visibleIdx === activeVarStart) {
+                    highlighted += `${theme.main}${ANSI.UNDERLINE}`;
+                }
+                
+                highlighted += char;
+                visibleIdx++;
+                
+                if (visibleIdx === activeVarEnd) {
+                    highlighted += ANSI.RESET;
+                    // Restore previous color if any
+                    if (activeColor) {
+                        highlighted += activeColor;
+                    }
+                }
             }
-
-            if (lastIndex < fullRawText.length) {
-                const tail = fullRawText.substring(lastIndex);
-                this.appendSegment(tail, lastIndex, activeVarStart, activeVarEnd, ANSI.FG_WHITE, (s) => highlighted += s);
-            }
-
+             highlighted += ANSI.RESET;
         } else {
-            this.appendSegment(fullRawText, 0, activeVarStart, activeVarEnd, ANSI.RESET, (s) => highlighted += s);
+             this.appendSegment(fullRawText, 0, activeVarStart, activeVarEnd, ANSI.RESET, (s) => highlighted += s);
         }
+
 
         // 3. Output Frame
         const warningMsg = shouldHighlight 
