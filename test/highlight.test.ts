@@ -64,7 +64,7 @@ describe('Highlighting', () => {
             // "value" -> string color
             // { } -> punctuation
             
-            // Wait, the regex in highlightJson:
+            // The regex in highlightJson:
             // /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"?)|(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|(true|false|null)|([{}[\],:])/g
             // It matches "key", ":", "value", "{", "}". Spaces are skipped by regex and appended manually.
             

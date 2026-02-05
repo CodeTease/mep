@@ -99,7 +99,6 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
             const highlightedText = highlight(fullRawText, lang);
             
             let visibleIdx = 0;
-            let currentAnsi = ''; // Accumulates current ANSI sequence
             let activeColor = ''; // Tracks the last set color
             
             for (let i = 0; i < highlightedText.length; i++) {

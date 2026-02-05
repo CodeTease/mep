@@ -1,5 +1,4 @@
 import { stripAnsi, stringWidth, safeSplit } from '../src/utils';
-import { ANSI as ANSI_CODES } from '../src/ansi';
 
 describe('Utils', () => {
     describe('stripAnsi', () => {
