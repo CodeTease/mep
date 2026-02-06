@@ -832,7 +832,7 @@ export class MepCLI {
      * });
      * @param options - Min/Max bytes.
      * @returns A promise resolving to the number of bytes.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/byte-prompt.ts}
      */
     static byte(options: ByteOptions): Promise<number> {
         return new BytePrompt(options).run();
@@ -848,7 +848,7 @@ export class MepCLI {
      * });
      * @param options - Items to cycle through.
      * @returns A promise resolving to the selected item string.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/slot-prompt.ts}
      */
     static slot(options: SlotOptions): Promise<string> {
         return new SlotPrompt(options).run();
@@ -863,7 +863,7 @@ export class MepCLI {
      * });
      * @param options - Width and difficulty (safeZone).
      * @returns A promise resolving to 'success' or 'fail'.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/gauge-prompt.ts}
      */
     static gauge(options: GaugeOptions): Promise<string> {
         return new GaugePrompt(options).run();
