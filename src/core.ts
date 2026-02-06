@@ -98,7 +98,7 @@ export class MepCLI {
      * spinner.stop('Done!');
      * @param message - The initial text to display next to the spinner.
      * @returns A Spinner instance to control the animation.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/task-runner.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/spinner.ts}
      */
     static spinner(message: string): Spinner {
         return new Spinner(message);
@@ -121,6 +121,7 @@ export class MepCLI {
 
     /**
      * Creates a new Pipeline instance for sequential workflow execution.
+     * @experimental
      * @example
      * const context = await MepCLI.pipeline()
      *   .step('ask-name', async (ctx) => {
@@ -129,7 +130,6 @@ export class MepCLI {
      *   .run();
      * @returns A fluent Pipeline builder.
      * @see {@link https://github.com/CodeTease/mep/blob/main/examples/pipeline-demo.ts}
-     * @experimental This feature is experimental and may change in future releases.
      */
     static pipeline<Ctx extends Record<string, any> = Record<string, any>>(): Pipeline<Ctx> {
         return new Pipeline<Ctx>();
@@ -226,7 +226,7 @@ export class MepCLI {
      * });
      * @param options - Same as TextOptions, visual output is suppressed.
      * @returns A promise resolving to the secret string.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static secret(options: TextOptions): Promise<string> {
         return new TextPrompt({ ...options, mask: '' }).run();
@@ -294,7 +294,7 @@ export class MepCLI {
      * });
      * @param options - Min/max range, step, and unit label.
      * @returns A promise resolving to the selected number.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static slider(options: SliderOptions): Promise<number> {
         return new SliderPrompt(options).run();
@@ -311,7 +311,7 @@ export class MepCLI {
      * });
      * @param options - Range bounds and initial start/end values.
      * @returns A promise resolving to a tuple `[start, end]`.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/multi-range-prompt.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static range(options: RangeOptions): Promise<[number, number]> {
         return new RangePrompt(options).run();
@@ -327,7 +327,7 @@ export class MepCLI {
      * });
      * @param options - Source and target lists.
      * @returns A promise resolving to `[sourceItems, targetItems]`.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/selection-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static transfer<const V>(options: TransferOptions<V>): Promise<[V[], V[]]> {
         return new TransferPrompt(options).run();
@@ -409,7 +409,7 @@ export class MepCLI {
      * });
      * @param options - Min/max stars.
      * @returns A promise resolving to the numeric rating.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static rating(options: RatingOptions): Promise<number> {
         return new RatingPrompt(options).run();
@@ -442,7 +442,7 @@ export class MepCLI {
      * });
      * @param options - Array of strings to be reordered.
      * @returns A promise resolving to the reordered array of strings.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/selection-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static sort(options: SortOptions): Promise<string[]> {
         return new SortPrompt(options).run();
@@ -509,7 +509,7 @@ export class MepCLI {
      * });
      * @param options - Optional allowed keys filter.
      * @returns A promise resolving to the pressed key name.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static keypress(options: KeypressOptions): Promise<string> {
         return new KeypressPrompt(options).run();
@@ -615,7 +615,12 @@ export class MepCLI {
      * });
      * @param options - Tree structure and initial selections.
      * @returns A promise that resolves to an array of selected values.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/tree-prompt.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
+     *
+     * @notice Windows Compatibility:
+     * When used in a long sequence of prompts, this component may experience
+     * an input delay. If it feels "blocked", simply press 'Enter' once
+     * to refresh the TTY stream.
      */
     static treeSelect<const V>(options: TreeSelectOptions<V>): Promise<V[]> {
         return new TreeSelectPrompt(options).run();
@@ -825,7 +830,7 @@ export class MepCLI {
      * });
      * @param options - Min/Max bytes.
      * @returns A promise resolving to the number of bytes.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static byte(options: ByteOptions): Promise<number> {
         return new BytePrompt(options).run();
@@ -841,7 +846,7 @@ export class MepCLI {
      * });
      * @param options - Items to cycle through.
      * @returns A promise resolving to the selected item string.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static slot(options: SlotOptions): Promise<string> {
         return new SlotPrompt(options).run();
@@ -856,7 +861,7 @@ export class MepCLI {
      * });
      * @param options - Width and difficulty (safeZone).
      * @returns A promise resolving to 'success' or 'fail'.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static gauge(options: GaugeOptions): Promise<string> {
         return new GaugePrompt(options).run();
@@ -871,7 +876,7 @@ export class MepCLI {
      * });
      * @param options - Initial expression.
      * @returns A promise resolving to the numeric result.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static calculator(options: CalculatorOptions): Promise<number> {
         return new CalculatorPrompt(options).run();
@@ -889,7 +894,7 @@ export class MepCLI {
      * });
      * @param options - List of emojis and recent history.
      * @returns A promise resolving to the selected emoji name/char.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static emoji(options: EmojiOptions): Promise<string> {
         return new EmojiPrompt(options).run();
@@ -905,7 +910,7 @@ export class MepCLI {
      * });
      * @param options - Source and Target lists.
      * @returns A promise resolving to linked pairs.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/selection-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static match(options: MatchOptions): Promise<Record<string, any[]>> {
         return new MatchPrompt(options).run();
@@ -921,7 +926,7 @@ export class MepCLI {
      * });
      * @param options - Original and Modified strings.
      * @returns A promise resolving to a confirmation string.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static diff(options: DiffOptions): Promise<string> {
         return new DiffPrompt(options).run();
@@ -937,7 +942,7 @@ export class MepCLI {
      * });
      * @param options - Range and radius.
      * @returns A promise resolving to the number.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static dial(options: DialOptions): Promise<number> {
         return new DialPrompt(options).run();
@@ -953,7 +958,7 @@ export class MepCLI {
      * });
      * @param options - Canvas dimensions and export type.
      * @returns A promise resolving to the raw matrix or text.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static draw(options: DrawOptions): Promise<string | boolean[][]> {
         return new DrawPrompt(options).run();
@@ -973,7 +978,7 @@ export class MepCLI {
      * });
      * @param options - Choices and column count.
      * @returns A promise resolving to the selected value.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/selection-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static multiColumnSelect<V>(options: MultiColumnSelectOptions<V>): Promise<V> {
         return new MultiColumnSelectPrompt(options).run();
@@ -1008,7 +1013,7 @@ export class MepCLI {
      * });
      * @param options - Hierarchical data and separator.
      * @returns A promise resolving to the selected path array.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/tree-prompt.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static miller<V>(options: MillerOptions<V>): Promise<V[]> {
         return new MillerPrompt(options).run();
@@ -1024,7 +1029,7 @@ export class MepCLI {
      * });
      * @param options - Grid dimensions.
      * @returns A promise resolving to an array of point indices.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static pattern(options: PatternOptions): Promise<number[]> {
         return new PatternPrompt(options).run();
@@ -1058,7 +1063,7 @@ export class MepCLI {
      * });
      * @param options - Column definitions and initial data rows.
      * @returns A promise resolving to the modified data array.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static spreadsheet(options: SpreadsheetOptions): Promise<Record<string, any>[]> {
         return new SpreadsheetPrompt(options).run();
@@ -1074,7 +1079,7 @@ export class MepCLI {
      * });
      * @param options - Text content and scroll enforcement.
      * @returns A promise resolving to a boolean (accepted).
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static scroll(options: ScrollOptions): Promise<boolean> {
         return new ScrollPrompt(options).run();
@@ -1121,7 +1126,7 @@ export class MepCLI {
      * });
      * @param options - Data object to explore.
      * @returns A promise resolving to the viewed data.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static inspector(options: DataInspectorOptions): Promise<any> {
         return new DataInspectorPrompt(options).run();
@@ -1129,6 +1134,7 @@ export class MepCLI {
 
     /**
      * Execute shell command with output streaming.
+     * @experimental
      * @example
      * await MepCLI.exec({
      *   message: 'Running build...',
@@ -1136,8 +1142,7 @@ export class MepCLI {
      * });
      * @param options - Command string and streaming preferences.
      * @returns A promise resolving when execution completes.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/task-runner.ts}
-     * @experimental This feature is experimental and may change in future releases.
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static exec(options: ExecOptions): Promise<void> {
         return new ExecPrompt(options).run();
@@ -1152,7 +1157,7 @@ export class MepCLI {
      * // Returns: { name: 'c', ctrl: true, shift: false, ... }
      * @param options - Initial value.
      * @returns A promise resolving to the captured key event.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/basic-prompts.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static shortcut(options: ShortcutOptions): Promise<ShortcutResult> {
         return new ShortcutPrompt(options).run();
@@ -1172,7 +1177,7 @@ export class MepCLI {
      * });
      * @param options - Layout string array and labelling.
      * @returns A promise resolving to selected seat IDs.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static seat(options: SeatOptions): Promise<string[]> {
         return new SeatPrompt(options).run();
@@ -1191,7 +1196,7 @@ export class MepCLI {
      * });
      * @param options - Choices list.
      * @returns A promise resolving to the sub-array of values.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/multi-range-prompt.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static selectRange<const V>(options: SelectRangeOptions<V>): Promise<V[]> {
         return new SelectRangePrompt(options).run();
@@ -1209,7 +1214,7 @@ export class MepCLI {
      * });
      * @param options - 2D array of strings.
      * @returns A promise resolving to the reordered 2D array.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/grid-prompt.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
      */
     static sortGrid(options: SortGridOptions): Promise<string[][]> {
         return new SortGridPrompt(options).run();
@@ -1294,6 +1299,7 @@ export class MepCLI {
 
     /**
      * cURL Command Builder.
+     * @experimental
      * @example
      * const request = await MepCLI.curl({
      *   message: 'Build API Request',
@@ -1302,7 +1308,6 @@ export class MepCLI {
      * @param options - Initial command.
      * @returns A promise resolving to the parsed request object.
      * @see {@link https://github.com/CodeTease/mep/blob/main/examples/curl-prompt.ts}
-     * @experimental This feature is experimental and may change in future releases.
      */
     static curl(options: CurlOptions): Promise<CurlResult> {
         return new CurlPrompt(options).run();
