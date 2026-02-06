@@ -18,7 +18,7 @@ export function highlightJson(json: string): string {
         }
 
         const token = match[0];
-        
+
         if (token.startsWith('"')) {
             const remaining = json.substring(tokenRegex.lastIndex);
             // Heuristic for keys: followed by optional whitespace and a colon
@@ -29,10 +29,10 @@ export function highlightJson(json: string): string {
             }
         }
         else if (/^-?\d/.test(token)) {
-             result += `${theme.syntax.number}${token}${ANSI.RESET}`;
+            result += `${theme.syntax.number}${token}${ANSI.RESET}`;
         }
         else if (/^(true|false|null)$/.test(token)) {
-            result += (token === 'null') 
+            result += (token === 'null')
                 ? `${theme.syntax.null}${token}${ANSI.RESET}`
                 : `${theme.syntax.boolean}${token}${ANSI.RESET}`;
         }
@@ -78,16 +78,16 @@ export function highlightToml(toml: string): string {
         }
         // [section]
         if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-             return `${theme.syntax.key}${line}${ANSI.RESET}`;
+            return `${theme.syntax.key}${line}${ANSI.RESET}`;
         }
         // Key = Value
         const match = line.match(/^(\s*[\w\d_-]+)(\s*=)/);
         if (match) {
-             const fullMatch = match[0];
-             const keyPart = match[1];
-             const eqPart = match[2];
-             const rest = line.substring(fullMatch.length);
-             return `${theme.syntax.key}${keyPart}${ANSI.RESET}${theme.syntax.punctuation}${eqPart}${theme.syntax.string}${rest}${ANSI.RESET}`;
+            const fullMatch = match[0];
+            const keyPart = match[1];
+            const eqPart = match[2];
+            const rest = line.substring(fullMatch.length);
+            return `${theme.syntax.key}${keyPart}${ANSI.RESET}${theme.syntax.punctuation}${eqPart}${theme.syntax.string}${rest}${ANSI.RESET}`;
         }
         return line;
     }).join('\n');
@@ -98,13 +98,13 @@ export function highlightCsv(csv: string): string {
     if (!csv) return '';
     // Cycle through colors to differentiate columns
     const colors = [theme.syntax.string, theme.syntax.key, theme.syntax.number, theme.syntax.boolean];
-    
+
     return csv.split('\n').map(line => {
         if (!line.trim()) return line;
         // Split by comma, ignoring commas inside double quotes
         // Regex explanation: Match comma only if followed by an even number of quotes (or 0) until end of line
         const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-        
+
         return parts.map((part, index) => {
             const color = colors[index % colors.length];
             return `${color}${part}${ANSI.RESET}`;
@@ -115,26 +115,26 @@ export function highlightCsv(csv: string): string {
 // --- 5. Shell/Bash Highlighter ---
 export function highlightShell(script: string): string {
     if (!script) return '';
-    
+
     // Simple replacements for common shell patterns
     // 1. Comments
     // 2. Keywords
     // 3. Variables
-    
+
     const keywords = /\b(if|then|else|elif|fi|for|in|do|done|while|case|esac|return|exit|export|source|echo|printf)\b/g;
-    
+
     return script.split('\n').map(line => {
         if (line.trim().startsWith('#')) {
             return `${theme.muted}${line}${ANSI.RESET}`;
         }
-        
+
         // Temporarily hide strings properly is hard with regex replace, 
         // so we just do best-effort highlights for keywords and vars outside of checking quote context.
         const processed = line
             .replace(keywords, match => `${theme.syntax.boolean}${match}${ANSI.RESET}`)
             .replace(/(\$[\w\d_]+|\$\{[^}]+\})/g, match => `${theme.syntax.key}${match}${ANSI.RESET}`)
             .replace(/(\s|^)(-{1,2}[a-zA-Z0-9_-]+)/g, (_match, prefix, flag) => `${prefix}${theme.syntax.number}${flag}${ANSI.RESET}`);
-            
+
         return processed;
     }).join('\n');
 }
@@ -175,11 +175,11 @@ const highlighters: Record<string, Highlighter> = {
 export function highlight(code: string, language: string): string {
     const lang = language.toLowerCase();
     const highlightFunc = highlighters[lang];
-    
+
     if (highlightFunc) {
         return highlightFunc(code);
     }
-    
+
     // Fallback: If no highlighter found, return original code
     return code;
 }

@@ -20,7 +20,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
     // Icons
     private readonly ICON_CLOSED = symbols.pointer === '>' ? '+' : '▸';
     private readonly ICON_OPEN = symbols.pointer === '>' ? '-' : '▾';
-    
+
     constructor(options: TreeOptions<V>) {
         super(options);
         this.initializeExpanded(this.options.data);
@@ -28,7 +28,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             this.expandPathTo(this.options.initial);
         }
         this.recalculateFlatList();
-        
+
         if (this.options.initial !== undefined) {
             const index = this.flatList.findIndex(item => item.node.value === this.options.initial);
             if (index !== -1) {
@@ -79,7 +79,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
                 depth,
                 parent
             });
-            
+
             if (node.children && node.children.length > 0 && this.expandedNodes.has(node)) {
                 this.traverse(node.children, depth + 1, node);
             }
@@ -115,7 +115,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
         visible.forEach((item, index) => {
             const actualIndex = this.scrollTop + index;
             const isSelected = actualIndex === this.cursor;
-            
+
             const indentSize = this.options.indent || 2;
             const indentation = ' '.repeat(item.depth * indentSize);
 
@@ -128,7 +128,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
 
             let icon = '  ';
             const hasChildren = item.node.children && item.node.children.length > 0;
-            
+
             if (hasChildren) {
                 if (this.expandedNodes.has(item.node)) {
                     icon = `${this.ICON_OPEN} `;
@@ -242,15 +242,15 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             }
         }
     }
-    
+
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
             if (event.scroll === 'up') {
-                 this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
-                 this.render(false);
+                this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
+                this.render(false);
             } else if (event.scroll === 'down') {
-                 this.cursor = (this.cursor + 1) % this.flatList.length;
-                 this.render(false);
+                this.cursor = (this.cursor + 1) % this.flatList.length;
+                this.render(false);
             }
         }
     }

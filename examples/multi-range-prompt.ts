@@ -9,9 +9,9 @@ async function main() {
     try {
         const selectedValues = await MepCLI.multiRange({
             message: "Select multiple ranges of commits to cherry-pick:",
-            choices: Array.from({ length: 20 }, (_, i) => ({ 
-                title: `Commit #${i + 100} (Feature ${String.fromCharCode(65 + (i % 5))})`, 
-                value: `c${i + 100}` 
+            choices: Array.from({ length: 20 }, (_, i) => ({
+                title: `Commit #${i + 100} (Feature ${String.fromCharCode(65 + (i % 5))})`,
+                value: `c${i + 100}`
             }))
         });
 

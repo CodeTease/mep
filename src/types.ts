@@ -210,20 +210,20 @@ export interface SnippetOptions extends BaseOptions {
     template: string;
     values?: Record<string, string>;
     fields?: Record<string, {
-         message?: string;
-         validate?: (value: string) => string | boolean;
+        message?: string;
+        validate?: (value: string) => string | boolean;
     }>;
 }
 
 export interface SpamOptions extends BaseOptions {
-    threshold: number; 
-    spamKey?: string; 
-    decay?: boolean; 
+    threshold: number;
+    spamKey?: string;
+    decay?: boolean;
 }
 
 export interface WaitOptions extends BaseOptions {
     seconds: number;
-    autoSubmit?: boolean; 
+    autoSubmit?: boolean;
 }
 
 export interface CodeOptions extends BaseOptions {
@@ -366,7 +366,7 @@ export interface GaugeOptions extends BaseOptions {
     theme?: Partial<ThemeConfig>;
     width?: number; // Default: 40
     /** Safe zone width as a percentage (0-1) or absolute character count (>1). Default: 0.2 (20%) */
-    safeZone?: number; 
+    safeZone?: number;
 }
 
 // --- Calculator Types ---

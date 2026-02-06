@@ -24,7 +24,7 @@ async function main() {
 
         console.log("\n--- Final CURL Command ---");
         console.log(result.command);
-        
+
         console.log("\n--- Structured Data ---");
         console.log("Method:", result.method);
         console.log("URL:", result.url);

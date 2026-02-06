@@ -40,10 +40,10 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
         } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
             this.scrollTop = this.selectedIndex - this.pageSize + 1;
         }
-        
+
         const maxScroll = Math.max(0, this.options.data.length - this.pageSize);
         this.scrollTop = Math.min(this.scrollTop, maxScroll);
-        
+
         let output = '';
 
         // Title
@@ -58,19 +58,19 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
 
         // Table Body
         const visibleRows = this.options.data.slice(this.scrollTop, this.scrollTop + this.pageSize);
-        
+
         visibleRows.forEach((item, index) => {
             const actualIndex = this.scrollTop + index;
             if (index > 0) output += '\n';
 
             const isSelected = actualIndex === this.selectedIndex;
             const pointer = isSelected ? `${theme.main}${symbols.pointer}${ANSI.RESET} ` : '  ';
-            
+
             let rowStr = '';
             item.row.forEach((cell, colIdx) => {
                 const width = this.colWidths[colIdx];
                 let cellStr = this.pad(cell, width);
-                
+
                 if (isSelected) {
                     cellStr = `${theme.main}${cellStr}${ANSI.RESET}`;
                 }
@@ -109,7 +109,7 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
     }
 
     protected handleMouse(event: MouseEvent) {
-         if (event.action === 'scroll') {
+        if (event.action === 'scroll') {
             if (event.scroll === 'up') {
                 this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.data.length - 1;
                 this.render(false);

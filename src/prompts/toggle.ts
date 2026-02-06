@@ -22,7 +22,7 @@ export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
         }
 
         const output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${toggleDisplay}`;
-        
+
         this.renderFrame(output);
     }
 
@@ -43,8 +43,8 @@ export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             this.value = !this.value;
-             this.render(false);
+            this.value = !this.value;
+            this.render(false);
         }
     }
 }

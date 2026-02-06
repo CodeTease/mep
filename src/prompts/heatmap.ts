@@ -25,7 +25,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
 
     protected render(_firstRender: boolean): void {
         let output = `${ANSI.FG_CYAN}? ${this.options.message}${ANSI.RESET}\n`;
-        
+
         // Render Column Headers
         output += '     '; // Offset for row labels
         this.options.columns.forEach(col => {
@@ -45,9 +45,9 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
                 const legend = this.getLegend(val);
                 const char = legend?.char || '?';
                 const color = legend?.color || ((s: string) => s);
-                
+
                 const isCursor = r === this.cursorRow && c === this.cursorCol;
-                
+
                 const cellContent = color(char);
                 if (isCursor) {
                     output += `[${cellContent}]`; // Brackets around
@@ -61,7 +61,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
         // Legend
         output += '\nLegend: ';
         this.options.legend.forEach(l => {
-             output += `${l.value}:${l.color(l.char)}  `;
+            output += `${l.value}:${l.color(l.char)}  `;
         });
         output += '\n' + ANSI.FG_GRAY + "(Arrows to move, Space to cycle, 0-9 to set)" + ANSI.RESET;
 
@@ -98,23 +98,23 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
         } else if (this.isRight(char)) {
             if (this.cursorCol < this.options.columns.length - 1) this.cursorCol++;
         } else if (char === '\t') { // Tab -> Right (Cycle)
-             this.cursorCol++;
-             if (this.cursorCol >= this.options.columns.length) {
-                 this.cursorCol = 0;
-                 this.cursorRow++;
-                 if (this.cursorRow >= this.options.rows.length) {
-                     this.cursorRow = 0;
-                 }
-             }
+            this.cursorCol++;
+            if (this.cursorCol >= this.options.columns.length) {
+                this.cursorCol = 0;
+                this.cursorRow++;
+                if (this.cursorRow >= this.options.rows.length) {
+                    this.cursorRow = 0;
+                }
+            }
         } else if (char === '\u001b[Z') { // Shift+Tab -> Left (Cycle)
-             this.cursorCol--;
-             if (this.cursorCol < 0) {
-                 this.cursorCol = this.options.columns.length - 1;
-                 this.cursorRow--;
-                 if (this.cursorRow < 0) {
-                     this.cursorRow = this.options.rows.length - 1;
-                 }
-             }
+            this.cursorCol--;
+            if (this.cursorCol < 0) {
+                this.cursorCol = this.options.columns.length - 1;
+                this.cursorRow--;
+                if (this.cursorRow < 0) {
+                    this.cursorRow = this.options.rows.length - 1;
+                }
+            }
         } else if (char === ' ') {
             const val = this.grid[this.cursorRow][this.cursorCol];
             const idx = this.validValues.indexOf(val);
@@ -133,7 +133,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
                 this.grid[this.cursorRow][this.cursorCol] = num;
             }
         }
-        
+
         this.render(false);
     }
 }

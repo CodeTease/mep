@@ -13,14 +13,14 @@ async function main() {
             message: "Configure Primary Database",
             // You can override default ports if needed
             defaults: {
-                postgres: 5433 
+                postgres: 5433
             }
         });
-        
+
         console.log("\n--- Result 1 ---");
         console.log("Raw URL:", result1.raw);
         console.log("Parts:", JSON.stringify(result1.parts, null, 2));
-        
+
         console.log("\n--------------------------------\n");
 
         // Example 2: SQLite (Simpler flow)

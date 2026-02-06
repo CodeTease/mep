@@ -28,9 +28,9 @@ export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
         }
         if (c === 'y') { this.value = true; this.render(false); }
         if (c === 'n') { this.value = false; this.render(false); }
-        
+
         // Allow left/right to toggle as well for better UX
-         if (this.isLeft(char) || this.isRight(char)) {
+        if (this.isLeft(char) || this.isRight(char)) {
             this.value = !this.value;
             this.render(false);
         }
@@ -38,8 +38,8 @@ export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             this.value = !this.value;
-             this.render(false);
+            this.value = !this.value;
+            this.render(false);
         }
     }
 }

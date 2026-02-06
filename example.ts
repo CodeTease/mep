@@ -67,8 +67,8 @@ async function runComprehensiveDemo() {
         // --- 4. Checkbox Prompt (Multi-choice with Min/Max limits) ---
         const buildTools = await MepCLI.checkbox({
             message: "Select your required bundlers/build tools (Min 1, Max 2):",
-            min: 1, 
-            max: 2, 
+            min: 1,
+            max: 2,
             choices: [
                 { title: "Webpack", value: "webpack" },
                 { title: "Vite", value: "vite", selected: true }, // Default selected state
@@ -87,7 +87,7 @@ async function runComprehensiveDemo() {
             step: 100 // Increments/decrements by 100 with arrows
         });
         console.log(`\n Number Result: Server port: ${port}`);
-        
+
         // --- 6. Toggle Prompt (Boolean input, supports custom labels) ---
         const isSecure = await MepCLI.toggle({
             message: "Enable HTTPS/SSL for production?",
@@ -243,34 +243,34 @@ async function runComprehensiveDemo() {
 
         // --- 19. Tree Prompt ---
         const selectedFile = await MepCLI.tree({
-             message: "Select a file from the project structure (Space to toggle, Enter to select):",
-             data: [
-                 {
-                     title: "src",
-                     value: "src",
-                     children: [
-                         { title: "index.ts", value: "src/index.ts" },
-                         { title: "utils.ts", value: "src/utils.ts" },
-                         { 
-                             title: "prompts", 
-                             value: "src/prompts", 
-                             expanded: true,
-                             children: [
-                                 { title: "text.ts", value: "src/prompts/text.ts" },
-                                 { title: "select.ts", value: "src/prompts/select.ts" }
-                             ]
-                         }
-                     ]
-                 },
-                 {
-                     title: "package.json",
-                     value: "package.json"
-                 },
-                 {
-                     title: "README.md",
-                     value: "README.md"
-                 }
-             ]
+            message: "Select a file from the project structure (Space to toggle, Enter to select):",
+            data: [
+                {
+                    title: "src",
+                    value: "src",
+                    children: [
+                        { title: "index.ts", value: "src/index.ts" },
+                        { title: "utils.ts", value: "src/utils.ts" },
+                        {
+                            title: "prompts",
+                            value: "src/prompts",
+                            expanded: true,
+                            children: [
+                                { title: "text.ts", value: "src/prompts/text.ts" },
+                                { title: "select.ts", value: "src/prompts/select.ts" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    title: "package.json",
+                    value: "package.json"
+                },
+                {
+                    title: "README.md",
+                    value: "README.md"
+                }
+            ]
         });
         console.log(`\n Tree Result: Selected path: ${selectedFile}`);
 
@@ -331,26 +331,26 @@ async function runComprehensiveDemo() {
 
         // --- 25. Tree Select Prompt ---
         const selectedTreeItems = await MepCLI.treeSelect({
-             message: "Select files to backup (Multi-select Tree):",
-             data: [
-                 {
-                     title: "src",
-                     value: "src",
-                     children: [
-                         { title: "index.ts", value: "src/index.ts" },
-                         { title: "utils.ts", value: "src/utils.ts" }
-                     ]
-                 },
-                 {
-                     title: "tests",
-                     value: "tests",
-                     expanded: true,
-                     children: [
-                         { title: "e2e", value: "tests/e2e", selected: true },
-                         { title: "unit", value: "tests/unit" }
-                     ]
-                 }
-             ]
+            message: "Select files to backup (Multi-select Tree):",
+            data: [
+                {
+                    title: "src",
+                    value: "src",
+                    children: [
+                        { title: "index.ts", value: "src/index.ts" },
+                        { title: "utils.ts", value: "src/utils.ts" }
+                    ]
+                },
+                {
+                    title: "tests",
+                    value: "tests",
+                    expanded: true,
+                    children: [
+                        { title: "e2e", value: "tests/e2e", selected: true },
+                        { title: "unit", value: "tests/unit" }
+                    ]
+                }
+            ]
         });
         console.log(`\n TreeSelect Result: Selected: [${selectedTreeItems.join(', ')}]`);
 
@@ -440,25 +440,25 @@ async function runComprehensiveDemo() {
         const kanbanBoard = await MepCLI.kanban({
             message: "Manage Project Tasks (Kanban):",
             columns: [
-                { 
-                    id: "todo", 
-                    title: "To Do", 
+                {
+                    id: "todo",
+                    title: "To Do",
                     items: [
                         { id: "t1", title: "Setup Repo" },
                         { id: "t2", title: "Design DB" }
-                    ] 
+                    ]
                 },
-                { 
-                    id: "in-progress", 
-                    title: "In Progress", 
+                {
+                    id: "in-progress",
+                    title: "In Progress",
                     items: [
                         { id: "t3", title: "Auth Module" }
-                    ] 
+                    ]
                 },
-                { 
-                    id: "done", 
-                    title: "Done", 
-                    items: [] 
+                {
+                    id: "done",
+                    title: "Done",
+                    items: []
                 }
             ]
         });
@@ -492,7 +492,7 @@ async function runComprehensiveDemo() {
             initial: 512 * 1024 * 1024, // 512 MB
             min: 1024 * 1024 // Min 1 MB
         });
-        console.log(`Configured: ${size} bytes`); 
+        console.log(`Configured: ${size} bytes`);
 
         // --- 40. Slot Machine Prompt ---
         const slotPrize = await MepCLI.slot({
@@ -553,7 +553,7 @@ async function runComprehensiveDemo() {
         // --- 46. Dial Prompt ---
         const dialVal = await MepCLI.dial({
             message: "Set Volume:",
-            min: 0, 
+            min: 0,
             max: 100,
             initial: 50,
             radius: 5
@@ -562,10 +562,10 @@ async function runComprehensiveDemo() {
 
         // --- 47. Draw Prompt ---
         const drawing = await MepCLI.draw({
-             message: "Draw a smiley face:",
-             width: 20,
-             height: 10,
-             exportType: 'text'
+            message: "Draw a smiley face:",
+            width: 20,
+            height: 10,
+            exportType: 'text'
         });
         console.log(`\n Drawing:\n${drawing}`);
 
@@ -609,7 +609,7 @@ async function runComprehensiveDemo() {
             ]
         });
         console.log(`\n Fuzzy Result: ${fuzzyResult}`);
-        
+
         // --- 51. Miller Columns Prompt ---
         const millerPath = await MepCLI.miller({
             message: "Navigate Hierarchy (Miller Columns):",
@@ -648,10 +648,10 @@ async function runComprehensiveDemo() {
                                 { title: "Ottawa", value: "ottawa" }
                             ]
                         },
-                         {
+                        {
                             title: "Quebec",
                             value: "qc",
-                             children: [
+                            children: [
                                 { title: "Montreal", value: "montreal" }
                             ]
                         }
@@ -670,8 +670,8 @@ async function runComprehensiveDemo() {
         console.log(`\n Pattern Result: ${pattern}`);
 
         // --- 53. Region Selector Prompt ---
-        const mapArt = 
-`       ___
+        const mapArt =
+            `       ___
     __/   \\__
    /         \\
   |           |
@@ -712,7 +712,7 @@ async function runComprehensiveDemo() {
         console.log(`\n Spreadsheet Result:`, sheetData);
 
         // --- 55. Scroll Prompt (License Agreement) ---
-        const dummyLicense = Array(40).fill("").map((_, i) => 
+        const dummyLicense = Array(40).fill("").map((_, i) =>
             `Clause ${i + 1}: This is a sample clause text that is quite long to ensure it wraps correctly or at least takes up some space.`
         ).join('\n');
 
@@ -773,7 +773,7 @@ async function runComprehensiveDemo() {
 
         // --- 60. Shortcut Prompt ---
         const keyShortcut = await MepCLI.shortcut({
-             message: "Press any key combination (e.g. Ctrl+Shift+A):"
+            message: "Press any key combination (e.g. Ctrl+Shift+A):"
         });
         console.log(`\n Shortcut Result: ${keyShortcut.name} (Ctrl:${keyShortcut.ctrl}, Alt:${keyShortcut.meta}, Shift:${keyShortcut.shift})`);
 
@@ -921,15 +921,15 @@ async function runComprehensiveDemo() {
         const s = MepCLI.spinner("Finalizing configuration and deploying...").start();
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulates a 1.5 second async task
         s.success();
-        
+
         console.log("\n--- Deployment successful! All MepCLI features demonstrated! ---");
 
     } catch (e) {
         // Global handler for Ctrl+C closure
         if (e instanceof Error && e.message === 'User force closed') {
-             console.log("\nOperation cancelled by user (Ctrl+C).");
+            console.log("\nOperation cancelled by user (Ctrl+C).");
         } else {
-             console.error("\nAn error occurred during prompt execution:", e);
+            console.error("\nAn error occurred during prompt execution:", e);
         }
     }
 }

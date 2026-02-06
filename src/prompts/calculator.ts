@@ -61,29 +61,29 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
 
         // 2. Validate characters
         if (/[a-zA-Z_]/.test(expr)) {
-             // Support basic Math functions: sin, cos, tan, log, sqrt, abs, pow, floor, ceil, round
-             const allowedMath = ['sin', 'cos', 'tan', 'log', 'sqrt', 'abs', 'pow', 'floor', 'ceil', 'round', 'PI', 'E'];
-             // We can prefix them with Math.
-             
-             let checkStr = expr;
-             allowedMath.forEach(k => {
-                 checkStr = checkStr.replace(new RegExp(k, 'g'), '');
-             });
-             
-             if (/[a-zA-Z_]/.test(checkStr)) {
-                 return null; // Contains unknown variables or functions
-             }
-             
-             // Now prefix Math functions in the real expr
-             allowedMath.forEach(k => {
-                 // Replace 'sin(' with 'Math.sin('
-                 // Be careful with PI and E
-                 if (['PI', 'E'].includes(k)) {
-                      expr = expr.replace(new RegExp(`\\b${k}\\b`, 'g'), `Math.${k}`);
-                 } else {
-                      expr = expr.replace(new RegExp(`\\b${k}\\(`, 'g'), `Math.${k}(`);
-                 }
-             });
+            // Support basic Math functions: sin, cos, tan, log, sqrt, abs, pow, floor, ceil, round
+            const allowedMath = ['sin', 'cos', 'tan', 'log', 'sqrt', 'abs', 'pow', 'floor', 'ceil', 'round', 'PI', 'E'];
+            // We can prefix them with Math.
+
+            let checkStr = expr;
+            allowedMath.forEach(k => {
+                checkStr = checkStr.replace(new RegExp(k, 'g'), '');
+            });
+
+            if (/[a-zA-Z_]/.test(checkStr)) {
+                return null; // Contains unknown variables or functions
+            }
+
+            // Now prefix Math functions in the real expr
+            allowedMath.forEach(k => {
+                // Replace 'sin(' with 'Math.sin('
+                // Be careful with PI and E
+                if (['PI', 'E'].includes(k)) {
+                    expr = expr.replace(new RegExp(`\\b${k}\\b`, 'g'), `Math.${k}`);
+                } else {
+                    expr = expr.replace(new RegExp(`\\b${k}\\(`, 'g'), `Math.${k}(`);
+                }
+            });
         }
 
         // 3. Safe Eval using Function
@@ -109,7 +109,7 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
         // Render Input Line
         let displayValue = '';
         const inputStr = this.segments.join('');
-        
+
         if (!inputStr && this.options.placeholder && !this.errorMsg && !this.hasTyped) {
             displayValue = `${theme.muted}${this.options.placeholder}${ANSI.RESET}`;
         } else {
@@ -121,18 +121,18 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
         // Add Preview Line (if available and no error)
         let previewStr = '';
         if (this.previewValue && !this.errorMsg) {
-             // Display as "= Result" in muted color
-             previewStr = `\n${theme.muted}= ${this.previewValue}${ANSI.RESET}`;
-             output += previewStr;
+            // Display as "= Result" in muted color
+            previewStr = `\n${theme.muted}= ${this.previewValue}${ANSI.RESET}`;
+            output += previewStr;
         }
 
         if (this.errorMsg) {
-             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
 
         this.renderFrame(output);
         this.print(ANSI.SHOW_CURSOR);
-        
+
         let totalRows = 1;
         if (previewStr) totalRows++;
         if (this.errorMsg) totalRows++;

@@ -20,20 +20,20 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
         // 1. Prepare Prefix
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const prefix = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
-        
+
         // 2. Build Lines with Wrapping
         const lines: string[] = [];
         let currentLine = prefix;
-        
+
         // Helper to check width
         const addText = (text: string) => {
-             const visualLen = this.stripAnsi(currentLine).length + this.stripAnsi(text).length;
-             if (visualLen > cols) {
-                 lines.push(currentLine);
-                 currentLine = text.trimStart(); // Start new line
-             } else {
-                 currentLine += text;
-             }
+            const visualLen = this.stripAnsi(currentLine).length + this.stripAnsi(text).length;
+            if (visualLen > cols) {
+                lines.push(currentLine);
+                currentLine = text.trimStart(); // Start new line
+            } else {
+                currentLine += text;
+            }
         };
 
         // Render Tags
@@ -46,7 +46,7 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
 
         // Render Current Input
         addText(this.currentInput);
-        
+
         lines.push(currentLine); // Push the last line
 
         // Track where the input ends (for cursor positioning)
@@ -55,25 +55,25 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
 
         // 3. Append Error if any
         if (this.errorMsg) {
-             lines.push(`${theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
+            lines.push(`${theme.error}>> ${this.errorMsg}${ANSI.RESET}`);
         }
-        
+
         const output = lines.join('\n');
-        
+
         // 4. Render Frame
         this.renderFrame(output);
-        
+
         this.print(ANSI.SHOW_CURSOR);
 
         // 5. Position Cursor
         // If we printed lines after the input line (e.g. error msg), move up.
         const totalRows = lines.length;
         const linesUp = (totalRows - 1) - inputLineIndex;
-        
+
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
-        
+
         // Move to correct column
         this.print(ANSI.CURSOR_LEFT);
         if (inputVisualCol > 0) {
@@ -90,7 +90,7 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
                 this.render(false);
             } else {
                 // Done if input is empty
-                 if (this.options.validate) {
+                if (this.options.validate) {
                     const result = this.options.validate(this.value);
                     if (result !== true) {
                         this.errorMsg = typeof result === 'string' ? result : 'Invalid input';

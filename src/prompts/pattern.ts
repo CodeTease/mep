@@ -13,16 +13,16 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
     private cursor: Point = { r: 0, c: 0 };
     private isDragging: boolean = false;
     private errorMsg: string = '';
-    
+
     // Grid configuration
     private rows: number;
     private cols: number;
     private nodeChar: string;
-    
+
     // Layout
     private nodeSpacingX: number = 4;
     private nodeSpacingY: number = 2;
-    
+
     private lastMouse: { x: number, y: number } | null = null;
 
     constructor(options: PatternOptions) {
@@ -52,7 +52,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
 
         // Instructions
         if (firstRender) {
-             output += `${ANSI.DIM}(Draw pattern with mouse or use Arrows + Space)${ANSI.RESET}\n`;
+            output += `${ANSI.DIM}(Draw pattern with mouse or use Arrows + Space)${ANSI.RESET}\n`;
         }
 
         // Render Grid
@@ -64,7 +64,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
 
         // Draw connections
         for (let i = 0; i < this.path.length - 1; i++) {
-            this.drawLine(buffer, this.path[i], this.path[i+1]);
+            this.drawLine(buffer, this.path[i], this.path[i + 1]);
         }
 
         // Draw nodes
@@ -72,13 +72,13 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
             for (let c = 0; c < this.cols; c++) {
                 const index = this.getIndex(r, c);
                 const isSelected = this.path.includes(index);
-                
+
                 // Calculate buffer position
                 const by = r * this.nodeSpacingY;
                 const bx = c * this.nodeSpacingX;
-                
+
                 // Mark node in buffer (will be stylized later)
-                buffer[by][bx] = isSelected ? '●' : '○'; 
+                buffer[by][bx] = isSelected ? '●' : '○';
             }
         }
 
@@ -91,16 +91,16 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
             output += '  '; // Indent
             for (let x = 0; x < displayWidth; x++) {
                 const char = buffer[y][x];
-                
+
                 // Determine coloring context
                 const isNodeRow = y % this.nodeSpacingY === 0;
                 const isNodeCol = x % this.nodeSpacingX === 0;
-                
+
                 if (isNodeRow && isNodeCol) {
                     const r = y / this.nodeSpacingY;
                     const c = x / this.nodeSpacingX;
                     const idx = this.getIndex(r, c);
-                    
+
                     const isSelected = this.path.includes(idx);
                     const isLast = this.path.length > 0 && this.path[this.path.length - 1] === idx;
                     const isCursor = this.cursor.r === r && this.cursor.c === c;
@@ -108,7 +108,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
                     let styledChar = this.nodeChar;
                     if (isSelected) styledChar = theme.main + this.nodeChar + ANSI.RESET;
                     if (isLast) styledChar = theme.success + this.nodeChar + ANSI.RESET;
-                    
+
                     if (isCursor) {
                         styledChar = ANSI.REVERSE + styledChar + ANSI.RESET;
                     } else if (!isSelected) {
@@ -137,7 +137,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
     private drawLine(buffer: string[][], fromIdx: number, toIdx: number) {
         const p1 = this.getPoint(fromIdx);
         const p2 = this.getPoint(toIdx);
-        
+
         const y1 = p1.r * this.nodeSpacingY;
         const x1 = p1.c * this.nodeSpacingX;
         const y2 = p2.r * this.nodeSpacingY;
@@ -145,7 +145,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
 
         const dy = y2 - y1;
         const dx = x2 - x1;
-        
+
         const steps = Math.max(Math.abs(dx), Math.abs(dy));
         if (steps === 0) return;
 
@@ -158,11 +158,11 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
         for (let i = 0; i <= steps; i++) {
             const ry = Math.round(y);
             const rx = Math.round(x);
-            
+
             // Check bounds
             if (ry >= 0 && ry < buffer.length && rx >= 0 && rx < buffer[0].length) {
                 const isNode = (ry % this.nodeSpacingY === 0) && (rx % this.nodeSpacingX === 0);
-                
+
                 if (!isNode) {
                     // Determine char based on slope
                     // Flat horizontal
@@ -232,7 +232,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
 
     private addToPath(index: number) {
         if (this.path.includes(index)) {
-            return; 
+            return;
         }
         this.path.push(index);
     }
@@ -250,7 +250,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
         if (this.lastMouse) {
             const dx = event.x - this.lastMouse.x;
             const dy = event.y - this.lastMouse.y;
-            
+
             // Sensitivity threshold
             if (dx !== 0 || dy !== 0) {
                 if (Math.abs(dx) > Math.abs(dy)) {
@@ -265,7 +265,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
                     const idx = this.getIndex(this.cursor.r, this.cursor.c);
                     this.addToPath(idx);
                 }
-                
+
                 this.render(false);
             }
         } else {
@@ -278,7 +278,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
                 this.render(false);
             }
         }
-        
+
         this.lastMouse = { x: event.x, y: event.y };
     }
 }

@@ -17,7 +17,7 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
         // Normalize newlines and split content
         this.lines = (options.content || '').replace(/\r\n/g, '\n').split('\n');
         this.height = options.height || 15;
-        
+
         // Initial check if content fits without scrolling
         if (this.lines.length <= this.height) {
             this.hasReachedBottom = true;
@@ -27,14 +27,14 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
     protected render(_firstRender: boolean): void {
         const width = this.stdout.columns || 80;
         const contentWidth = width - 4; // Border (2) + Padding (2)
-        
+
         // 1. Header & Progress
         const percent = Math.min(100, Math.round(((this.scrollTop + this.height) / Math.max(this.height, this.lines.length)) * 100));
         const header = `${theme.title}${symbols.pointer} ${ANSI.BOLD}${this.options.message}${ANSI.RESET} ${theme.muted}[${percent}%]${ANSI.RESET}`;
-        
+
         // 2. Viewport
         const visibleLines = this.lines.slice(this.scrollTop, this.scrollTop + this.height);
-        
+
         // Fill empty lines if content is shorter than height
         while (visibleLines.length < this.height) {
             visibleLines.push('');
@@ -107,8 +107,8 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
         }
         // PageUp
         else if (key.toString('hex') === '1b5b357e') { // Standard PageUp sequence
-             this.scrollTop = Math.max(0, this.scrollTop - this.height);
-             didScroll = true;
+            this.scrollTop = Math.max(0, this.scrollTop - this.height);
+            didScroll = true;
         }
         // PageDown / Space
         else if (char === ' ' || key.toString('hex') === '1b5b367e') { // Standard PageDown sequence
@@ -118,13 +118,13 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
         }
         // Home
         else if (key.toString('hex') === '1b5b48') {
-             this.scrollTop = 0;
-             didScroll = true;
+            this.scrollTop = 0;
+            didScroll = true;
         }
         // End
         else if (key.toString('hex') === '1b5b46') {
-             this.scrollTop = Math.max(0, this.lines.length - this.height);
-             didScroll = true;
+            this.scrollTop = Math.max(0, this.lines.length - this.height);
+            didScroll = true;
         }
 
         if (didScroll) {

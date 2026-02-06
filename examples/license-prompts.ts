@@ -10,7 +10,7 @@ async function run() {
             message: 'Select a license for your project:',
             defaultLicense: 'MIT' // Pre-select MIT
         });
-        
+
         console.log(`\nYour project is now licensed under: ${license}`);
     } catch (e) {
         console.log('Exited:', e);

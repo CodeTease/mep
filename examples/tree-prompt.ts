@@ -12,9 +12,9 @@ try {
                 children: [
                     { title: "index.ts", value: "src/index.ts" },
                     { title: "utils.ts", value: "src/utils.ts" },
-                    { 
-                        title: "prompts", 
-                        value: "src/prompts", 
+                    {
+                        title: "prompts",
+                        value: "src/prompts",
                         expanded: true,
                         children: [
                             { title: "text.ts", value: "src/prompts/text.ts" },
@@ -32,8 +32,8 @@ try {
                 value: "README.md"
             }
         ]
-});
-console.log(`\n Tree Result: Selected path: ${selectedFile}`);
+    });
+    console.log(`\n Tree Result: Selected path: ${selectedFile}`);
 } catch (e) {
     if (e instanceof Error && e.message === 'User force closed') {
         console.log("\nOperation cancelled by user.");

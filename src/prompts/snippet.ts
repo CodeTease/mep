@@ -20,7 +20,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
     constructor(options: SnippetOptions) {
         super(options);
         this.parseTemplate();
-        
+
         // Initialize values
         if (options.values) {
             this.values = { ...options.values };
@@ -32,7 +32,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
                 this.values[varName] = '';
             }
         });
-        
+
         if (this.variableTokens.length > 0) {
             const firstVar = this.tokens[this.variableTokens[0]].value;
             this.cursor = this.values[firstVar].length;
@@ -43,7 +43,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         const regex = /\$\{([a-zA-Z0-9_]+)\}/g;
         let lastIndex = 0;
         let match;
-        
+
         while ((match = regex.exec(this.options.template)) !== null) {
             if (match.index > lastIndex) {
                 this.tokens.push({ type: 'static', value: this.options.template.substring(lastIndex, match.index) });
@@ -52,9 +52,9 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
             this.variableTokens.push(this.tokens.length - 1);
             lastIndex = regex.lastIndex;
         }
-        
+
         if (lastIndex < this.options.template.length) {
-             this.tokens.push({ type: 'static', value: this.options.template.substring(lastIndex) });
+            this.tokens.push({ type: 'static', value: this.options.template.substring(lastIndex) });
         }
     }
 
@@ -68,72 +68,72 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         let output = '';
         let cursorVisualIndex = 0;
         let currentVisualIndex = 0;
-        
+
         // Prefix/Message
         const prefix = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message || 'Fill snippet'}${ANSI.RESET}\n`;
         output += prefix;
-    
+
         let snippetLine = '';
-        
+
         this.tokens.forEach((token, index) => {
-             if (token.type === 'static') {
-                 snippetLine += `${theme.muted}${token.value}${ANSI.RESET}`;
-                 currentVisualIndex += token.value.length; // assuming simple ascii/static length
-             } else {
-                 const isFocused = this.variableTokens[this.activeVarIndex] === index;
-                 const val = this.values[token.value] || '';
-                 // Placeholder if empty?
-                 const displayVal = val.length === 0 && isFocused ? '' : val; // maybe show placeholder?
-                 
-                 let styledVal = displayVal;
-                 if (isFocused) {
-                     styledVal = `${ANSI.UNDERLINE}${theme.main}${displayVal}${ANSI.RESET}`;
-                     // Calculate cursor position
-                     cursorVisualIndex = currentVisualIndex + this.cursor; 
-                 } else {
-                     styledVal = `${theme.main}${displayVal}${ANSI.RESET}`;
-                 }
-                 
-                 snippetLine += styledVal;
-                 currentVisualIndex += displayVal.length;
-             }
+            if (token.type === 'static') {
+                snippetLine += `${theme.muted}${token.value}${ANSI.RESET}`;
+                currentVisualIndex += token.value.length; // assuming simple ascii/static length
+            } else {
+                const isFocused = this.variableTokens[this.activeVarIndex] === index;
+                const val = this.values[token.value] || '';
+                // Placeholder if empty?
+                const displayVal = val.length === 0 && isFocused ? '' : val; // maybe show placeholder?
+
+                let styledVal = displayVal;
+                if (isFocused) {
+                    styledVal = `${ANSI.UNDERLINE}${theme.main}${displayVal}${ANSI.RESET}`;
+                    // Calculate cursor position
+                    cursorVisualIndex = currentVisualIndex + this.cursor;
+                } else {
+                    styledVal = `${theme.main}${displayVal}${ANSI.RESET}`;
+                }
+
+                snippetLine += styledVal;
+                currentVisualIndex += displayVal.length;
+            }
         });
 
         output += snippetLine;
-        
+
         if (this.errorMsg) {
             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
-        
+
         output += `\n${theme.muted}(Tab to next variable, Enter to submit)${ANSI.RESET}`;
 
         this.renderFrame(output);
-        
+
         // Position Cursor
         this.print(ANSI.SHOW_CURSOR);
-        
+
         // We need to move to correct line and column
         // Lines:
         // 1. Message
         // 2. Snippet (cursor here)
         // 3. Error (optional)
         // 4. Hint
-        
+
         // snippetLine is at index 1 (0-based) if Message has no newlines.
         // Prefix ends with \n. So snippetLine is on 2nd line.
-        
+
         // Calculate which row relative to bottom the snippet line is.
         // If error: 4 lines total. Snippet is line 1 (2nd). Lines up = 2.
         // If no error: 3 lines total. Snippet is line 1. Lines up = 1.
-        
+
         let linesUp = 1;
         if (this.errorMsg) linesUp++;
-        
+
         if (linesUp > 0) {
-             this.print(`\x1b[${linesUp}A`);
-             this.lastLinesUp = linesUp;
+            this.print(`\x1b[${linesUp}A`);
+            this.lastLinesUp = linesUp;
         }
-        
+
         this.print(ANSI.CURSOR_LEFT);
         if (cursorVisualIndex > 0) {
             this.print(`\x1b[${cursorVisualIndex}C`);
@@ -151,20 +151,20 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
     protected handleInput(char: string, _key: Buffer) {
         // Navigation: Tab / Shift+Tab
         if (char === '\u001b[Z') {
-             // Shift Tab -> Prev
-             this.moveFocus(-1);
-             return;
+            // Shift Tab -> Prev
+            this.moveFocus(-1);
+            return;
         }
 
         if (char === '\t') {
             this.moveFocus(1);
             return;
         }
-        
+
         // Enter
         if (char === '\r' || char === '\n') {
-             this.submitSnippet();
-             return;
+            this.submitSnippet();
+            return;
         }
 
         // Editing
@@ -182,16 +182,16 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
             }
             return;
         }
-        
+
         if (this.isLeft(char)) {
-             if (this.cursor > 0) this.cursor--;
-             this.render(false);
-             return;
+            if (this.cursor > 0) this.cursor--;
+            this.render(false);
+            return;
         }
         if (this.isRight(char)) {
-             if (this.cursor < val.length) this.cursor++;
-             this.render(false);
-             return;
+            if (this.cursor < val.length) this.cursor++;
+            this.render(false);
+            return;
         }
 
         if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {

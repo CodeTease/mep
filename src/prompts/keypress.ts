@@ -10,18 +10,18 @@ export class KeypressPrompt extends Prompt<string, KeypressOptions> {
 
     protected render(_firstRender: boolean) {
         let output = `${theme.title}${this.options.message}${ANSI.RESET}`;
-        
+
         if (this.options.keys) {
-             const hint = this.options.keys.map(k => {
-                 if (k === '\r' || k === '\n' || k === 'enter') return 'enter';
-                 if (k === ' ' || k === 'space') return 'space';
-                 return k;
-             }).join('/');
-             output += ` ${theme.muted}(${hint})${ANSI.RESET}`;
+            const hint = this.options.keys.map(k => {
+                if (k === '\r' || k === '\n' || k === 'enter') return 'enter';
+                if (k === ' ' || k === 'space') return 'space';
+                return k;
+            }).join('/');
+            output += ` ${theme.muted}(${hint})${ANSI.RESET}`;
         } else {
-             output += ` ${theme.muted}(Press any key)${ANSI.RESET}`;
+            output += ` ${theme.muted}(Press any key)${ANSI.RESET}`;
         }
-        
+
         this.renderFrame(output);
     }
 
@@ -46,7 +46,7 @@ export class KeypressPrompt extends Prompt<string, KeypressOptions> {
         if (this.options.showInvisible) {
             this.print(` ${theme.success}${keyName}${ANSI.RESET}`);
         }
-        
+
         this.submit(keyName);
     }
 }

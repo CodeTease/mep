@@ -62,7 +62,7 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
 
     protected render(_firstRender: boolean) {
         let output = '';
-        
+
         // Header
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
@@ -110,7 +110,7 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
 
         this.renderFrame(output);
     }
-    
+
     // Override cleanup to ensure timer is cleared if user Ctrl+C
     protected cleanup() {
         if (this.spinTimer) clearTimeout(this.spinTimer);

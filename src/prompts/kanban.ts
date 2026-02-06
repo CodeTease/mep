@@ -21,15 +21,15 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         const { columns } = this.stdout; // terminal width
         const colCount = this.columns.length;
         const colWidth = Math.floor(columns / colCount);
-        
+
         let output = '';
 
         // Render Title
         output += `${ANSI.FG_CYAN}${ANSI.BOLD}? ${this.options.message}${ANSI.RESET}\n`;
         if (this.grabbed) {
-             output += `${ANSI.FG_YELLOW}(Grabbed) Move with arrows, Space to Drop${ANSI.RESET}\n`;
+            output += `${ANSI.FG_YELLOW}(Grabbed) Move with arrows, Space to Drop${ANSI.RESET}\n`;
         } else {
-             output += `${ANSI.FG_GRAY}(Normal) Space to Grab, Arrows to Navigate, Enter to Submit${ANSI.RESET}\n`;
+            output += `${ANSI.FG_GRAY}(Normal) Space to Grab, Arrows to Navigate, Enter to Submit${ANSI.RESET}\n`;
         }
 
         // Render Headers
@@ -40,13 +40,13 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
             return this.padCenter(title, colWidth, style);
         });
         output += headers.join('') + '\n';
-        
+
         // Render Separator
         output += ANSI.FG_GRAY + '─'.repeat(columns) + ANSI.RESET + '\n';
 
         // Render Rows
         const viewportHeight = 10;
-        
+
         for (let r = 0; r < viewportHeight; r++) {
             const rowLine = this.columns.map((col, cIndex) => {
                 const scrollTop = this.scrollStates[cIndex];
@@ -61,25 +61,25 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
                     let style = '';
 
                     if (isCursor) {
-                         if (this.grabbed) {
-                             style = ANSI.BG_YELLOW + ANSI.FG_BLACK;
-                             prefix = '>';
-                         } else {
-                             style = ANSI.FG_CYAN + ANSI.BOLD;
-                             prefix = '>';
-                         }
+                        if (this.grabbed) {
+                            style = ANSI.BG_YELLOW + ANSI.FG_BLACK;
+                            prefix = '>';
+                        } else {
+                            style = ANSI.FG_CYAN + ANSI.BOLD;
+                            prefix = '>';
+                        }
                     }
 
                     const title = this.truncate(item.title, colWidth - 4);
                     content = `${prefix} ${title}${suffix}`;
                     content = content.padEnd(colWidth);
-                    
+
                     const plain = `${prefix} ${title}${suffix}`.padEnd(colWidth);
 
                     if (style) {
                         content = style + plain + ANSI.RESET;
                     } else {
-                         content = plain;
+                        content = plain;
                     }
 
                 } else {
@@ -88,7 +88,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
                 }
                 return content;
             }).join('');
-            
+
             output += rowLine + '\n';
         }
 
@@ -127,13 +127,13 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
             } else {
                 // Normal: Scroll moves Up/Down
                 if (event.scroll === 'up') {
-                     if (this.activeRow > 0) {
+                    if (this.activeRow > 0) {
                         this.activeRow--;
                         this.ensureVisible();
                     }
                 } else if (event.scroll === 'down') {
-                     const colLen = this.columns[this.activeCol].items.length;
-                     if (this.activeRow < colLen - 1) {
+                    const colLen = this.columns[this.activeCol].items.length;
+                    if (this.activeRow < colLen - 1) {
                         this.activeRow++;
                         this.ensureVisible();
                     }
@@ -170,7 +170,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
             }
         } else if (this.isRight(char)) {
             if (this.activeCol < this.columns.length - 1) {
-                 if (this.grabbed) {
+                if (this.grabbed) {
                     this.moveItemHorizontal(1);
                 }
                 this.activeCol++;
@@ -192,7 +192,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         } else if (this.isDown(char)) {
             const colLen = this.columns[this.activeCol].items.length;
             if (this.activeRow < colLen - 1) {
-                 if (this.grabbed) {
+                if (this.grabbed) {
                     // Swap with next
                     const col = this.columns[this.activeCol];
                     const temp = col.items[this.activeRow];
@@ -211,12 +211,12 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         const sourceCol = this.columns[this.activeCol];
         const targetCol = this.columns[this.activeCol + direction];
         const item = sourceCol.items.splice(this.activeRow, 1)[0];
-        
+
         let targetIndex = this.activeRow;
         if (targetIndex > targetCol.items.length) {
             targetIndex = targetCol.items.length;
         }
-        
+
         targetCol.items.splice(targetIndex, 0, item);
 
         this.activeRow = targetIndex;
@@ -234,7 +234,7 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
     private ensureVisible() {
         const scrollTop = this.scrollStates[this.activeCol];
         const viewportHeight = 10;
-        
+
         if (this.activeRow < scrollTop) {
             this.scrollStates[this.activeCol] = this.activeRow;
         } else if (this.activeRow >= scrollTop + viewportHeight) {

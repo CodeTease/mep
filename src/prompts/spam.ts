@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { symbols } from '../symbols'; 
+import { symbols } from '../symbols';
 import { BaseOptions } from '../types';
 
 interface SpamOptions extends BaseOptions {
@@ -17,7 +17,7 @@ export class SpamPrompt extends Prompt<boolean, SpamOptions> {
 
     constructor(options: SpamOptions) {
         super(options);
-        
+
         if (options.decay) {
             this.decayTimer = setInterval(() => {
                 if (this.count > 0) {
@@ -41,17 +41,17 @@ export class SpamPrompt extends Prompt<boolean, SpamOptions> {
         // Visual Bar: [#####-----]
         const filled = symbols.line.repeat(filledLen).replace(/./g, '#'); // Or use block char
         const empty = symbols.line.repeat(emptyLen);
-        
+
         const barColor = progress === 1 ? theme.success : theme.error;
         const bar = `${theme.muted}[${barColor}${filled}${theme.muted}${empty}]${ANSI.RESET}`;
 
         let output = `${theme.error}${symbols.cross} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         output += `  ${bar} ${Math.floor(progress * 100)}%`;
-        
+
         if (this.count >= this.options.threshold) {
-             output += ` ${theme.success} READY! Press Enter${ANSI.RESET}`;
+            output += ` ${theme.success} READY! Press Enter${ANSI.RESET}`;
         } else {
-             output += ` ${theme.muted}(Mash '${this.options.spamKey || 'Space'}' to fill)${ANSI.RESET}`;
+            output += ` ${theme.muted}(Mash '${this.options.spamKey || 'Space'}' to fill)${ANSI.RESET}`;
         }
 
         this.renderFrame(output);
@@ -65,13 +65,13 @@ export class SpamPrompt extends Prompt<boolean, SpamOptions> {
         }
 
         const trigger = this.options.spamKey || ' ';
-        
+
         // Check if key matches (or any key if not specified)
         if (char === trigger) {
-             if (this.count < this.options.threshold) {
-                 this.count++;
-                 this.render(false);
-             }
+            if (this.count < this.options.threshold) {
+                this.count++;
+                this.render(false);
+            }
         }
     }
 }

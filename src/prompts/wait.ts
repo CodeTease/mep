@@ -26,7 +26,7 @@ export class WaitPrompt extends Prompt<void, WaitOptions> {
             if (this.remaining <= 0) {
                 this.isDone = true;
                 this.stopTimer();
-                
+
                 if (this.options.autoSubmit) {
                     this.submit();
                 } else {
@@ -36,7 +36,7 @@ export class WaitPrompt extends Prompt<void, WaitOptions> {
                 this.render(false);
             }
         }, 1000);
-        
+
         return super.run();
     }
 

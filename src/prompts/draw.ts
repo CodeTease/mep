@@ -15,10 +15,10 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         super(options);
         this.gridWidth = options.width * 2;
         this.gridHeight = options.height * 4;
-        
+
         if (options.initial) {
-             // Deep copy to avoid mutating original if passed
-             this.grid = options.initial.map(row => [...row]);
+            // Deep copy to avoid mutating original if passed
+            this.grid = options.initial.map(row => [...row]);
         } else {
             this.grid = [];
             for (let y = 0; y < this.gridHeight; y++) {
@@ -32,13 +32,13 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         const baseX = x * 2;
         const baseY = y * 4;
         let code = 0x2800; // Base Braille
-        
+
         // Column 0
         if (this.getPixel(baseX, baseY)) code |= 0x1;       // Dot 1
         if (this.getPixel(baseX, baseY + 1)) code |= 0x2;   // Dot 2
         if (this.getPixel(baseX, baseY + 2)) code |= 0x4;   // Dot 3
         if (this.getPixel(baseX, baseY + 3)) code |= 0x40;  // Dot 7 (Bottom-left)
-        
+
         // Column 1
         if (this.getPixel(baseX + 1, baseY)) code |= 0x8;       // Dot 4
         if (this.getPixel(baseX + 1, baseY + 1)) code |= 0x10;  // Dot 5
@@ -54,7 +54,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         }
         return false;
     }
-    
+
     private setPixel(x: number, y: number, val: boolean) {
         if (y >= 0 && y < this.gridHeight && x >= 0 && x < this.gridWidth) {
             this.grid[y][x] = val;
@@ -63,18 +63,18 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
 
     protected render(_firstRender: boolean) {
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
-        
+
         output += `${ANSI.FG_GRAY}┌${'─'.repeat(this.options.width + 2)}┐${ANSI.RESET}\n`;
 
         for (let y = 0; y < this.options.height; y++) {
             let line = '';
             for (let x = 0; x < this.options.width; x++) {
                 const char = this.getBrailleChar(x, y);
-                
+
                 // Highlight cursor position (pixel level approximation)
                 // If cursor is within this character block
-                const containsCursor = 
-                    Math.floor(this.cursorX / 2) === x && 
+                const containsCursor =
+                    Math.floor(this.cursorX / 2) === x &&
                     Math.floor(this.cursorY / 4) === y;
 
                 if (containsCursor) {
@@ -85,7 +85,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
             }
             output += `${ANSI.FG_GRAY}│ ${ANSI.RESET}${line} ${ANSI.FG_GRAY}│${ANSI.RESET}\n`;
         }
-        
+
         output += `${ANSI.FG_GRAY}└${'─'.repeat(this.options.width + 2)}┘${ANSI.RESET}\n`;
 
         output += `\n${ANSI.FG_GRAY}(Arrows: move, Space: toggle, Mouse: drag, 'c': clear, 'i': invert, Enter: done)${ANSI.RESET}`;
@@ -129,36 +129,36 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         if (this.lastMouse) {
             const dx = event.x - this.lastMouse.x;
             const dy = event.y - this.lastMouse.y;
-            
+
             // Relative movement: scale to grid density
             // X: 1 char = 2 pixels
             // Y: 1 char = 4 pixels
             if (dx !== 0 || dy !== 0) {
                 this.cursorX += dx * 2;
                 this.cursorY += dy * 4;
-                
+
                 // Clamp
                 this.cursorX = Math.max(0, Math.min(this.gridWidth - 1, this.cursorX));
                 this.cursorY = Math.max(0, Math.min(this.gridHeight - 1, this.cursorY));
-                
+
                 // Draw if pressing (Left Button = 0)
                 if (event.action === 'press' || (event.action === 'move' && event.button === 0)) {
-                    this.setPixel(this.cursorX, this.cursorY, true); 
+                    this.setPixel(this.cursorX, this.cursorY, true);
                 }
                 // Eraser (Right Button = 2)
                 if ((event.action === 'press' || event.action === 'move') && event.button === 2) {
-                     this.setPixel(this.cursorX, this.cursorY, false);
+                    this.setPixel(this.cursorX, this.cursorY, false);
                 }
 
                 this.render(false);
             }
         } else {
-             if (event.action === 'press' && event.button === 0) {
-                 this.setPixel(this.cursorX, this.cursorY, true);
-                 this.render(false);
-             }
+            if (event.action === 'press' && event.button === 0) {
+                this.setPixel(this.cursorX, this.cursorY, true);
+                this.render(false);
+            }
         }
-        
+
         this.lastMouse = { x: event.x, y: event.y };
     }
 

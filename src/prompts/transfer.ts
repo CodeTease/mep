@@ -8,12 +8,12 @@ import { stringWidth } from '../utils';
 export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
     private leftList: SelectChoice<V>[] = [];
     private rightList: SelectChoice<V>[] = [];
-    
+
     private cursorLeft: number = 0;
     private cursorRight: number = 0;
     private scrollTopLeft: number = 0;
     private scrollTopRight: number = 0;
-    
+
     private activeSide: 'left' | 'right' = 'left';
     private readonly pageSize: number = 10;
 
@@ -55,18 +55,18 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
         }
 
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
-        
+
         // Headers
         const leftTitle = this.activeSide === 'left' ? `${theme.main}Source${ANSI.RESET}` : 'Source';
         const rightTitle = this.activeSide === 'right' ? `${theme.main}Target${ANSI.RESET}` : 'Target';
-        
+
         output += `  ${leftTitle}`.padEnd(colWidth + 2) + '   ' + `  ${rightTitle}\n`;
         output += `  ${ANSI.DIM}${symbols.line.repeat(colWidth)}${ANSI.RESET}   ${ANSI.DIM}${symbols.line.repeat(colWidth)}${ANSI.RESET}\n`;
 
         for (let i = 0; i < this.pageSize; i++) {
             const idxLeft = this.scrollTopLeft + i;
             const idxRight = this.scrollTopRight + i;
-            
+
             const itemLeft = this.leftList[idxLeft];
             const itemRight = this.rightList[idxRight];
 
@@ -95,11 +95,11 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                     rightStr = `  ${title}`;
                 }
             }
-            
+
             const leftVisualWidth = itemLeft ? (stringWidth(this.truncate(itemLeft.title, colWidth - 2)) + 2) : 0;
             // Pad visually
             const padding = ' '.repeat(Math.max(0, colWidth - leftVisualWidth));
-            
+
             output += leftStr + padding + ' | ' + rightStr + '\n';
         }
 
@@ -110,10 +110,10 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
 
     protected handleInput(char: string) {
         if (char === '\r' || char === '\n') {
-             const leftValues = this.leftList.map(i => i.value);
-             const rightValues = this.rightList.map(i => i.value);
-             this.submit([leftValues, rightValues]);
-             return;
+            const leftValues = this.leftList.map(i => i.value);
+            const rightValues = this.rightList.map(i => i.value);
+            this.submit([leftValues, rightValues]);
+            return;
         }
 
         if (char === '\t' || this.isLeft(char) || this.isRight(char)) {
@@ -124,29 +124,29 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
         }
 
         // --- Batch Transfer Shortcuts ---
-        
+
         // Move All to Right ('a' or '>')
         if (char === 'a' || char === '>') {
-             if (this.leftList.length > 0) {
-                 this.rightList.push(...this.leftList);
-                 this.leftList = [];
-                 this.cursorLeft = 0;
-                 this.activeSide = 'right';
-                 this.render(false);
-             }
-             return;
+            if (this.leftList.length > 0) {
+                this.rightList.push(...this.leftList);
+                this.leftList = [];
+                this.cursorLeft = 0;
+                this.activeSide = 'right';
+                this.render(false);
+            }
+            return;
         }
 
         // Move All to Left ('r' or '<')
         if (char === 'r' || char === '<') {
-             if (this.rightList.length > 0) {
-                 this.leftList.push(...this.rightList);
-                 this.rightList = [];
-                 this.cursorRight = 0;
-                 this.activeSide = 'left';
-                 this.render(false);
-             }
-             return;
+            if (this.rightList.length > 0) {
+                this.leftList.push(...this.rightList);
+                this.rightList = [];
+                this.cursorRight = 0;
+                this.activeSide = 'left';
+                this.render(false);
+            }
+            return;
         }
 
         if (this.isUp(char)) {
@@ -180,7 +180,7 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                     }
                 }
             } else {
-                 if (this.rightList.length > 0) {
+                if (this.rightList.length > 0) {
                     const [item] = this.rightList.splice(this.cursorRight, 1);
                     this.leftList.push(item);
                     if (this.cursorRight >= this.rightList.length) {
@@ -193,18 +193,18 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
     }
 
     protected handleMouse(event: MouseEvent) {
-         if (event.action === 'scroll') {
+        if (event.action === 'scroll') {
             if (event.scroll === 'up') {
                 if (this.activeSide === 'left') {
-                     this.cursorLeft = Math.max(0, this.cursorLeft - 1);
+                    this.cursorLeft = Math.max(0, this.cursorLeft - 1);
                 } else {
-                     this.cursorRight = Math.max(0, this.cursorRight - 1);
+                    this.cursorRight = Math.max(0, this.cursorRight - 1);
                 }
             } else {
                 if (this.activeSide === 'left') {
-                     this.cursorLeft = Math.min(this.leftList.length - 1, this.cursorLeft + 1);
+                    this.cursorLeft = Math.min(this.leftList.length - 1, this.cursorLeft + 1);
                 } else {
-                     this.cursorRight = Math.min(this.rightList.length - 1, this.cursorRight + 1);
+                    this.cursorRight = Math.min(this.rightList.length - 1, this.cursorRight + 1);
                 }
             }
             this.render(false);

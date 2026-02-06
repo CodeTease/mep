@@ -11,7 +11,7 @@ export class TaskRunner {
     private isRunning: boolean = false;
     private lastOutputLines: string[] = [];
     private lastOutputHeight: number = 0;
-    
+
     // Explicitly using stdout
     private stdout: NodeJS.WriteStream = process.stdout;
 
@@ -81,10 +81,10 @@ export class TaskRunner {
     public run(): void {
         if (this.isRunning) return;
         this.isRunning = true;
-        
+
         this.stdout.write(ANSI.HIDE_CURSOR);
         this.hijackConsole();
-        
+
         // Handle Ctrl+C gracefully to restore cursor
         process.on('SIGINT', this.handleSigInt);
 
@@ -102,7 +102,7 @@ export class TaskRunner {
      */
     public stop(): void {
         if (!this.isRunning) return;
-        
+
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = undefined;
@@ -114,7 +114,7 @@ export class TaskRunner {
         this.isRunning = false;
         this.restoreConsole();
         this.stdout.write(ANSI.SHOW_CURSOR + '\n');
-        
+
         if (this.logBuffer.length > 0) {
             this.stdout.write(this.logBuffer.join('\n') + '\n');
             this.logBuffer = [];
@@ -137,11 +137,11 @@ export class TaskRunner {
         };
 
         const logger = (_type: string) => (...args: any[]) => {
-             // Use util.format for proper string interpolation
-             // eslint-disable-next-line @typescript-eslint/no-require-imports
-             const util = require('util');
-             const msg = util.format(...args);
-             this.logBuffer.push(msg);
+            // Use util.format for proper string interpolation
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const util = require('util');
+            const msg = util.format(...args);
+            this.logBuffer.push(msg);
         };
 
         console.log = logger('log');
@@ -163,7 +163,7 @@ export class TaskRunner {
      */
     private render(): void {
         const lines = this.buildLines();
-        
+
         // 1. First Render
         if (this.lastOutputLines.length === 0) {
             this.stdout.write(lines.join('\n'));
@@ -188,7 +188,7 @@ export class TaskRunner {
                 output += '\n';
             }
         }
-        
+
         // Clear garbage if shrunk
         if (lines.length < this.lastOutputLines.length) {
             output += ANSI.ERASE_DOWN;
@@ -201,25 +201,25 @@ export class TaskRunner {
 
     private buildLines(): string[] {
         const lines: string[] = [];
-        
+
         for (const task of this.tasks.values()) {
             const icon = this.getIcon(task);
             const title = task.title;
-            
+
             let line = `${icon} ${title}`;
-            
+
             if (task.type === 'progress' && task.total) {
                 const bar = generateProgressBar(task.current, task.total);
                 line += ` ${ANSI.FG_GRAY}${bar}${ANSI.RESET}`;
             }
 
             if (task.message) {
-                 line += ` ${ANSI.DIM}- ${task.message}${ANSI.RESET}`;
+                line += ` ${ANSI.DIM}- ${task.message}${ANSI.RESET}`;
             }
-            
+
             lines.push(line);
         }
-        
+
         return lines;
     }
 

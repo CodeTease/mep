@@ -37,9 +37,9 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                 // Check if value is still the same (avoid race condition)
                 if (this.segments.join('') === currentValue) {
                     if (suggestion.startsWith(currentValue) && suggestion.length > currentValue.length) {
-                         this.ghost = suggestion.slice(currentValue.length);
+                        this.ghost = suggestion.slice(currentValue.length);
                     } else {
-                         this.ghost = '';
+                        this.ghost = '';
                     }
                     this.render(false);
                 }
@@ -65,7 +65,7 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const hint = this.options.multiline ? ` ${theme.muted}(Press Ctrl+D to submit)${ANSI.RESET}` : '';
         const prefix = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${hint} `;
-        
+
         // We need visual length of prefix to calculate available space for input on the first line
         const prefixVisualLen = this.stripAnsi(prefix).length;
 
@@ -86,16 +86,16 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         } else {
             const maskChar = this.options.mask ?? (this.options.isPassword ? '*' : undefined);
             // Note: password masking replaces each grapheme with '*'
-            
+
             // Split by lines (for multiline support)
-            
+
             // Determine which line the cursor is on
             // We need to map 'cursor' (segments index) to line/col.
             // This is tricky because segments might contain '\n'.
             // safeSplit treats '\n' as a segment.
-            
+
             let cursorLineIndex = 0;
-            
+
             // Let's iterate segments to find cursor position (row, col)
             cursorLineIndex = 0;
             // If we want visual cursor position, we need visual width of segments.
@@ -114,16 +114,16 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                     }
                 }
             }
-            
+
             cursorRelativeRow = cursorLineIndex;
             cursorRelativeCol = visualColIndex;
 
             // Now prepare lines for display (scrolling/truncation)
             // We need to reconstruct lines from segments to apply styling/truncation logic per line.
-            
+
             let currentLineSegments: string[] = [];
             const processedLines: string[][] = []; // Array of segment arrays
-            
+
             for (const seg of this.segments) {
                 if (seg === '\n') {
                     processedLines.push(currentLineSegments);
@@ -133,9 +133,9 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                 }
             }
             processedLines.push(currentLineSegments); // Last line
-            
+
             processedLines.forEach((lineSegs: string[]) => {
-                
+
                 // Reconstruct line string for display calculation
                 // If password, join with *?
                 let visibleLine = '';
@@ -144,7 +144,7 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                 } else {
                     visibleLine = lineSegs.join('');
                 }
-                
+
                 displayValueLines.push(theme.main + visibleLine + ANSI.RESET);
             });
 
@@ -153,49 +153,49 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                 displayValueLines[displayValueLines.length - 1] += theme.muted + this.ghost + ANSI.RESET;
             }
         }
-        
+
         // 3. Assemble Output
         let output = '';
         displayValueLines.forEach((lineStr, idx) => {
-             if (idx === 0) {
-                 output += prefix + lineStr;
-             } else {
-                 output += '\n' + lineStr;
-             }
+            if (idx === 0) {
+                output += prefix + lineStr;
+            } else {
+                output += '\n' + lineStr;
+            }
         });
-        
+
         if (this.errorMsg) {
-             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
-        
+
         // 4. Render Frame
         this.renderFrame(output);
-        
+
         this.print(ANSI.SHOW_CURSOR);
 
         // 5. Move Cursor
         const errorOffset = this.errorMsg ? 1 : 0;
         const totalRows = displayValueLines.length + errorOffset;
-        
+
         const linesUp = (totalRows - 1) - cursorRelativeRow;
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
         this.lastLinesUp = linesUp;
-        
+
         let targetCol = 0;
         if (cursorRelativeRow === 0) {
-             targetCol = prefixVisualLen + cursorRelativeCol;
+            targetCol = prefixVisualLen + cursorRelativeCol;
         } else {
-             targetCol = cursorRelativeCol;
+            targetCol = cursorRelativeCol;
         }
-        
-        this.print(ANSI.CURSOR_LEFT); 
+
+        this.print(ANSI.CURSOR_LEFT);
         if (targetCol > 0) {
             this.print(`\x1b[${targetCol}C`);
         }
     }
-    
+
     // Helper to get width of a segment
     private getSegmentWidth(seg: string): number {
         return stringWidth(seg);
@@ -237,7 +237,7 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
             this.validateAndSubmit();
             return;
         }
-        
+
         // Ctrl+D / Ctrl+S
         if (this.options.multiline && (char === '\u0004' || char === '\u0013')) {
             this.validateAndSubmit();
@@ -245,7 +245,7 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         }
 
         // Backspace
-        if (char === '\u0008' || char === '\x7f') { 
+        if (char === '\u0008' || char === '\x7f') {
             this.hasTyped = true;
             if (this.cursor > 0) {
                 // Remove segment at cursor - 1
@@ -278,14 +278,14 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
 
         // Delete key
         if (char === '\u001b[3~') {
-             this.hasTyped = true;
-             if (this.cursor < this.segments.length) {
-                 this.segments.splice(this.cursor, 1);
-                 this.errorMsg = '';
-                 this.triggerSuggest();
-                 this.render(false);
-             }
-             return;
+            this.hasTyped = true;
+            if (this.cursor < this.segments.length) {
+                this.segments.splice(this.cursor, 1);
+                this.errorMsg = '';
+                this.triggerSuggest();
+                this.render(false);
+            }
+            return;
         }
 
         // Regular Typing & Paste
@@ -305,26 +305,26 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         this.value = this.segments.join('');
         if (this.options.validate) {
             const result = this.options.validate(this.value);
-            
+
             if (result instanceof Promise) {
                 this.errorMsg = 'Validating...';
                 this.render(false);
 
                 result.then(valid => {
-                     if (typeof valid === 'string' && valid.length > 0) {
-                         this.errorMsg = valid;
-                         this.render(false);
-                     } else if (valid === false) {
-                         this.errorMsg = 'Invalid input';
-                         this.render(false);
-                     } else {
+                    if (typeof valid === 'string' && valid.length > 0) {
+                        this.errorMsg = valid;
+                        this.render(false);
+                    } else if (valid === false) {
+                        this.errorMsg = 'Invalid input';
+                        this.render(false);
+                    } else {
                         this.errorMsg = '';
-                        this.render(false); 
+                        this.render(false);
                         this.submit(this.value);
-                     }
+                    }
                 }).catch(err => {
-                     this.errorMsg = err.message || 'Validation failed';
-                     this.render(false);
+                    this.errorMsg = err.message || 'Validation failed';
+                    this.render(false);
                 });
                 return;
             }
@@ -335,12 +335,12 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                 return;
             }
             if (result === false) {
-                 this.errorMsg = 'Invalid input';
-                 this.render(false);
-                 return;
+                this.errorMsg = 'Invalid input';
+                this.render(false);
+                return;
             }
         }
-        
+
         this.submit(this.value);
     }
 }

@@ -15,8 +15,8 @@ try {
     console.log("Availability Map:", availability);
 } catch (e) {
     if (e instanceof Error && e.message === 'User force closed') {
-         console.log("\nOperation cancelled by user.");
+        console.log("\nOperation cancelled by user.");
     } else {
-         console.error("\nAn error occurred:", e);
+        console.error("\nAn error occurred:", e);
     }
 }

@@ -20,7 +20,7 @@ export interface PipelineStep<Ctx> {
 export class Pipeline<Ctx extends Record<string, any> = Record<string, any>> {
   private steps: PipelineStep<Ctx>[] = [];
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Adds a step to the pipeline.

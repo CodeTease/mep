@@ -19,16 +19,16 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
 
     constructor(options: BoxOptions) {
         super(options);
-        
+
         const initial: any = options.initial;
         if (typeof initial === 'number') {
             this.values = { top: initial, right: initial, bottom: initial, left: initial };
         } else if (typeof initial === 'object') {
-            this.values = { 
-                top: initial.top ?? 0, 
-                right: initial.right ?? 0, 
-                bottom: initial.bottom ?? 0, 
-                left: initial.left ?? 0 
+            this.values = {
+                top: initial.top ?? 0,
+                right: initial.right ?? 0,
+                bottom: initial.bottom ?? 0,
+                left: initial.left ?? 0
             };
         } else {
             this.values = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -40,11 +40,11 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
     private commitBuffer() {
         let val = parseInt(this.inputBuffer, 10);
         if (isNaN(val)) val = 0;
-        
+
         // Apply constraints
         if (this.options.min !== undefined && val < this.options.min) val = this.options.min;
         if (this.options.max !== undefined && val > this.options.max) val = this.options.max;
-        
+
         this.values[this.focus] = val;
         this.inputBuffer = val.toString(); // Normalize buffer
     }
@@ -59,21 +59,21 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
         let val = parseInt(this.inputBuffer, 10);
         if (isNaN(val)) val = 0;
         val += amount;
-        
+
         if (this.options.min !== undefined && val < this.options.min) val = this.options.min;
         if (this.options.max !== undefined && val > this.options.max) val = this.options.max;
-        
+
         this.inputBuffer = val.toString();
     }
 
     protected render(_firstRender: boolean) {
         const title = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} (Arrows to navigate, Numbers to edit)`;
-        
+
         // Format value function
         const formatVal = (side: Side) => {
             const isFocused = this.focus === side;
             const text = isFocused ? this.inputBuffer : this.values[side].toString();
-            
+
             if (isFocused) {
                 return `${ANSI.FG_CYAN}${ANSI.BOLD}[ ${text} ]${ANSI.RESET}`;
             }
@@ -92,18 +92,18 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
 
         // We need to pad to align them nicely. 
         // Simple manual padding for MVP.
-        
+
         // Calculate center padding based on longest string? 
         // Keep it simple.
-        
+
         let output = title + '\n\n';
-        
+
         // Top Row (Centered)
         output += `          ${vTop}\n`;
-        
+
         // Middle Row
         output += `  ${vLeft}     ${vRight}\n`;
-        
+
         // Bottom Row
         output += `          ${vBottom}\n`;
 
@@ -114,7 +114,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
         if (event.name === 'mouse' && event.action === 'scroll') {
             const order: Side[] = ['top', 'right', 'bottom', 'left'];
             const idx = order.indexOf(this.focus);
-            
+
             if (event.scroll === 'down') {
                 // Next (Down usually means going forward/down in list)
                 this.changeFocus(order[(idx + 1) % 4]);
@@ -166,7 +166,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
             this.render(false);
             return;
         }
-        
+
         // Tab Cycling
         if (char === '\t') {
             const order: Side[] = ['top', 'right', 'bottom', 'left'];

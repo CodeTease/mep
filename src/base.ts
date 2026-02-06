@@ -21,7 +21,7 @@ export abstract class Prompt<T, O> {
 
     protected lastRenderLines: string[] = [];
     protected lastRenderHeight: number = 0;
-    
+
     protected capabilities: ReturnType<typeof detectCapabilities>;
 
     constructor(options: O) {
@@ -67,7 +67,7 @@ export abstract class Prompt<T, O> {
 
     protected abstract render(firstRender: boolean): void;
     protected abstract handleInput(char: string, key: Buffer): void;
-    protected handleMouse(_event: MouseEvent): void {}
+    protected handleMouse(_event: MouseEvent): void { }
 
     protected print(text: string) {
         this.stdout.write(text);
@@ -90,7 +90,7 @@ export abstract class Prompt<T, O> {
             }
 
             this.print(ANSI.HIDE_CURSOR);
-            
+
             // Initial render
             this.render(true);
 
@@ -105,7 +105,7 @@ export abstract class Prompt<T, O> {
             };
 
             this._inputParser.on('keypress', this._onKeyHandler);
-            
+
             this._inputParser.on('mouse', (event: MouseEvent) => {
                 this.handleMouse(event);
             });
@@ -141,7 +141,7 @@ export abstract class Prompt<T, O> {
         }
         this.stdin.resume();
         if (this._onDataHandler) {
-             this.stdin.on('data', this._onDataHandler);
+            this.stdin.on('data', this._onDataHandler);
         }
     }
 
@@ -152,7 +152,7 @@ export abstract class Prompt<T, O> {
         if (this._onKeyHandler) {
             this._inputParser.removeListener('keypress', this._onKeyHandler);
         }
-        
+
         this.print(ANSI.DISABLE_MOUSE);
 
         if (typeof this.stdin.setRawMode === 'function') {
@@ -164,7 +164,7 @@ export abstract class Prompt<T, O> {
 
     protected submit(result: T) {
         this.cleanup();
-        this.print('\n'); 
+        this.print('\n');
         if (this._resolve) this._resolve(result);
     }
 
@@ -181,10 +181,10 @@ export abstract class Prompt<T, O> {
     protected renderFrame(content: string) {
         const width = this.stdout.columns || 80;
         const rawLines = content.split('\n');
-        
+
         // Truncate lines to prevent wrapping artifacts
         const newLines = rawLines.map(line => this.truncate(line, width));
-        
+
         // 1. First Render Case
         if (this.lastRenderLines.length === 0) {
             this.print(newLines.join('\n'));
@@ -194,7 +194,7 @@ export abstract class Prompt<T, O> {
         }
 
         let outputBuffer = '';
-        
+
         // 2. Return Cursor to the Top of the Prompt
         if (this.lastRenderHeight > 1) {
             outputBuffer += `\x1b[${this.lastRenderHeight - 1}A`;
@@ -204,7 +204,7 @@ export abstract class Prompt<T, O> {
         // 3. Linear Scan & Update
         for (let i = 0; i < newLines.length; i++) {
             const newLine = newLines[i];
-            
+
             // Logic for moving to the next line
             if (i > 0) {
                 if (i < this.lastRenderLines.length) {
@@ -234,7 +234,7 @@ export abstract class Prompt<T, O> {
         // 4. Handle Shrinkage (Clear garbage below)
         if (newLines.length < this.lastRenderLines.length) {
             // Move down to the first obsolete line
-            outputBuffer += '\n'; 
+            outputBuffer += '\n';
             // Clear everything below
             outputBuffer += ANSI.ERASE_DOWN;
             // Move back up to the last valid line to maintain cursor state consistency
@@ -249,7 +249,7 @@ export abstract class Prompt<T, O> {
     }
 
     protected stripAnsi(str: string): string {
-         return stripAnsi(str);
+        return stripAnsi(str);
     }
 
     protected truncate(str: string, width: number): string {
@@ -261,15 +261,15 @@ export abstract class Prompt<T, O> {
         let currentWidth = 0;
         let cutIndex = 0;
         let inAnsi = false;
-        
+
         for (let i = 0; i < str.length; i++) {
             if (str[i] === '\x1b') inAnsi = true;
-            
+
             if (!inAnsi) {
                 const code = str.charCodeAt(i);
-                const charWidth = code > 255 ? 2 : 1; 
+                const charWidth = code > 255 ? 2 : 1;
                 if (currentWidth + charWidth > width - 3) {
-                     break;
+                    break;
                 }
                 currentWidth += charWidth;
             } else {

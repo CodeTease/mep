@@ -13,13 +13,13 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     protected searchBuffer: string = '';
     protected lastLinesUp: number = 0;
     protected errorMsg: string = '';
-    
+
     // For country search/filtering
     protected filteredIndices: number[] = [];
 
     constructor(options: PhoneOptions) {
         super(options);
-        
+
         // Initialize country
         if (options.defaultCountry) {
             const idx = COUNTRIES.findIndex(c => c[0] === options.defaultCountry?.toUpperCase());
@@ -28,7 +28,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             // Default to US or VN? Let's default to index 0 (US in our list usually, or whatever is first)
             this.selectedCountryIndex = 0;
         }
-        
+
         this.filteredIndices = COUNTRIES.map((_, i) => i);
     }
 
@@ -55,7 +55,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
                     return i;
                 }
             }
-            
+
             if (mask[i] === '#') {
                 rawCounter++;
             }
@@ -63,7 +63,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         // If we went past the end
         return mask.length;
     }
-    
+
     /**
      * Maps rawIndex to visual index, handling skipping of static characters.
      */
@@ -71,7 +71,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         const mask = this.mask;
         let v = 0;
         let r = 0;
-        
+
         while (v < mask.length) {
             if (r === rawIndex) {
                 // We reached the raw position. 
@@ -87,7 +87,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
                 }
                 return v;
             }
-            
+
             if (mask[v] === '#') {
                 r++;
             }
@@ -103,7 +103,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         const mask = this.mask;
         let result = '';
         let rawIdx = 0;
-        
+
         for (let i = 0; i < mask.length; i++) {
             const m = mask[i];
             if (m === '#') {
@@ -119,7 +119,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         }
         return result;
     }
-    
+
     /**
      * Renders the formatted number with highlighting.
      */
@@ -127,7 +127,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         const mask = this.mask;
         let output = '';
         let rawIdx = 0;
-        
+
         for (let i = 0; i < mask.length; i++) {
             const m = mask[i];
             if (m === '#') {
@@ -141,9 +141,9 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
                 }
             } else {
                 if (rawIdx > 0 || (rawIdx === 0 && this.rawNumber.length > 0)) {
-                     output += theme.muted + m + ANSI.RESET;
+                    output += theme.muted + m + ANSI.RESET;
                 } else {
-                     output += theme.muted + m + ANSI.RESET;
+                    output += theme.muted + m + ANSI.RESET;
                 }
             }
         }
@@ -154,14 +154,14 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         if (!firstRender && this.lastLinesUp > 0) {
             this.print(`\x1b[${this.lastLinesUp}B`);
         }
-        
+
         // 1. Title/Message
         const check = this.errorMsg ? theme.error + '✖' : theme.success + '?';
         const title = `${check} ${theme.title}${this.options.message}${ANSI.RESET} `;
-        
+
         // 2. Build Components
         const country = this.currentCountry;
-        
+
         // Country Section: "+84 (VN)"
         // Highlight if active
         const prefixStr = `+${country[2]} (${country[0]})`;
@@ -171,40 +171,40 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         } else {
             prefixRender = theme.muted + prefixStr + ANSI.RESET;
         }
-        
+
         // Input Section
         const formatted = this.renderFormattedNumber();
         const inputRender = formatted;
-        
+
         // Layout: [Prefix] [Input]
         const line = `${prefixRender} ${inputRender}`;
-        
+
         let output = title + line;
-        
+
         if (this.errorMsg) {
             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         } else if (this.activeSection === 'country' && this.searchBuffer) {
-             output += `\n${theme.muted}Searching: "${this.searchBuffer}"...${ANSI.RESET}`;
+            output += `\n${theme.muted}Searching: "${this.searchBuffer}"...${ANSI.RESET}`;
         }
-        
+
         this.renderFrame(output);
-        
+
         // 3. Cursor Positioning
         const errorOffset = (this.errorMsg || (this.activeSection === 'country' && this.searchBuffer)) ? 1 : 0;
         const totalRows = 1 + errorOffset;
-        
+
         // Reset cursor to end of render
         const linesUp = totalRows - 1;
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
         this.lastLinesUp = linesUp;
-        
+
         this.print(ANSI.CURSOR_LEFT);
-        
+
         // Calculate horizontal position
         const titleWidth = stripAnsi(title).length;
-        
+
         if (this.activeSection === 'country') {
             // Place cursor at end of prefix text? Or keep it hidden?
             // Let's place it at the end of the prefix.
@@ -216,14 +216,14 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             // Start position = Title + Prefix + Space
             const prefixWidth = prefixStr.length;
             const startX = titleWidth + prefixWidth + 1;
-            
+
             // Visual offset within input
             const visualOffset = this.getVisualPosition(this.cursor);
             const target = startX + visualOffset;
-            
+
             if (target > 0) this.print(`\x1b[${target}C`);
         }
-        
+
         this.print(ANSI.SHOW_CURSOR);
     }
 
@@ -234,14 +234,14 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         }
         super.cleanup();
     }
-    
+
     protected handleInput(char: string) {
         // Handle common keys
         if (char === '\r' || char === '\n') {
             this.validateAndSubmit();
             return;
         }
-        
+
         if (char === '\t') {
             // Toggle section
             this.activeSection = this.activeSection === 'country' ? 'number' : 'country';
@@ -272,7 +272,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             }
             return;
         }
-        
+
         // Arrows
         if (char === '\u001b[D') { // Left
             if (this.activeSection === 'number') {
@@ -285,7 +285,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             this.render(false);
             return;
         }
-        
+
         if (char === '\u001b[C') { // Right
             if (this.activeSection === 'country') {
                 this.activeSection = 'number';
@@ -297,7 +297,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             this.render(false);
             return;
         }
-        
+
         if (char === '\u001b[A') { // Up
             if (this.activeSection === 'country') {
                 this.cycleCountry(-1);
@@ -313,7 +313,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             this.render(false);
             return;
         }
-        
+
         // Typing
         if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
             if (this.activeSection === 'country') {
@@ -335,62 +335,62 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             }
         }
     }
-    
+
     private filterCountries() {
         // Simple search logic
         if (!this.searchBuffer) {
             this.filteredIndices = COUNTRIES.map((_, i) => i);
             return;
         }
-        
+
         // Prioritize: Starts with ISO, Starts with Name, Fuzzy Name
         const buf = this.searchBuffer.toLowerCase();
-        
+
         const matches = COUNTRIES.map((c, i) => {
             const iso = c[0].toLowerCase();
             const name = c[1].toLowerCase();
             const dial = c[2];
-            
+
             let score = 0;
             if (iso.startsWith(buf)) score += 100;
             if (name.startsWith(buf)) score += 50;
             if (dial.startsWith(buf)) score += 20; // Search by code
-            
+
             const fuzzy = fuzzyMatch(this.searchBuffer, c[1]);
             if (fuzzy) score += fuzzy.score;
-            
+
             return { index: i, score };
         }).filter(x => x.score > 0)
-          .sort((a, b) => b.score - a.score);
-          
+            .sort((a, b) => b.score - a.score);
+
         this.filteredIndices = matches.map(m => m.index);
-        
+
         // Auto-select first match
         if (this.filteredIndices.length > 0) {
             this.selectedCountryIndex = this.filteredIndices[0];
-            
+
             // If we changed country, we should validate/truncate current rawNumber?
             // The mask might change.
             this.enforceMaxLen();
         }
     }
-    
+
     private cycleCountry(dir: number) {
         // Cycle within filtered list
         const currentInFiltered = this.filteredIndices.indexOf(this.selectedCountryIndex);
         let nextIdx = currentInFiltered + dir;
-        
+
         if (nextIdx < 0) nextIdx = this.filteredIndices.length - 1;
         if (nextIdx >= this.filteredIndices.length) nextIdx = 0;
-        
+
         this.selectedCountryIndex = this.filteredIndices[nextIdx];
         this.enforceMaxLen();
     }
-    
+
     private getMaxRawLength(): number {
         return this.mask.split('#').length - 1;
     }
-    
+
     private enforceMaxLen() {
         const max = this.getMaxRawLength();
         if (this.rawNumber.length > max) {
@@ -408,37 +408,37 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
                 return;
             }
         }
-        
+
         // Validation callback
         const e164 = `+${this.dialCode}${this.rawNumber}`;
         if (this.options.validate) {
             const valid = this.options.validate(e164); // Pass strict format
-             if (typeof valid === 'string') {
-                 this.errorMsg = valid;
-                 this.render(false);
-                 return;
-             }
-             if (valid === false) {
-                 this.errorMsg = 'Invalid phone number';
-                 this.render(false);
-                 return;
-             }
+            if (typeof valid === 'string') {
+                this.errorMsg = valid;
+                this.render(false);
+                return;
+            }
+            if (valid === false) {
+                this.errorMsg = 'Invalid phone number';
+                this.render(false);
+                return;
+            }
         }
 
         this.submit(e164);
     }
-    
+
     protected handleMouse(event: any) {
         if (event.action === 'press' || event.action === 'move') {
             // This is hard to map without exact coordinates of sections.
             // Simplified: Scroll changes country if active.
         }
-        
+
         if (event.scroll) {
-             if (this.activeSection === 'country') {
-                 this.cycleCountry(event.scroll === 'up' ? -1 : 1);
-                 this.render(false);
-             }
+            if (this.activeSection === 'country') {
+                this.cycleCountry(event.scroll === 'up' ? -1 : 1);
+                this.render(false);
+            }
         }
     }
 }

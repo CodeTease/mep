@@ -57,37 +57,37 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
 
         // Rows
         const visibleItems = this.items.slice(this.scrollTop, this.scrollTop + this.pageSize);
-        
+
         visibleItems.forEach((item, index) => {
-             const actualIndex = this.scrollTop + index;
-             if (index > 0) output += '\n';
+            const actualIndex = this.scrollTop + index;
+            if (index > 0) output += '\n';
 
-             const isRowActive = actualIndex === this.rowIndex;
-             const pointer = isRowActive ? `${theme.main}${symbols.pointer}${ANSI.RESET} ` : '  ';
-             
-             // Render Key
-             let keyStr = item.key;
-             if (isRowActive && this.colIndex === 0) {
-                 keyStr = `${theme.main}${ANSI.UNDERLINE}${keyStr}${ANSI.RESET}`;
-             }
-             // Adjust padding manually because ANSI codes mess up simple padEnd
-             const keyVisualWidth = stringWidth(item.key);
-             const padding = ' '.repeat(Math.max(0, maxKeyWidth - keyVisualWidth));
-             
-             // Render Value
-             let valStr = item.value;
-             if (isRowActive && this.colIndex === 1) {
-                 valStr = `${theme.main}${ANSI.UNDERLINE}${valStr || ' '}${ANSI.RESET}`;
-             }
+            const isRowActive = actualIndex === this.rowIndex;
+            const pointer = isRowActive ? `${theme.main}${symbols.pointer}${ANSI.RESET} ` : '  ';
 
-             output += `${pointer}${keyStr}${padding}${valStr}`;
+            // Render Key
+            let keyStr = item.key;
+            if (isRowActive && this.colIndex === 0) {
+                keyStr = `${theme.main}${ANSI.UNDERLINE}${keyStr}${ANSI.RESET}`;
+            }
+            // Adjust padding manually because ANSI codes mess up simple padEnd
+            const keyVisualWidth = stringWidth(item.key);
+            const padding = ' '.repeat(Math.max(0, maxKeyWidth - keyVisualWidth));
+
+            // Render Value
+            let valStr = item.value;
+            if (isRowActive && this.colIndex === 1) {
+                valStr = `${theme.main}${ANSI.UNDERLINE}${valStr || ' '}${ANSI.RESET}`;
+            }
+
+            output += `${pointer}${keyStr}${padding}${valStr}`;
         });
 
         // Instructions
         output += `\n${ANSI.DIM}(Ctrl+N: Add, Ctrl+D: Del)${ANSI.RESET}`;
 
         if (this.errorMsg) {
-             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
 
         this.renderFrame(output);
@@ -101,7 +101,7 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
 
     protected handleInput(char: string) {
         this.errorMsg = '';
-        
+
         // Navigation
         if (this.isUp(char)) {
             if (this.rowIndex > 0) this.rowIndex--;
@@ -112,10 +112,10 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
             if (this.rowIndex < this.items.length - 1) {
                 this.rowIndex++;
             } else {
-                 // Down at last row adds new row
-                 this.items.push({ key: '', value: '' });
-                 this.rowIndex++;
-                 this.colIndex = 0; // Optional: Reset to Key col when creating new row
+                // Down at last row adds new row
+                this.items.push({ key: '', value: '' });
+                this.rowIndex++;
+                this.colIndex = 0; // Optional: Reset to Key col when creating new row
             }
             this.render(false);
             return;
@@ -163,9 +163,9 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
                 return;
             }
             if (keys.some(k => k === '')) {
-                 this.errorMsg = 'Keys cannot be empty';
-                 this.render(false);
-                 return;
+                this.errorMsg = 'Keys cannot be empty';
+                this.render(false);
+                return;
             }
 
             const result: Record<string, string> = {};
@@ -175,14 +175,14 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
             this.submit(result);
             return;
         }
-        
+
         // Backspace
         if (char === '\u0008' || char === '\x7f') {
             const item = this.items[this.rowIndex];
             if (this.colIndex === 0) {
                 if (item.key.length > 0) item.key = item.key.slice(0, -1);
             } else {
-                 if (item.value.length > 0) item.value = item.value.slice(0, -1);
+                if (item.value.length > 0) item.value = item.value.slice(0, -1);
             }
             this.render(false);
             return;
@@ -190,13 +190,13 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
 
         // Typing
         if (!/^[\x00-\x1F]/.test(char)) {
-             const item = this.items[this.rowIndex];
-             if (this.colIndex === 0) {
-                 item.key += char;
-             } else {
-                 item.value += char;
-             }
-             this.render(false);
+            const item = this.items[this.rowIndex];
+            if (this.colIndex === 0) {
+                item.key += char;
+            } else {
+                item.value += char;
+            }
+            this.render(false);
         }
     }
 

@@ -31,7 +31,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
     private rgbToHex(r: number, g: number, b: number): string {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
     }
-    
+
     // Helper to format ANSI TrueColor background
     private getBgColorCode(r: number, g: number, b: number): string {
         return `\x1b[48;2;${r};${g};${b}m`;
@@ -40,10 +40,10 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
     protected render(_firstRender: boolean): void {
         const { r, g, b } = this.rgb;
         const hex = this.rgbToHex(r, g, b);
-        
+
         let output = `${theme.title}${this.options.message}${ANSI.RESET} `;
         output += `${ANSI.BOLD}${hex}${ANSI.RESET}\n\n`;
-        
+
         // Preview Block
         if (this.capabilities.hasTrueColor) {
             const bg = this.getBgColorCode(r, g, b);
@@ -57,15 +57,15 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             // For now, simpler fallback:
             output += `  (Preview unavailable in this terminal)\n\n`;
         }
-        
+
         // Sliders
         const channels: ('r' | 'g' | 'b')[] = ['r', 'g', 'b'];
         const labels = { r: 'Red  ', g: 'Green', b: 'Blue ' };
-        
+
         channels.forEach(ch => {
             const val = this.rgb[ch];
             const isActive = this.activeChannel === ch;
-            
+
             // Render slider track
             // Width 20 chars for 0-255
             const width = 20;
@@ -73,13 +73,13 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             // Wait, '⚪' might be wide. using simpler char if needed. 'O' or ANSI reverse space.
             // Let's use standard chars.
             const trackSimple = '━'.repeat(pos) + (isActive ? '●' : '○') + '─'.repeat(width - pos);
-            
+
             let line = `${labels[ch]}: ${val.toString().padStart(3)} [${trackSimple}]`;
-            
+
             if (isActive) {
                 line = `${theme.main}${ANSI.REVERSE} ${line} ${ANSI.RESET}`;
             } else {
-                 line = ` ${line} `;
+                line = ` ${line} `;
             }
             output += line + '\n';
         });
@@ -94,7 +94,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);
         const isRight = this.isRight(char);
-        
+
         // Detect Shift key for faster movement (generic check if possible, or mapping specific codes)
         // \x1b[1;2C is Shift+Right usually. \x1b[1;2D is Shift+Left.
         // It varies by terminal.
@@ -109,10 +109,10 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             return;
         }
         if (isDown) {
-             if (this.activeChannel === 'r') this.activeChannel = 'g';
-             else if (this.activeChannel === 'g') this.activeChannel = 'b';
-             this.render(false);
-             return;
+            if (this.activeChannel === 'r') this.activeChannel = 'g';
+            else if (this.activeChannel === 'g') this.activeChannel = 'b';
+            this.render(false);
+            return;
         }
 
         // Value Adjustment (Left/Right)
@@ -122,13 +122,13 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             if (isLeft) change = -1;
             if (isShiftRight) change = 10;
             if (isShiftLeft) change = -10;
-            
+
             const val = this.rgb[this.activeChannel] + change;
             this.rgb[this.activeChannel] = Math.max(0, Math.min(255, val));
             this.render(false);
             return;
         }
-        
+
         // Tab to cycle channels
         if (char === '\t') {
             if (this.activeChannel === 'r') this.activeChannel = 'g';

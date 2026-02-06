@@ -1,8 +1,10 @@
-import { TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions, 
-         DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions, 
-         KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
-         ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
-         KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions } from './types';
+import {
+    TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions,
+    DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions,
+    KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
+    ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
+    KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions
+} from './types';
 import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions, RegexOptions, BoxOptions, PhoneOptions } from './types';
 import { theme } from './theme';
 import { Spinner } from './spinner';
@@ -231,7 +233,7 @@ export class MepCLI {
     static secret(options: TextOptions): Promise<string> {
         return new TextPrompt({ ...options, mask: '' }).run();
     }
-    
+
     /**
      * Numeric input prompt with increments.
      * @example
@@ -248,7 +250,7 @@ export class MepCLI {
     static number(options: NumberOptions): Promise<number> {
         return new NumberPrompt(options).run();
     }
-    
+
     /**
      * Binary toggle switch.
      * @example
@@ -1278,7 +1280,7 @@ export class MepCLI {
      * @returns A promise resolving to the box object.
      * @see {@link https://github.com/CodeTease/mep/blob/main/examples/box-prompt.ts}
      */
-    static box(options: BoxOptions): Promise<{top: number, right: number, bottom: number, left: number}> {
+    static box(options: BoxOptions): Promise<{ top: number, right: number, bottom: number, left: number }> {
         return new BoxPrompt(options).run();
     }
 

@@ -24,7 +24,7 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
     protected findNextSelectableIndex(currentIndex: number, direction: 1 | -1): number {
         let nextIndex = currentIndex + direction;
         const choices = this.getFilteredChoices();
-        
+
         // Loop around logic
         if (nextIndex < 0) nextIndex = choices.length - 1;
         if (nextIndex >= choices.length) nextIndex = 0;
@@ -41,7 +41,7 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
         }
         return nextIndex;
     }
-    
+
     protected getFilteredChoices() {
         if (!this.searchBuffer) return this.options.choices;
         return this.options.choices.filter(c => {
@@ -49,11 +49,11 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
             return (c as any).title.toLowerCase().includes(this.searchBuffer.toLowerCase());
         });
     }
-    
+
     protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
-        
+
         // Adjust Scroll Top
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;
@@ -69,16 +69,16 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
         // Note: We avoid ERASE_LINE here because renderFrame handles full redraw
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
-        
+
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
             // We can omit newline at the very end if we want, but usually it's better to be consistent.
             // renderFrame adds newline via truncate logic? No, it joins.
             // So if I want a line break, I must add it.
         } else {
-             const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-             
-             visibleChoices.forEach((choice, index) => {
+            const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+
+            visibleChoices.forEach((choice, index) => {
                 const actualIndex = this.scrollTop + index;
                 if (index > 0) output += '\n'; // Separator between items
 
@@ -93,7 +93,7 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
                 }
             });
         }
-        
+
         // No manual printing. Pass to renderFrame.
         this.renderFrame(output);
     }
@@ -110,7 +110,7 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
             }
 
             if (this.isSeparator(choices[this.selectedIndex])) return;
-            
+
             this.cleanup();
             // Cursor is shown by cleanup
             if ((this as any)._resolve) (this as any)._resolve((choices[this.selectedIndex] as any).value);
@@ -131,7 +131,7 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
             }
             return;
         }
-        
+
         // Backspace
         if (char === '\u0008' || char === '\x7f') {
             if (this.searchBuffer.length > 0) {
@@ -144,10 +144,10 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
         }
 
         // Typing
-         if (char.length === 1 && !/^[\x00-\x1F]/.test(char)) {
+        if (char.length === 1 && !/^[\x00-\x1F]/.test(char)) {
             this.searchBuffer += char;
             this.selectedIndex = 0; // Reset selection
-             this.selectedIndex = this.findNextSelectableIndex(-1, 1);
+            this.selectedIndex = this.findNextSelectableIndex(-1, 1);
             this.render(false);
         }
     }

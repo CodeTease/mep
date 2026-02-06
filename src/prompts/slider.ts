@@ -16,7 +16,7 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
         const range = this.options.max - this.options.min;
         const ratio = (this.value - this.options.min) / range;
         const pos = Math.round(ratio * width);
-        
+
         let bar = '';
         for (let i = 0; i <= width; i++) {
             if (i === pos) bar += `${theme.main}O${ANSI.RESET}`;
@@ -25,7 +25,7 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
 
         const unit = this.options.unit || '';
         const output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} [${bar}] ${this.value}${unit}`;
-        
+
         this.renderFrame(output);
     }
 
@@ -34,18 +34,18 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
             this.submit(this.value);
             return;
         }
-        
+
         const step = this.options.step || 1;
 
         if (this.isLeft(char)) { // Left
             this.value = Math.max(this.options.min, this.value - step);
-             // Round to avoid float errors
+            // Round to avoid float errors
             this.value = Math.round(this.value * 10000) / 10000;
             this.render(false);
         }
         if (this.isRight(char)) { // Right
             this.value = Math.min(this.options.max, this.value + step);
-             // Round to avoid float errors
+            // Round to avoid float errors
             this.value = Math.round(this.value * 10000) / 10000;
             this.render(false);
         }
@@ -61,7 +61,7 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
             if (event.scroll === 'down') { // Scroll Down -> Decrease
                 this.value = Math.max(this.options.min, this.value - step);
             }
-            
+
             // Round to avoid float errors
             this.value = Math.round(this.value * 10000) / 10000;
             this.render(false);

@@ -22,7 +22,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
     }
 
     protected render(firstRender: boolean) {
-	if (!firstRender && this.lastLinesUp > 0) {
+        if (!firstRender && this.lastLinesUp > 0) {
             this.print(`\x1b[${this.lastLinesUp}B`);
         }
         this.lastLinesUp = 0;
@@ -32,7 +32,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         // Title
         outputLines.push(`${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}`);
         if (this.globalError) {
-             outputLines.push(`${theme.error}>> ${this.globalError}${ANSI.RESET}`);
+            outputLines.push(`${theme.error}>> ${this.globalError}${ANSI.RESET}`);
         }
 
         let cursorLineIndex = -1;
@@ -58,7 +58,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
             // Value
             // Note: Use Secret/Password prompt for case sensitive input, Form prompt is for general text input
             const displayValue = isActive ? value : `${theme.muted}${value}${ANSI.RESET}`;
-            
+
             // Construct Line
             const line = `${icon} ${label} ${displayValue}`;
             outputLines.push(line);
@@ -69,7 +69,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
                 const prefix = `${icon} ${label} `;
                 const valuePrefix = value.substring(0, this.cursor);
                 cursorLineIndex = outputLines.length - 1;
-                cursorColIndex = stringWidth(this.stripAnsi(prefix)) + stringWidth(this.stripAnsi(valuePrefix));            
+                cursorColIndex = stringWidth(this.stripAnsi(prefix)) + stringWidth(this.stripAnsi(valuePrefix));
             }
 
             // Error for this field
@@ -87,17 +87,17 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Position Cursor
         this.print(ANSI.SHOW_CURSOR);
-        
+
         if (cursorLineIndex !== -1) {
             // Calculate lines up from bottom
             const totalLines = outputLines.length;
             const linesUp = (totalLines - 1) - cursorLineIndex;
-            
+
             if (linesUp > 0) {
                 this.print(`\x1b[${linesUp}A`);
                 this.lastLinesUp = linesUp;
             }
-            
+
             this.print(ANSI.CURSOR_LEFT);
             if (cursorColIndex > 0) {
                 this.print(`\x1b[${cursorColIndex}C`);
@@ -123,14 +123,14 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         // Enter
         if (char === '\r' || char === '\n') {
             this.validateCurrentField().then(isValid => {
-                 if (isValid) {
-                     if (this.activeIndex < this.options.fields.length - 1) {
-                         this.moveFocus(1);
-                     } else {
-                         // Submit
-                         this.submitForm();
-                     }
-                 }
+                if (isValid) {
+                    if (this.activeIndex < this.options.fields.length - 1) {
+                        this.moveFocus(1);
+                    } else {
+                        // Submit
+                        this.submitForm();
+                    }
+                }
             });
             return;
         }
@@ -152,14 +152,14 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Left/Right arrow to move cursor within field
         if (this.isLeft(char)) {
-             if (this.cursor > 0) this.cursor--;
-             this.render(false);
-             return;
+            if (this.cursor > 0) this.cursor--;
+            this.render(false);
+            return;
         }
         if (this.isRight(char)) {
-             if (this.cursor < val.length) this.cursor++;
-             this.render(false);
-             return;
+            if (this.cursor < val.length) this.cursor++;
+            this.render(false);
+            return;
         }
 
         // Typing
@@ -198,7 +198,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
     private async validateCurrentField(): Promise<boolean> {
         const field = this.options.fields[this.activeIndex];
         const val = this.values[field.name];
-        
+
         if (field.validate) {
             try {
                 const res = await field.validate(val);
@@ -213,7 +213,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
                 return false;
             }
         }
-        
+
         // Clear error if valid
         delete this.fieldErrors[field.name];
         this.render(false);
@@ -230,19 +230,19 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
     private async submitForm() {
         this.globalError = '';
-        
+
         // Validate all fields
         let allValid = true;
         for (const field of this.options.fields) {
             const val = this.values[field.name];
             if (field.validate) {
-                 const res = await field.validate(val);
-                 if (res !== true) {
-                     this.fieldErrors[field.name] = typeof res === 'string' ? res : 'Invalid value';
-                     allValid = false;
-                 } else {
-                     delete this.fieldErrors[field.name];
-                 }
+                const res = await field.validate(val);
+                if (res !== true) {
+                    this.fieldErrors[field.name] = typeof res === 'string' ? res : 'Invalid value';
+                    allValid = false;
+                } else {
+                    delete this.fieldErrors[field.name];
+                }
             }
         }
 

@@ -56,7 +56,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
 
     private killChild() {
         if (this.child && !this.child.killed) {
-            this.child.kill(); 
+            this.child.kill();
         }
     }
 

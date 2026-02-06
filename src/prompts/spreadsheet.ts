@@ -10,10 +10,10 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
     private cursorCol: number = 0;
     private scrollRow: number = 0;
     private scrollCol: number = 0;
-    
+
     private editMode: boolean = false;
     private tempValue: string = '';
-    
+
     private colWidths: number[] = [];
     private viewportHeight: number;
 
@@ -26,7 +26,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
     private calculateColWidths() {
         this.colWidths = this.options.columns.map(col => {
             if (col.width) return col.width;
-            
+
             // Auto calculate based on header and data
             let max = stringWidth(col.name);
             this.options.data.forEach(row => {
@@ -56,28 +56,28 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         const termWidth = this.stdout.columns || 80;
         let currentWidth = 4; // Row number column (3 digits + space)
         const visibleCols: number[] = [];
-        
+
         for (let i = this.scrollCol; i < this.options.columns.length; i++) {
             const w = this.colWidths[i];
             // Check if adding this column exceeds width
             // We allow at least one column even if it exceeds? No, standard behavior.
             if (currentWidth + w + 1 > termWidth && visibleCols.length > 0) break;
-            
+
             visibleCols.push(i);
             currentWidth += w + 1;
         }
 
         // Render Header
-        let headerStr = '   '; 
+        let headerStr = '   ';
         let totalWidth = 3;
-        
+
         visibleCols.forEach(idx => {
-             const col = this.options.columns[idx];
-             const w = this.colWidths[idx];
-             headerStr += this.pad(col.name, w) + ' ';
-             totalWidth += w + 1;
+            const col = this.options.columns[idx];
+            const w = this.colWidths[idx];
+            headerStr += this.pad(col.name, w) + ' ';
+            totalWidth += w + 1;
         });
-        
+
         output += `${ANSI.BOLD}${headerStr}${ANSI.RESET}\n`;
         output += `${ANSI.DIM}   ${symbols.horizontal.repeat(Math.max(0, totalWidth - 3))}${ANSI.RESET}\n`;
 
@@ -85,34 +85,34 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         for (let i = 0; i < this.viewportHeight; i++) {
             const rowIndex = this.scrollRow + i;
             if (rowIndex >= this.options.data.length) break;
-            
+
             const rowData = this.options.data[rowIndex];
             // Row Number
             let rowStr = `${ANSI.DIM}${String(rowIndex + 1).padEnd(3)}${ANSI.RESET}`;
-            
+
             visibleCols.forEach(colIndex => {
                 const col = this.options.columns[colIndex];
                 const w = this.colWidths[colIndex];
                 const isCursor = (rowIndex === this.cursorRow) && (colIndex === this.cursorCol);
-                
+
                 let val = String(rowData[col.key] || '');
                 if (isCursor && this.editMode) {
                     val = this.tempValue;
                 }
-                
+
                 let displayVal = this.truncate(val, w);
                 displayVal = this.pad(displayVal, w);
-                
+
                 if (isCursor) {
                     if (this.editMode) {
-                         // Highlight editing
-                         displayVal = `${theme.main}${ANSI.UNDERLINE}${displayVal}${ANSI.RESET}`;
+                        // Highlight editing
+                        displayVal = `${theme.main}${ANSI.UNDERLINE}${displayVal}${ANSI.RESET}`;
                     } else {
-                         // Highlight selection
-                         displayVal = `${ANSI.REVERSE}${displayVal}${ANSI.RESET}`;
+                        // Highlight selection
+                        displayVal = `${ANSI.REVERSE}${displayVal}${ANSI.RESET}`;
                     }
                 }
-                
+
                 rowStr += displayVal + ' ';
             });
             output += rowStr + '\n';
@@ -120,9 +120,9 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
 
         // Footer / Status
         if (this.editMode) {
-            output += `\n${ANSI.FG_YELLOW}Editing cell (${this.cursorRow+1}, ${this.options.columns[this.cursorCol].name}). Press Enter to save.${ANSI.RESET}`;
+            output += `\n${ANSI.FG_YELLOW}Editing cell (${this.cursorRow + 1}, ${this.options.columns[this.cursorCol].name}). Press Enter to save.${ANSI.RESET}`;
         } else {
-             output += `\n${ANSI.DIM}Press 's' or Enter to Save & Exit${ANSI.RESET}`;
+            output += `\n${ANSI.DIM}Press 's' or Enter to Save & Exit${ANSI.RESET}`;
         }
 
         this.renderFrame(output);
@@ -133,7 +133,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         if (w >= width) return str;
         return str + ' '.repeat(width - w);
     }
-    
+
     protected handleInput(char: string, _key: Buffer) {
         if (this.editMode) {
             this.handleEditInput(char);
@@ -164,32 +164,32 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         }
         if (this.isRight(char) || char === '\t') {
             this.cursorCol = Math.min(this.options.columns.length - 1, this.cursorCol + 1);
-            
+
             // Adjust scrollCol to keep cursor visible
             // Loop until cursorCol is within visible range
             while (true) {
-                 const termWidth = this.stdout.columns || 80;
-                 let w = 4; // Row num
-                 let isVisible = false;
-                 
-                 for (let i = this.scrollCol; i < this.options.columns.length; i++) {
-                     w += this.colWidths[i] + 1;
-                     if (w > termWidth && i > this.scrollCol) break; // Allow at least one
-                     
-                     if (i === this.cursorCol) {
-                         isVisible = true;
-                         break;
-                     }
-                 }
-                 
-                 if (isVisible) break;
-                 this.scrollCol++;
-                 if (this.scrollCol > this.cursorCol) {
-                     this.scrollCol = this.cursorCol;
-                     break;
-                 }
+                const termWidth = this.stdout.columns || 80;
+                let w = 4; // Row num
+                let isVisible = false;
+
+                for (let i = this.scrollCol; i < this.options.columns.length; i++) {
+                    w += this.colWidths[i] + 1;
+                    if (w > termWidth && i > this.scrollCol) break; // Allow at least one
+
+                    if (i === this.cursorCol) {
+                        isVisible = true;
+                        break;
+                    }
+                }
+
+                if (isVisible) break;
+                this.scrollCol++;
+                if (this.scrollCol > this.cursorCol) {
+                    this.scrollCol = this.cursorCol;
+                    break;
+                }
             }
-            
+
             this.render(false);
             return;
         }
@@ -205,9 +205,9 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             this.submit(this.options.data);
             return;
         }
-        
+
         // Removed 'q' unsafe exit.
-        
+
         // Typing starts editing
         if (!/^[\x00-\x1F]/.test(char)) {
             this.startEditing(char);
@@ -256,12 +256,12 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             if (event.scroll === 'up') {
+            if (event.scroll === 'up') {
                 this.cursorRow = Math.max(0, this.cursorRow - 1);
                 this.render(false);
             } else {
-                 this.cursorRow = Math.min(this.options.data.length - 1, this.cursorRow + 1);
-                 this.render(false);
+                this.cursorRow = Math.min(this.options.data.length - 1, this.cursorRow + 1);
+                this.render(false);
             }
         }
     }

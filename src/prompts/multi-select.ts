@@ -43,32 +43,32 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
-        
+
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
         } else {
-             const visible = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-             visible.forEach((choice, index) => {
-                 if (index > 0) output += '\n';
-                 
-                 const actualIndex = this.scrollTop + index;
-                 const cursor = actualIndex === this.selectedIndex ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : ' ';
-                 const isChecked = this.checkedState[choice.originalIndex];
-                 const checkbox = isChecked 
-                    ? `${theme.success}${symbols.checked}${ANSI.RESET}` 
+            const visible = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+            visible.forEach((choice, index) => {
+                if (index > 0) output += '\n';
+
+                const actualIndex = this.scrollTop + index;
+                const cursor = actualIndex === this.selectedIndex ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : ' ';
+                const isChecked = this.checkedState[choice.originalIndex];
+                const checkbox = isChecked
+                    ? `${theme.success}${symbols.checked}${ANSI.RESET}`
                     : `${theme.muted}${symbols.unchecked}${ANSI.RESET}`;
-                 
-                 output += `${cursor} ${checkbox} ${choice.title}`;
-             });
+
+                output += `${cursor} ${checkbox} ${choice.title}`;
+            });
         }
 
         // Hints
         if (!this.searchBuffer && !this.errorMsg) {
-             output += `\n${ANSI.DIM}(Ctrl+A: All, Ctrl+X: None)${ANSI.RESET}`;
+            output += `\n${ANSI.DIM}(Ctrl+A: All, Ctrl+X: None)${ANSI.RESET}`;
         }
-        
+
         if (this.errorMsg) {
-             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
 
         this.renderFrame(output);
@@ -81,7 +81,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
         if (char === '\r' || char === '\n') {
             const selectedCount = this.checkedState.filter(Boolean).length;
             const { min = 0, max } = this.options;
-             if (selectedCount < min) {
+            if (selectedCount < min) {
                 this.errorMsg = `Select at least ${min}.`;
                 this.render(false);
                 return;
@@ -91,8 +91,8 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
                 this.render(false);
                 return;
             }
-            
-             const results = this.options.choices
+
+            const results = this.options.choices
                 .filter((_, i) => this.checkedState[i])
                 .map(c => c.value);
             this.submit(results);
@@ -105,19 +105,19 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
         if (char === '\x01') {
             const newCheckedState = [...this.checkedState];
             let potentialAdd = 0;
-            
+
             // Calculate potential selections
             choices.forEach(c => {
                 if (!newCheckedState[c.originalIndex]) potentialAdd++;
             });
-            
+
             const currentSelected = newCheckedState.filter(Boolean).length;
             if (this.options.max && (currentSelected + potentialAdd) > this.options.max) {
-                 this.errorMsg = `Max limit ${this.options.max} reached`;
+                this.errorMsg = `Max limit ${this.options.max} reached`;
             } else {
-                 choices.forEach(c => newCheckedState[c.originalIndex] = true);
-                 this.checkedState = newCheckedState;
-                 this.errorMsg = '';
+                choices.forEach(c => newCheckedState[c.originalIndex] = true);
+                this.checkedState = newCheckedState;
+                this.errorMsg = '';
             }
             this.render(false);
             return;
@@ -141,28 +141,28 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             return;
         }
 
-        if (this.isUp(char)) { 
-             if (choices.length > 0) {
-                 this.selectedIndex = (this.selectedIndex - 1 + choices.length) % choices.length;
-                 this.render(false);
-             }
-             return;
+        if (this.isUp(char)) {
+            if (choices.length > 0) {
+                this.selectedIndex = (this.selectedIndex - 1 + choices.length) % choices.length;
+                this.render(false);
+            }
+            return;
         }
         if (this.isDown(char)) {
-             if (choices.length > 0) {
-                 this.selectedIndex = (this.selectedIndex + 1) % choices.length;
-                 this.render(false);
-             }
-             return;
+            if (choices.length > 0) {
+                this.selectedIndex = (this.selectedIndex + 1) % choices.length;
+                this.render(false);
+            }
+            return;
         }
 
         if (char === '\u0008' || char === '\x7f') { // Backspace
-             if (this.searchBuffer.length > 0) {
-                 this.searchBuffer = this.searchBuffer.slice(0, -1);
-                 this.selectedIndex = 0;
-                 this.render(false);
-             }
-             return;
+            if (this.searchBuffer.length > 0) {
+                this.searchBuffer = this.searchBuffer.slice(0, -1);
+                this.selectedIndex = 0;
+                this.render(false);
+            }
+            return;
         }
 
         // Typing search

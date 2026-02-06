@@ -36,14 +36,14 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         this.currentPath = this.root;
         this.separator = options.separator || ' › ';
         this.showHidden = options.showHidden || false;
-        
+
         this.loadDirectory(this.currentPath);
     }
 
     protected async loadDirectory(dir: string) {
         this.isLoading = true;
         this.error = null;
-        this.render(false); 
+        this.render(false);
 
         try {
             await fs.access(dir);
@@ -66,7 +66,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
             });
 
             this.currentEntries = entries;
-            
+
             if (this.currentEntries.length === 0) {
                 this.cursor = 0;
             } else if (this.cursor >= this.currentEntries.length) {
@@ -86,7 +86,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         if (!entry || !entry.isDirectory) return;
 
         const nextPath = path.join(this.currentPath, entry.name);
-        
+
         this.stack.push({
             path: this.currentPath,
             cursor: this.cursor,
@@ -96,7 +96,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         this.currentPath = nextPath;
         this.cursor = 0;
         this.scrollTop = 0;
-        
+
         await this.loadDirectory(nextPath);
     }
 
@@ -108,7 +108,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
             this.currentPath = prevState.path;
             this.cursor = prevState.cursor;
             this.scrollTop = prevState.scrollTop;
-            
+
             await this.loadDirectory(this.currentPath);
         }
     }
@@ -141,13 +141,13 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
                 suffix = next;
             }
             breadcrumbStr = `${segments[0]}${this.separator}...${this.separator}${suffix}`;
-            
+
             // If even that is too long (extreme case), just truncate tail
-             if (breadcrumbStr.length > availableWidth) {
-                 breadcrumbStr = '...' + breadcrumbStr.slice(-(availableWidth - 3));
-             }
+            if (breadcrumbStr.length > availableWidth) {
+                breadcrumbStr = '...' + breadcrumbStr.slice(-(availableWidth - 3));
+            }
         }
-        
+
         output += `${prefix}${breadcrumbStr}\n`;
 
         // --- Content / List ---
@@ -156,7 +156,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         } else if (this.error) {
             output += `  ${theme.error}${this.error}${ANSI.RESET}`;
         } else if (this.currentEntries.length === 0) {
-             output += `  ${theme.muted}(Empty directory)${ANSI.RESET}\n  ${theme.muted}(Backspace to go back)${ANSI.RESET}`;
+            output += `  ${theme.muted}(Empty directory)${ANSI.RESET}\n  ${theme.muted}(Backspace to go back)${ANSI.RESET}`;
         } else {
             // Adjust Scroll Top
             if (this.cursor < this.scrollTop) {
@@ -165,7 +165,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
                 this.scrollTop = this.cursor - this.pageSize + 1;
             }
             // Sanity check
-             if (this.scrollTop > this.currentEntries.length - 1) {
+            if (this.scrollTop > this.currentEntries.length - 1) {
                 this.scrollTop = Math.max(0, this.currentEntries.length - this.pageSize);
             }
 
@@ -175,18 +175,18 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
                 const absoluteIndex = this.scrollTop + index;
                 const isSelected = absoluteIndex === this.cursor;
                 const icon = entry.isDirectory ? '📂' : '📄';
-                
+
                 let line = '';
                 if (isSelected) {
                     line += `${theme.main}${symbols.pointer} ${icon} ${entry.name}${ANSI.RESET}`;
                 } else {
                     line += `  ${icon} ${entry.name}`;
                 }
-                
+
                 if (index > 0 || index === 0) output += line;
                 if (index < visibleEntries.length - 1) output += '\n';
             });
-            
+
             // Add a hint about navigation if plenty of space? 
             // Optional: output += `\n${theme.muted}(Use Arrow Keys, Enter to Select, Backspace to Up)${ANSI.RESET}`;
         }
@@ -200,7 +200,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         // Enter
         if (char === '\r' || char === '\n') {
             if (this.currentEntries.length === 0) return;
-            
+
             const entry = this.currentEntries[this.cursor];
             if (entry.isDirectory) {
                 this.drillDown();

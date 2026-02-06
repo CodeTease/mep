@@ -16,16 +16,16 @@ interface ExtendedCalendarOptions extends CalendarOptions {
 export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOptions> {
     private cursor: Date;
     private viewDate: Date; // The month currently being viewed
-    
+
     // Store all selections here. Can be an array of Dates or Ranges.
     private selections: (SingleSelection | RangeSelection)[] = [];
-    
+
     // Internal state for dragging/selecting a range before it is finalized
     private tempRangeStart: Date | null = null;
 
     constructor(options: ExtendedCalendarOptions) {
         super(options);
-        
+
         // Initialize cursor
         this.cursor = new Date();
         this.viewDate = new Date();
@@ -39,9 +39,9 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                 if (init.length > 0) {
                     // Detect if it is [Date, Date] (Single Range)
                     if (options.mode === 'range' && !options.multiple && init.length === 2 && init[0] instanceof Date) {
-                         this.selections = [[init[0], init[1]]];
-                         this.cursor = new Date(init[1]);
-                    } 
+                        this.selections = [[init[0], init[1]]];
+                        this.cursor = new Date(init[1]);
+                    }
                     // Detect [Date, Date][] (Multiple Ranges)
                     else if (Array.isArray(init[0])) {
                         this.selections = [...init];
@@ -62,11 +62,11 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         } else {
             // If no initial value, and NOT range mode, we might optionally start with today selected?
             // For now, let's keep it empty or follow original logic behavior if needed.
-             if (this.options.mode !== 'range' && !this.options.multiple) {
-                 this.selections = [new Date()];
-             }
+            if (this.options.mode !== 'range' && !this.options.multiple) {
+                this.selections = [new Date()];
+            }
         }
-        
+
         // Sync viewDate to cursor so we see the selected date
         this.viewDate = new Date(this.cursor);
         this.viewDate.setDate(1);
@@ -78,12 +78,12 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
     private generateMonthGrid(year: number, month: number): { date: Date, inMonth: boolean }[] {
         const days: { date: Date, inMonth: boolean }[] = [];
-        
+
         const firstDayOfMonth = new Date(year, month, 1);
         const startDayOfWeek = firstDayOfMonth.getDay(); // 0 (Sun) to 6 (Sat)
-        
+
         const weekStart = this.options.weekStart || 0;
-        
+
         // Calculate days from previous month to fill the first row
         const daysFromPrevMonth = (startDayOfWeek - weekStart + 7) % 7;
 
@@ -121,8 +121,8 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
     private isSameDay(d1: Date, d2: Date): boolean {
         return d1.getFullYear() === d2.getFullYear() &&
-               d1.getMonth() === d2.getMonth() &&
-               d1.getDate() === d2.getDate();
+            d1.getMonth() === d2.getMonth() &&
+            d1.getDate() === d2.getDate();
     }
 
     /**
@@ -151,7 +151,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
      */
     private isInTempRange(d: Date): boolean {
         if (!this.tempRangeStart) return false;
-        
+
         const dTime = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
         const sTime = new Date(this.tempRangeStart.getFullYear(), this.tempRangeStart.getMonth(), this.tempRangeStart.getDate()).getTime();
         const cTime = new Date(this.cursor.getFullYear(), this.cursor.getMonth(), this.cursor.getDate()).getTime();
@@ -161,55 +161,55 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
     protected render(_firstRender: boolean): void {
         const monthNames = ["January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
+            "July", "August", "September", "October", "November", "December"
         ];
-        
+
         const year = this.viewDate.getFullYear();
         const month = this.viewDate.getMonth();
-        
+
         const header = `${ANSI.BOLD}${monthNames[month]} ${year}${ANSI.RESET}`;
-        
-        const weekDays = this.options.weekStart === 1 
+
+        const weekDays = this.options.weekStart === 1
             ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
             : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-            
+
         const grid = this.generateMonthGrid(year, month);
-        
+
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
         output += `${theme.muted}< ${header} >${ANSI.RESET}\n`;
         output += weekDays.map(d => `${theme.muted}${d}${ANSI.RESET}`).join(' ') + '\n';
-        
+
         let rowLine = '';
         for (let i = 0; i < grid.length; i++) {
             const cell = grid[i];
             const dateStr = cell.date.getDate().toString().padStart(2, ' ');
-            
+
             let style = '';
-            
+
             const isCursor = this.isSameDay(cell.date, this.cursor);
             const isSel = this.isSelected(cell.date);
             const isTemp = this.isInTempRange(cell.date);
             const isToday = this.isSameDay(cell.date, new Date());
-            
+
             if (!cell.inMonth) {
                 style = theme.muted;
             }
-            
+
             // Priority: Cursor > Temp/Selected > Today
             if (isSel || isTemp) {
                 style = theme.main;
             }
-            
+
             if (isToday && !isSel && !isTemp) {
                 style += ANSI.UNDERLINE;
             }
-            
+
             if (isCursor) {
                 style += ANSI.REVERSE; // Invert colors for cursor
             }
-            
+
             rowLine += `${style}${dateStr}${ANSI.RESET}`;
-            
+
             if ((i + 1) % 7 === 0) {
                 output += rowLine + '\n';
                 rowLine = '';
@@ -217,23 +217,23 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                 rowLine += ' ';
             }
         }
-        
+
         // Helper text logic
         let help = '';
         if (this.options.mode === 'range') {
-             if (this.options.multiple) {
-                 help = 'Enter: Range Points | D: Done';
-             } else {
-                 help = 'Enter: Start/End';
-             }
+            if (this.options.multiple) {
+                help = 'Enter: Range Points | D: Done';
+            } else {
+                help = 'Enter: Start/End';
+            }
         } else {
-             if (this.options.multiple) {
-                 help = 'Space/Enter: Toggle | D: Done';
-             } else {
-                 help = 'Enter: Select';
-             }
+            if (this.options.multiple) {
+                help = 'Space/Enter: Toggle | D: Done';
+            } else {
+                help = 'Enter: Select';
+            }
         }
-        
+
         if (this.tempRangeStart) {
             help += ` ${theme.muted}(Selecting range...)${ANSI.RESET}`;
         }
@@ -246,7 +246,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     private syncViewDate() {
         if (this.cursor.getMonth() !== this.viewDate.getMonth() || this.cursor.getFullYear() !== this.viewDate.getFullYear()) {
             this.viewDate = new Date(this.cursor);
-            this.viewDate.setDate(1); 
+            this.viewDate.setDate(1);
         }
     }
 
@@ -282,7 +282,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);
         const isRight = this.isRight(char);
-        
+
         // Navigation
         if (isUp || isDown || isLeft || isRight) {
             const d = new Date(this.cursor);
@@ -290,7 +290,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             if (isDown) d.setDate(d.getDate() + 7);
             if (isLeft) d.setDate(d.getDate() - 1);
             if (isRight) d.setDate(d.getDate() + 1);
-            
+
             this.cursor = d;
             this.syncViewDate();
             this.render(false);
@@ -349,19 +349,19 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             this.render(false);
             return;
         }
-        
+
         // Month Navigation with < and > (shift+, shift+.)
         if (char === '<' || char === ',') {
             this.viewDate.setMonth(this.viewDate.getMonth() - 1);
-              this.alignCursorToViewDate();
-              this.render(false);
+            this.alignCursorToViewDate();
+            this.render(false);
             return;
         }
         if (char === '>' || char === '.') {
-             this.viewDate.setMonth(this.viewDate.getMonth() + 1);
-               this.alignCursorToViewDate();
-               this.render(false);
-             return;
+            this.viewDate.setMonth(this.viewDate.getMonth() + 1);
+            this.alignCursorToViewDate();
+            this.render(false);
+            return;
         }
 
         // Done key (only for multiple mode)
@@ -375,7 +375,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             if (this.options.mode === 'range') {
                 if (!this.tempRangeStart) {
                     // Start new range selection
-                    this.tempRangeStart = this.cursor; 
+                    this.tempRangeStart = this.cursor;
 
                     if (!this.options.multiple) {
                         this.selections = [];
@@ -384,7 +384,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                     // Finish range selection
                     const start = this.tempRangeStart;
                     const end = this.cursor;
-                    
+
                     // Normalize order
                     const newRange: RangeSelection = start < end ? [start, end] : [end, start];
 
@@ -420,22 +420,22 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             return;
         }
     }
-    
+
     protected handleMouse(event: MouseEvent): void {
-         if (event.action === 'scroll') {
-             const direction = event.scroll === 'up' ? -1 : 1;
-             
-             if (event.ctrl) {
-                 // Ctrl+Scroll: Day (Cursor)
-                 this.cursor.setDate(this.cursor.getDate() + direction);
-                 this.syncViewDate();
-             } else {
-                 // Normal Scroll: Month
-                 this.viewDate.setMonth(this.viewDate.getMonth() + direction);
-                 this.alignCursorToViewDate();
-             }
-             
-             this.render(false);
-         }
+        if (event.action === 'scroll') {
+            const direction = event.scroll === 'up' ? -1 : 1;
+
+            if (event.ctrl) {
+                // Ctrl+Scroll: Day (Cursor)
+                this.cursor.setDate(this.cursor.getDate() + direction);
+                this.syncViewDate();
+            } else {
+                // Normal Scroll: Month
+                this.viewDate.setMonth(this.viewDate.getMonth() + direction);
+                this.alignCursorToViewDate();
+            }
+
+            this.render(false);
+        }
     }
 }

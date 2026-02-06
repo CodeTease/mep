@@ -15,7 +15,7 @@ export class InputParser extends EventEmitter {
      * Feed data into the parser.
      */
     public feed(data: Buffer) {
-        
+
         const input = data.toString('utf-8');
 
         for (let i = 0; i < input.length; i++) {
@@ -50,7 +50,7 @@ export class InputParser extends EventEmitter {
             } else if (char === 'O') {
                 // SS3 sequence like \x1b O A (Application Cursor Keys)
                 // Treat as similar to CSI for collecting the next char
-                this.state = 'CSI'; 
+                this.state = 'CSI';
             } else {
                 // Alt + Key or similar (\x1b + char)
                 this.emitKey(this.buffer);
@@ -60,9 +60,9 @@ export class InputParser extends EventEmitter {
         } else if (this.state === 'CSI') {
             this.buffer += char;
 
-	    if (char === '<') {
+            if (char === '<') {
                 this.state = 'MOUSE_SGR';
-                this.buffer = '<'; 
+                this.buffer = '<';
                 return;
             }
 
@@ -91,7 +91,7 @@ export class InputParser extends EventEmitter {
         const content = buffer.slice(1, -1);
         const type = buffer.slice(-1); // m or M
         const parts = content.split(';').map(Number);
-        
+
         if (parts.length >= 3) {
             const [b, x, y] = parts;
             let action: 'press' | 'release' | 'move' | 'scroll' = 'press';
@@ -105,16 +105,16 @@ export class InputParser extends EventEmitter {
             // 0: Left, 1: Middle, 2: Right
             // +32: Motion
             // 64: Scroll (bit 6)
-            
+
             if (b & 64) {
                 action = 'scroll';
                 const scroll = (b & 1) ? 'down' : 'up';
-                this.emit('mouse', { 
-                    name: 'mouse', 
-                    x, 
-                    y, 
-                    button: 0, 
-                    action, 
+                this.emit('mouse', {
+                    name: 'mouse',
+                    x,
+                    y,
+                    button: 0,
+                    action,
                     scroll,
                     shift,
                     ctrl,
@@ -134,7 +134,7 @@ export class InputParser extends EventEmitter {
                     action = 'move';
                 }
             }
-            
+
             this.emit('mouse', {
                 name: 'mouse',
                 x,
@@ -151,7 +151,7 @@ export class InputParser extends EventEmitter {
     private emitKey(key: string) {
         // Normalize Enter
         if (key === '\r') key = '\n';
-        
+
         this.emit('keypress', key, Buffer.from(key));
     }
 }
