@@ -13,7 +13,7 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         super(options);
         this.filteredResults = this.options.choices;
     }
-    
+
     protected getFilteredChoices() {
         // Safety check: this.filteredResults might be undefined if called from super() constructor
         return this.filteredResults || this.options.choices;
@@ -32,7 +32,7 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         // Intercept typing to add debounce
         if (char.length === 1 && !/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
             this.searchBuffer += char;
-            
+
             // Check if debounce is needed
             if (this.options.choices.length > 1000) {
                 if (this.debounceTimer) clearTimeout(this.debounceTimer);
@@ -57,15 +57,15 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
                 const match = fuzzyMatch(this.searchBuffer, (c as any).title);
                 return { choice: c, match };
             }).filter(item => item && item.match !== null)
-              // Sort by score descending
-              .sort((a, b) => b!.match!.score - a!.match!.score);
-              
+                // Sort by score descending
+                .sort((a, b) => b!.match!.score - a!.match!.score);
+
             this.filteredResults = results.map(r => {
-                 (r!.choice as any)._match = r!.match;
-                 return r!.choice;
+                (r!.choice as any)._match = r!.match;
+                return r!.choice;
             });
         }
-        
+
         this.selectedIndex = 0;
         this.render(false);
     }
@@ -76,9 +76,9 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         for (let i = 0; i < text.length; i++) {
             if (indexSet.has(i)) {
                 if (isSelected) {
-                     output += `${ANSI.BOLD}${ANSI.FG_WHITE}${text[i]}${theme.main}`; // Reset to main theme
+                    output += `${ANSI.BOLD}${ANSI.FG_WHITE}${text[i]}${theme.main}`; // Reset to main theme
                 } else {
-                     output += `${ANSI.BOLD}${ANSI.FG_CYAN}${text[i]}${ANSI.RESET}`;
+                    output += `${ANSI.BOLD}${ANSI.FG_CYAN}${text[i]}${ANSI.RESET}`;
                 }
             } else {
                 output += text[i];
@@ -90,7 +90,7 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
     protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
-        
+
         // Adjust Scroll Top
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;
@@ -104,15 +104,15 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         // Header
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Fuzzy: ${this.searchBuffer})${ANSI.RESET}` : '';
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
-        
+
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
         } else {
-             const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-             
-             visibleChoices.forEach((choice, index) => {
+            const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+
+            visibleChoices.forEach((choice, index) => {
                 const actualIndex = this.scrollTop + index;
-                if (index > 0) output += '\n'; 
+                if (index > 0) output += '\n';
 
                 if (this.isSeparator(choice)) {
                     output += `  ${ANSI.DIM}${(choice as any).text || symbols.line.repeat(8)}${ANSI.RESET}`;
@@ -129,7 +129,7 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
                         output += `${theme.main}${symbols.pointer} ${title}${ANSI.RESET}`;
                         if (match && this.searchBuffer) {
                             // Show score
-                           // output += ` ${theme.muted}(${Math.round(match.score)})${ANSI.RESET}`;
+                            // output += ` ${theme.muted}(${Math.round(match.score)})${ANSI.RESET}`;
                         }
                     } else {
                         output += `  ${title}`;
@@ -137,7 +137,7 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
                 }
             });
         }
-        
+
         this.renderFrame(output);
     }
 }

@@ -21,17 +21,17 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
 
         // Toggle Search Mode or Type
         if (!this.isSearchMode) {
-             // If typing a regular char, enter search mode
-             if (char.length === 1 && !/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
-                 this.isSearchMode = true;
-                 this.searchBuffer = char;
-                 this.updateSearchResults();
-                 this.render(false);
-                 return;
-             }
-             // Otherwise use default navigation
-             super.handleInput(char, key);
-             return;
+            // If typing a regular char, enter search mode
+            if (char.length === 1 && !/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
+                this.isSearchMode = true;
+                this.searchBuffer = char;
+                this.updateSearchResults();
+                this.render(false);
+                return;
+            }
+            // Otherwise use default navigation
+            super.handleInput(char, key);
+            return;
         }
 
         // --- In Search Mode ---
@@ -64,11 +64,11 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
         // Enter
         if (char === '\r' || char === '\n') {
             if (this.filteredEntries.length === 0) return;
-            
+
             const entry = this.filteredEntries[this.searchCursor];
             if (entry.isDirectory) {
                 // Drill down
-                
+
                 // Hack: Find index in currentEntries
                 const realIndex = this.currentEntries.findIndex(e => e.name === entry.name);
                 if (realIndex !== -1) {
@@ -124,13 +124,13 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
             const match = fuzzyMatch(this.searchBuffer, entry.name);
             return { entry, match };
         }).filter(item => item.match !== null)
-          .sort((a, b) => b.match!.score - a.match!.score);
-          
+            .sort((a, b) => b.match!.score - a.match!.score);
+
         this.filteredEntries = results.map(r => ({
             ...r.entry,
             _match: r.match
         }));
-        
+
         this.searchCursor = 0;
     }
 
@@ -170,56 +170,56 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
         const relative = path.relative(this.root, this.currentPath);
         // ... (Truncation logic omitted for brevity, simplified version)
         const pathStr = relative || path.basename(this.root);
-        
+
         const prefix = `${theme.success}?${ANSI.RESET} ${theme.title}${this.options.message}${ANSI.RESET} `;
         output += `${prefix}${theme.muted}${pathStr}/${ANSI.RESET} ${ANSI.FG_YELLOW}(Search: ${this.searchBuffer})${ANSI.RESET}\n`;
 
         if (this.filteredEntries.length === 0) {
-             output += `  ${theme.muted}No results found${ANSI.RESET}`;
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
         } else {
             const pageSize = this.pageSize;
             let start = 0;
-             
-             const half = Math.floor(pageSize / 2);
-             start = Math.max(0, this.searchCursor - half);
-             if (start + pageSize > this.filteredEntries.length) {
-                 start = Math.max(0, this.filteredEntries.length - pageSize);
-             }
-             
-             const visible = this.filteredEntries.slice(start, start + pageSize);
 
-             visible.forEach((entry, index) => {
-                 const actualIndex = start + index;
-                 const isSelected = actualIndex === this.searchCursor;
-                 const icon = entry.isDirectory ? '📂' : '📄';
-                 
-                 // Highlight match
-                 const title = this.highlight(entry.name, entry._match.indices, isSelected);
+            const half = Math.floor(pageSize / 2);
+            start = Math.max(0, this.searchCursor - half);
+            if (start + pageSize > this.filteredEntries.length) {
+                start = Math.max(0, this.filteredEntries.length - pageSize);
+            }
 
-                 let line = '';
-                 if (isSelected) {
-                     line += `${theme.main}${symbols.pointer} ${icon} ${title}${ANSI.RESET}`;
-                 } else {
-                     line += `  ${icon} ${title}`;
-                 }
-                 
-                 if (index > 0 || index === 0) output += line;
-                 if (index < visible.length - 1) output += '\n';
-             });
+            const visible = this.filteredEntries.slice(start, start + pageSize);
+
+            visible.forEach((entry, index) => {
+                const actualIndex = start + index;
+                const isSelected = actualIndex === this.searchCursor;
+                const icon = entry.isDirectory ? '📂' : '📄';
+
+                // Highlight match
+                const title = this.highlight(entry.name, entry._match.indices, isSelected);
+
+                let line = '';
+                if (isSelected) {
+                    line += `${theme.main}${symbols.pointer} ${icon} ${title}${ANSI.RESET}`;
+                } else {
+                    line += `  ${icon} ${title}`;
+                }
+
+                if (index > 0 || index === 0) output += line;
+                if (index < visible.length - 1) output += '\n';
+            });
         }
-        
+
         this.renderFrame(output);
     }
-    
+
     private highlight(text: string, indices: number[], isSelected: boolean): string {
         let output = '';
         const indexSet = new Set(indices);
         for (let i = 0; i < text.length; i++) {
             if (indexSet.has(i)) {
                 if (isSelected) {
-                     output += `${ANSI.BOLD}${ANSI.FG_WHITE}${text[i]}${theme.main}`; 
+                    output += `${ANSI.BOLD}${ANSI.FG_WHITE}${text[i]}${theme.main}`;
                 } else {
-                     output += `${ANSI.BOLD}${ANSI.FG_CYAN}${text[i]}${ANSI.RESET}`;
+                    output += `${ANSI.BOLD}${ANSI.FG_CYAN}${text[i]}${ANSI.RESET}`;
                 }
             } else {
                 output += text[i];

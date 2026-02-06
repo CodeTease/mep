@@ -3,13 +3,12 @@
 import { MepCLI } from "../src"
 
 try {
-    const permissions = await MepCLI.grid({
-        message: "Configure Access Permissions:",
-        rows: ["Admin", "User", "Guest"],
-        columns: ["Read", "Write", "Execute"]
+    const slotPrize = await MepCLI.slot({
+        message: "Spin for your daily bonus:",
+        choices: ["💎 Diamond", "🥇 Gold", "🥈 Silver", "🥉 Bronze", "🪵 Wood"],
+        rows: 5
     });
-    console.log(`\n Grid Result: (Boolean Matrix)`, permissions);
-
+    console.log(`\n Slot Result: ${slotPrize}`);
 } catch (e) {
     if (e instanceof Error && e.message === 'User force closed') {
         console.log("\nOperation cancelled by user.");

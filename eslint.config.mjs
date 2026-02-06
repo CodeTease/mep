@@ -5,8 +5,8 @@ import tseslint from 'typescript-eslint';
 export default [
   {
     files: ["**/*.{js,mjs,cjs,ts}"],
-    languageOptions: { 
-        globals: globals.node 
+    languageOptions: {
+      globals: globals.node
     }
   },
   pluginJs.configs.recommended,
@@ -15,16 +15,16 @@ export default [
     ignores: ["dist/", "coverage/", "test/", "examples/"]
   },
   {
-      rules: {
-          "@typescript-eslint/no-explicit-any": "off", // Often too strict for legacy/dynamic code, keeping flexible for now
-          "@typescript-eslint/ban-ts-comment": "off",
-          "no-control-regex": "off", // Essential for handling ANSI codes
-          "@typescript-eslint/no-unused-vars": ["error", { 
-              "argsIgnorePattern": "^_",
-              "varsIgnorePattern": "^_",
-              "caughtErrorsIgnorePattern": "^_"
-          }],
-          "@typescript-eslint/no-empty-object-type": "off"
-      }
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // Often too strict for legacy/dynamic code, keeping flexible for now
+      "@typescript-eslint/ban-ts-comment": "off",
+      "no-control-regex": "off", // Essential for handling ANSI codes
+      "@typescript-eslint/no-unused-vars": ["error", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }],
+      "@typescript-eslint/no-empty-object-type": "off"
+    }
   }
 ];

@@ -11,7 +11,7 @@ async function main() {
             strict: true
         });
         console.log(`Result 1: ${phone}`);
-        
+
         const phone2 = await MepCLI.phone({
             message: "Enter US phone (Default US)",
             defaultCountry: 'US',

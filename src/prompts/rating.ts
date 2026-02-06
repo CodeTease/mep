@@ -14,7 +14,7 @@ export class RatingPrompt extends Prompt<number, RatingOptions> {
     protected render(_firstRender: boolean) {
         const min = this.options.min || 1;
         const max = this.options.max || 5;
-        
+
         // Render stars
         let stars = '';
         for (let i = min; i <= max; i++) {
@@ -51,7 +51,7 @@ export class RatingPrompt extends Prompt<number, RatingOptions> {
                 this.render(false);
             }
         }
-        
+
         // Number keys (1-9)
         const num = parseInt(char);
         if (!isNaN(num)) {

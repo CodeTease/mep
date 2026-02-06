@@ -25,22 +25,22 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
 
     private readonly ICON_CLOSED = symbols.pointer === '>' ? '+' : '▸';
     private readonly ICON_OPEN = symbols.pointer === '>' ? '-' : '▾';
-    
+
     constructor(options: TreeSelectOptions<V>) {
         super(options);
         this.buildParentMap(this.options.data, null);
         this.initializeExpanded(this.options.data);
-        
+
         if (this.options.initial) {
-             const initialSet = new Set(this.options.initial);
-             this.initializeSelection(this.options.data, initialSet);
-             this.recalculateAllParents(this.options.data);
+            const initialSet = new Set(this.options.initial);
+            this.initializeSelection(this.options.data, initialSet);
+            this.recalculateAllParents(this.options.data);
         }
 
         this.checkWindowsAttention();
         this.recalculateFlatList();
     }
-    
+
     private buildParentMap(nodes: TreeSelectNode<V>[], parent: TreeSelectNode<V> | null) {
         for (const node of nodes) {
             if (parent) this.parentMap.set(node, parent);
@@ -49,7 +49,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             }
         }
     }
-    
+
     private initializeExpanded(nodes: TreeSelectNode<V>[]) {
         for (const node of nodes) {
             if (node.expanded) {
@@ -60,11 +60,11 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             }
         }
     }
-    
+
     private initializeSelection(nodes: TreeSelectNode<V>[], initialValues: Set<V>) {
         for (const node of nodes) {
             if (initialValues.has(node.value)) {
-                this.setNodeState(node, true, false); 
+                this.setNodeState(node, true, false);
             }
             if (node.children) {
                 this.initializeSelection(node.children, initialValues);
@@ -74,19 +74,19 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
 
     private recalculateAllParents(nodes: TreeSelectNode<V>[]) {
         for (const node of nodes) {
-             if (node.children) {
-                 this.recalculateAllParents(node.children);
-                 this.updateNodeStateFromChildren(node);
-             }
+            if (node.children) {
+                this.recalculateAllParents(node.children);
+                this.updateNodeStateFromChildren(node);
+            }
         }
     }
 
     private updateNodeStateFromChildren(node: TreeSelectNode<V>) {
         if (!node.children || node.children.length === 0) return;
-        
+
         const allChecked = node.children.every(c => c.selected === true);
-        const allUnchecked = node.children.every(c => !c.selected); 
-        
+        const allUnchecked = node.children.every(c => !c.selected);
+
         if (allChecked) {
             node.selected = true;
         } else if (allUnchecked) {
@@ -98,11 +98,11 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
 
     private setNodeState(node: TreeSelectNode<V>, state: boolean, updateParents: boolean = true) {
         node.selected = state;
-        
+
         if (node.children) {
             node.children.forEach(c => this.setNodeState(c, state, false));
         }
-        
+
         if (updateParents) {
             let curr = node;
             while (this.parentMap.has(curr)) {
@@ -112,7 +112,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             }
         }
     }
-    
+
     private recalculateFlatList() {
         this.flatList = [];
         this.traverse(this.options.data, 0, null);
@@ -159,18 +159,18 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         visible.forEach((item, index) => {
             const actualIndex = this.scrollTop + index;
             const isSelected = actualIndex === this.cursor;
-            
+
             const indentSize = this.options.indent || 2;
             const indentation = ' '.repeat(item.depth * indentSize);
 
             const linePrefix = isSelected ? `${theme.main}${symbols.pointer} ` : '  ';
 
-            let folderIcon = '  '; 
+            let folderIcon = '  ';
             const hasChildren = item.node.children && item.node.children.length > 0;
             if (hasChildren) {
                 folderIcon = this.expandedNodes.has(item.node) ? `${this.ICON_OPEN} ` : `${this.ICON_CLOSED} `;
             }
-            
+
             // Checkbox
             let checkIcon = `[ ]`;
             if (item.node.selected === true) {
@@ -194,7 +194,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             output += linePrefix + line;
             if (index < visible.length - 1) output += '\n';
         });
-        
+
         output += `\n${theme.muted}(e: Expand All, c: Collapse All, Space: Toggle)${ANSI.RESET}`;
 
         this.renderFrame(output);
@@ -209,7 +209,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             this.render(false);
             return;
         }
-        
+
         if (this.isDown(char)) {
             this.cursor = (this.cursor + 1) % this.flatList.length;
             this.render(false);
@@ -252,7 +252,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         // 4. Space: Toggle selection
         if (char === ' ') {
             if (!node.disabled) {
-                const newState = node.selected === true ? false : true; 
+                const newState = node.selected === true ? false : true;
                 this.setNodeState(node, newState);
                 this.render(false);
             }
@@ -292,15 +292,15 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
             }
         }
     }
-    
+
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             if (event.scroll === 'up') {
-                 this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
-                 this.render(false);
+            if (event.scroll === 'up') {
+                this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
+                this.render(false);
             } else if (event.scroll === 'down') {
-                 this.cursor = (this.cursor + 1) % this.flatList.length;
-                 this.render(false);
+                this.cursor = (this.cursor + 1) % this.flatList.length;
+                this.render(false);
             }
         }
     }

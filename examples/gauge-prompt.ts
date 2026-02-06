@@ -3,13 +3,12 @@
 import { MepCLI } from "../src"
 
 try {
-    const permissions = await MepCLI.grid({
-        message: "Configure Access Permissions:",
-        rows: ["Admin", "User", "Guest"],
-        columns: ["Read", "Write", "Execute"]
+    const gaugeScore = await MepCLI.gauge({
+        message: "Stop the needle in the GREEN zone!",
+        width: 40,
+        safeZone: 0.15 // 15% safe zone
     });
-    console.log(`\n Grid Result: (Boolean Matrix)`, permissions);
-
+    console.log(`\n Gauge Result: ${gaugeScore}`);
 } catch (e) {
     if (e instanceof Error && e.message === 'User force closed') {
         console.log("\nOperation cancelled by user.");

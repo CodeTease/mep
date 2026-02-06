@@ -26,11 +26,11 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
             const name = this.tokens[idx].value;
             this.values[name] = (this.options.values && this.options.values[name]) || '';
         });
-        
+
         // Init cursor at end of first var
         if (this.variableTokens.length > 0) {
-             const activeName = this.tokens[this.variableTokens[0]].value;
-             this.cursor = this.values[activeName].length;
+            const activeName = this.tokens[this.variableTokens[0]].value;
+            this.cursor = this.values[activeName].length;
         }
     }
 
@@ -38,7 +38,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         const regex = /\$\{([a-zA-Z0-9_]+)\}/g;
         let lastIndex = 0;
         let match;
-        
+
         while ((match = regex.exec(this.options.template)) !== null) {
             if (match.index > lastIndex) {
                 this.tokens.push({ type: 'static', value: this.options.template.substring(lastIndex, match.index) });
@@ -47,9 +47,9 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
             this.variableTokens.push(this.tokens.length - 1);
             lastIndex = regex.lastIndex;
         }
-        
+
         if (lastIndex < this.options.template.length) {
-             this.tokens.push({ type: 'static', value: this.options.template.substring(lastIndex) });
+            this.tokens.push({ type: 'static', value: this.options.template.substring(lastIndex) });
         }
     }
 
@@ -75,18 +75,18 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         let fullRawText = '';
         let activeVarStart = -1;
         let activeVarEnd = -1;
-        
+
         const activeTokenIdx = this.variableTokens[this.activeVarIndex];
         // const activeVarName = this.tokens[activeTokenIdx].value;
-        
+
         this.tokens.forEach((token, idx) => {
             const val = (token.type === 'static') ? token.value : (this.values[token.value] || '');
-            
+
             if (idx === activeTokenIdx) {
                 activeVarStart = fullRawText.length;
                 activeVarEnd = activeVarStart + val.length;
             }
-            
+
             fullRawText += val;
         });
 
@@ -97,13 +97,13 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         if (shouldHighlight) {
             const lang = this.options.language || 'json';
             const highlightedText = highlight(fullRawText, lang);
-            
+
             let visibleIdx = 0;
             let activeColor = ''; // Tracks the last set color
-            
+
             for (let i = 0; i < highlightedText.length; i++) {
                 const char = highlightedText[i];
-                
+
                 if (char === '\x1b') {
                     // Start of ANSI sequence
                     let sequence = char;
@@ -113,36 +113,36 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
                         i++;
                     }
                     if (i < highlightedText.length) sequence += 'm'; // Append terminator
-                    
+
                     // Interpret sequence (naive)
                     if (sequence === ANSI.RESET || sequence === '\x1b[0m') {
-                        activeColor = ''; 
+                        activeColor = '';
                     } else {
                         // Assuming it's a color code.
                         activeColor = sequence;
                     }
-                    
+
                     // If we are INSIDE the active range, and we encounter a color change/reset,
                     // we must ensure UNDERLINE is kept/restored.
                     if (visibleIdx >= activeVarStart && visibleIdx < activeVarEnd) {
-                         // Output the sequence (e.g. a color change)
-                         highlighted += sequence;
-                         // Then re-assert underline
-                         highlighted += ANSI.UNDERLINE;
+                        // Output the sequence (e.g. a color change)
+                        highlighted += sequence;
+                        // Then re-assert underline
+                        highlighted += ANSI.UNDERLINE;
                     } else {
                         highlighted += sequence;
                     }
                     continue;
                 }
-                
+
                 // Normal char
                 if (visibleIdx === activeVarStart) {
                     highlighted += `${theme.main}${ANSI.UNDERLINE}`;
                 }
-                
+
                 highlighted += char;
                 visibleIdx++;
-                
+
                 if (visibleIdx === activeVarEnd) {
                     highlighted += ANSI.RESET;
                     // Restore previous color if any
@@ -151,17 +151,17 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
                     }
                 }
             }
-             highlighted += ANSI.RESET;
+            highlighted += ANSI.RESET;
         } else {
-             this.appendSegment(fullRawText, 0, activeVarStart, activeVarEnd, ANSI.RESET, (s) => highlighted += s);
+            this.appendSegment(fullRawText, 0, activeVarStart, activeVarEnd, ANSI.RESET, (s) => highlighted += s);
         }
 
 
         // 3. Output Frame
-        const warningMsg = shouldHighlight 
-            ? `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} Syntax highlighting is an experimental feature.\n` 
+        const warningMsg = shouldHighlight
+            ? `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} Syntax highlighting is an experimental feature.\n`
             : '';
-            
+
         const prefix = `${warningMsg}${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         const suffix = `\n${theme.muted}(Tab to next, Enter to submit)${ANSI.RESET}`;
         const fullOutput = prefix + highlighted + suffix;
@@ -171,21 +171,21 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         // 4. Cursor Calculation
         const cursorAbsPos = activeVarStart + this.cursor;
         const textBeforeCursor = fullRawText.substring(0, cursorAbsPos);
-        
+
         const rowsBefore = textBeforeCursor.split('\n');
-        const cursorRow = rowsBefore.length - 1; 
+        const cursorRow = rowsBefore.length - 1;
         const cursorCol = stringWidth(rowsBefore[rowsBefore.length - 1]);
 
         const totalSnippetLines = fullRawText.split('\n').length;
         // linesUp calculation: 1 (suffix) + remaining snippet lines
         const linesUp = 1 + (totalSnippetLines - 1 - cursorRow);
-        
+
         this.print(ANSI.SHOW_CURSOR);
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
             this.lastLinesUp = linesUp;
         }
-        
+
         this.print(ANSI.CURSOR_LEFT);
         if (cursorCol > 0) {
             this.print(`\x1b[${cursorCol}C`);
@@ -193,11 +193,11 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
     }
 
     private appendSegment(
-        text: string, 
-        absStart: number, 
-        activeStart: number, 
-        activeEnd: number, 
-        syntaxColor: string, 
+        text: string,
+        absStart: number,
+        activeStart: number,
+        activeEnd: number,
+        syntaxColor: string,
         append: (s: string) => void
     ) {
         const absEnd = absStart + text.length;
@@ -211,7 +211,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
             }
             const activePart = text.substring(overlapStart - absStart, overlapEnd - absStart);
             append(`${theme.main}${ANSI.UNDERLINE}${activePart}${ANSI.RESET}`);
-            
+
             if (absEnd > overlapEnd) {
                 const part = text.substring(overlapEnd - absStart);
                 append(`${syntaxColor}${part}${ANSI.RESET}`);
@@ -222,21 +222,21 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
     }
 
     protected handleInput(char: string, _key: Buffer) {
-        if (char === '\u001b[Z') { 
-             this.moveFocus(-1); return;
+        if (char === '\u001b[Z') {
+            this.moveFocus(-1); return;
         }
         if (char === '\t') {
             this.moveFocus(1); return;
         }
         if (char === '\r' || char === '\n') {
-             this.submitCode(); return;
+            this.submitCode(); return;
         }
 
         const activeTokenIdx = this.variableTokens[this.activeVarIndex];
         const varName = this.tokens[activeTokenIdx].value;
         const val = this.values[varName] || '';
 
-        if (char === '\u0008' || char === '\x7f') { 
+        if (char === '\u0008' || char === '\x7f') {
             if (this.cursor > 0) {
                 const pre = val.slice(0, this.cursor - 1);
                 const post = val.slice(this.cursor);
@@ -246,16 +246,16 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
             }
             return;
         }
-        
+
         if (this.isLeft(char)) {
-             if (this.cursor > 0) this.cursor--;
-             this.render(false);
-             return;
+            if (this.cursor > 0) this.cursor--;
+            this.render(false);
+            return;
         }
         if (this.isRight(char)) {
-             if (this.cursor < val.length) this.cursor++;
-             this.render(false);
-             return;
+            if (this.cursor < val.length) this.cursor++;
+            this.render(false);
+            return;
         }
 
         if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
@@ -279,7 +279,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         if (nextIndex >= 0 && nextIndex < this.variableTokens.length) {
             this.activeVarIndex = nextIndex;
             const varName = this.tokens[this.variableTokens[this.activeVarIndex]].value;
-            this.cursor = (this.values[varName] || '').length; 
+            this.cursor = (this.values[varName] || '').length;
             this.render(false);
         }
     }

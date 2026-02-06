@@ -33,24 +33,24 @@ export class FilePrompt extends Prompt<string, FileOptions> {
             const isDirQuery = this.input.endsWith('/') || this.input.endsWith('\\');
             const dir = isDirQuery ? this.input : (path.dirname(this.input) || '.');
             const partial = isDirQuery ? '' : path.basename(this.input);
-            
+
             if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
                 const files = fs.readdirSync(dir);
                 this.suggestions = files
                     .filter(f => f.toLowerCase().startsWith(partial.toLowerCase()))
                     .filter(f => {
-                         const fullPath = path.join(dir, f);
-                         try {
-                             const stats = fs.statSync(fullPath);
-                             const isDir = stats.isDirectory();
-                             if (this.options.onlyDirectories && !isDir) return false;
-                             if (this.options.extensions && !isDir) {
-                                 return this.options.extensions.some(ext => f.endsWith(ext));
-                             }
-                             return true;
-                         } catch (_e) {
-                             return false;
-                         }
+                        const fullPath = path.join(dir, f);
+                        try {
+                            const stats = fs.statSync(fullPath);
+                            const isDir = stats.isDirectory();
+                            if (this.options.onlyDirectories && !isDir) return false;
+                            if (this.options.extensions && !isDir) {
+                                return this.options.extensions.some(ext => f.endsWith(ext));
+                            }
+                            return true;
+                        } catch (_e) {
+                            return false;
+                        }
                     })
                     .map(f => {
                         const fullPath = path.join(dir, f);
@@ -83,34 +83,34 @@ export class FilePrompt extends Prompt<string, FileOptions> {
             output += '\n';
             const maxShow = 5;
             const displayed = this.suggestions.slice(0, maxShow);
-            
+
             displayed.forEach((s, i) => {
                 if (i > 0) output += '\n';
                 if (i === this.selectedSuggestion) {
-                     output += `${theme.main}${symbols.pointer} ${s}${ANSI.RESET}`;
+                    output += `${theme.main}${symbols.pointer} ${s}${ANSI.RESET}`;
                 } else {
-                     output += `  ${s}`;
+                    output += `  ${s}`;
                 }
             });
             if (this.suggestions.length > maxShow) {
                 output += `\n  ${theme.muted}...and ${this.suggestions.length - maxShow} more${ANSI.RESET}`;
             }
         }
-        
+
         this.renderFrame(output);
-        
+
         // Move cursor back up to the input line
         const totalLines = this.lastRenderHeight;
         if (totalLines > 1) {
             this.lastLinesUp = totalLines - 1;
             this.print(`\x1b[${this.lastLinesUp}A`);
         }
-        
+
         // Calculate horizontal cursor position on the input line
         const prefix = `${icon} ${theme.title}${this.options.message} `;
         const prefixLen = this.stripAnsi(prefix).length;
         const targetCol = prefixLen + this.input.length;
-        
+
         this.print(ANSI.CURSOR_LEFT);
         if (targetCol > 0) this.print(`\x1b[${targetCol}C`);
         this.print(ANSI.SHOW_CURSOR);
@@ -130,15 +130,15 @@ export class FilePrompt extends Prompt<string, FileOptions> {
                 // Use the selected suggestion or the first one available
                 const idx = this.selectedSuggestion === -1 ? 0 : this.selectedSuggestion;
                 const suggestion = this.suggestions[idx];
-                
+
                 const isDir = this.input.endsWith('/') || this.input.endsWith('\\');
                 const dir = isDir ? this.input : path.dirname(this.input);
-                
+
                 // Construct the new path accurately
                 const baseDir = (dir === '.' && !this.input.startsWith('.')) ? '' : dir;
                 this.input = path.join(baseDir, suggestion);
                 this.cursor = this.input.length;
-                
+
                 // Immediately refresh suggestions for the new path
                 this.updateSuggestions();
                 this.render(false);
@@ -170,12 +170,12 @@ export class FilePrompt extends Prompt<string, FileOptions> {
         }
 
         if (char === '\u0008' || char === '\x7f') {
-             if (this.input.length > 0) {
-                 this.input = this.input.slice(0, -1);
-                 this.updateSuggestions();
-                 this.render(false);
-             }
-             return;
+            if (this.input.length > 0) {
+                this.input = this.input.slice(0, -1);
+                this.updateSuggestions();
+                this.render(false);
+            }
+            return;
         }
 
         if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {

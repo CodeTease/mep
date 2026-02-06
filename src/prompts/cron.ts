@@ -38,22 +38,22 @@ export class CronPrompt extends Prompt<string, CronOptions> {
 
     protected render(_firstRender: boolean): void {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
-        
+
         // Render fields
         let fieldsStr = '';
         this.fields.forEach((val, index) => {
             const isSelected = index === this.activeField;
             const displayVal = val.padStart(2, ' ');
-            
+
             if (isSelected) {
                 fieldsStr += `${theme.main}${ANSI.UNDERLINE}${displayVal}${ANSI.RESET} `;
             } else {
                 fieldsStr += `${ANSI.DIM}${displayVal}${ANSI.RESET} `;
             }
         });
-        
+
         output += `  ${fieldsStr}\n`;
-        
+
         // Render Label and Hints
         const config = this.currentConfig;
         output += `  ${theme.muted}${config.label} (${config.min}-${config.max})${ANSI.RESET}\n`;
@@ -66,7 +66,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         const config = this.currentConfig;
         const val = this.fields[this.activeField];
         if (val === '*') return;
-        
+
         let num = parseInt(val);
         if (isNaN(num)) {
             this.fields[this.activeField] = config.min.toString();
@@ -141,33 +141,33 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         if (/^[0-9]$/.test(char)) {
             const nextBuffer = this.buffer + char;
             const nextNum = parseInt(nextBuffer);
-            
+
             // Check if valid
             if (!isNaN(nextNum) && nextNum <= config.max) {
                 this.buffer = nextBuffer;
-                
+
                 if (nextNum >= 0) { // Should be positive
-                     this.fields[this.activeField] = nextNum.toString();
+                    this.fields[this.activeField] = nextNum.toString();
                 }
             } else {
-                 const freshNum = parseInt(char);
-                 if (!isNaN(freshNum) && freshNum <= config.max) {
-                     this.buffer = char;
-                     this.fields[this.activeField] = freshNum.toString();
-                 }
+                const freshNum = parseInt(char);
+                if (!isNaN(freshNum) && freshNum <= config.max) {
+                    this.buffer = char;
+                    this.fields[this.activeField] = freshNum.toString();
+                }
             }
             this.render(false);
         }
     }
 
     protected handleMouse(event: MouseEvent) {
-         if (event.action === 'scroll') {
-             const config = this.currentConfig;
-             const currentVal = this.fields[this.activeField];
-             let numVal = parseInt(currentVal);
+        if (event.action === 'scroll') {
+            const config = this.currentConfig;
+            const currentVal = this.fields[this.activeField];
+            let numVal = parseInt(currentVal);
 
             if (event.scroll === 'up') { // Increase
-                 if (currentVal === '*') {
+                if (currentVal === '*') {
                     this.fields[this.activeField] = config.min.toString();
                 } else if (!isNaN(numVal)) {
                     numVal++;
@@ -175,7 +175,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
                     this.fields[this.activeField] = numVal.toString();
                 }
             } else { // Decrease
-                 if (currentVal === '*') {
+                if (currentVal === '*') {
                     this.fields[this.activeField] = config.max.toString();
                 } else if (!isNaN(numVal)) {
                     numVal--;

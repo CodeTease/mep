@@ -20,9 +20,9 @@ async function runRegexDemo() {
     } catch (e) {
         if (e instanceof Error && e.message === 'User force closed') {
             console.log("\nOperation cancelled by user.");
-       } else {
+        } else {
             console.error("\nError:", e);
-       }
+        }
     }
 }
 

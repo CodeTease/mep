@@ -31,7 +31,7 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
         // Intercept typing to add debounce
         if (char.length === 1 && !/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
             this.searchBuffer += char;
-            
+
             // Check if debounce is needed
             if (this.options.choices.length > 1000) {
                 if (this.debounceTimer) clearTimeout(this.debounceTimer);
@@ -56,15 +56,15 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
                 const match = fuzzyMatch(this.searchBuffer, (c as any).title);
                 return { choice: c, match };
             }).filter(item => item && item.match !== null)
-              // Sort by score descending
-              .sort((a, b) => b!.match!.score - a!.match!.score);
-              
+                // Sort by score descending
+                .sort((a, b) => b!.match!.score - a!.match!.score);
+
             this.filteredResults = results.map(r => {
-                 (r!.choice as any)._match = r!.match;
-                 return r!.choice;
+                (r!.choice as any)._match = r!.match;
+                return r!.choice;
             });
         }
-        
+
         this.selectedIndex = 0;
         this.render(false);
     }
@@ -75,9 +75,9 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
         for (let i = 0; i < text.length; i++) {
             if (indexSet.has(i)) {
                 if (isSelected) {
-                     output += `${ANSI.BOLD}${ANSI.FG_WHITE}${text[i]}${theme.main}`; // Reset to main theme
+                    output += `${ANSI.BOLD}${ANSI.FG_WHITE}${text[i]}${theme.main}`; // Reset to main theme
                 } else {
-                     output += `${ANSI.BOLD}${ANSI.FG_CYAN}${text[i]}${ANSI.RESET}`;
+                    output += `${ANSI.BOLD}${ANSI.FG_CYAN}${text[i]}${ANSI.RESET}`;
                 }
             } else {
                 output += text[i];
@@ -89,20 +89,20 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
     protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
-        
+
         // Header
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Fuzzy: ${this.searchBuffer})${ANSI.RESET}` : '';
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
-        
+
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
             this.renderFrame(output);
             return;
         }
 
         // Grid Render
         const totalRows = Math.ceil(choices.length / this.cols);
-        
+
         // Adjust Scroll
         const currentRow = Math.floor(this.selectedIndex / this.cols);
         if (currentRow < this.scrollTop) {
@@ -110,7 +110,7 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
         } else if (currentRow >= this.scrollTop + this.pageSize) {
             this.scrollTop = currentRow - this.pageSize + 1;
         }
-        
+
         // Edge case: if list shrinks
         if (this.scrollTop > totalRows - 1) {
             this.scrollTop = Math.max(0, totalRows - this.pageSize);
@@ -126,11 +126,11 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
                 if (idx >= choices.length) break;
 
                 const choice = choices[idx];
-                
+
                 // Truncate if needed
                 let title = (choice as any).title || '';
                 if (stringWidth(title) > this.colWidth - 3) {
-                     title = title.slice(0, this.colWidth - 4) + '…';
+                    title = title.slice(0, this.colWidth - 4) + '…';
                 }
 
                 const match = (choice as any)._match;
@@ -146,17 +146,17 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
                 } else {
                     cellContent = `  ${title}`;
                 }
-                
+
                 // Pad cell to colWidth
                 const currentWidth = stringWidth(this.stripAnsi(cellContent));
                 const padding = Math.max(0, this.colWidth - currentWidth);
-                
+
                 // Add cell to row
                 rowStr += cellContent + ' '.repeat(padding);
             }
             output += rowStr + '\n';
         }
-        
+
         // Remove trailing newline
         if (output.endsWith('\n')) output = output.slice(0, -1);
 

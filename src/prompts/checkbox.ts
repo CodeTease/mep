@@ -11,7 +11,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
     private errorMsg: string = '';
     // Pagination state
     private scrollTop: number = 0;
-    private readonly pageSize: number = 10; 
+    private readonly pageSize: number = 10;
 
     constructor(options: CheckboxOptions<V>) {
         super(options);
@@ -25,14 +25,14 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
             this.scrollTop = this.selectedIndex - this.pageSize + 1;
         }
-        
+
         // Ensure we don't scroll past bounds if list is small
         if (this.options.choices.length <= this.pageSize) {
-             this.scrollTop = 0;
+            this.scrollTop = 0;
         }
 
         let output = '';
-        
+
         // Header
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Space: toggle, a: all, x: none, Enter: submit)${ANSI.RESET}`;
@@ -40,33 +40,33 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         // List
         const choices = this.options.choices;
         const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-        
+
         visibleChoices.forEach((choice, index) => {
             const actualIndex = this.scrollTop + index;
             output += '\n'; // New line for each item
-            
+
             const cursor = actualIndex === this.selectedIndex ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : ' ';
             const isChecked = this.checkedState[actualIndex];
-            const checkbox = isChecked 
-                ? `${theme.success}${symbols.checked}${ANSI.RESET}` 
+            const checkbox = isChecked
+                ? `${theme.success}${symbols.checked}${ANSI.RESET}`
                 : `${theme.muted}${symbols.unchecked}${ANSI.RESET}`;
-            
-            const title = actualIndex === this.selectedIndex 
-                ? `${theme.main}${choice.title}${ANSI.RESET}` 
+
+            const title = actualIndex === this.selectedIndex
+                ? `${theme.main}${choice.title}${ANSI.RESET}`
                 : choice.title;
 
             output += `${cursor} ${checkbox} ${title}`;
         });
-        
+
         // Indication of more items
         if (choices.length > this.pageSize) {
-             // const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
+            // const progress = ` ${this.scrollTop + 1}-${Math.min(this.scrollTop + this.pageSize, choices.length)} of ${choices.length}`;
         }
 
         if (this.errorMsg) {
             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
-        
+
         this.renderFrame(output);
     }
 
@@ -87,24 +87,24 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
             }
 
             this.cleanup();
-            
+
             const results = this.options.choices
                 .filter((_, i) => this.checkedState[i])
                 .map(c => c.value);
-                
+
             if ((this as any)._resolve) (this as any)._resolve(results);
             return;
         }
 
         // --- Batch Shortcuts ---
-        
+
         // 'a': Select All
         if (char === 'a') {
             if (this.options.max && this.options.choices.length > this.options.max) {
-                 this.errorMsg = `Cannot select all: Max limit is ${this.options.max}`;
+                this.errorMsg = `Cannot select all: Max limit is ${this.options.max}`;
             } else {
-                 this.checkedState.fill(true);
-                 this.errorMsg = '';
+                this.checkedState.fill(true);
+                this.errorMsg = '';
             }
             this.render(false);
             return;
@@ -120,15 +120,15 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
 
         // 'i': Invert Selection
         if (char === 'i') {
-             const potentialCount = this.checkedState.filter(s => !s).length;
-             if (this.options.max && potentialCount > this.options.max) {
-                 this.errorMsg = `Cannot invert: Result exceeds max limit ${this.options.max}`;
-             } else {
-                 this.checkedState = this.checkedState.map(s => !s);
-                 this.errorMsg = '';
-             }
-             this.render(false);
-             return;
+            const potentialCount = this.checkedState.filter(s => !s).length;
+            if (this.options.max && potentialCount > this.options.max) {
+                this.errorMsg = `Cannot invert: Result exceeds max limit ${this.options.max}`;
+            } else {
+                this.checkedState = this.checkedState.map(s => !s);
+                this.errorMsg = '';
+            }
+            this.render(false);
+            return;
         }
 
         // Space Toggle

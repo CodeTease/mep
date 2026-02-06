@@ -24,9 +24,9 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
         if (rows === 0) return;
         // Assume consistent column count, use max found if ragged
         const cols = this.gridData.reduce((max, row) => Math.max(max, row.length), 0);
-        
+
         this.columnWidths = new Array(cols).fill(0);
-        
+
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < this.gridData[r].length; c++) {
                 const cell = this.gridData[r][c] || '';
@@ -43,12 +43,12 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
             const rowStr = row.map((cell, c) => {
                 const width = this.columnWidths[c] || stringWidth(cell) + 2;
                 const content = cell || '';
-                
+
                 // Padding
                 const padding = Math.max(0, width - stringWidth(content));
                 const leftPad = Math.floor(padding / 2);
                 const rightPad = padding - leftPad;
-                
+
                 let cellStr = ' '.repeat(leftPad) + content + ' '.repeat(rightPad);
 
                 // Styling
@@ -62,10 +62,10 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
                     // Focused item style
                     cellStr = `${ANSI.REVERSE}${cellStr}${ANSI.RESET}`;
                 }
-                
+
                 return cellStr;
             }).join(' '); // Space between columns
-            
+
             output += rowStr + '\n';
         });
 
@@ -103,7 +103,7 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
         const isRight = this.isRight(char);
         const isTab = char === '\t';
         const isShiftTab = char === '\u001b[Z';
-        
+
         if (isUp) this.move('up');
         if (isDown) this.move('down');
         if (isLeft || isShiftTab) this.move('left');
@@ -123,14 +123,14 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
 
         const oldX = this.cursorX;
         const oldY = this.cursorY;
-        
+
         if (direction === 'up') this.cursorY = Math.max(0, this.cursorY - 1);
         if (direction === 'down') this.cursorY = Math.min(this.gridData.length - 1, this.cursorY + 1);
-        
+
         // Clamp cursorX if we moved to a shorter row
         if (this.gridData.length > 0) {
-             const rowLen = this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
-             if (this.cursorX >= rowLen) this.cursorX = Math.max(0, rowLen - 1);
+            const rowLen = this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
+            if (this.cursorX >= rowLen) this.cursorX = Math.max(0, rowLen - 1);
         }
 
         if (direction === 'left') this.cursorX = Math.max(0, this.cursorX - 1);
@@ -145,15 +145,15 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
             if (oldX !== this.cursorX || oldY !== this.cursorY) {
                 const valA = this.gridData[oldY][oldX];
                 const valB = this.gridData[this.cursorY][this.cursorX];
-                
+
                 this.gridData[oldY][oldX] = valB;
                 this.gridData[this.cursorY][this.cursorX] = valA;
-                
+
                 this.grabbedX = this.cursorX;
                 this.grabbedY = this.cursorY;
             }
         }
-        
+
         this.render(false);
     }
 }

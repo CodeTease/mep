@@ -26,7 +26,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
     // Edit Mode State
     private editMode: boolean = false;
     private editBuffer: string = '';
-    
+
     // Config
     private rootData: any;
 
@@ -80,7 +80,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
             case 'string': return ANSI.FG_GREEN;
             case 'number': return ANSI.FG_YELLOW;
             case 'boolean': return ANSI.FG_MAGENTA;
-            case 'null': 
+            case 'null':
             case 'undefined': return ANSI.FG_GRAY;
             case 'date': return ANSI.FG_BLUE;
             default: return ANSI.RESET;
@@ -97,7 +97,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
 
     protected render(_firstRender: boolean) {
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
-        
+
         if (this.cursor < this.scrollTop) {
             this.scrollTop = this.cursor;
         } else if (this.cursor >= this.scrollTop + this.pageSize) {
@@ -109,11 +109,11 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
         visible.forEach((node, index) => {
             const actualIndex = this.scrollTop + index;
             const isSelected = actualIndex === this.cursor;
-            
+
             // Indentation & Tree Lines
             const indent = '  '.repeat(node.depth);
             const prefix = isSelected ? `${theme.main}${symbols.pointer} ` : '  ';
-            
+
             // Icon
             let icon = '';
             if (!node.isLeaf) {
@@ -128,7 +128,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
 
             // Value Representation
             let valueStr = '';
-            
+
             if (isSelected && this.editMode) {
                 // Editing View
                 valueStr = `${ANSI.BG_BLUE}${ANSI.FG_WHITE} ${this.editBuffer}_ ${ANSI.RESET}`;
@@ -143,7 +143,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
             const typeLabel = `${ANSI.FG_GRAY}(${node.type})${ANSI.RESET}`;
 
             let line = `${indent}${icon}${ANSI.BOLD}${keyStr}${ANSI.RESET}: ${valueStr} ${typeLabel}`;
-            
+
             if (isSelected && !this.editMode) {
                 line = `${theme.main}${stripAnsi(line)}${ANSI.RESET}`; // Highlight whole line
             } else if (isSelected && this.editMode) {
@@ -156,9 +156,9 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
 
         // Footer
         if (this.editMode) {
-             output += `\n${theme.main}EDIT MODE${ANSI.RESET} Enter: Save, Esc: Cancel`;
+            output += `\n${theme.main}EDIT MODE${ANSI.RESET} Enter: Save, Esc: Cancel`;
         } else {
-             output += `\n${theme.muted}(Arrows: Nav, Space: Toggle, Enter: Edit/Submit)${ANSI.RESET}`;
+            output += `\n${theme.muted}(Arrows: Nav, Space: Toggle, Enter: Edit/Submit)${ANSI.RESET}`;
         }
 
         this.renderFrame(output);
@@ -182,12 +182,12 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
             this.render(false);
             return;
         }
-        
+
         // Expand/Collapse
         if (char === ' ' || this.isRight(char) || this.isLeft(char)) {
             if (!node.isLeaf) {
                 const isExpanded = this.expandedPaths.has(node.path);
-                
+
                 if (this.isRight(char) && !isExpanded) {
                     this.expandedPaths.add(node.path);
                 } else if (this.isLeft(char) && isExpanded) {
@@ -199,7 +199,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
                     // Jump to parent
                     // This requires finding parent index, but simplification: just do nothing or standard logic
                 }
-                
+
                 this.recalculateFlatList();
                 this.render(false);
             }
@@ -209,10 +209,10 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
         // Enter: Edit or Submit
         if (char === '\r' || char === '\n') {
             if (node.path === 'root') {
-                 this.submit(this.rootData);
-                 return;
+                this.submit(this.rootData);
+                return;
             }
-            
+
             // Toggle Boolean immediately
             if (node.type === 'boolean') {
                 const newVal = !node.value;
@@ -229,8 +229,8 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
                 this.render(false);
                 return;
             }
-            
-             this.submit(this.rootData);
+
+            this.submit(this.rootData);
         }
     }
 
@@ -244,10 +244,10 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
                 newValue = Number(this.editBuffer);
                 if (isNaN(newValue)) newValue = 0; // Fallback
             }
-            
+
             // Update Data
             node.parentRef[node.refKey] = newValue;
-            
+
             this.editMode = false;
             this.recalculateFlatList();
             this.render(false);
@@ -256,9 +256,9 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
 
         // Esc: Cancel
         if (key[0] === 27 && key.length === 1) { // Standard ESC
-             this.editMode = false;
-             this.render(false);
-             return;
+            this.editMode = false;
+            this.render(false);
+            return;
         }
 
         // Backspace
@@ -279,12 +279,12 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
         if (this.editMode) return; // Disable scroll in edit mode for now
 
         if (event.action === 'scroll') {
-             if (event.scroll === 'up') {
-                 this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
-             } else if (event.scroll === 'down') {
-                 this.cursor = (this.cursor + 1) % this.flatList.length;
-             }
-             this.render(false);
+            if (event.scroll === 'up') {
+                this.cursor = (this.cursor - 1 + this.flatList.length) % this.flatList.length;
+            } else if (event.scroll === 'down') {
+                this.cursor = (this.cursor + 1) % this.flatList.length;
+            }
+            this.render(false);
         }
     }
 }

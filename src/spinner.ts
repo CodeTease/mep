@@ -20,7 +20,7 @@ export class Spinner {
 
         this.isSpinning = true;
         process.stdout.write(ANSI.HIDE_CURSOR);
-        
+
         // Render immediately
         this.render();
 
@@ -43,7 +43,7 @@ export class Spinner {
             clearInterval(this.timer);
             this.timer = undefined;
         }
-        
+
         if (this.isSpinning) {
             this.isSpinning = false;
             process.stdout.write(ANSI.SHOW_CURSOR);

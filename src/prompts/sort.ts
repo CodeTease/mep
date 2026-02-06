@@ -23,13 +23,13 @@ export class SortPrompt extends Prompt<string[], SortOptions> {
         } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
             this.scrollTop = this.selectedIndex - this.pageSize + 1;
         }
-        
+
         // Ensure valid scroll (handle list shrinking?) - list doesn't shrink here but good practice
         this.scrollTop = Math.max(0, Math.min(this.scrollTop, this.items.length - this.pageSize));
         if (this.scrollTop < 0) this.scrollTop = 0;
 
         let output = '';
-        
+
         // Header
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Press <space> to grab, arrows to move, <enter> to confirm)${ANSI.RESET}\n`;
 
@@ -58,11 +58,11 @@ export class SortPrompt extends Prompt<string[], SortOptions> {
             // Item Content
             let content = item;
             if (isGrabbed) {
-                content = `${ANSI.BOLD}${theme.main}${content}${ANSI.RESET}`; 
+                content = `${ANSI.BOLD}${theme.main}${content}${ANSI.RESET}`;
             } else if (isSelected) {
                 content = `${theme.main}${content}${ANSI.RESET}`;
             }
-            
+
             output += `${prefix}${content}`;
         });
 
@@ -116,8 +116,8 @@ export class SortPrompt extends Prompt<string[], SortOptions> {
                     this.grabbedIndex = newIndex;
                 }
             } else {
-                 // Move cursor down
-                 this.selectedIndex = this.selectedIndex < this.items.length - 1 ? this.selectedIndex + 1 : 0;
+                // Move cursor down
+                this.selectedIndex = this.selectedIndex < this.items.length - 1 ? this.selectedIndex + 1 : 0;
             }
             this.render(false);
             return;
@@ -130,10 +130,10 @@ export class SortPrompt extends Prompt<string[], SortOptions> {
 
     protected handleMouse(event: MouseEvent) {
         // Simple scroll support for navigation
-         if (event.action === 'scroll') {
+        if (event.action === 'scroll') {
             if (event.scroll === 'up') {
                 if (this.grabbedIndex !== null) {
-                     if (this.selectedIndex > 0) {
+                    if (this.selectedIndex > 0) {
                         const newIndex = this.selectedIndex - 1;
                         this.swap(this.selectedIndex, newIndex);
                         this.selectedIndex = newIndex;

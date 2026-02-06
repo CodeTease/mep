@@ -9,7 +9,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
     private tasks: ScheduleTask[];
     private scrollTop: number = 0;
     private readonly pageSize: number = 10;
-    
+
     // Viewport State
     private viewStartDate: number;
     private msPerChar: number; // Zoom level
@@ -36,15 +36,15 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         const maxDate = opts.endDate ? opts.endDate.getTime() : maxTaskDate;
 
         if (opts.startDate) this.minViewDate = minDate;
-        
+
         // Default Zoom: Fit the whole range into ~60 chars
         const range = maxDate - minDate || 86400000; // default 1 day if 0
-        this.msPerChar = range / 60; 
-        
+        this.msPerChar = range / 60;
+
         // Start view slightly before the earliest task
-        this.viewStartDate = opts.startDate 
-            ? minDate 
-            : minDate - (this.msPerChar * 5); 
+        this.viewStartDate = opts.startDate
+            ? minDate
+            : minDate - (this.msPerChar * 5);
     }
 
     private get maxNameWidth(): number {
@@ -99,7 +99,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
                 nameStr = nameStr.slice(0, this.nameColWidth - 3) + '...';
             }
             const paddedName = nameStr.padEnd(this.nameColWidth);
-            
+
             const prefix = isSelected ? `${theme.main}${ANSI.BOLD}> ` : '  ';
             const nameColor = isSelected ? theme.main : '';
             const reset = ANSI.RESET;
@@ -113,24 +113,24 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
             const endCol = Math.ceil(endOffset / this.msPerChar);
 
             let timelineStr = '';
-            
+
             // Render the bar within the timelineWidth
             // 0........timelineWidth
-            
+
             // Clipping
             const barStart = Math.max(0, startCol);
             const barEnd = Math.min(timelineWidth, endCol);
-            
+
             if (barStart < timelineWidth && barEnd > 0) {
-                 const preSpace = ' '.repeat(barStart);
-                 const barLen = Math.max(1, barEnd - barStart);
-                 const barChar = isSelected ? '█' : '━';
-                 const barColor = isSelected ? theme.main : ANSI.FG_GRAY;
-                 
-                 // Metadata hints
-                 const durationLabel = isSelected ? ` ${this.formatDuration(task.end.getTime() - task.start.getTime())}` : '';
-                 
-                 timelineStr = preSpace + barColor + barChar.repeat(barLen) + reset + durationLabel;
+                const preSpace = ' '.repeat(barStart);
+                const barLen = Math.max(1, barEnd - barStart);
+                const barChar = isSelected ? '█' : '━';
+                const barColor = isSelected ? theme.main : ANSI.FG_GRAY;
+
+                // Metadata hints
+                const durationLabel = isSelected ? ` ${this.formatDuration(task.end.getTime() - task.start.getTime())}` : '';
+
+                timelineStr = preSpace + barColor + barChar.repeat(barLen) + reset + durationLabel;
             } else if (barEnd <= 0) {
                 timelineStr = ANSI.FG_GRAY + '<' + reset;
             } else {
@@ -152,9 +152,9 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         // If 1 char > 1 hour, show Date
         // Else show Time
         const msPerDay = 86400000;
-        
+
         if (this.msPerChar * 10 > msPerDay * 30) { // Very zoomed out
-             return `${d.getMonth() + 1}/${d.getFullYear()}`;
+            return `${d.getMonth() + 1}/${d.getFullYear()}`;
         }
         if (this.msPerChar * 10 > msPerDay) {
             return `${d.getMonth() + 1}/${d.getDate()}`;
@@ -195,19 +195,19 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
             this.render(false);
             return;
         }
-        
+
         // PageUp/Down: Horizontal Scroll
         if (key.toString() === '\x1b[5~') { // PageUp
-             this.scrollView(-10);
-             this.render(false);
-             return;
+            this.scrollView(-10);
+            this.render(false);
+            return;
         }
         if (key.toString() === '\x1b[6~') { // PageDown
-             this.scrollView(10);
-             this.render(false);
-             return;
+            this.scrollView(10);
+            this.render(false);
+            return;
         }
-        
+
         // Vim keys for movement (h/l) - Alternative to arrows
         if (char === 'h') {
             task.start = new Date(task.start.getTime() - step);
@@ -263,40 +263,40 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             const isCtrl = (event as any).ctrl;
+            const isCtrl = (event as any).ctrl;
 
-             if (isCtrl) {
-                 // Scroll View
-                 if (event.scroll === 'up') {
-                     this.scrollView(-5);
-                 } else if (event.scroll === 'down') {
-                     this.scrollView(5);
-                 }
-             } else {
-                 // Move Task
-                 const task = this.tasks[this.cursor];
-                 const step = Math.max(1, this.msPerChar);
+            if (isCtrl) {
+                // Scroll View
+                if (event.scroll === 'up') {
+                    this.scrollView(-5);
+                } else if (event.scroll === 'down') {
+                    this.scrollView(5);
+                }
+            } else {
+                // Move Task
+                const task = this.tasks[this.cursor];
+                const step = Math.max(1, this.msPerChar);
 
-                 if (event.scroll === 'up') {
-                     task.start = new Date(task.start.getTime() - step);
-                     task.end = new Date(task.end.getTime() - step);
-                 } else if (event.scroll === 'down') {
-                     task.start = new Date(task.start.getTime() + step);
-                     task.end = new Date(task.end.getTime() + step);
-                 }
-             }
-             this.render(false);
+                if (event.scroll === 'up') {
+                    task.start = new Date(task.start.getTime() - step);
+                    task.end = new Date(task.end.getTime() - step);
+                } else if (event.scroll === 'down') {
+                    task.start = new Date(task.start.getTime() + step);
+                    task.end = new Date(task.end.getTime() + step);
+                }
+            }
+            this.render(false);
         }
     }
 
     private scrollView(chars: number) {
         let newStart = this.viewStartDate + (chars * this.msPerChar);
-        
+
         // Clamp if fixed start is provided to prevent scrolling before the start date
         if (this.minViewDate !== undefined && newStart < this.minViewDate) {
             newStart = this.minViewDate;
         }
-        
+
         this.viewStartDate = newStart;
     }
 }

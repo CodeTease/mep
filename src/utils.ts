@@ -5,13 +5,13 @@
  */
 export function detectCapabilities() {
     const env = process.env;
-    
+
     // Check for CI
     const isCI = !!env.CI;
-    
+
     // Check for True Color support
     const hasTrueColor = env.COLORTERM === 'truecolor' || !!env.WT_SESSION;
-    
+
     // Check if it is a TTY
     const isTTY = process.stdout.isTTY;
     const isWindows = process.platform === 'win32';
@@ -28,7 +28,7 @@ export function detectCapabilities() {
             if (env.TERM === 'xterm-256color' || env.TERM === 'alacritty') return true;
             // ConEmu / Cmder
             if (env.ConEmuTask) return true;
-            
+
             // CI on Windows typically supports Unicode.
             if (isCI) return true;
 
@@ -42,9 +42,9 @@ export function detectCapabilities() {
         // Check if the LANG or LC_ALL variable contains UTF-8.
         const lang = env.LANG || '';
         const lcAll = env.LC_ALL || '';
-        
+
         return (lang && lang.toUpperCase().endsWith('UTF-8')) ||
-               (lcAll && lcAll.toUpperCase().endsWith('UTF-8'));
+            (lcAll && lcAll.toUpperCase().endsWith('UTF-8'));
     };
 
     return {
@@ -183,10 +183,10 @@ export function safeSplit(str: string): string[] {
  */
 export function fuzzyMatch(query: string, target: string): { score: number; indices: number[] } | null {
     if (!query) return { score: 0, indices: [] };
-    
+
     const queryLower = query.toLowerCase();
     const targetLower = target.toLowerCase();
-    
+
     let queryIdx = 0;
     let targetIdx = 0;
     const indices: number[] = [];
@@ -202,9 +202,9 @@ export function fuzzyMatch(query: string, target: string): { score: number; indi
 
         if (qChar === tChar) {
             indices.push(targetIdx);
-            
+
             let charScore = 1;
-            
+
             // Bonus: Consecutive match
             if (lastMatchIdx !== -1 && targetIdx === lastMatchIdx + 1) {
                 consecutive++;
@@ -216,7 +216,7 @@ export function fuzzyMatch(query: string, target: string): { score: number; indi
             // Bonus: Match at start of string
             if (targetIdx === 0) {
                 charScore += 5;
-            } 
+            }
             // Bonus: Match after separator (camelCase or space or special char)
             else if (targetIdx > 0) {
                 const prevChar = target.charAt(targetIdx - 1);
@@ -224,7 +224,7 @@ export function fuzzyMatch(query: string, target: string): { score: number; indi
                     charScore += 4;
                 } else if (prevChar !== prevChar.toUpperCase() && target.charAt(targetIdx) === target.charAt(targetIdx).toUpperCase()) {
                     // CamelCase hump
-                     charScore += 3;
+                    charScore += 3;
                 }
             }
 
@@ -242,7 +242,7 @@ export function fuzzyMatch(query: string, target: string): { score: number; indi
 
     // Penalty for total length (prefer shorter strings)
     score -= target.length * 0.1;
-    
+
     // Penalty for distance between first and last match (compactness)
     if (indices.length > 1) {
         const spread = indices[indices.length - 1] - indices[0];
@@ -268,13 +268,13 @@ export const Layout = {
         let currentWidth = 0;
         let cutIndex = 0;
         let inAnsi = false;
-        
+
         for (let i = 0; i < str.length; i++) {
             if (str[i] === '\x1b') inAnsi = true;
-            
+
             if (!inAnsi) {
                 const code = str.charCodeAt(i);
-                
+
                 // Handle surrogate pair
                 if (code >= 0xD800 && code <= 0xDBFF && i + 1 < str.length) {
                     const next = str.charCodeAt(i + 1);
@@ -288,7 +288,7 @@ export const Layout = {
                         continue;
                     }
                 }
-                
+
                 const w = isWideCodePoint(code) ? 2 : 1;
                 if (currentWidth + w > width) break;
                 currentWidth += w;
@@ -297,8 +297,8 @@ export const Layout = {
             }
             cutIndex = i + 1;
         }
-        
-        return str.substring(0, cutIndex) + '\x1b[0m'; 
+
+        return str.substring(0, cutIndex) + '\x1b[0m';
     },
 
     /**
@@ -308,7 +308,7 @@ export const Layout = {
     pad(text: string, length: number, align: 'left' | 'right' | 'center' = 'left'): string {
         const visualLen = stringWidth(text);
         if (visualLen >= length) return text;
-        
+
         const padLen = Math.max(0, length - visualLen);
         if (align === 'left') {
             return text + ' '.repeat(padLen);
@@ -331,33 +331,33 @@ export const Layout = {
     split(left: string, right: string, width: number, options: { ratio?: number, gap?: number } = {}): string {
         const ratio = options.ratio ?? 0.5;
         const gap = options.gap ?? 2;
-        
+
         let leftWidth = Math.floor((width - gap) * ratio);
         let rightWidth = width - leftWidth - gap;
 
         if (leftWidth < 1 || rightWidth < 1) {
-             leftWidth = Math.max(0, width);
-             rightWidth = 0;
-             // Fallback to single column if too narrow? 
-             // For now just prevent crash.
+            leftWidth = Math.max(0, width);
+            rightWidth = 0;
+            // Fallback to single column if too narrow? 
+            // For now just prevent crash.
         }
-        
+
         const leftLines = left.split('\n');
         const rightLines = right.split('\n');
         const maxLines = Math.max(leftLines.length, rightLines.length);
-        
+
         const result: string[] = [];
-        
+
         for (let i = 0; i < maxLines; i++) {
             const leftLine = leftLines[i] || '';
             const rightLine = rightLines[i] || '';
-            
+
             const l = Layout.pad(Layout.truncate(leftLine, leftWidth), leftWidth);
             const r = Layout.pad(Layout.truncate(rightLine, rightWidth), rightWidth);
-            
+
             result.push(`${l}${' '.repeat(gap)}${r}`);
         }
-        
+
         return result.join('\n');
     },
 
@@ -371,12 +371,12 @@ export const Layout = {
             const words = para.split(' ');
             let currentLine = '';
             const lines: string[] = [];
-            
+
             for (const word of words) {
                 const wordWidth = stringWidth(word);
                 const currentWidth = stringWidth(currentLine);
                 const spaceWidth = currentLine ? 1 : 0;
-                
+
                 if (currentWidth + spaceWidth + wordWidth <= width) {
                     currentLine += (currentLine ? ' ' : '') + word;
                 } else {
@@ -400,11 +400,11 @@ export const Graph = {
     getDependencies<T>(item: T, getDeps: (i: T) => T[]): T[] {
         const visited = new Set<T>();
         const result: T[] = [];
-        
+
         const visit = (current: T) => {
             if (visited.has(current)) return;
             visited.add(current);
-            
+
             const deps = getDeps(current);
             for (const dep of deps) {
                 visit(dep);
@@ -413,7 +413,7 @@ export const Graph = {
                 result.push(current);
             }
         };
-        
+
         visit(item);
         return result;
     },
@@ -427,13 +427,13 @@ export const Graph = {
         const visited = new Set<T>();
         const temp = new Set<T>();
         const order: T[] = [];
-        
+
         const visit = (node: T) => {
             if (temp.has(node)) {
-                 throw new Error('Cyclic dependency detected');
+                throw new Error('Cyclic dependency detected');
             }
             if (visited.has(node)) return;
-            
+
             temp.add(node);
             const deps = getDeps(node);
             for (const dep of deps) {
@@ -443,13 +443,13 @@ export const Graph = {
             visited.add(node);
             order.push(node);
         };
-        
+
         for (const item of items) {
             if (!visited.has(item)) {
                 visit(item);
             }
         }
-        
+
         return order;
     }
 };
@@ -459,13 +459,13 @@ export const Graph = {
  */
 export function generateProgressBar(current: number, total: number, width: number = 20): string {
     const percentage = Math.min(Math.max(current / total, 0), 1);
-    const barWidth = width; 
+    const barWidth = width;
     const filledWidth = Math.round(barWidth * percentage);
     const emptyWidth = barWidth - filledWidth;
-    
+
     const filled = '█'.repeat(filledWidth);
     const empty = '-'.repeat(emptyWidth);
     const percentStr = Math.round(percentage * 100) + '%';
-    
+
     return `[${filled}${empty}] ${percentStr}`;
 }

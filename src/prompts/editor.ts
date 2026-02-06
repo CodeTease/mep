@@ -41,12 +41,12 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
 
         const icon = this.status === 'done' ? theme.success + symbols.tick : theme.main + '?';
         const message = `${theme.title}${this.options.message}${ANSI.RESET}`;
-        const hint = this.options.waitUserInput 
-            ? ` ${theme.muted}[Press <Enter> to launch editor]${ANSI.RESET}` 
+        const hint = this.options.waitUserInput
+            ? ` ${theme.muted}[Press <Enter> to launch editor]${ANSI.RESET}`
             : ` ${theme.muted}[Launching editor...]${ANSI.RESET}`;
 
         let output = `${icon} ${ANSI.BOLD}${message}${ANSI.RESET}${hint}`;
-        
+
         if (this.errorMsg) {
             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
@@ -95,12 +95,12 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
 
     private spawnEditor() {
         this.status = 'editing';
-        
+
         // 1. Prepare Temp File
         const ext = this.options.extension || '.txt';
         // Ensure extension has dot
         const safeExt = ext.startsWith('.') ? ext : '.' + ext;
-        const filename = `mep-editor-${Date.now()}-${Math.floor(Math.random()*1000)}${safeExt}`;
+        const filename = `mep-editor-${Date.now()}-${Math.floor(Math.random() * 1000)}${safeExt}`;
         this.tempFilePath = path.join(os.tmpdir(), filename);
         const initialContent = this.options.initial || '';
 
@@ -121,7 +121,7 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
         // Temporarily disable mouse tracking if it was enabled
         const shouldEnableMouse = (this.options as any).mouse !== false && this.capabilities.hasMouse;
         if (shouldEnableMouse) {
-             this.print(ANSI.DISABLE_MOUSE);
+            this.print(ANSI.DISABLE_MOUSE);
         }
 
         // Pause stdin and raw mode to allow child process to take over TTY
@@ -153,26 +153,26 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
             } catch (_e) {
                 // Ignore read/delete errors
             }
-            
+
             this.restoreMep();
-            
+
             if (code !== 0) {
-                 this.status = 'pending';
-                 this.errorMsg = `Editor exited with code ${code}`;
-                 this.render(false);
-                 return;
+                this.status = 'pending';
+                this.errorMsg = `Editor exited with code ${code}`;
+                this.render(false);
+                return;
             }
 
             // Success
             this.status = 'done';
-            
+
             if (content.endsWith('\n')) {
                 content = content.slice(0, -1);
             }
             if (content.endsWith('\r')) {
-                 content = content.slice(0, -1);
+                content = content.slice(0, -1);
             }
-            
+
             this.submit(content);
         });
     }
@@ -180,11 +180,11 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
     private restoreMep() {
         this.stdin.resume();
         this.stdin.setRawMode(true);
-        
+
         // Re-enable mouse if it was enabled
         const shouldEnableMouse = (this.options as any).mouse !== false && this.capabilities.hasMouse;
         if (shouldEnableMouse) {
-             this.print(ANSI.SET_ANY_EVENT_MOUSE + ANSI.SET_SGR_EXT_MODE_MOUSE);
+            this.print(ANSI.SET_ANY_EVENT_MOUSE + ANSI.SET_SGR_EXT_MODE_MOUSE);
         }
         this.print(ANSI.HIDE_CURSOR); // Ensure cursor is hidden again for Mep
     }

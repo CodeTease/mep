@@ -21,15 +21,15 @@ async function main() {
     let progress = 0;
     const downloadInterval = setInterval(() => {
         progress += 5;
-        tasks.update('download', { 
-            current: progress, 
-            message: `${progress}/100 MB` 
+        tasks.update('download', {
+            current: progress,
+            message: `${progress}/100 MB`
         });
-        
+
         if (progress >= 100) {
             clearInterval(downloadInterval);
             tasks.success('download', 'Download complete!');
-            
+
             // Start build after download
             tasks.start('build');
         }
@@ -43,18 +43,18 @@ async function main() {
     // Simulate Build Warning then Success
     setTimeout(() => {
         tasks.warning('build', 'Build warning: Low memory');
-        
+
         setTimeout(() => {
-             tasks.success('build', 'Build successful');
-             
-             // Add dynamic task
-             tasks.add('deploy', { title: 'Deploying to server', type: 'spinner' });
-             tasks.start('deploy');
-             
-             setTimeout(() => {
-                 tasks.success('deploy', 'Deployed!');
-                 tasks.stop();
-             }, 1000);
+            tasks.success('build', 'Build successful');
+
+            // Add dynamic task
+            tasks.add('deploy', { title: 'Deploying to server', type: 'spinner' });
+            tasks.start('deploy');
+
+            setTimeout(() => {
+                tasks.success('deploy', 'Deployed!');
+                tasks.stop();
+            }, 1000);
         }, 1500);
     }, 2500);
 }

@@ -52,9 +52,9 @@ export const COUNTRIES: CountryEntry[] = [
     ['CL', 'Chile', '56', '# #### ####'],
     ['CO', 'Colombia', '57', '### ### ####'],
     ['NG', 'Nigeria', '234', '### ### ####'],
-    
+
     // --- Newly Added Countries ---
-    
+
     // Southeast Asia Neighbors
     ['KH', 'Cambodia', '855', '## ### ###'],
     ['LA', 'Laos', '856', '## ## ####'],

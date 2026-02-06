@@ -22,7 +22,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
             val /= 1024;
             idx++;
         }
-        
+
         // Round to 2 decimals for display if float
         this.inputValue = Math.round(val * 100) / 100;
         this.buffer = this.inputValue.toString();
@@ -31,11 +31,11 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
 
     protected render(_firstRender: boolean): void {
         const unitStr = UNITS[this.unitIndex];
-        
+
         // 1. Render Question & Input
         const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
         let output = `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} `;
-        
+
         // Value part
         output += `${theme.main}${ANSI.UNDERLINE}${this.buffer}${ANSI.RESET} ${ANSI.BOLD}${unitStr}${ANSI.RESET}\n`;
 
@@ -48,7 +48,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
             } else {
                 bar += `${theme.muted} ${u} ${ANSI.RESET}`;
             }
-            
+
             if (i < UNITS.length - 1) {
                 bar += ` ${theme.muted}›${ANSI.RESET} `;
             }
@@ -57,7 +57,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
 
         // 3. Hints & Errors
         output += `${theme.muted}  (Arrows: Adjust | Tab: Switch Unit | Enter: Submit)${ANSI.RESET}`;
-        
+
         if (this.errorMsg) {
             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
@@ -76,10 +76,10 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
                 this.render(false);
                 return;
             }
-            
+
             // Calculate Bytes: value * 1024^index
             const bytes = finalVal * Math.pow(1024, this.unitIndex);
-            
+
             // Min/Max Validation (in bytes)
             if (this.options.min !== undefined && bytes < this.options.min) {
                 this.errorMsg = `Minimum value is ${this.formatBytes(this.options.min)}`;
@@ -87,9 +87,9 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
                 return;
             }
             if (this.options.max !== undefined && bytes > this.options.max) {
-                 this.errorMsg = `Maximum value is ${this.formatBytes(this.options.max)}`;
-                 this.render(false);
-                 return;
+                this.errorMsg = `Maximum value is ${this.formatBytes(this.options.max)}`;
+                this.render(false);
+                return;
             }
 
             this.submit(Math.round(bytes)); // Return integer bytes? Or float? Usually bytes are int.
@@ -117,14 +117,14 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
             let val = parseFloat(this.buffer) || 0;
             // Adaptive step: 1 if integer, 0.1 if float
             const step = this.buffer.includes('.') ? 0.1 : 1;
-            
+
             if (this.isUp(char)) val += step;
             if (this.isDown(char)) val -= step;
-            
+
             // Fix Float Precision
             val = Math.round(val * 100) / 100;
             if (val < 0) val = 0; // No negative bytes usually
-            
+
             this.buffer = val.toString();
             this.render(false);
             return;
@@ -143,7 +143,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
         if (/^[0-9.]$/.test(char)) {
             // Prevent multiple dots
             if (char === '.' && this.buffer.includes('.')) return;
-            
+
             this.buffer += char;
             this.render(false);
         }
@@ -158,19 +158,19 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             if (event.scroll === 'up') {
-                 // Scroll up -> Increase Value
-                 let val = parseFloat(this.buffer) || 0;
-                 val += 1;
-                 this.buffer = val.toString();
-                 this.render(false);
-             } else if (event.scroll === 'down') {
-                 // Scroll down -> Decrease Value
-                 let val = parseFloat(this.buffer) || 0;
-                 val = Math.max(0, val - 1);
-                 this.buffer = val.toString();
-                 this.render(false);
-             }
+            if (event.scroll === 'up') {
+                // Scroll up -> Increase Value
+                let val = parseFloat(this.buffer) || 0;
+                val += 1;
+                this.buffer = val.toString();
+                this.render(false);
+            } else if (event.scroll === 'down') {
+                // Scroll down -> Decrease Value
+                let val = parseFloat(this.buffer) || 0;
+                val = Math.max(0, val - 1);
+                this.buffer = val.toString();
+                this.render(false);
+            }
         }
     }
 }

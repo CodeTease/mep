@@ -58,16 +58,16 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
             }
 
             if (allIndices.size === 0) {
-                 allIndices.add(this.selectedIndex);
+                allIndices.add(this.selectedIndex);
             }
 
             const selectedItems: V[] = [];
             const sortedIndices = Array.from(allIndices).sort((a, b) => a - b);
-            
+
             for (const idx of sortedIndices) {
                 if (idx < choices.length) {
                     const choice = choices[idx];
-                     if (!this.isSeparator(choice)) {
+                    if (!this.isSeparator(choice)) {
                         selectedItems.push((choice as any).value);
                     }
                 }
@@ -86,10 +86,10 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                 // Commit range
                 const start = Math.min(this.anchorIndex, this.selectedIndex);
                 const end = Math.max(this.anchorIndex, this.selectedIndex);
-                
+
                 this.committedRanges.push({ start, end });
                 this.mergeRanges();
-                
+
                 this.anchorIndex = null;
             }
             this.render(false);
@@ -101,7 +101,7 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
     protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
-        
+
         // Scroll Logic (inherited from SelectPrompt basically, but good to ensure)
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;
@@ -115,13 +115,13 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
         // Header
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
-        
+
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
         } else {
-             const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-             
-             visibleChoices.forEach((choice, index) => {
+            const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+
+            visibleChoices.forEach((choice, index) => {
                 const actualIndex = this.scrollTop + index;
                 if (index > 0) output += '\n';
 
@@ -154,26 +154,26 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                         prefix = `${theme.muted}> ${ANSI.RESET}`;
                     }
                     if (actualIndex === this.selectedIndex) {
-                        prefix = `${theme.main}${symbols.pointer} `; 
+                        prefix = `${theme.main}${symbols.pointer} `;
                     }
                     if (actualIndex === this.selectedIndex && actualIndex === this.anchorIndex) {
-                         prefix = `${theme.main}${symbols.pointer}>`;
+                        prefix = `${theme.main}${symbols.pointer}>`;
                     }
-                    
+
                     // Highlighting
                     if (isCommitted || isDragging) {
                         // Apply highlighting style
                         // If committed, maybe green? If dragging, maybe yellow or just highlighted?
-                        
+
                         if (actualIndex !== this.selectedIndex && actualIndex !== this.anchorIndex) {
-                             prefix = `${theme.success}* ${ANSI.RESET}`;
+                            prefix = `${theme.success}* ${ANSI.RESET}`;
                         }
-                        
+
                         content = `${theme.success}${title}${ANSI.RESET}`;
-                        
+
                         if (isDragging && !isCommitted) {
-                             // Distinguish dragging visual? Maybe dim? 
-                             // Using same style as single range prompt for consistency
+                            // Distinguish dragging visual? Maybe dim? 
+                            // Using same style as single range prompt for consistency
                         }
                     }
 
@@ -181,12 +181,12 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                     if (actualIndex === this.selectedIndex) {
                         content = `${ANSI.UNDERLINE}${content}${ANSI.RESET}`;
                     }
-                    
+
                     output += `${prefix}${content}`;
                 }
             });
         }
-        
+
         output += `\n${theme.muted}(Space to anchor/commit, Enter to submit)${ANSI.RESET}`;
 
         this.renderFrame(output);

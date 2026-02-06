@@ -19,8 +19,8 @@ export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
             if (char === '\r' || char === '\n') {
                 const choices = this.getFilteredChoices();
                 // Ensure index is valid, though it should be captured
-                const value = choices[this.userSelectionIndex] 
-                    ? (choices[this.userSelectionIndex] as any).value 
+                const value = choices[this.userSelectionIndex]
+                    ? (choices[this.userSelectionIndex] as any).value
                     : null;
                 this.submit(value as V);
             }
@@ -36,15 +36,15 @@ export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
 
                 this.userSelectionIndex = this.selectedIndex;
                 const selectedChoice = choices[this.userSelectionIndex] as any;
-                
+
                 // Check correctness
                 this.isCorrect = selectedChoice.value === this.options.correctValue;
-                
+
                 this.status = 'revealed';
                 this.render(false);
                 return;
             }
-            
+
             // Delegate navigation to super
             super.handleInput(char);
         }
@@ -59,13 +59,13 @@ export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
         // Revealed State
         let output = '';
         const choices = this.getFilteredChoices();
-        
+
         // Header
         const icon = this.isCorrect ? `${theme.success}${symbols.tick}` : `${theme.error}${symbols.cross}`;
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
-        
+
         const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-             
+
         visibleChoices.forEach((choice, index) => {
             if (index > 0) output += '\n';
 
@@ -76,10 +76,10 @@ export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
                 const actualIndex = this.scrollTop + index;
                 const isSelected = actualIndex === this.userSelectionIndex;
                 const isCorrectAnswer = (choice as any).value === this.options.correctValue;
-                
+
                 let prefix = '  ';
                 let style = ANSI.RESET;
-                
+
                 if (isSelected) {
                     if (this.isCorrect) {
                         prefix = `${theme.success}${symbols.pointer} `;
@@ -89,26 +89,26 @@ export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
                         style = theme.error;
                     }
                 } else if (isCorrectAnswer) {
-                     prefix = `${theme.success}${symbols.pointer} `; 
-                     style = theme.success; 
+                    prefix = `${theme.success}${symbols.pointer} `;
+                    style = theme.success;
                 }
 
                 output += `${prefix}${style}${(choice as any).title}${ANSI.RESET}`;
-                
+
                 if (isSelected && !this.isCorrect) {
-                     output += ` ${theme.error}(Your Answer)${ANSI.RESET}`;
+                    output += ` ${theme.error}(Your Answer)${ANSI.RESET}`;
                 }
                 if (isCorrectAnswer && !isSelected) {
-                     output += ` ${theme.success}(Correct)${ANSI.RESET}`;
+                    output += ` ${theme.success}(Correct)${ANSI.RESET}`;
                 }
             }
         });
-        
+
         // Explanation
         if (this.options.explanation) {
             output += `\n\n${ANSI.BOLD}Explanation:${ANSI.RESET}\n${theme.muted}${this.options.explanation}${ANSI.RESET}`;
         }
-        
+
         output += `\n\n${ANSI.DIM}(Press Enter to continue)${ANSI.RESET}`;
 
         this.renderFrame(output);

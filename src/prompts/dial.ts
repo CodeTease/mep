@@ -22,7 +22,7 @@ export class DialPrompt extends Prompt<number, DialOptions> {
         const radius = this.options.radius || 5;
         // Adjust aspect ratio: terminal chars are ~2x taller than wide.
         // So we multiply X by 2.
-        const centerX = radius * 2; 
+        const centerX = radius * 2;
         const centerY = radius;
         const width = centerX * 2 + 1;
         const height = centerY * 2 + 1;
@@ -41,12 +41,12 @@ export class DialPrompt extends Prompt<number, DialOptions> {
         // Knob usually goes from Bottom-Left (135 deg) to Bottom-Right (405 deg)
         // 0 deg is Right. 90 deg is Down.
         for (let a = 135; a <= 405; a += 10) {
-             const rad = a * Math.PI / 180;
-             const rX = Math.round(centerX + radius * Math.cos(rad) * 2);
-             const rY = Math.round(centerY + radius * Math.sin(rad));
-             if (rY >= 0 && rY < height && rX >= 0 && rX < width) {
+            const rad = a * Math.PI / 180;
+            const rX = Math.round(centerX + radius * Math.cos(rad) * 2);
+            const rY = Math.round(centerY + radius * Math.sin(rad));
+            if (rY >= 0 && rY < height && rX >= 0 && rX < width) {
                 grid[rY][rX] = `${ANSI.FG_GRAY}·${ANSI.RESET}`;
-             }
+            }
         }
 
         // Calculate Pointer Position
@@ -55,10 +55,10 @@ export class DialPrompt extends Prompt<number, DialOptions> {
         const percent = totalRange === 0 ? 0 : (this.currentValue - this.options.min) / totalRange;
         const angleDeg = 135 + (percent * 270);
         const rad = angleDeg * Math.PI / 180;
-        
+
         const ptrX = Math.round(centerX + radius * Math.cos(rad) * 2);
         const ptrY = Math.round(centerY + radius * Math.sin(rad));
-        
+
         if (ptrY >= 0 && ptrY < height && ptrX >= 0 && ptrX < width) {
             grid[ptrY][ptrX] = `${theme.main}${this.options.pointerSymbol || '●'}${ANSI.RESET}`;
         }
@@ -86,7 +86,7 @@ export class DialPrompt extends Prompt<number, DialOptions> {
 
     protected handleInput(char: string, _key: Buffer) {
         const step = this.options.step || 1;
-        
+
         if (this.isLeft(char) || this.isDown(char)) {
             this.updateValue(this.currentValue - step);
         } else if (this.isRight(char) || this.isUp(char)) {
@@ -99,18 +99,18 @@ export class DialPrompt extends Prompt<number, DialOptions> {
     protected handleMouse(event: MouseEvent) {
         const step = this.options.step || 1;
         if (event.action === 'scroll') {
-             if (event.scroll === 'up') {
-                 this.updateValue(this.currentValue + step);
-             } else {
-                 this.updateValue(this.currentValue - step);
-             }
+            if (event.scroll === 'up') {
+                this.updateValue(this.currentValue + step);
+            } else {
+                this.updateValue(this.currentValue - step);
+            }
         }
     }
 
     private updateValue(val: number) {
         if (val < this.options.min) val = this.options.min;
         if (val > this.options.max) val = this.options.max;
-        
+
         if (this.currentValue !== val) {
             this.currentValue = val;
             this.render(false);

@@ -16,7 +16,7 @@ export class OTPPrompt extends Prompt<string, OTPOptions> {
 
     protected render(_firstRender: boolean) {
         const mask = this.options.mask || '_';
-        
+
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
         output += '  '; // Indent
 
@@ -27,10 +27,10 @@ export class OTPPrompt extends Prompt<string, OTPOptions> {
             if (val) {
                 charToDisplay = this.options.secure ? '*' : val;
             } else {
-                 // Use placeholder char if available at this index
-                 if (this.options.placeholder && i < this.options.placeholder.length) {
-                     charToDisplay = this.options.placeholder[i];
-                 }
+                // Use placeholder char if available at this index
+                if (this.options.placeholder && i < this.options.placeholder.length) {
+                    charToDisplay = this.options.placeholder[i];
+                }
             }
 
             if (i === this.cursor) {
@@ -51,7 +51,7 @@ export class OTPPrompt extends Prompt<string, OTPOptions> {
         // Digits
         if (/^\d$/.test(char)) {
             this.slots[this.cursor] = char;
-            
+
             // If we are at the last slot
             if (this.cursor === this.length - 1) {
                 // Only submit if all slots are filled
@@ -61,7 +61,7 @@ export class OTPPrompt extends Prompt<string, OTPOptions> {
                     return;
                 }
             }
-            
+
             this.cursor++;
             this.render(false);
             return;

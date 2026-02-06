@@ -18,7 +18,7 @@ export class DiffPrompt extends Prompt<string, DiffOptions> {
         // Render Diff
         const originalLines = this.options.original ? this.options.original.split('\n') : [];
         const modifiedLines = this.options.modified ? this.options.modified.split('\n') : [];
-        
+
         const width = Math.max(40, (this.stdout.columns || 80) - 4);
         const borderTop = `${ANSI.FG_GRAY}┌${'─'.repeat(width)}┐${ANSI.RESET}`;
         const borderMid = `${ANSI.FG_GRAY}├${'─'.repeat(width)}┤${ANSI.RESET}`;
@@ -28,19 +28,19 @@ export class DiffPrompt extends Prompt<string, DiffOptions> {
 
         // Original (Red)
         if (originalLines.length === 0) {
-             output += `${ANSI.FG_GRAY}│ ${ANSI.DIM}(empty)${ANSI.RESET}\n`;
+            output += `${ANSI.FG_GRAY}│ ${ANSI.DIM}(empty)${ANSI.RESET}\n`;
         } else {
             originalLines.forEach(line => {
                 const truncated = this.truncate(line, width - 4);
                 output += `${ANSI.FG_GRAY}│ ${ANSI.FG_RED}- ${truncated}${ANSI.RESET}\n`;
             });
         }
-        
+
         output += borderMid + '\n';
 
         // Modified (Green)
         if (modifiedLines.length === 0) {
-             output += `${ANSI.FG_GRAY}│ ${ANSI.DIM}(empty)${ANSI.RESET}\n`;
+            output += `${ANSI.FG_GRAY}│ ${ANSI.DIM}(empty)${ANSI.RESET}\n`;
         } else {
             modifiedLines.forEach(line => {
                 const truncated = this.truncate(line, width - 4);
@@ -83,7 +83,7 @@ export class DiffPrompt extends Prompt<string, DiffOptions> {
         } else {
             // Edit
             this.cleanup(); // Stop listening to input for this prompt
-            
+
             // Prepare initial content for editor
             const initial = `<<<<<<< ORIGINAL
 ${this.options.original}
@@ -98,9 +98,9 @@ ${this.options.modified}
                 extension: '.txt',
                 waitUserInput: false // Launch immediately
             }).run().then(result => {
-                this.submit(result); 
+                this.submit(result);
             }).catch(_err => {
-                 this.submit(initial); 
+                this.submit(initial);
             });
         }
     }

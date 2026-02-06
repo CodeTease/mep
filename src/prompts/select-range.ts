@@ -10,9 +10,9 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
     constructor(options: SelectRangeOptions<V>) {
         super(options);
         if (options.initial) {
-             const maxIdx = Math.max(0, options.choices.length - 1);
-             this.anchorIndex = Math.min(Math.max(0, options.initial[0]), maxIdx);
-             this.selectedIndex = Math.min(Math.max(0, options.initial[1]), maxIdx);
+            const maxIdx = Math.max(0, options.choices.length - 1);
+            this.anchorIndex = Math.min(Math.max(0, options.initial[0]), maxIdx);
+            this.selectedIndex = Math.min(Math.max(0, options.initial[1]), maxIdx);
         }
     }
 
@@ -56,7 +56,7 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
 
         // Delegate navigation and search to SelectPrompt
         super.handleInput(char);
-        
+
         // Check bounds after navigation/filtering
         const choices = this.getFilteredChoices();
         if (this.anchorIndex !== null && this.anchorIndex >= choices.length) {
@@ -67,7 +67,7 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
     protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
-        
+
         // Scroll Logic
         if (this.selectedIndex < this.scrollTop) {
             this.scrollTop = this.selectedIndex;
@@ -81,13 +81,13 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
         // Header
         const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr}\n`;
-        
+
         if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`; 
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
         } else {
-             const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-             
-             visibleChoices.forEach((choice, index) => {
+            const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+
+            visibleChoices.forEach((choice, index) => {
                 const actualIndex = this.scrollTop + index;
                 if (index > 0) output += '\n';
 
@@ -116,21 +116,21 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
 
                     // Cursor Marker
                     if (actualIndex === this.selectedIndex) {
-                        prefix = `${theme.main}${symbols.pointer} `; 
+                        prefix = `${theme.main}${symbols.pointer} `;
                     }
 
                     // Combined Marker
                     if (actualIndex === this.selectedIndex && actualIndex === this.anchorIndex) {
-                         prefix = `${theme.main}${symbols.pointer}>`;
+                        prefix = `${theme.main}${symbols.pointer}>`;
                     }
-                    
+
                     // Highlighting
                     if (isSelected) {
                         // Inside the range (and not cursor/anchor which have their own prefixes)
                         if (actualIndex !== this.selectedIndex && actualIndex !== this.anchorIndex) {
-                             prefix = `${theme.success}* ${ANSI.RESET}`;
+                            prefix = `${theme.success}* ${ANSI.RESET}`;
                         }
-                        
+
                         content = `${theme.success}${title}${ANSI.RESET}`;
                     }
 
@@ -138,12 +138,12 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
                     if (actualIndex === this.selectedIndex) {
                         content = `${ANSI.UNDERLINE}${content}${ANSI.RESET}`;
                     }
-                    
+
                     output += `${prefix}${content}`;
                 }
             });
         }
-        
+
         output += `\n${theme.muted}(Space to anchor, Enter to submit)${ANSI.RESET}`;
 
         this.renderFrame(output);

@@ -27,9 +27,9 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         output += `${theme.main}${this.stringValue}${ANSI.RESET}`;
 
         if (this.errorMsg) {
-             output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
         }
-        
+
         this.renderFrame(output);
         this.print(ANSI.SHOW_CURSOR);
 
@@ -60,20 +60,20 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
                 return;
             }
             if (this.options.min !== undefined && num < this.options.min) {
-                 this.errorMsg = `Minimum value is ${this.options.min}`;
-                 this.render(false);
-                 return;
+                this.errorMsg = `Minimum value is ${this.options.min}`;
+                this.render(false);
+                return;
             }
-             if (this.options.max !== undefined && num > this.options.max) {
-                 this.errorMsg = `Maximum value is ${this.options.max}`;
-                 this.render(false);
-                 return;
+            if (this.options.max !== undefined && num > this.options.max) {
+                this.errorMsg = `Maximum value is ${this.options.max}`;
+                this.render(false);
+                return;
             }
 
             this.submit(num);
             return;
         }
-        
+
         // Up Arrow (Increment)
         if (this.isUp(char)) {
             let num = parseFloat(this.stringValue) || 0;
@@ -81,7 +81,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
             if (this.options.max !== undefined && num > this.options.max) num = this.options.max;
             // Round to avoid float errors
             num = Math.round(num * 10000) / 10000;
-            
+
             this.stringValue = num.toString();
             this.cursor = this.stringValue.length;
             this.errorMsg = '';
@@ -94,7 +94,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
             let num = parseFloat(this.stringValue) || 0;
             num -= (this.options.step ?? 1);
             if (this.options.min !== undefined && num < this.options.min) num = this.options.min;
-             // Round to avoid float errors
+            // Round to avoid float errors
             num = Math.round(num * 10000) / 10000;
 
             this.stringValue = num.toString();
@@ -105,7 +105,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         }
 
         // Backspace
-        if (char === '\u0008' || char === '\x7f') { 
+        if (char === '\u0008' || char === '\x7f') {
             if (this.cursor > 0) {
                 this.stringValue = this.stringValue.slice(0, this.cursor - 1) + this.stringValue.slice(this.cursor);
                 this.cursor--;
@@ -132,14 +132,14 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
             }
             return;
         }
-        
+
         // Numeric Input (and . and -)
         if (/^[0-9.-]+$/.test(char)) {
-             // Allow if it looks like a number part
-             this.stringValue = this.stringValue.slice(0, this.cursor) + char + this.stringValue.slice(this.cursor);
-             this.cursor += char.length;
-             this.errorMsg = '';
-             this.render(false);
+            // Allow if it looks like a number part
+            this.stringValue = this.stringValue.slice(0, this.cursor) + char + this.stringValue.slice(this.cursor);
+            this.cursor += char.length;
+            this.errorMsg = '';
+            this.render(false);
         }
     }
 
@@ -155,10 +155,10 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
                 num -= step;
                 if (this.options.min !== undefined && num < this.options.min) num = this.options.min;
             }
-            
+
             // Round to avoid float errors
             num = Math.round(num * 10000) / 10000;
-            
+
             this.stringValue = num.toString();
             this.cursor = this.stringValue.length;
             this.errorMsg = '';

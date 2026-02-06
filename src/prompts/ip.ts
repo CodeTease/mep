@@ -33,7 +33,7 @@ export class IPPrompt extends Prompt<string, IPOptions> {
         const partsDisplay = this.octets.map((octet, index) => {
             const isEmpty = octet.length === 0;
             let displayVal = isEmpty ? '_' : octet;
-            
+
             if (index === this.activeOctet) {
                 // Highlight active
                 displayVal = `${theme.main}${ANSI.UNDERLINE}${displayVal}${ANSI.RESET}`;
@@ -99,10 +99,10 @@ export class IPPrompt extends Prompt<string, IPOptions> {
         if (/^\d$/.test(char)) {
             const current = this.octets[this.activeOctet];
             const newValue = current + char;
-            
+
             if (parseInt(newValue, 10) <= 255) {
                 this.octets[this.activeOctet] = newValue;
-                
+
                 // Auto-jump if 3 digits
                 if (newValue.length === 3 && this.activeOctet < 3) {
                     this.activeOctet++;
@@ -115,10 +115,10 @@ export class IPPrompt extends Prompt<string, IPOptions> {
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
             if (event.scroll === 'up') {
-                 if (this.activeOctet > 0) {
-                     this.activeOctet--;
-                     this.render(false);
-                 }
+                if (this.activeOctet > 0) {
+                    this.activeOctet--;
+                    this.render(false);
+                }
             } else if (event.scroll === 'down') {
                 if (this.activeOctet < 3) {
                     this.activeOctet++;

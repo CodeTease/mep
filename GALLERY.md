@@ -256,6 +256,21 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ![Regex Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/regex.gif)
 > *Example media of [Regex Prompt](examples/regex-prompt.ts)*
 
+### Byte Prompt
+
+![Byte Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/byte.gif)
+> *Example media of [Byte Prompt](examples/byte-prompt.ts)*
+
+### Slot Prompt
+
+![Slot Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/slot.gif)
+> *Example media of [Slot Prompt](examples/slot-prompt.ts)*
+
+### Gauge Prompt
+
+![Gauge Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/dev/media/gauge.gif)
+> *Example media of [Gauge Prompt](examples/gauge-prompt.ts)*
+
 *More coming soon...*
 
 --- 

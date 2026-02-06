@@ -15,7 +15,7 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
 
     constructor(options: EmojiOptions) {
         super(options);
-        
+
         // Sort emojis by recent
         this.sortedEmojis = [...options.emojis];
         if (options.recent && options.recent.length > 0) {
@@ -30,10 +30,10 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
         }
 
         this.checkWindowsAttention();
-        
+
         // Initial filter
         this.filtered = this.sortedEmojis;
-        
+
         // Calculate layout
         this.calculateLayout();
     }
@@ -55,8 +55,8 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
             this.filtered = this.sortedEmojis;
         } else {
             const lowerSearch = this.search.toLowerCase();
-            this.filtered = this.sortedEmojis.filter(e => 
-                e.name.toLowerCase().includes(lowerSearch) || 
+            this.filtered = this.sortedEmojis.filter(e =>
+                e.name.toLowerCase().includes(lowerSearch) ||
                 (e.description && e.description.toLowerCase().includes(lowerSearch)) ||
                 e.char === this.search // Allow searching by exact char
             );
@@ -70,7 +70,7 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
         const icon = `${theme.success}?`;
         const title = `${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}`;
         const searchDisplay = this.search ? `${theme.main}${this.search}${ANSI.RESET}` : `${theme.muted}Type to search...${ANSI.RESET}`;
-        
+
         let output = `${icon} ${title} ${searchDisplay}\n`;
 
         // Render Grid
@@ -89,7 +89,7 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
 
                     const item = this.filtered[idx];
                     const isSelected = idx === this.cursor;
-                    
+
                     // Render Emoji
                     // Align center in 4 chars
                     // Emoji width is typically 2.
@@ -98,18 +98,18 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
                     const padding = 4 - width;
                     const leftPad = Math.floor(padding / 2);
                     const rightPad = padding - leftPad;
-                    
+
                     let cell = `${' '.repeat(leftPad)}${emoji}${' '.repeat(rightPad)}`;
-                    
+
                     if (isSelected) {
                         cell = `${ANSI.REVERSE}${cell}${ANSI.RESET}`;
                     }
-                    
+
                     rowStr += cell;
                 }
                 output += rowStr + '\n';
             }
-            
+
             // Footer (Preview of selected)
             if (this.filtered.length > 0) {
                 const selectedItem = this.filtered[this.cursor];
@@ -121,7 +121,7 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
                 output += '\n'; // Spacer
             }
         }
-        
+
         // Navigation hints
         // output += `\n${theme.muted}Arrows to navigate, Enter to select${ANSI.RESET}`;
 
@@ -140,7 +140,7 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
             this.render(false);
             return;
         }
-        
+
         if (this.isDown(char)) {
             if (this.filtered.length === 0) return;
             const newCursor = this.cursor + this.cols;
@@ -228,7 +228,7 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
 
     private adjustScroll() {
         const cursorRow = Math.floor(this.cursor / this.cols);
-        
+
         if (cursorRow < this.scrollTop) {
             this.scrollTop = cursorRow;
         } else if (cursorRow >= this.scrollTop + this.pageSize) {

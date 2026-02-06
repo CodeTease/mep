@@ -10,15 +10,15 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
     private target: MatchItem[];
     // Links: Source ID -> Set of Target IDs
     private links: Map<string, Set<string>> = new Map();
-    
+
     private cursorSource: number = 0;
     private cursorTarget: number = 0;
     private scrollTopSource: number = 0;
     private scrollTopTarget: number = 0;
-    
+
     private activeSide: 'source' | 'target' = 'source';
     private pickedSourceIndex: number | null = null;
-    
+
     private readonly pageSize: number = 10;
 
     constructor(options: MatchOptions) {
@@ -50,11 +50,11 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
         }
 
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
-        
+
         // Headers
         const sourceTitle = this.activeSide === 'source' ? `${theme.main}Source${ANSI.RESET}` : 'Source';
         const targetTitle = this.activeSide === 'target' ? `${theme.main}Target${ANSI.RESET}` : 'Target';
-        
+
         output += `  ${sourceTitle}`.padEnd(colWidth + 2) + '    ' + `  ${targetTitle}\n`;
         output += `  ${ANSI.DIM}${symbols.line.repeat(colWidth)}${ANSI.RESET}    ${ANSI.DIM}${symbols.line.repeat(colWidth)}${ANSI.RESET}\n`;
 
@@ -62,24 +62,24 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
         for (let i = 0; i < this.pageSize; i++) {
             const idxSource = this.scrollTopSource + i;
             const idxTarget = this.scrollTopTarget + i;
-            
+
             const itemSource = this.source[idxSource];
             const itemTarget = this.target[idxTarget];
 
             // Source Column
             let sourceStr = '';
-            
+
             if (itemSource) {
                 const isSelected = this.activeSide === 'source' && idxSource === this.cursorSource;
                 const isPicked = this.pickedSourceIndex === idxSource;
                 const hasLinks = this.links.has(itemSource.id) && this.links.get(itemSource.id)!.size > 0;
-                
+
                 let prefix = '  ';
                 if (isSelected) prefix = `${theme.main}${symbols.pointer} `;
                 if (isPicked) prefix = `${theme.success}${symbols.pointer} `;
-                
+
                 let title = this.truncate(itemSource.label, colWidth - 4);
-                
+
                 // Color logic
                 if (isPicked) {
                     title = `${theme.success}${title}${ANSI.RESET}`;
@@ -88,12 +88,12 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
                 } else if (isSelected) {
                     title = `${ANSI.FG_CYAN}${title}${ANSI.RESET}`;
                 }
-                
+
                 // Indicator for links
                 const linkIndicator = hasLinks ? `${theme.success}*${ANSI.RESET}` : ' ';
-                
+
                 sourceStr = `${prefix}${title} ${linkIndicator}`;
-                
+
                 // Highlight connected targets?
                 if (isSelected || isPicked) {
                     // This is handled in Target render
@@ -106,15 +106,15 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
             let targetStr = '';
             if (itemTarget) {
                 const isSelected = this.activeSide === 'target' && idxTarget === this.cursorTarget;
-                
+
                 // Determine if this target is linked to the RELEVANT source
                 // Relevant source is: Picked Source OR (if none picked) Cursor Source
                 const relevantSourceIdx = this.pickedSourceIndex !== null ? this.pickedSourceIndex : this.cursorSource;
                 const relevantSource = this.source[relevantSourceIdx];
-                
+
                 let isLinkedToRelevant = false;
                 let isLinkedToAny = false;
-                
+
                 // Check links
                 for (const [sId, tIds] of Array.from(this.links.entries())) {
                     if (tIds.has(itemTarget.id)) {
@@ -124,24 +124,24 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
                         }
                     }
                 }
-                
+
                 let prefix = '  ';
                 if (isSelected) prefix = `${theme.main}${symbols.pointer} `;
-                
+
                 let title = this.truncate(itemTarget.label, colWidth - 4);
-                
+
                 if (isLinkedToRelevant) {
                     title = `${theme.success}${title}${ANSI.RESET}`;
                 } else if (isLinkedToAny) {
-                     // Linked to someone else
-                     title = `${ANSI.DIM}${title}${ANSI.RESET}`;
+                    // Linked to someone else
+                    title = `${ANSI.DIM}${title}${ANSI.RESET}`;
                 } else if (isSelected) {
-                     title = `${ANSI.FG_CYAN}${title}${ANSI.RESET}`;
+                    title = `${ANSI.FG_CYAN}${title}${ANSI.RESET}`;
                 }
-                
+
                 // Indicator
                 const linkIndicator = isLinkedToRelevant ? `${theme.success}<=${ANSI.RESET}` : (isLinkedToAny ? `${ANSI.DIM}<=${ANSI.RESET}` : '  ');
-                
+
                 targetStr = `${linkIndicator} ${prefix}${title}`;
             }
 
@@ -198,27 +198,27 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
                 if (this.pickedSourceIndex !== null) {
                     const sId = this.source[this.pickedSourceIndex].id;
                     const tId = this.target[this.cursorTarget].id;
-                    
+
                     if (!this.links.has(sId)) {
                         this.links.set(sId, new Set());
                     }
-                    
+
                     const sourceLinks = this.links.get(sId)!;
-                    
+
                     if (sourceLinks.has(tId)) {
                         // Unlink
                         sourceLinks.delete(tId);
                     } else {
                         // Link
-                        if (this.options.constraints?.oneToMany === false) { 
-                             
-                             for (const [otherSId, tIds] of Array.from(this.links.entries())) {
-                                 if (otherSId !== sId && tIds.has(tId)) {
-                                     tIds.delete(tId);
-                                 }
-                             }
+                        if (this.options.constraints?.oneToMany === false) {
+
+                            for (const [otherSId, tIds] of Array.from(this.links.entries())) {
+                                if (otherSId !== sId && tIds.has(tId)) {
+                                    tIds.delete(tId);
+                                }
+                            }
                         }
-                        
+
                         sourceLinks.add(tId);
                     }
                     // Stay in Target side to allow picking more?
@@ -232,16 +232,16 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
         if (char === '\r' || char === '\n') {
             // Check Required Constraint
             if (this.options.constraints?.required) {
-                 // Check if all sources have at least one link
-                 const allLinked = this.source.every(s => {
-                     return this.links.has(s.id) && this.links.get(s.id)!.size > 0;
-                 });
-                 
-                 if (!allLinked) {
-                     return; 
-                 }
+                // Check if all sources have at least one link
+                const allLinked = this.source.every(s => {
+                    return this.links.has(s.id) && this.links.get(s.id)!.size > 0;
+                });
+
+                if (!allLinked) {
+                    return;
+                }
             }
-            
+
             // Submit Result: Record<SourceID, TargetValue[]>
             const result: Record<string, any[]> = {};
             for (const [sId, tIds] of Array.from(this.links.entries())) {
@@ -266,36 +266,36 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
             }
             return;
         }
-        
+
         // Tab
         if (char === '\t') {
-             this.activeSide = this.activeSide === 'source' ? 'target' : 'source';
-             // If switching to target without picking, pickedIndex is null.
-             // Just viewing mode.
-             if (this.activeSide === 'source') {
-                 this.pickedSourceIndex = null;
-             }
-             this.render(false);
-             return;
+            this.activeSide = this.activeSide === 'source' ? 'target' : 'source';
+            // If switching to target without picking, pickedIndex is null.
+            // Just viewing mode.
+            if (this.activeSide === 'source') {
+                this.pickedSourceIndex = null;
+            }
+            this.render(false);
+            return;
         }
     }
 
     protected handleMouse(event: MouseEvent) {
         if (event.action === 'scroll') {
-             if (event.scroll === 'up') {
-                 if (this.activeSide === 'source') {
-                     this.cursorSource = Math.max(0, this.cursorSource - 1);
-                 } else {
-                     this.cursorTarget = Math.max(0, this.cursorTarget - 1);
-                 }
-             } else {
-                 if (this.activeSide === 'source') {
-                     this.cursorSource = Math.min(this.source.length - 1, this.cursorSource + 1);
-                 } else {
-                     this.cursorTarget = Math.min(this.target.length - 1, this.cursorTarget + 1);
-                 }
-             }
-             this.render(false);
+            if (event.scroll === 'up') {
+                if (this.activeSide === 'source') {
+                    this.cursorSource = Math.max(0, this.cursorSource - 1);
+                } else {
+                    this.cursorTarget = Math.max(0, this.cursorTarget - 1);
+                }
+            } else {
+                if (this.activeSide === 'source') {
+                    this.cursorSource = Math.min(this.source.length - 1, this.cursorSource + 1);
+                } else {
+                    this.cursorTarget = Math.min(this.target.length - 1, this.cursorTarget + 1);
+                }
+            }
+            this.render(false);
         }
     }
 }

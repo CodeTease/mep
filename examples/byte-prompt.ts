@@ -1,14 +1,14 @@
-// Originally from example.ts
+// Orinally from example.ts
 
 import { MepCLI } from "../src"
 
 try {
-    const envVars = await MepCLI.map({
-        message: "Configure Environment Variables (Map):",
-        initial: { "API_URL": "http://localhost:8080", "DB_HOST": "127.0.0.1" }
+    const size = await MepCLI.byte({
+        message: "Set docker container memory limit",
+        initial: 512 * 1024 * 1024, // 512 MB
+        min: 1024 * 1024 // Min 1 MB
     });
-    console.log(`\n Map Result:`, envVars);
-
+    console.log(`Configured: ${size} bytes`);
 } catch (e) {
     if (e instanceof Error && e.message === 'User force closed') {
         console.log("\nOperation cancelled by user.");

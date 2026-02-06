@@ -17,22 +17,22 @@ export class GaugePrompt extends Prompt<string, GaugeOptions> {
     constructor(options: GaugeOptions) {
         super(options);
         this.width = options.width || 40;
-        
+
         // Calculate safe zone logic (0-100 scale)
         // Default safe width: 20% ( +/- 10%)
-        const safeParam = options.safeZone ?? 0.2; 
-        
+        const safeParam = options.safeZone ?? 0.2;
+
         // Convert to percentage (0-100)
         let safeWidthPct: number;
         if (safeParam <= 1) {
-             safeWidthPct = safeParam * 100;
+            safeWidthPct = safeParam * 100;
         } else {
-             safeWidthPct = (safeParam / this.width) * 100;
+            safeWidthPct = (safeParam / this.width) * 100;
         }
-        
+
         this.safeZoneHalf = safeWidthPct / 2;
         // Arbitrary "Good" zone is 3x the safe zone (or until limits)
-        this.warnZoneHalf = Math.max(this.safeZoneHalf * 3, 30); 
+        this.warnZoneHalf = Math.max(this.safeZoneHalf * 3, 30);
     }
 
     public run(): Promise<string> {
@@ -82,7 +82,7 @@ export class GaugePrompt extends Prompt<string, GaugeOptions> {
         }
 
         this.render(false);
-        
+
         // Wait a moment to show result, then submit
         setTimeout(() => {
             this.submit(this.result!); // Force non-null
@@ -99,20 +99,20 @@ export class GaugePrompt extends Prompt<string, GaugeOptions> {
 
     protected render(_firstRender: boolean) {
         let output = '';
-        
+
         // Header
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         // Draw Gauge Bar
         let barStr = '';
         const center = 50;
-        
+
         for (let i = 0; i < this.width; i++) {
             const pct = (i / this.width) * 100;
             const dist = Math.abs(pct - center);
-            
+
             let charColor = theme.error; // Default Miss (Red)
-            
+
             if (dist <= this.safeZoneHalf) {
                 charColor = theme.success; // Perfect (Green)
             } else if (dist <= this.warnZoneHalf) {
@@ -122,7 +122,7 @@ export class GaugePrompt extends Prompt<string, GaugeOptions> {
             // Using block characters for the bar
             barStr += `${charColor}━${ANSI.RESET}`;
         }
-        
+
         output += `  ${barStr}\n`;
 
         // Draw Cursor

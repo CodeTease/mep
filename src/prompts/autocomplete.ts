@@ -34,7 +34,7 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
             try {
                 const results = await this.options.suggest(query);
                 if (query !== this.input) return;
-                
+
                 this.choices = results.slice(0, this.options.limit || 10);
                 this.selectedIndex = 0;
                 this.scrollTop = 0;
@@ -75,11 +75,11 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
         }
 
         let output = '';
-        
+
         // Header
         const icon = this.loading ? `${theme.main}${symbols.spinner[this.spinnerFrame]}${ANSI.RESET}` : `${theme.success}?${ANSI.RESET}`;
-        output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${this.input}`; 
-        
+        output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${this.input}`;
+
         output += '\n';
 
         if (this.loading) {
@@ -95,7 +95,7 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
             }
 
             const visibleChoices = this.choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
-            
+
             visibleChoices.forEach((choice, index) => {
                 const actualIndex = this.scrollTop + index;
                 if (index > 0) output += '\n';
@@ -107,23 +107,23 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
                 }
             });
         }
-        
+
         this.renderFrame(output);
 
         // Position cursor at the end of the input string on the first line
         const lines = output.split('\n');
         const height = lines.length;
-        
+
         // Move up (height - 1)
         if (height > 1) {
             this.print(`\x1b[${height - 1}A`);
         }
-        
+
         this.print(`\r`);
-        
+
         const firstLine = lines[0];
-        const visualLen = stringWidth(this.stripAnsi(firstLine)); 
-        
+        const visualLen = stringWidth(this.stripAnsi(firstLine));
+
         this.print(`\x1b[${visualLen}C`);
         this.print(ANSI.SHOW_CURSOR);
     }
@@ -172,7 +172,7 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
     }
 
     protected handleMouse(event: MouseEvent) {
-         if (this.choices.length === 0) return;
+        if (this.choices.length === 0) return;
 
         if (event.action === 'scroll') {
             if (event.scroll === 'up') {
