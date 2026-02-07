@@ -1,0 +1,27 @@
+name: Mirror to Codeberg
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Runs at 00:00 UTC every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  mirror_to_codeberg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          # Fetch all history for all branches and tags
+          fetch-depth: 0
+
+      - name: Mirror to Codeberg
+        run: |
+          REMOTE_URL="https://${{ secrets.CODEBERG_USERNAME }}:${{ secrets.CODEBERG_TOKEN }}@codeberg.org/${{ secrets.CODEBERG_ORG }}/${{ github.event.repository.name }}.git"
+          
+          git remote add codeberg "$REMOTE_URL"
+          git push --mirror codeberg
