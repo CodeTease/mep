@@ -394,7 +394,28 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         this.section = next;
     }
 
+    private clear() {
+        // 1. Restore cursor to bottom if it was moved up (for URL editing)
+        if (this.lastLinesUp > 0) {
+            this.print(`\x1b[${this.lastLinesUp}B`);
+            this.lastLinesUp = 0;
+        }
+
+        // 2. Erase the prompt content
+        // We move up (height - 1) lines to the top line, then erase everything below
+        if (this.lastRenderHeight > 0) {
+            this.print(`\x1b[${this.lastRenderHeight - 1}A`); // Go to top line
+            this.print('\r'); // Go to start of line
+            this.print(ANSI.ERASE_DOWN); // Erase everything below
+
+            // Reset state so next render is treated as fresh
+            this.lastRenderLines = [];
+            this.lastRenderHeight = 0;
+        }
+    }
+
     private async editHeaders() {
+        this.clear(); // Clear UI to prevent artifacts
         this.pauseInput();
         try {
             const result = await new MapPrompt({
@@ -408,10 +429,11 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         }
 
         this.resumeInput();
-        this.render(false);
+        this.render(true); // Force full re-render
     }
 
     private async editBody() {
+        this.clear(); // Clear UI to prevent artifacts
         this.pauseInput();
 
         try {
@@ -427,7 +449,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         }
 
         this.resumeInput();
-        this.render(false);
+        this.render(true); // Force full re-render
     }
 
     private submitResult() {
