@@ -166,7 +166,7 @@ Helper functions for better CLI UX.
 
 | Function | Description |
 | :--- | :--- |
-| `exec` (experimental) | Run shell command with spinner. |
+| `exec` | Run shell command with spinner. |
 | `scroll` | Scrollable text viewer (e.g., License). |
 | `diff` | Text merge conflict resolver. |
 | `editor` | Open external editor (Vim/Nano). |
