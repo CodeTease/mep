@@ -55,9 +55,6 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     constructor(options: CurlOptions) {
         super(options);
 
-        // Remove experimental warning if desired, or keep it until fully stable
-        // this.warnExperimental(); 
-
         // Initialize state
         if (options.defaultMethod) {
             const idx = METHODS.indexOf(options.defaultMethod.toUpperCase());

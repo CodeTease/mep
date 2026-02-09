@@ -86,7 +86,7 @@ import { TaskRunner } from './tasks';
 import { TaskGroupOptions } from './types';
 
 /**
- * Public Facade for MepCLI
+ * Public Facade for Mep
  */
 export class MepCLI {
     public static theme: ThemeConfig = theme;
@@ -1301,7 +1301,6 @@ export class MepCLI {
 
     /**
      * cURL Command Builder.
-     * @experimental
      * @example
      * const request = await MepCLI.curl({
      *   message: 'Build API Request',
