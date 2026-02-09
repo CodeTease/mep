@@ -5,6 +5,7 @@ import { symbols } from '../symbols';
 import { MapPrompt } from './map';
 import { CodePrompt } from './code';
 import { safeSplit, stringWidth } from '../utils';
+import { ShellType, ShellStrategy, BashStrategy, PowerShellStrategy, CmdStrategy } from './curl-utils';
 
 export interface CurlOptions {
     message: string;
@@ -52,8 +53,21 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     // Render State
     private lastLinesUp: number = 0;
 
+    // Shell State
+    private shell: ShellType = 'bash';
+    private strategies: Record<ShellType, ShellStrategy> = {
+        bash: new BashStrategy(),
+        powershell: new PowerShellStrategy(),
+        cmd: new CmdStrategy()
+    };
+
     constructor(options: CurlOptions) {
         super(options);
+
+        // Auto-detect shell
+        if (process.platform === 'win32') {
+            this.shell = 'powershell';
+        }
 
         // Initialize state
         if (options.defaultMethod) {
@@ -86,28 +100,26 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         return this.urlSegments.join('');
     }
 
-    /**
-     * Escape a string for safe inclusion inside a single-quoted shell argument.
-     * Single quotes are closed, an escaped single quote is inserted, and then re-opened.
-     */
-    private shellEscapeSingleQuoted(value: string): string {
-        // e.g. "It's me" -> 'It'\''s me'
-        return `'${value.replace(/'/g, "'\\''")}'`;
+    private cycleShell() {
+        const shells: ShellType[] = ['bash', 'powershell', 'cmd'];
+        const currentIdx = shells.indexOf(this.shell);
+        this.shell = shells[(currentIdx + 1) % shells.length];
+        this.render(false);
     }
 
     private generateCommand(multiline: boolean = false): string {
-        const continuation = multiline ? ' \\\n  ' : ' ';
-        let cmd = `curl -X ${this.currentMethod}`;
+        const strategy = this.strategies[this.shell];
+        const continuation = multiline ? `${strategy.continuation}\n  ` : ' ';
+        let cmd = `${strategy.binary} -X ${this.currentMethod}`;
 
         // Headers
         Object.entries(this.headers).forEach(([k, v]) => {
-            cmd += `${continuation}-H ${this.shellEscapeSingleQuoted(`${k}: ${v}`)}`;
+            cmd += `${continuation}-H ${strategy.escape(`${k}: ${v}`)}`;
         });
 
         // Body
         if (this.hasBody && this.body) {
-            // Escape body for shell
-            const escapedBody = this.shellEscapeSingleQuoted(this.body);
+            const escapedBody = strategy.escape(this.body);
             cmd += `${continuation}-d ${escapedBody}`;
         }
 
@@ -115,8 +127,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         const urlStr = this.url;
         const displayUrl = urlStr || 'http://localhost...';
         
-        // Always single quote URL too for consistency and safety (e.g. if it has & or ?)
-        cmd += `${continuation}${this.shellEscapeSingleQuoted(displayUrl)}`;
+        cmd += `${continuation}${strategy.escape(displayUrl)}`;
 
         return cmd;
     }
@@ -130,7 +141,8 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         let output = '';
 
         // Title
-        output += `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
+        const shellLabel = `${theme.muted}[Shell: ${this.shell.toUpperCase()}]${ANSI.RESET}`;
+        output += `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message} ${shellLabel}${ANSI.RESET}\n`;
 
         // 1. Method
         const methodLabel = this.section === Section.METHOD
@@ -189,7 +201,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         output += `${ANSI.FG_CYAN}${cmd}${ANSI.RESET}\n`;
 
         // Instructions
-        output += `\n${theme.muted}(Tab: Nav, Space: Toggle Method, Enter: Edit/Submit)${ANSI.RESET}`;
+        output += `\n${theme.muted}(Tab: Nav, 's': Shell, Space: Toggle Method, Enter: Edit/Submit)${ANSI.RESET}`;
 
         this.renderFrame(output);
 
@@ -239,6 +251,12 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     }
 
     protected handleInput(char: string, _buffer: Buffer) {
+        // Toggle Shell (only when not editing URL)
+        if (char === 's' && this.section !== Section.URL) {
+            this.cycleShell();
+            return;
+        }
+
         // Navigation
         if (char === '\t') {
             this.cycleSection(1);
