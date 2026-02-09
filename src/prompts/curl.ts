@@ -108,6 +108,11 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     }
 
     private generateCommand(multiline: boolean = false): string {
+        // Force single line for CMD
+        if (this.shell === 'cmd') {
+            multiline = false;
+        }
+
         const strategy = this.strategies[this.shell];
         const continuation = multiline ? `${strategy.continuation}\n  ` : ' ';
         let cmd = `${strategy.binary} -X ${this.currentMethod}`;

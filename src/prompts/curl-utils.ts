@@ -37,6 +37,7 @@ export class CmdStrategy implements ShellStrategy {
     escape(value: string): string {
         // e.g. {"key": "value"} -> "{\"key\": \"value\"}"
         // e.g. value with " -> "value with \""
-        return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+        const flattened = value.replace(/[\r\n]+/g, ' ');
+        return `"${flattened.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
     }
 }
