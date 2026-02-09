@@ -282,6 +282,7 @@ export interface CalendarOptions extends BaseOptions {
 // --- New Prompts ---
 export interface MapOptions extends BaseOptions {
     initial?: Record<string, string>;
+    suggestions?: string[];
 }
 
 export interface SemVerOptions extends BaseOptions {

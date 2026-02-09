@@ -4,6 +4,7 @@ import { theme } from '../theme';
 import { symbols } from '../symbols';
 import { MapPrompt } from './map';
 import { CodePrompt } from './code';
+import { safeSplit, stringWidth } from '../utils';
 
 export interface CurlOptions {
     message: string;
@@ -29,22 +30,33 @@ enum Section {
 }
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
+const COMMON_HEADERS = [
+    'Accept', 'Accept-Encoding', 'Accept-Language',
+    'Authorization', 'Cache-Control', 'Connection',
+    'Content-Type', 'Cookie', 'Host',
+    'Origin', 'Pragma', 'Referer',
+    'User-Agent', 'X-Requested-With'
+];
 
 export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     private section: Section = Section.METHOD;
     private methodIndex: number = 0;
-    private url: string = '';
+    
+    // URL State
+    private urlSegments: string[] = [];
+    private urlCursor: number = 0;
+
     private headers: Record<string, string> = {};
     private body: string = '';
 
-    // For URL input
-    private urlCursor: number = 0;
+    // Render State
     private lastLinesUp: number = 0;
 
     constructor(options: CurlOptions) {
         super(options);
 
-        this.warnExperimental();
+        // Remove experimental warning if desired, or keep it until fully stable
+        // this.warnExperimental(); 
 
         // Initialize state
         if (options.defaultMethod) {
@@ -52,8 +64,9 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             if (idx >= 0) this.methodIndex = idx;
         }
 
-        this.url = options.defaultUrl || '';
-        this.urlCursor = this.url.length;
+        const initialUrl = options.defaultUrl || '';
+        this.urlSegments = safeSplit(initialUrl);
+        this.urlCursor = this.urlSegments.length;
 
         this.headers = { ...options.defaultHeaders };
         this.body = options.defaultBody || '';
@@ -72,35 +85,41 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         return this.currentMethod !== 'GET' && this.currentMethod !== 'HEAD';
     }
 
-    /**
-     * Escape a string for safe inclusion inside a double-quoted shell argument.
-     * This escapes backslashes first, then double quotes.
-     */
-    private shellEscapeDoubleQuoted(value: string): string {
-        return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    private get url(): string {
+        return this.urlSegments.join('');
     }
 
-    private generateCommand(): string {
+    /**
+     * Escape a string for safe inclusion inside a single-quoted shell argument.
+     * Single quotes are closed, an escaped single quote is inserted, and then re-opened.
+     */
+    private shellEscapeSingleQuoted(value: string): string {
+        // e.g. "It's me" -> 'It'\''s me'
+        return `'${value.replace(/'/g, "'\\''")}'`;
+    }
+
+    private generateCommand(multiline: boolean = false): string {
+        const continuation = multiline ? ' \\\n  ' : ' ';
         let cmd = `curl -X ${this.currentMethod}`;
 
         // Headers
         Object.entries(this.headers).forEach(([k, v]) => {
-            cmd += ` -H "${k}: ${v}"`;
+            cmd += `${continuation}-H ${this.shellEscapeSingleQuoted(`${k}: ${v}`)}`;
         });
 
         // Body
         if (this.hasBody && this.body) {
             // Escape body for shell
-            const escapedBody = this.shellEscapeDoubleQuoted(this.body);
-            cmd += ` -d "${escapedBody}"`;
+            const escapedBody = this.shellEscapeSingleQuoted(this.body);
+            cmd += `${continuation}-d ${escapedBody}`;
         }
 
         // URL
-        if (this.url) {
-            cmd += ` "${this.url}"`;
-        } else {
-            cmd += ` "http://localhost..."`;
-        }
+        const urlStr = this.url;
+        const displayUrl = urlStr || 'http://localhost...';
+        
+        // Always single quote URL too for consistency and safety (e.g. if it has & or ?)
+        cmd += `${continuation}${this.shellEscapeSingleQuoted(displayUrl)}`;
 
         return cmd;
     }
@@ -126,19 +145,17 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         // 2. URL
         const urlActive = this.section === Section.URL;
         const urlPrefix = urlActive ? `${theme.main}${ANSI.BOLD} URL: ${ANSI.RESET}` : ` URL: `;
-        let urlDisplay = this.url;
-        if (!urlDisplay && urlActive) {
+        
+        let urlDisplay = '';
+        if (this.urlSegments.length === 0 && urlActive) {
+            // Placeholder/Empty state when active
+            urlDisplay = ''; 
+        } else if (this.urlSegments.length === 0 && !urlActive) {
             urlDisplay = `${theme.muted}http://localhost:3000${ANSI.RESET}`;
+        } else {
+            urlDisplay = this.urlSegments.join('');
         }
-
-        // Insert cursor for URL
-        if (urlActive) {
-            const beforeCursor = urlDisplay.slice(0, this.urlCursor);
-            const atCursor = urlDisplay.slice(this.urlCursor, this.urlCursor + 1) || ' ';
-            const afterCursor = urlDisplay.slice(this.urlCursor + 1);
-            urlDisplay = `${beforeCursor}${theme.main}${ANSI.UNDERLINE}${atCursor}${ANSI.RESET}${afterCursor}`;
-        }
-
+        
         output += `${urlPrefix}${urlDisplay}\n`;
 
         // 3. Headers
@@ -169,7 +186,8 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
 
         // Preview
         output += `\n${ANSI.BOLD}Preview:${ANSI.RESET}\n`;
-        const cmd = this.generateCommand();
+        // Use multiline mode for preview
+        const cmd = this.generateCommand(true);
         // Syntax highlight command (basic)
         output += `${ANSI.FG_CYAN}${cmd}${ANSI.RESET}\n`;
 
@@ -182,20 +200,34 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         if (this.section === Section.URL) {
             const prefixLen = 6; // " URL: "
 
-            // We need to move cursor to (row 3, prefixLen + this.urlCursor)
-
-            const lines = output.split('\n');
-            const urlLineIndex = lines.findIndex(l => l.includes(' URL: '));
-            const linesFromBottom = lines.length - 1 - urlLineIndex;
-
-            this.print(ANSI.SHOW_CURSOR);
-            if (linesFromBottom > 0) {
-                this.print(`\x1b[${linesFromBottom}A`);
-                this.lastLinesUp = linesFromBottom;
+            // Use lastRenderLines to find the exact visual line index
+            let urlLineIndex = -1;
+            for (let i = 0; i < this.lastRenderLines.length; i++) {
+                if (this.lastRenderLines[i].includes(' URL: ')) {
+                    urlLineIndex = i;
+                    break;
+                }
             }
 
-            const targetCol = prefixLen + this.urlCursor;
-            this.print(`\r\x1b[${targetCol}C`);
+            if (urlLineIndex !== -1) {
+                const linesFromBottom = this.lastRenderLines.length - 1 - urlLineIndex;
+
+                this.print(ANSI.SHOW_CURSOR);
+                if (linesFromBottom > 0) {
+                    this.print(`\x1b[${linesFromBottom}A`);
+                    this.lastLinesUp = linesFromBottom;
+                }
+
+                // Calculate visual cursor position
+                let targetCol = prefixLen;
+                
+                // Add width of segments up to cursor
+                for (let i = 0; i < this.urlCursor; i++) {
+                    targetCol += stringWidth(this.urlSegments[i]);
+                }
+
+                this.print(`\r\x1b[${targetCol}C`);
+            }
         } else {
             this.print(ANSI.HIDE_CURSOR);
         }
@@ -233,39 +265,12 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
                     this.methodIndex = (this.methodIndex - 1 + METHODS.length) % METHODS.length;
                     this.render(false);
                 } else if (char === '\r' || char === '\n') {
-                    // Enter on Method -> Submit
                     this.submitResult();
                 }
                 break;
 
             case Section.URL:
-                if (char === '\r' || char === '\n') {
-                    this.submitResult();
-                    return;
-                }
-
-                // Typing
-                if (char === '\u0008' || char === '\x7f') { // Backspace
-                    if (this.urlCursor > 0) {
-                        this.url = this.url.slice(0, this.urlCursor - 1) + this.url.slice(this.urlCursor);
-                        this.urlCursor--;
-                        this.render(false);
-                    }
-                } else if (this.isLeft(char)) {
-                    if (this.urlCursor > 0) {
-                        this.urlCursor--;
-                        this.render(false);
-                    }
-                } else if (this.isRight(char)) {
-                    if (this.urlCursor < this.url.length) {
-                        this.urlCursor++;
-                        this.render(false);
-                    }
-                } else if (!/^[\x00-\x1F]/.test(char)) {
-                    this.url = this.url.slice(0, this.urlCursor) + char + this.url.slice(this.urlCursor);
-                    this.urlCursor += char.length;
-                    this.render(false);
-                }
+                this.handleUrlInput(char);
                 break;
 
             case Section.HEADERS:
@@ -282,15 +287,106 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         }
     }
 
-    private cycleSection(direction: 1 | -1) {
-        // Logic to skip disabled Body
-        let next = this.section + direction;
+    private handleUrlInput(char: string) {
+        // Submit
+        if (char === '\r' || char === '\n') {
+            this.submitResult();
+            return;
+        }
 
-        // Loop
+        // Home
+        if (char === '\x1b[H' || char === '\x1bOH' || char === '\x1b[1~') {
+            this.urlCursor = 0;
+            this.render(false);
+            return;
+        }
+
+        // End
+        if (char === '\x1b[F' || char === '\x1bOF' || char === '\x1b[4~') {
+            this.urlCursor = this.urlSegments.length;
+            this.render(false);
+            return;
+        }
+
+        // Ctrl+U (Delete to start)
+        if (char === '\x15') {
+            if (this.urlCursor > 0) {
+                this.urlSegments.splice(0, this.urlCursor);
+                this.urlCursor = 0;
+                this.render(false);
+            }
+            return;
+        }
+
+        // Ctrl+W (Delete word backwards)
+        if (char === '\x17') {
+            if (this.urlCursor > 0) {
+                // Find previous word boundary
+                let i = this.urlCursor - 1;
+                // Skip trailing spaces
+                while (i >= 0 && this.urlSegments[i] === ' ') i--;
+                // Skip word characters
+                while (i >= 0 && this.urlSegments[i] !== ' ') i--;
+                
+                const deleteCount = this.urlCursor - (i + 1);
+                this.urlSegments.splice(i + 1, deleteCount);
+                this.urlCursor = i + 1;
+                this.render(false);
+            }
+            return;
+        }
+
+        // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            if (this.urlCursor > 0) {
+                this.urlSegments.splice(this.urlCursor - 1, 1);
+                this.urlCursor--;
+                this.render(false);
+            }
+            return;
+        }
+
+        // Delete
+        if (char === '\u001b[3~') {
+            if (this.urlCursor < this.urlSegments.length) {
+                this.urlSegments.splice(this.urlCursor, 1);
+                this.render(false);
+            }
+            return;
+        }
+
+        // Left
+        if (this.isLeft(char)) {
+            if (this.urlCursor > 0) {
+                this.urlCursor--;
+                this.render(false);
+            }
+            return;
+        }
+
+        // Right
+        if (this.isRight(char)) {
+            if (this.urlCursor < this.urlSegments.length) {
+                this.urlCursor++;
+                this.render(false);
+            }
+            return;
+        }
+
+        // Regular Typing
+        if (!/^[\x00-\x1F]/.test(char) && !char.startsWith('\x1b')) {
+            const newSegments = safeSplit(char);
+            this.urlSegments.splice(this.urlCursor, 0, ...newSegments);
+            this.urlCursor += newSegments.length;
+            this.render(false);
+        }
+    }
+
+    private cycleSection(direction: 1 | -1) {
+        let next = this.section + direction;
         if (next > Section.BODY) next = Section.METHOD;
         if (next < Section.METHOD) next = Section.BODY;
 
-        // If Body is disabled and we landed on it
         if (next === Section.BODY && !this.hasBody) {
             next = direction === 1 ? Section.METHOD : Section.HEADERS;
         }
@@ -304,14 +400,15 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             const result = await new MapPrompt({
                 message: 'Edit Headers',
                 initial: this.headers,
+                suggestions: COMMON_HEADERS
             }).run();
             this.headers = result;
         } catch (_e) {
-            // Cancelled or error
+            // Cancelled
         }
 
         this.resumeInput();
-        this.render(false); // Re-render our UI
+        this.render(false);
     }
 
     private async editBody() {
@@ -339,7 +436,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             url: this.url,
             headers: this.headers,
             body: this.hasBody ? this.body : undefined,
-            command: this.generateCommand()
+            command: this.generateCommand(false) // Single line for clipboard/usage
         });
     }
 }
