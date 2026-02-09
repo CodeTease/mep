@@ -147,7 +147,7 @@ Complex interfaces for structured data.
 | `box` | Box model (CSS Margin/Padding) editor. |
 | `phone` | International phone input with masking & country search. |
 | `connectionString` | Database URL wizard. |
-| `curl` (experimental) | Interactive HTTP request builder. |
+| `curl` | Interactive HTTP request builder. |
 
 ### 🔹 Gamified & Fun
 Add some personality to your CLI.
@@ -576,6 +576,30 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
 
 *   **Mouse:**
     *   `Scroll`: Cycle through countries (when Country section is active).
+
+</details>
+
+<details>
+<summary><b>cURL Prompt</b></summary>
+
+*   **Global:**
+    *   `Tab` / `Shift+Tab`: Switch between **Method**, **URL**, **Headers**, and **Body** sections.
+    *   `s`: Toggle Shell Output (Bash / PowerShell / CMD).
+
+*   **Method Section:**
+    *   `Arrows (Up/Down/Left/Right)` / `Space`: Cycle HTTP methods (GET, POST, etc.).
+    *   `Enter`: Submit immediately.
+
+*   **URL Section:**
+    *   `Typing`: Enter URL.
+    *   `Arrows (Left/Right)`: Move cursor.
+    *   `Home` / `End`: Jump to start/end.
+    *   `Ctrl + U`: Clear input.
+    *   `Ctrl + W`: Delete word backwards.
+    *   `Enter`: Submit immediately.
+
+*   **Headers & Body Section:**
+    *   `Enter`: Open editor (Map Editor for Headers, Code Editor for Body).
 
 </details>
 
