@@ -1144,7 +1144,7 @@ export class MepCLI {
      * });
      * @param options - Command string and streaming preferences.
      * @returns A promise resolving when execution completes.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/exec-prompt.ts}
      */
     static exec(options: ExecOptions): Promise<void> {
         return new ExecPrompt(options).run();
