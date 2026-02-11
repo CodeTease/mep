@@ -86,7 +86,7 @@ import { TaskRunner } from './tasks';
 import { TaskGroupOptions } from './types';
 
 /**
- * Public Facade for MepCLI
+ * Public Facade for Mep
  */
 export class MepCLI {
     public static theme: ThemeConfig = theme;
@@ -1144,7 +1144,7 @@ export class MepCLI {
      * });
      * @param options - Command string and streaming preferences.
      * @returns A promise resolving when execution completes.
-     * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
+     * @see {@link https://github.com/CodeTease/mep/blob/main/examples/exec-prompt.ts}
      */
     static exec(options: ExecOptions): Promise<void> {
         return new ExecPrompt(options).run();
@@ -1301,7 +1301,6 @@ export class MepCLI {
 
     /**
      * cURL Command Builder.
-     * @experimental
      * @example
      * const request = await MepCLI.curl({
      *   message: 'Build API Request',
