@@ -14,6 +14,7 @@ Welcome to the documentation for **Mep (MepCLI)**, the zero-dependency, type-saf
 - [**Theming**](./theming.md): Customizing colors and styles.
 - [**Validation**](./validation.md): Handling user input validation.
 - [**Events**](./events.md): Managing keyboard events.
+- [**Shortcuts**](./shortcuts.md): Advanced keyboard and mouse support.
 
 ## 3. Prompts Reference
 
