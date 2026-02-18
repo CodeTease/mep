@@ -11,6 +11,10 @@
 
 A **CodeTease** project.
 
+## Documentation
+
+For comprehensive guides, API references, and advanced usage, please visit the **[Documentation](./docs/README.md)**.
+
 ## Features
 
 - **Zero Dependency:** Keeps your project clean and fast.
