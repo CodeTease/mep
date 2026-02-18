@@ -380,3 +380,8 @@ The Grid prompt (Matrix selection) includes robust shortcuts for bulk actions.
     *   `Enter`: Open editor (Map Editor for Headers, Code Editor for Body).
 
 </details>
+
+## Related
+
+- [Rich UI Prompts](../prompts/rich-ui.md)
+- [Event Handling](./events.md)

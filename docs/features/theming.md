@@ -52,3 +52,8 @@ MepCLI.theme.syntax = {
     punctuation: (t) => white(t),
 };
 ```
+
+## Related
+
+- [Creating Custom Prompts](../guides/custom-prompts.md)
+- [Rich UI Prompts](../prompts/rich-ui.md)

@@ -36,3 +36,8 @@ const age = await MepCLI.number({
 ## Real-time Validation
 
 Validation typically runs when the user attempts to submit (presses Enter). However, some prompts (like `RegexPrompt`) may implement real-time feedback mechanisms visually, while `validate` acts as the final gatekeeper.
+
+## Related
+
+- [Basic Input Prompts](../prompts/basic-inputs.md)
+- [Developer Tools](../prompts/developer-tools.md)

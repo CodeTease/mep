@@ -41,3 +41,8 @@ Conditionally executes a step.
 
 ### `.run(initialContext?: T)`
 Executes the pipeline and returns the final context.
+
+## Related
+
+- [Task Runner](./task-runner.md)
+- [Filesystem Prompts](../prompts/filesystem.md)

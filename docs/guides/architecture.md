@@ -18,3 +18,8 @@ Mep implements its own ANSI handling, cursor movement, and color functions. This
 ### Type Safety
 
 Every prompt is a generic class that enforces type safety on its return value. For example, `SelectPrompt<T>` ensures the resolved value matches the type of the `value` property in your choices.
+
+## Related
+
+- [Creating Custom Prompts](./custom-prompts.md)
+- [Contributing](./contributing.md)

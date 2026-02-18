@@ -27,3 +27,8 @@ Starts the animation loop.
 
 ### `spinner.stop(message?: string, type?: 'success' | 'error' | 'info')`
 Stops the animation and replaces the line with a final message.
+
+## Related
+
+- [Task Runner](./task-runner.md)
+- [Basic Input Prompts](../prompts/basic-inputs.md)

@@ -111,3 +111,8 @@ const primaryColor = await MepCLI.color({
     initial: '#007bff'
 });
 ```
+
+## Related
+
+- [Creating Custom Prompts](../guides/custom-prompts.md)
+- [Task Runner](../features/task-runner.md)

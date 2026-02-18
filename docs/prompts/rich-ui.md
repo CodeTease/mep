@@ -191,3 +191,8 @@ const margin = await MepCLI.box({
     initial: { top: 10, right: 20, bottom: 10, left: 20 }
 });
 ```
+
+## Related
+
+- [Data Visualization](./data-visualization.md)
+- [Event Handling](../features/events.md)

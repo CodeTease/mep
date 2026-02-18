@@ -158,3 +158,8 @@ const commits = await MepCLI.selectRange({
     choices: commitList
 });
 ```
+
+## Related
+
+- [Rich UI Prompts](./rich-ui.md)
+- [Keyboard Shortcuts](../features/shortcuts.md)

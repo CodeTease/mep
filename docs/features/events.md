@@ -30,3 +30,8 @@ Internally, Mep prompts listen to Node.js `keypress` events.
 - **Backspace/Delete**: Edit text.
 
 When implementing custom prompts (see Advanced section), you will override the `handleKey` method to define how your prompt responds to these events.
+
+## Related
+
+- [Rich UI Prompts](../prompts/rich-ui.md)
+- [Keyboard Shortcuts](./shortcuts.md)

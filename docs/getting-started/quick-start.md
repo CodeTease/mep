@@ -45,3 +45,9 @@ Save the file as `index.ts` and run it using `ts-node` or compile it with `tsc`.
 ```bash
 npx ts-node index.ts
 ```
+
+## Next Steps
+
+- [Basic Inputs](../prompts/basic-inputs.md)
+- [Selection Prompts](../prompts/selection.md)
+- [Pipelines](../features/pipelines.md)

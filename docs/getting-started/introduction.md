@@ -14,3 +14,7 @@
 ## Why Mep?
 
 Unlike other libraries that focus on a few basic prompts, Mep aims to be a complete toolkit for building terminal user interfaces (TUIs). whether you need a simple confirmation or a full-blown dashboard with charts and tables, Mep has a component for it.
+
+## Next Steps
+
+- [Installation](./installation.md)

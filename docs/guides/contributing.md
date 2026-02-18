@@ -27,3 +27,8 @@ We welcome contributions! Whether it's fixing bugs, adding new prompts, or impro
 -   Open a PR against the `main` branch.
 -   Describe your changes clearly.
 -   Ensure tests pass.
+
+## Related
+
+- [Architecture](./architecture.md)
+- [Testing](./testing.md)

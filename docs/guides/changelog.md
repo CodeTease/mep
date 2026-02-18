@@ -11,3 +11,8 @@ All notable changes to this project will be documented in this file.
 -   Added `MepCLI` facade.
 -   Added `Pipeline` and `TaskRunner`.
 -   Added `CurlPrompt`.
+
+## Related
+
+- [Contributing](./contributing.md)
+- [Introduction](../getting-started/introduction.md)

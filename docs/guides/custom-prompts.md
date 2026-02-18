@@ -51,3 +51,8 @@ export class MyPrompt extends Prompt<string, MyPromptOptions> {
 - `handleKey(key)`: Called on every keypress.
 - `submit()`: Finalizes the prompt and resolves the promise.
 - `clear()`: Clears the rendered output (optional).
+
+## Related
+
+- [Architecture](./architecture.md)
+- [Theming](../features/theming.md)

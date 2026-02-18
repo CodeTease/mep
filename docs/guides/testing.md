@@ -42,3 +42,8 @@ prompt.input.emit('keypress', undefined, { name: 'down' });
 // Simulate Space
 prompt.input.emit('keypress', ' ', { name: 'space' });
 ```
+
+## Related
+
+- [Contributing](./contributing.md)
+- [Input Validation](../features/validation.md)

@@ -73,3 +73,8 @@ const jobSchedule = await MepCLI.cron({
     placeholder: 'Write a cron expression...'
 });
 ```
+
+## Related
+
+- [Rich UI Prompts](./rich-ui.md)
+- [Event Handling](../features/events.md)

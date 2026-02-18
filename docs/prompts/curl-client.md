@@ -26,3 +26,8 @@ const result = await MepCLI.curl({
 console.log('Generated Command:', result.command);
 // curl -X POST https://... -H "Content-Type: application/json" -d '{"text": "Hello World"}'
 ```
+
+## Related
+
+- [Network & Cloud Prompts](./network-cloud.md)
+- [Developer Tools](./developer-tools.md)
