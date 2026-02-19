@@ -2,6 +2,24 @@
 
 These prompts allow users to choose from a list of options.
 
+## Mouse Interactions
+
+Mep's native selection prompts (like `select`, `checkbox`, `multiColumnSelect`, etc.) automatically support mouse interactions in modern terminals. Users can scroll through options seamlessly using their mouse wheel or trackpad.
+
+You can explicitly configure mouse support by passing the `mouse` option. Often, you will want this enabled, but restricting it is possible for specific use cases.
+
+```typescript
+const framework = await MepCLI.select({
+    message: 'Choose a framework',
+    mouse: true, // Explicitly enforce mouse tracking. Set to false to disable.
+    choices: [
+        { title: 'React', value: 'react' },
+        { title: 'Vue', value: 'vue' },
+        { title: 'Svelte', value: 'svelte' }
+    ],
+});
+```
+
 ## Select
 
 The `select` prompt allows picking one option from a list.

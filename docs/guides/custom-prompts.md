@@ -6,7 +6,8 @@ Mep allows you to create custom prompts by extending the base `Prompt` class. Th
 
 ```typescript
 import { Prompt } from 'mepcli/dist/base'; // or src/base if local
-import { MepCLI } from 'mepcli';
+import { ANSI } from 'mepcli/dist/ansi';
+import { MouseEvent } from 'mepcli/dist/types';
 
 interface MyPromptOptions {
     message: string;
@@ -16,29 +17,39 @@ export class MyPrompt extends Prompt<string, MyPromptOptions> {
     
     constructor(options: MyPromptOptions) {
         super(options);
-        // Initialize state here
+        this.value = '';
     }
 
     // Handle keypress events
-    public async handleKey(key: any): Promise<void> {
-        if (key.name === 'return') {
-            this.submit(); // Resolve the promise
-        } else if (key.name === 'c' && key.ctrl) {
-            this.cancel(); // Reject/Exit
-        } else {
+    protected handleInput(char: string, key: Buffer): void {
+        if (char === '\r' || char === '\n') {
+            this.submit(this.value); // Resolve the promise
+        } else if (char === '\u0003') {
+            this.cancel('User cancelled'); // Ctrl+C
+        } else if (!/^[\x00-\x1F]/.test(char)) { // Typeable characters
             // Update state based on input
-            this.value += key.sequence;
-            this.render(); // Re-draw
+            this.value += char;
+            this.render(false); // Re-draw
+        }
+    }
+
+    // Handle mouse events (Optional)
+    protected handleMouse(event: MouseEvent): void {
+        if (event.action === 'scroll') {
+             // Example: Handle scroll interaction conceptually 
+             // ... update internal scroll offset ...
+             this.render(false);
         }
     }
 
     // Render the prompt to the string buffer
-    public render(): void {
+    protected render(firstRender: boolean): void {
         const { message } = this.options;
-        const prefix = MepCLI.theme.prefix; // Access theme
+        const prefix = `[?]`; // Access theme if needed
         
-        // Output lines to the screen
-        this.out.write(`${prefix} ${message} ${this.value}`);
+        // Pass the output string to the engine which handles diffing and drawing
+        // Do NOT use console.log here.
+        this.renderFrame(`${prefix} ${message} ${this.value}`);
     }
 }
 ```
@@ -46,11 +57,13 @@ export class MyPrompt extends Prompt<string, MyPromptOptions> {
 ## Lifecycle Methods
 
 - `constructor(options)`: Setup initial state.
-- `start()`: Called when the prompt begins. Starts listening to stdin.
-- `render()`: Called to draw the UI.
-- `handleKey(key)`: Called on every keypress.
-- `submit()`: Finalizes the prompt and resolves the promise.
-- `clear()`: Clears the rendered output (optional).
+- `run()`: Started by MepCLI automatically when prompt is awaited. Begins listening to stdin.
+- `render(firstRender: boolean)`: Called dynamically to draw the UI using the diffing engine.
+- `handleInput(char: string, key: Buffer)`: Called on every keyboard event.
+- `handleMouse(event: MouseEvent)`: Called on mouse interactions (if tracking is enabled).
+- `submit(result)`: Finalizes the prompt, cleans up terminals, and resolves the promise.
+- `cancel(reason)`: Cleans up and rejects the promise.
+- `cleanup()`: Restores terminal state (re-enables cursors, disables raw mode & mouse tracking).
 
 ## Related
 
