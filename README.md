@@ -226,7 +226,7 @@ const result = await MepCLI.pipeline()
 
 ## Keyboard & Mouse Support
 
-For a detailed list of shortcuts and mouse interactions, please refer to the **[Shortcuts Documentation](./docs/shortcuts.md)**.
+For a detailed list of shortcuts and mouse interactions, please refer to the **[Shortcuts Documentation](./docs/features/shortcuts.md)**.
 
 ## License
 
