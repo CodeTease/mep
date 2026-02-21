@@ -71,7 +71,7 @@ const assigned = await MepCLI.transfer({
 
 ## Form
 
-The `form` prompt collects multiple fields in a single view.
+The `form` prompt collects multiple fields in a single view. If you need to sequentially ask users for input step-by-step, see the [Pipeline API Multi-Step Sequential Form](../features/pipelines.md#multi-step-sequential-form) example.
 
 ```typescript
 const user = await MepCLI.form({
