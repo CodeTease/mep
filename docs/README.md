@@ -44,4 +44,3 @@ Explore our extensive library of over 50 prompt types.
 ## 6. Meta
 
 - [**Contributing**](./guides/contributing.md): How to contribute to Mep.
-- [**Changelog**](./guides/changelog.md): Version history.
