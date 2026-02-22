@@ -1,4 +1,4 @@
-import { Pipeline, PipelineValidationError, StepMetadata } from '../src/pipeline';
+import { Pipeline, PipelineValidationError, StepMetadata, PipelineExit } from '../src/pipeline';
 
 describe('Pipeline', () => {
   it('should run steps sequentially and collect context', async () => {
@@ -39,6 +39,64 @@ describe('Pipeline', () => {
     expect(result.a).toBe('count is 10');
   });
 
+  describe('Early Exit', () => {
+    it('should stop pipeline execution and return context when PipelineExit is returned', async () => {
+      type Ctx = { a: number; b: number; c: number };
+      const p = new Pipeline<Ctx>();
+      p.step('a', async () => 1);
+      p.step('b', async () => PipelineExit as any);
+      p.step('c', async () => 3);
+
+      const res = await p.run();
+      expect(res.a).toBe(1);
+      expect(res.b).toBeUndefined();
+      expect(res.c).toBeUndefined();
+    });
+
+    it('should stop and return context for anonymous steps returning PipelineExit', async () => {
+      type Ctx = { count: number };
+      const p = new Pipeline<Ctx>();
+      p.step(async () => ({ count: 1 }));
+      p.step(async () => PipelineExit as any);
+      p.step(async () => ({ count: 2 }));
+
+      const res = await p.run();
+      expect(res.count).toBe(1);
+    });
+  });
+
+  describe('Sub-pipelines', () => {
+    it('should allow a Pipeline instance as a step', async () => {
+      type Ctx = { a: number; b: number; c: number };
+      const main = new Pipeline<Ctx>();
+      const sub = new Pipeline<Ctx>();
+
+      sub.step('b', async () => 2);
+
+      main.step('a', async () => 1);
+      main.step(sub);
+      main.step('c', async () => 3);
+
+      const res = await main.run();
+      expect(res.a).toBe(1);
+      expect(res.b).toBe(2);
+      expect(res.c).toBe(3);
+    });
+
+    it('should allow a Pipeline instance as a named step', async () => {
+      type Ctx = { a: number; nested: { x: number } };
+      const main = new Pipeline<Ctx>();
+      const sub = new Pipeline<{ x: number }>();
+
+      sub.step('x', async () => 42);
+
+      main.step('nested', sub);
+
+      const res = await main.run();
+      expect(res.nested.x).toBe(42);
+    });
+  });
+
   describe('Validation Layer', () => {
     it('should pass if validate returns true', async () => {
       type Ctx = { age: number };
@@ -51,15 +109,24 @@ describe('Pipeline', () => {
       expect(res.age).toBe(20);
     });
 
-    it('should throw PipelineValidationError if validate returns false', async () => {
-      type Ctx = { age: number };
+    it('should throw PipelineValidationError with step and context details if validate returns false', async () => {
+      type Ctx = { a: number, age: number };
       const p = new Pipeline<Ctx>();
+      p.step('a', async () => 1);
       p.step('age', async () => 15, {
         validate: (v) => v > 18
       });
 
-      await expect(p.run()).rejects.toThrow(PipelineValidationError);
-      await expect(p.run()).rejects.toThrow('Validation failed for step at index 0 (age)');
+      let caughtErr: any;
+      try {
+        await p.run();
+      } catch (err) {
+        caughtErr = err;
+      }
+      expect(caughtErr).toBeInstanceOf(PipelineValidationError);
+      expect(caughtErr.message).toBe('Validation failed for step at index 1 (age)');
+      expect(caughtErr.step).toEqual({ index: 1, name: 'age', type: 'named' });
+      expect(caughtErr.context).toEqual({ a: 1 });
     });
 
     it('should throw PipelineValidationError with string message if validate returns string', async () => {
