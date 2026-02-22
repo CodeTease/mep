@@ -13,17 +13,19 @@ export interface ValidationSchema {
 export type Validator = ((value: any) => boolean | string | Promise<boolean | string>) | ValidationSchema;
 export type Transformer<Ctx> = (value: any, context: Readonly<Ctx>) => any | Promise<any>;
 
-export interface PipelineStep<Ctx> {
+export interface PipelineStep<Ctx> extends StepConfig<Ctx> {
   name?: keyof Ctx;
   action: PipelineAction<Ctx, any>;
   condition?: PipelineCondition<Ctx>;
-  validate?: Validator;
-  transform?: Transformer<Ctx>;
 }
 
 export interface StepConfig<Ctx> {
   validate?: Validator;
   transform?: Transformer<Ctx>;
+  onError?: (error: unknown, context: Readonly<Ctx>) => void | Promise<void>;
+  fallback?: any | ((error: unknown, context: Readonly<Ctx>) => any | Promise<any>);
+  optional?: boolean;
+  timeout?: number;
 }
 
 export interface StepMetadata {
@@ -36,6 +38,10 @@ export interface PipelineOptions<Ctx> {
   onStepStart?: (meta: StepMetadata, context: Readonly<Ctx>) => void | Promise<void>;
   onStepComplete?: (meta: StepMetadata, context: Readonly<Ctx>) => void | Promise<void>;
   onError?: (error: unknown, meta: StepMetadata, context: Readonly<Ctx>) => void | Promise<void>;
+  validate?: Validator;
+  onPipelineStart?: (context: Readonly<Ctx>) => void | Promise<void>;
+  onPipelineComplete?: (context: Readonly<Ctx>) => void | Promise<void>;
+  signal?: AbortSignal;
 }
 
 export class PipelineValidationError<Ctx = any> extends Error {
@@ -47,6 +53,25 @@ export class PipelineValidationError<Ctx = any> extends Error {
     this.name = 'PipelineValidationError';
     this.step = step;
     this.context = context;
+  }
+}
+
+export class PipelineTimeoutError<Ctx = any> extends Error {
+  public step?: StepMetadata;
+  public context?: Ctx;
+
+  constructor(message: string, step?: StepMetadata, context?: Ctx) {
+    super(message);
+    this.name = 'PipelineTimeoutError';
+    this.step = step;
+    this.context = context;
+  }
+}
+
+export class PipelineAbortError extends Error {
+  constructor(message: string = 'Pipeline aborted') {
+    super(message);
+    this.name = 'PipelineAbortError';
   }
 }
 
@@ -145,83 +170,158 @@ export class Pipeline<Ctx extends Record<string, any> = Record<string, any>> {
   public async run(initialContext: Partial<Ctx> = {}, tasks?: TaskRunner): Promise<Ctx> {
     const context: Ctx = { ...initialContext } as Ctx;
 
-    for (let i = 0; i < this.steps.length; i++) {
-      const step = this.steps[i];
-      const meta: StepMetadata = {
-        index: i,
-        name: step.name as string | undefined,
-        type: step.name ? 'named' : 'anonymous'
-      };
+    if (this.options.onPipelineStart) {
+      await this.options.onPipelineStart({ ...context });
+    }
 
-      if (step.condition && !step.condition(context)) {
-        continue;
-      }
-
-      if (this.options.onStepStart) {
-        await this.options.onStepStart(meta, { ...context });
-      }
-
-      try {
-        let result = await step.action(context, tasks);
-
-        if (result === PipelineExit) {
-          break;
+    try {
+      for (let i = 0; i < this.steps.length; i++) {
+        if (this.options.signal?.aborted) {
+          throw new PipelineAbortError();
         }
 
-        if (!step.name) {
-          // Anonymous action
-          if (result && typeof result === 'object' && !Array.isArray(result)) {
-            Object.assign(context, result);
-          }
-        } else {
-          // Named action
-          if (step.transform) {
-            result = await step.transform(result, { ...context });
+        const step = this.steps[i];
+        const meta: StepMetadata = {
+          index: i,
+          name: step.name as string | undefined,
+          type: step.name ? 'named' : 'anonymous'
+        };
+
+        if (step.condition && !step.condition(context)) {
+          continue;
+        }
+
+        if (this.options.onStepStart) {
+          await this.options.onStepStart(meta, { ...context });
+        }
+
+        try {
+          let result: any;
+          if (step.timeout && step.timeout > 0) {
+            const timeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => {
+                reject(new PipelineTimeoutError(`Step timed out after ${step.timeout}ms`, meta, context));
+              }, step.timeout);
+            });
+            result = await Promise.race([step.action(context, tasks), timeoutPromise]);
+          } else {
+            result = await step.action(context, tasks);
           }
 
-          if (step.validate) {
-            const validator = step.validate;
-            if (typeof validator === 'function') {
-              const valid = await validator(result);
-              if (valid === false) {
-                throw new PipelineValidationError(`Validation failed for step at index ${i} (${String(step.name)})`, meta, context);
-              }
-              if (typeof valid === 'string') {
-                throw new PipelineValidationError(valid, meta, context);
-              }
-            } else if (typeof validator === 'object') {
-              if (typeof validator.safeParse === 'function') {
-                const res = validator.safeParse(result);
-                if (!res.success) {
-                  const errorMsg = res.error?.message || res.issues?.[0]?.message || 'Schema validation failed';
-                  throw new PipelineValidationError(`Validation failed: ${errorMsg}`, meta, context);
+          if (result === PipelineExit) {
+            break;
+          }
+
+          if (!step.name) {
+            // Anonymous action
+            if (result && typeof result === 'object' && !Array.isArray(result)) {
+              Object.assign(context, result);
+            }
+          } else {
+            // Named action
+            if (step.transform) {
+              result = await step.transform(result, { ...context });
+            }
+
+            if (step.validate) {
+              const validator = step.validate;
+              if (typeof validator === 'function') {
+                const valid = await validator(result);
+                if (valid === false) {
+                  throw new PipelineValidationError(`Validation failed for step at index ${i} (${String(step.name)})`, meta, context);
                 }
-                result = res.data !== undefined ? res.data : result;
-              } else if (typeof validator.parse === 'function') {
-                try {
-                  const parsed = validator.parse(result);
-                  result = parsed !== undefined ? parsed : result;
-                } catch (err: any) {
-                  throw new PipelineValidationError(`Validation failed: ${err.message || 'Schema parsing error'}`, meta, context);
+                if (typeof valid === 'string') {
+                  throw new PipelineValidationError(valid, meta, context);
+                }
+              } else if (typeof validator === 'object') {
+                if (typeof validator.safeParse === 'function') {
+                  const res = validator.safeParse(result);
+                  if (!res.success) {
+                    const errorMsg = res.error?.message || res.issues?.[0]?.message || 'Schema validation failed';
+                    throw new PipelineValidationError(`Validation failed: ${errorMsg}`, meta, context);
+                  }
+                  result = res.data !== undefined ? res.data : result;
+                } else if (typeof validator.parse === 'function') {
+                  try {
+                    const parsed = validator.parse(result);
+                    result = parsed !== undefined ? parsed : result;
+                  } catch (err: any) {
+                    throw new PipelineValidationError(`Validation failed: ${err.message || 'Schema parsing error'}`, meta, context);
+                  }
                 }
               }
             }
+
+            context[step.name] = result;
           }
 
-          context[step.name] = result;
-        }
+          if (this.options.onStepComplete) {
+            await this.options.onStepComplete(meta, { ...context });
+          }
+        } catch (err) {
+          let handled = false;
 
-        if (this.options.onStepComplete) {
-          await this.options.onStepComplete(meta, { ...context });
+          if (step.onError) {
+            await step.onError(err, { ...context });
+          }
+
+          if ('fallback' in step) {
+            const fallbackValue = typeof step.fallback === 'function' ? await step.fallback(err, { ...context }) : step.fallback;
+            if (step.name) {
+              context[step.name] = fallbackValue;
+            }
+            handled = true;
+          } else if (step.optional) {
+            if (step.name) {
+              context[step.name] = undefined as any;
+            }
+            handled = true;
+          }
+
+          if (!handled) {
+            if (this.options.onError) {
+              await this.options.onError(err, meta, { ...context });
+            }
+            throw err;
+          }
         }
-      } catch (err) {
-        if (this.options.onError) {
-          await this.options.onError(err, meta, { ...context });
+      }
+
+      if (this.options.validate) {
+        const validator = this.options.validate;
+        if (typeof validator === 'function') {
+          const valid = await validator(context);
+          if (valid === false) {
+            throw new PipelineValidationError(`Final validation failed`);
+          }
+          if (typeof valid === 'string') {
+            throw new PipelineValidationError(valid);
+          }
+        } else if (typeof validator === 'object') {
+          if (typeof validator.safeParse === 'function') {
+            const res = validator.safeParse(context);
+            if (!res.success) {
+              const errorMsg = res.error?.message || res.issues?.[0]?.message || 'Schema validation failed';
+              throw new PipelineValidationError(`Final validation failed: ${errorMsg}`);
+            }
+            Object.assign(context, res.data !== undefined ? res.data : context);
+          } else if (typeof validator.parse === 'function') {
+            try {
+              const parsed = validator.parse(context);
+              Object.assign(context, parsed !== undefined ? parsed : context);
+            } catch (err: any) {
+              throw new PipelineValidationError(`Final validation failed: ${err.message || 'Schema parsing error'}`);
+            }
+          }
         }
-        throw err;
+      }
+    } finally {
+      if (this.options.onPipelineComplete) {
+        await this.options.onPipelineComplete({ ...context });
       }
     }
 
     return context;
   }
 }
+

@@ -243,4 +243,159 @@ describe('Pipeline', () => {
       );
     });
   });
+
+  describe('Timeout Limit', () => {
+    it('should throw PipelineTimeoutError if step exceeds timeout', async () => {
+      type Ctx = { a: number };
+      const p = new Pipeline<Ctx>();
+      p.step('a', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return 1;
+      }, { timeout: 10 });
+
+      await expect(p.run()).rejects.toThrow('Step timed out after 10ms');
+    });
+
+    it('should succeed if step completes within timeout', async () => {
+      type Ctx = { a: number };
+      const p = new Pipeline<Ctx>();
+      p.step('a', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return 1;
+      }, { timeout: 100 });
+
+      const res = await p.run();
+      expect(res.a).toBe(1);
+    });
+  });
+
+  describe('Local Error Handling', () => {
+    it('should execute onError if a step throws', async () => {
+      type Ctx = { a: number };
+      const onError = jest.fn();
+      const p = new Pipeline<Ctx>();
+      p.step('a', async () => { throw new Error('fail'); }, { onError });
+
+      await expect(p.run()).rejects.toThrow('fail');
+      expect(onError).toHaveBeenCalledTimes(1);
+    });
+
+    it('should assign fallback if provided and swallow error', async () => {
+      type Ctx = { a: number };
+      const p = new Pipeline<Ctx>();
+      p.step('a', async () => { throw new Error('fail'); }, { fallback: 42 });
+
+      const res = await p.run();
+      expect(res.a).toBe(42);
+    });
+
+    it('should call fallback function if provided', async () => {
+      type Ctx = { a: number };
+      const p = new Pipeline<Ctx>();
+      p.step('a', async () => { throw new Error('fail'); }, {
+        fallback: async (err: unknown) => (err as Error).message === 'fail' ? 99 : 0
+      });
+
+      const res = await p.run();
+      expect(res.a).toBe(99);
+    });
+
+    it('should pass error to options.onError if step.onError does not swallow it and no fallback exists', async () => {
+      type Ctx = { a: number };
+      const globalOnError = jest.fn();
+      const p = new Pipeline<Ctx>({ onError: globalOnError });
+      p.step('a', async () => { throw new Error('fail'); });
+
+      await expect(p.run()).rejects.toThrow('fail');
+      expect(globalOnError).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Optional Feature', () => {
+    it('should assign undefined if optional is true and step throws', async () => {
+      type Ctx = { a: number };
+      const p = new Pipeline<Ctx>();
+      p.step('a', async () => { throw new Error('fail'); }, { optional: true });
+
+      const res = await p.run();
+      expect(res.a).toBeUndefined();
+    });
+  });
+
+  describe('Abort Signal', () => {
+    it('should abort pipeline if signal is aborted initially', async () => {
+      const controller = new AbortController();
+      controller.abort();
+      const p = new Pipeline<{ a: number }>({ signal: controller.signal });
+      p.step('a', async () => 1);
+
+      await expect(p.run()).rejects.toThrow('Pipeline aborted');
+    });
+
+    it('should abort mid-pipeline', async () => {
+      const controller = new AbortController();
+      type Ctx = { a: number; b: number; c: number };
+      const p = new Pipeline<Ctx>({ signal: controller.signal });
+      p.step('a', async () => 1);
+      p.step('b', async () => {
+        controller.abort();
+        return 2;
+      });
+      p.step('c', async () => 3);
+
+      await expect(p.run()).rejects.toThrow('Pipeline aborted');
+    });
+  });
+
+  describe('Global Hooks', () => {
+    it('should trigger onPipelineStart and onPipelineComplete', async () => {
+      const startMock = jest.fn();
+      const completeMock = jest.fn();
+      const p = new Pipeline<{ a: number }>({
+        onPipelineStart: startMock,
+        onPipelineComplete: completeMock
+      });
+
+      p.step('a', async () => 1);
+      await p.run();
+
+      expect(startMock).toHaveBeenCalledTimes(1);
+      expect(completeMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should trigger onPipelineComplete even if pipeline throws', async () => {
+      const completeMock = jest.fn();
+      const p = new Pipeline<{ a: number }>({
+        onPipelineComplete: completeMock
+      });
+
+      p.step('a', async () => { throw new Error('fail'); });
+      await expect(p.run()).rejects.toThrow('fail');
+
+      expect(completeMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Final Validation', () => {
+    it('should validate final context successfully', async () => {
+      type Ctx = { a: number };
+      const p = new Pipeline<Ctx>({
+        validate: (ctx) => ctx.a > 0
+      });
+      p.step('a', async () => 1);
+
+      const res = await p.run();
+      expect(res.a).toBe(1);
+    });
+
+    it('should throw if final context validation fails', async () => {
+      type Ctx = { a: number };
+      const p = new Pipeline<Ctx>({
+        validate: (ctx: any) => ctx.a > 10
+      });
+      p.step('a', async () => 1);
+
+      await expect(p.run()).rejects.toThrow('Final validation failed');
+    });
+  });
 });
