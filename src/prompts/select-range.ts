@@ -35,7 +35,7 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
             for (let i = start; i <= end; i++) {
                 const choice = choices[i];
                 if (!this.isSeparator(choice)) {
-                    selectedItems.push((choice as any).value);
+                    selectedItems.push(choice.value);
                 }
             }
 
@@ -103,13 +103,10 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
                 }
 
                 if (this.isSeparator(choice)) {
-                    output += `  ${ANSI.DIM}${(choice as any).text || symbols.line.repeat(8)}${ANSI.RESET}`;
+                    output += `  ${ANSI.DIM}${choice.text || symbols.line.repeat(8)}${ANSI.RESET}`;
                 } else {
-                    interface NonSeparatorChoice {
-                        title: string;
-                    }
                     let prefix = '  ';
-                    const title = (choice as NonSeparatorChoice).title;
+                    const title = choice.title;
                     let content = title;
 
                     // Anchor Marker
