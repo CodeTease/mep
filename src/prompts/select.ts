@@ -2,7 +2,7 @@ import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SelectOptions, MouseEvent } from '../types';
+import { SelectOptions, MouseEvent, SelectChoice, Separator } from '../types';
 
 // --- Implementation: Select Prompt ---
 export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> extends Prompt<any, O> {
@@ -17,8 +17,8 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
         this.selectedIndex = this.findNextSelectableIndex(-1, 1);
     }
 
-    protected isSeparator(item: any): boolean {
-        return item && item.separator === true;
+    protected isSeparator(item: SelectChoice<V> | Separator): item is Separator {
+        return item && 'separator' in item;
     }
 
     protected findNextSelectableIndex(currentIndex: number, direction: 1 | -1): number {
@@ -42,11 +42,11 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
         return nextIndex;
     }
 
-    protected getFilteredChoices() {
+    protected getFilteredChoices(): (SelectChoice<V> | Separator)[] {
         if (!this.searchBuffer) return this.options.choices;
-        return this.options.choices.filter(c => {
+        return (this.options.choices as (SelectChoice<V> | Separator)[]).filter(c => {
             if (this.isSeparator(c)) return false; // Hide separators when searching
-            return (c as any).title.toLowerCase().includes(this.searchBuffer.toLowerCase());
+            return c.title.toLowerCase().includes(this.searchBuffer.toLowerCase());
         });
     }
 
@@ -83,12 +83,12 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
                 if (index > 0) output += '\n'; // Separator between items
 
                 if (this.isSeparator(choice)) {
-                    output += `  ${ANSI.DIM}${(choice as any).text || symbols.line.repeat(8)}${ANSI.RESET}`;
+                    output += `  ${ANSI.DIM}${choice.text || symbols.line.repeat(8)}${ANSI.RESET}`;
                 } else {
                     if (actualIndex === this.selectedIndex) {
-                        output += `${theme.main}${symbols.pointer} ${(choice as any).title}${ANSI.RESET}`;
+                        output += `${theme.main}${symbols.pointer} ${choice.title}${ANSI.RESET}`;
                     } else {
-                        output += `  ${(choice as any).title}`;
+                        output += `  ${choice.title}`;
                     }
                 }
             });
@@ -109,11 +109,10 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
                 return;
             }
 
-            if (this.isSeparator(choices[this.selectedIndex])) return;
+            const choice = choices[this.selectedIndex];
+            if (this.isSeparator(choice)) return;
 
-            this.cleanup();
-            // Cursor is shown by cleanup
-            if ((this as any)._resolve) (this as any)._resolve((choices[this.selectedIndex] as any).value);
+            this.submit(choice.value);
             return;
         }
 
