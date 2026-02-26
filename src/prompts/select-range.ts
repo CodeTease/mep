@@ -55,7 +55,7 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
         }
 
         // Delegate navigation and search to SelectPrompt
-        super.handleInput(char, _key);
+        super.handleInput(char);
 
         // Check bounds after navigation/filtering
         const choices = this.getFilteredChoices();
