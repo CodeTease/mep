@@ -105,8 +105,11 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
                 if (this.isSeparator(choice)) {
                     output += `  ${ANSI.DIM}${(choice as any).text || symbols.line.repeat(8)}${ANSI.RESET}`;
                 } else {
+                    interface NonSeparatorChoice {
+                        title: string;
+                    }
                     let prefix = '  ';
-                    const title = (choice as any).title;
+                    const title = (choice as NonSeparatorChoice).title;
                     let content = title;
 
                     // Anchor Marker
