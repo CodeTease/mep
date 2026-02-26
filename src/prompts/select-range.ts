@@ -39,7 +39,7 @@ export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>>
                 }
             }
 
-            this.submit(selectedItems as any);
+            this.submit(selectedItems);
             return;
         }
 
