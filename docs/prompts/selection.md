@@ -149,7 +149,7 @@ The `multiColumnSelect` prompt displays choices in a grid layout.
 ```typescript
 const item = await MepCLI.multiColumnSelect({
     message: 'Pick an item',
-    choices: Array.from({ length: 20 }, (_, i) => ({ title: `Item ${i+1}`, value: i })),
+    choices: Array.from({ length: 20 }, (_, i) => ({ title: `Item ${i+1}`, value: i + 1 })),
     cols: 4 // Number of columns
 });
 ```
