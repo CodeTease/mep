@@ -11,7 +11,7 @@ You can override this behavior by passing the optional `mouse` option. Use it to
 ```typescript
 const framework = await MepCLI.select({
     message: 'Choose a framework',
-    mouse: true, // Override the default: set to false to disable mouse support explicitly.
+    mouse: true, // Explicitly enable mouse support (on by default in modern terminals). Set to false to disable it.
     choices: [
         { title: 'React', value: 'react' },
         { title: 'Vue', value: 'vue' },

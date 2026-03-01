@@ -12,7 +12,7 @@ We welcome contributions! Whether it's fixing bugs, adding new prompts, or impro
 ## Development
 
 -   Run examples: `bun run demo`
--   Run tests: `bun test`(or `bun run test` for Jest)
+-   Run tests: `bun test` (or `bun run test` for Jest)
 -   Lint code: `bun run lint`
 
 ## Style Guide
