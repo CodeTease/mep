@@ -12,13 +12,13 @@ We welcome contributions! Whether it's fixing bugs, adding new prompts, or impro
 ## Development
 
 -   Run examples: `bun run demo`
--   Run tests: `bun test` (or `bun run test` for Jest)
+-   Run tests: `bun test`
 -   Lint code: `bun run lint`
 
 ## Style Guide
 
 -   Use TypeScript.
--   Follow the existing code style (Prettier/ESLint).
+-   Follow the existing code style (ESLint).
 -   Ensure new prompts have `options` interface and return types.
 -   Add JSDoc comments for public APIs.
 
