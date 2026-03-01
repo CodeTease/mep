@@ -104,5 +104,45 @@ export const POPULAR_LICENSES: License[] = [
         permissions: ['Commercial use', 'Modification', 'Distribution', 'Private use'],
         conditions: [],
         limitations: ['Liability', 'Warranty']
+    },
+    {
+        id: 'Zlib',
+        name: 'zlib License',
+        description: 'A short permissive license similar to the BSD licenses, requiring altered source versions to be documented and restricting use of the original authors\' names from promoting derived products.',
+        permissions: ['Commercial use', 'Modification', 'Distribution', 'Private use'],
+        conditions: ['License and copyright notice', 'State changes'],
+        limitations: ['Liability', 'Warranty']
+    },
+    {
+        id: 'BSL-1.0',
+        name: 'Boost Software License 1.0',
+        description: 'A simple permissive license only requiring preservation of copyright and license notices for source (and not object) code.',
+        permissions: ['Commercial use', 'Modification', 'Distribution', 'Private use'],
+        conditions: ['License and copyright notice'],
+        limitations: ['Liability', 'Warranty']
+    },
+    {
+        id: 'GPL-2.0',
+        name: 'GNU General Public License v2.0',
+        description: 'A copyleft license that requires anyone who distributes your code or a derivative work to make the source available under the same terms.',
+        permissions: ['Commercial use', 'Modification', 'Distribution', 'Patent use', 'Private use'],
+        conditions: ['Disclose source', 'License and copyright notice', 'Same license', 'State changes'],
+        limitations: ['Liability', 'Warranty']
+    },
+    {
+        id: 'LGPL-2.1',
+        name: 'GNU Lesser General Public License v2.1',
+        description: 'A primarily copyleft license that allows you to link to the library in proprietary software without releasing the proprietary code.',
+        permissions: ['Commercial use', 'Modification', 'Distribution', 'Patent use', 'Private use'],
+        conditions: ['Disclose source', 'License and copyright notice', 'Same license', 'State changes'],
+        limitations: ['Liability', 'Warranty']
+    },
+    {
+        id: 'MS-PL',
+        name: 'Microsoft Public License',
+        description: 'A permissive license that allows you to release compiled versions of the code under a different license, though source versions must use the MS-PL.',
+        permissions: ['Commercial use', 'Modification', 'Distribution', 'Patent use', 'Private use'],
+        conditions: ['License and copyright notice', 'Same license'],
+        limitations: ['Liability', 'Warranty', 'Trademark use']
     }
 ];
