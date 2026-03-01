@@ -123,7 +123,6 @@ export class MepCLI {
 
     /**
      * Creates a new Pipeline instance for sequential workflow execution.
-     * @experimental
      * @example
      * const context = await MepCLI.pipeline()
      *   .step('ask-name', async (ctx) => {
@@ -1136,7 +1135,6 @@ export class MepCLI {
 
     /**
      * Execute shell command with output streaming.
-     * @experimental
      * @example
      * await MepCLI.exec({
      *   message: 'Running build...',
