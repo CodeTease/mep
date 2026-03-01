@@ -18,7 +18,7 @@ We welcome contributions! Whether it's fixing bugs, adding new prompts, or impro
 ## Style Guide
 
 -   Use TypeScript.
--   Follow the existing code style (ESLint).
+-   Follow the existing code style (Biome).
 -   Ensure new prompts have `options` interface and return types.
 -   Add JSDoc comments for public APIs.
 
