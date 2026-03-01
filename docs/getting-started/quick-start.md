@@ -40,8 +40,13 @@ main().catch(console.error);
 
 ## 3. Run the Code
 
-Save the file as `index.ts` and run it using `ts-node` or compile it with `tsc`.
+Save the file as `index.ts` and run it using `bun` or compile it with `swc`.
 
+```bash
+bun index.ts
+```
+
+Or:
 ```bash
 npx ts-node index.ts
 ```

@@ -25,10 +25,19 @@ For comprehensive guides, API references, and advanced usage, please visit the *
 
 ## Installation
 
+Via NPM:
 ```sh
 npm install mepcli
-# or
+```
+
+Via Yarn:
+```sh
 yarn add mepcli
+```
+
+Via Bun:
+```sh
+bun add mepcli
 ```
 
 ## Quick Start
