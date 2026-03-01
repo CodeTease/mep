@@ -215,20 +215,42 @@ tasks.success('download', 'Downloaded');
 tasks.stop();
 ```
 
-## Pipeline (Workflow Engine) <sub style="color:orange">(Experimental)</sub>
+## Pipeline (Workflow Engine)
 
-The **Pipeline** API allows you to orchestrate a sequence of prompts that share a common context. It follows the **Enter-and-Forget** philosophy (exceptions stop the flow) and uses a fluent Builder pattern.
+Pipelines provide a powerful, sequential workflow engine. Based on the philosophy of **Enter-and-Forget (EAF)**, **Zero-Dependency**, and **Method Chaining**, Pipelines allow you to chain actions, prompts, and tasks sequentially, accumulating their results into a Context object.
 
 ```typescript
-const result = await MepCLI.pipeline()
-    .step('name', () => MepCLI.text({ message: 'Name:' }))
+import { MepCLI, Pipeline } from 'mepcli';
+import { z } from 'zod';
+
+interface Context {
+    name: string;
+    age: number;
+    email?: string;
+    parentalConsent?: boolean;
+}
+
+const result = await new Pipeline<Context>()
+    .step('name', async () => {
+        return await MepCLI.text({ message: 'What is your name?' });
+    }, {
+        validate: (val) => val.length > 0 || 'Name is required'
+    })
+    .step('age', async () => {
+        return await MepCLI.number({ message: 'How old are you?' });
+    }, {
+        transform: (val) => Number(val),
+        validate: z.number().min(0, "Age must be positive")
+    })
     .stepIf(
-        (ctx) => ctx.name === 'admin', 
-        'role', 
-        () => MepCLI.select({ 
-            message: 'Role:', 
-            choices: ['SuperUser', 'Maintainer'] 
-        })
+        (ctx) => ctx.age < 18,
+        'parentalConsent',
+        async () => {
+            return await MepCLI.confirm({ message: 'Do you have parental consent?' });
+        },
+        {
+            validate: (val) => val === true || 'Parental consent is required'
+        }
     )
     .run();
 ```
