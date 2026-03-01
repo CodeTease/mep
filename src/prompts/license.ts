@@ -34,6 +34,18 @@ export class LicensePrompt extends SelectPrompt<string> {
     }
 
     protected render(_firstRender: boolean) {
+        const choices = this.getFilteredChoices();
+
+        // Adjust Scroll Top
+        if (this.selectedIndex < this.scrollTop) {
+            this.scrollTop = this.selectedIndex;
+        } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
+            this.scrollTop = this.selectedIndex - this.pageSize + 1;
+        }
+        // Handle Filtering Edge Case: if list shrinks, scrollTop might be too high
+        if (this.scrollTop > choices.length - 1) {
+            this.scrollTop = Math.max(0, choices.length - this.pageSize);
+        }
 
         const width = this.stdout.columns || 80;
         const gap = 2;
@@ -51,25 +63,27 @@ export class LicensePrompt extends SelectPrompt<string> {
         const content = Layout.split(leftContent, rightContent, width, { ratio, gap });
 
         // Header
-        const header = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${theme.muted}(Use arrows to navigate, Enter to select)${ANSI.RESET}`;
+        const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
+        const header = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr} ${theme.muted}(Use arrows to navigate, Enter to select)${ANSI.RESET}`;
 
         // Combine
         this.renderFrame(`${header}\n${content}`);
     }
 
     private renderList(): string {
-
-        const selectedIndex = (this as any).selectedIndex;
-        const scrollTop = (this as any).scrollTop;
-        const pageSize = (this as any).pageSize;
-        const choices = this.options.choices; // from super
-
+        const choices = this.getFilteredChoices();
         let output = '';
-        const visibleChoices = choices.slice(scrollTop, scrollTop + pageSize);
+
+        if (choices.length === 0) {
+            output += `  ${theme.muted}No results found${ANSI.RESET}`;
+            return output + '\n'.repeat(this.pageSize - 1);
+        }
+
+        const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
 
         visibleChoices.forEach((choice, index) => {
-            const actualIndex = scrollTop + index;
-            const isSelected = actualIndex === selectedIndex;
+            const actualIndex = this.scrollTop + index;
+            const isSelected = actualIndex === this.selectedIndex;
 
             const cursor = isSelected ? `${theme.main}${symbols.pointer}` : ' ';
 
@@ -86,16 +100,21 @@ export class LicensePrompt extends SelectPrompt<string> {
 
         // Fill remaining lines to maintain height
         const filledLines = visibleChoices.length;
-        if (filledLines < pageSize) {
-            output += '\n'.repeat(pageSize - filledLines);
+        if (filledLines < this.pageSize) {
+            output += '\n'.repeat(this.pageSize - filledLines);
         }
 
         return output;
     }
 
     private renderDetails(maxWidth: number): string {
-        const selectedIndex = (this as any).selectedIndex;
-        const license = this.licenses[selectedIndex];
+        const choices = this.getFilteredChoices();
+        if (choices.length === 0) return '';
+
+        const selectedChoice = choices[this.selectedIndex];
+        if (!selectedChoice || 'separator' in selectedChoice) return '';
+
+        const license = this.licenses.find(l => l.id === selectedChoice.value);
 
         if (!license) return '';
 
