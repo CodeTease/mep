@@ -15,6 +15,7 @@
  * }
  * MepCLI.register('myPrompt', MyPromptClass);
  * const result = await MepCLI.prompt({ type: 'myPrompt', message: '...' });
+ * @see {@link https://github.com/CodeTease/mep/blob/main/examples/extension-registry.ts}
  */
 export interface ExtensionRegistry { }
 
