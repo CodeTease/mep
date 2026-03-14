@@ -65,7 +65,7 @@ First, create your prompt class (see [Custom Prompts Guide](./custom-prompts.md)
 
 ```typescript
 // MyPrompt.ts
-import { Prompt } from 'mepcli/dist/base';
+import { Prompt } from 'mepcli';
 
 export interface MyOptions { message: string; }
 
