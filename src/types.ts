@@ -2,6 +2,23 @@
  * Type definitions for Mep CLI interactions.
  */
 
+
+/**
+ * Extension registry for custom prompts.
+ * Extend this interface via declaration merging to register custom prompt types:
+ *
+ * @example
+ * declare module 'mep' {
+ *   interface ExtensionRegistry {
+ *     myPrompt: { options: MyPromptOptions; result: string };
+ *   }
+ * }
+ * MepCLI.register('myPrompt', MyPromptClass);
+ * const result = await MepCLI.prompt({ type: 'myPrompt', message: '...' });
+ * @see {@link https://github.com/CodeTease/mep/blob/main/examples/extension-registry.ts}
+ */
+export interface ExtensionRegistry { }
+
 export interface ThemeConfig {
     main: string;    // Primary branding color (e.g., cursor, selected item, values)
     success: string; // Success messages, checkmarks

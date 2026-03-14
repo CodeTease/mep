@@ -5,9 +5,8 @@ Mep allows you to create custom prompts by extending the base `Prompt` class. Th
 ## Basic Structure
 
 ```typescript
-import { Prompt } from 'mepcli/dist/base'; // or src/base if local
-import { ANSI } from 'mepcli/dist/ansi';
-import { MouseEvent } from 'mepcli/dist/types';
+import { Prompt } from 'mepcli'; // or ./src if local
+import { MouseEvent } from 'mepcli';
 
 interface MyPromptOptions {
     message: string;
@@ -69,3 +68,4 @@ export class MyPrompt extends Prompt<string, MyPromptOptions> {
 
 - [Architecture](./architecture.md)
 - [Theming](../features/theming.md)
+- [Extension Registry](./extension-registry.md)

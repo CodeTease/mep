@@ -83,13 +83,40 @@ import { connectionString, ConnectionStringOptions, ConnectionStringResult } fro
 import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
 import { Pipeline } from './pipeline';
 import { TaskRunner } from './tasks';
-import { TaskGroupOptions } from './types';
+import { TaskGroupOptions, ExtensionRegistry } from './types';
+import { PromptConstructor } from './base';
 
 /**
  * Public Facade for Mep
  */
 export class MepCLI {
     public static theme: ThemeConfig = theme;
+
+    private static registry = new Map<string, any>();
+
+    public static register<K extends keyof ExtensionRegistry>(
+        type: K,
+        promptClass: PromptConstructor<ExtensionRegistry[K]["result"], ExtensionRegistry[K]["options"]>
+    ): void {
+        const key = type as string;
+        if (MepCLI.registry.has(key)) {
+            console.warn(
+                `[MepCLI] Warning: Prompt type "${key}" is already registered. ` +
+                `The existing implementation will be overwritten.`
+            );
+        }
+        MepCLI.registry.set(key, promptClass);
+    }
+
+    public static prompt<K extends keyof ExtensionRegistry>(
+        options: { type: K } & ExtensionRegistry[K]["options"]
+    ): Promise<ExtensionRegistry[K]["result"]> {
+        const { type, ...promptOptions } = options as any;
+        const TargetClass = MepCLI.registry.get(type as string);
+        if (!TargetClass) throw new Error(`Prompt type "${String(type)}" is not registered.`);
+        const instance = new TargetClass(promptOptions as ExtensionRegistry[K]["options"]);
+        return instance.run();
+    }
 
     /**
      * Creates a new Spinner instance to indicate background activity.

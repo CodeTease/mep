@@ -7,6 +7,8 @@ import { detectCapabilities, stringWidth, stripAnsi } from './utils';
  * Abstract base class for all prompts.
  * Implements a Robust Linear Scan Diffing Engine.
  */
+export type PromptConstructor<T, O> = new (options: O) => Prompt<T, O>;
+
 export abstract class Prompt<T, O> {
     protected options: O;
     protected value: any;
