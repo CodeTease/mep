@@ -65,7 +65,7 @@ class ConfettiPrompt extends Prompt<string, ConfettiOptions> {
     }
 
     protected handleInput(char: string): void {
-        if (char === '\r') {
+        if (char === '\n') {
             this.submit(`🎉 Confetti collected after ${this.frame} frames!`);
         }
     }
