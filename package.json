@@ -1,6 +1,6 @@
 {
   "name": "mepcli",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "description": "Zero-dependency interactive CLI prompt",
   "repository": {
     "type": "git",
@@ -51,7 +51,7 @@
     "@swc/cli": "^0.8.0",
     "@swc/core": "^1.15.18",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.19.13",
+    "@types/node": "^22.19.15",
     "typescript": "^5.9.3"
   }
 }

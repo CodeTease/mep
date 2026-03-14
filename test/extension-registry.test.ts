@@ -31,8 +31,6 @@ declare module '../src/types' {
 
 // --- Tests ---
 
-
-
 describe('Extension Registry', () => {
     let stdoutSpy: jest.SpyInstance;
 
@@ -65,13 +63,13 @@ describe('Extension Registry', () => {
         });
 
         it('should overwrite the existing entry after warning', () => {
-            jest.spyOn(console, 'warn').mockImplementation(() => { });
+            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
 
             MepCLI.register('countdown', CountdownPrompt);
             MepCLI.register('countdown', AltCountdownPrompt);
 
             expect((MepCLI as any).registry.get('countdown')).toBe(AltCountdownPrompt);
-            jest.restoreAllMocks();
+            warnSpy.mockRestore();
         });
     });
 

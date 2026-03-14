@@ -25,7 +25,7 @@ const CONFETTI = ['🎉', '🎊', '✨', '🥳', '💥', '🍾'];
 
 class ConfettiPrompt extends Prompt<string, ConfettiOptions> {
     private frame = 0;
-    private interval?: ReturnType<typeof NodeJS.setInterval>;
+    private interval?: NodeJS.Timeout;
 
     protected render(firstRender: boolean): void {
         const width = this.stdout.columns || 60;
@@ -57,10 +57,12 @@ class ConfettiPrompt extends Prompt<string, ConfettiOptions> {
         // Animate confetti on a loop
         if (firstRender && !this.interval) {
             this.frame = 0;
+            const intensity = Math.min(5, Math.max(1, this.options.intensity ?? 3));
+            const speed = 350 - intensity * 50; // intensity 1→300ms, 3→200ms, 5→100ms
             this.interval = setInterval(() => {
                 this.frame++;
                 this.render(false);
-            }, 250);
+            }, speed);
         }
     }
 
