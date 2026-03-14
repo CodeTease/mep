@@ -31,7 +31,7 @@ declare module '../src/types' {
 
 // --- Tests ---
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 
 describe('Extension Registry', () => {
     let stdoutSpy: jest.SpyInstance;
@@ -88,10 +88,12 @@ describe('Extension Registry', () => {
             expect(result).toBe(9);
         });
 
-        it('should throw for an unregistered type', () => {
-            expect(() => {
-                MepCLI.prompt({ type: 'countdown', message: 'Test', from: 1 });
-            }).toThrow('Prompt type "countdown" is not registered.');
+        it('should throw for an unregistered type', async () => {
+            await expect(
+                (async () => {
+                    await MepCLI.prompt({ type: 'countdown', message: 'Test', from: 1 });
+                })()
+            ).rejects.toThrow('Prompt type "countdown" is not registered.');
         });
 
         it('should use the latest registered class after overwrite', async () => {

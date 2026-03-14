@@ -25,55 +25,56 @@ const CONFETTI = ['🎉', '🎊', '✨', '🥳', '💥', '🍾'];
 
 class ConfettiPrompt extends Prompt<string, ConfettiOptions> {
     private frame = 0;
-    private interval?: ReturnType<typeof setInterval>;
-    private lines: string[] = [];
+    private interval?: ReturnType<typeof NodeJS.setInterval>;
 
     protected render(firstRender: boolean): void {
         const width = this.stdout.columns || 60;
-        const intensity = this.options.intensity ?? 3;
-
-        // Build confetti line
-        const pieces: string[] = [];
-        for (let i = 0; i < intensity * 4; i++) {
-            const emoji = CONFETTI[Math.floor(Math.random() * CONFETTI.length)];
-            const gap = ' '.repeat(Math.floor(Math.random() * 3) + 1);
-            pieces.push(gap + emoji);
+        
+        // Build a rotating emoji line
+        const safeWidth = Math.min(width - 5, 40); // Keep it safe for Windows bounds
+        let marquee = '';
+        for (let i = 0; i < safeWidth / 3; i++) {
+            marquee += CONFETTI[(this.frame + i) % CONFETTI.length] + '  ';
         }
 
-        const confettiLine = pieces.join('');
         const title = `${ANSI.FG_YELLOW}${ANSI.BOLD} ${this.options.message} ${ANSI.RESET}`;
-
-        // Use stringWidth (shared infra) to center the title
         const titleVisual = stringWidth(this.stripAnsi(title));
         const pad = Math.max(0, Math.floor((width - titleVisual) / 2));
+        const marqueePad = Math.max(0, Math.floor((width - stringWidth(marquee)) / 2));
 
-        this.lines = [
-            confettiLine,
+        const lines = [
+            ' '.repeat(marqueePad) + marquee,
             '',
             ' '.repeat(pad) + title,
             '',
-            confettiLine,
+            ' '.repeat(marqueePad) + marquee,
             '',
             `${ANSI.FG_CYAN}  Press Enter to collect your confetti! ${ANSI.RESET}`,
         ];
 
-        this.renderFrame(this.lines.join('\n'));
+        this.renderFrame(lines.join('\n'));
 
         // Animate confetti on a loop
-        if (firstRender) {
+        if (firstRender && !this.interval) {
             this.frame = 0;
             this.interval = setInterval(() => {
                 this.frame++;
                 this.render(false);
-            }, 200);
+            }, 250);
         }
     }
 
     protected handleInput(char: string): void {
         if (char === '\r') {
-            if (this.interval) clearInterval(this.interval);
             this.submit(`🎉 Confetti collected after ${this.frame} frames!`);
         }
+    }
+
+    protected cleanup(): void {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        super.cleanup();
     }
 }
 
