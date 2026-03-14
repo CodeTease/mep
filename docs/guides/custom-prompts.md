@@ -69,3 +69,4 @@ export class MyPrompt extends Prompt<string, MyPromptOptions> {
 
 - [Architecture](./architecture.md)
 - [Theming](../features/theming.md)
+- [Extension Registry](./extension-registry.md)

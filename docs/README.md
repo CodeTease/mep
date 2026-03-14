@@ -40,6 +40,7 @@ Explore our extensive library of over 50 prompt types.
 
 - [**Custom Prompts**](./guides/custom-prompts.md): How to build your own prompt component.
 - [**Testing**](./guides/testing.md): Guide to testing CLI prompts.
+- [**Extension Registry**](./guides/extension-registry.md): Register and use custom prompt types globally.
 
 ## 6. Meta
 

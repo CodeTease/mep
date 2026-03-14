@@ -255,6 +255,26 @@ const result = await new Pipeline<Context>()
     .run();
 ```
 
+## Extensions (Custom Prompts)
+
+Mep is fully extensible. You can register your own prompt components and access them through the unified `MepCLI.prompt()` API with full Type Safety.
+
+```typescript
+import { MepCLI } from 'mepcli';
+import { MyPrompt } from './MyPrompt';
+
+// 1. Register
+MepCLI.register('custom', MyPrompt);
+
+// 2. Use with full type support
+const result = await MepCLI.prompt({
+    type: 'custom',
+    message: 'Hello from extension!'
+});
+```
+
+See the **[Extension Registry Guide](./docs/guides/extension-registry.md)** for more details.
+
 ## Keyboard & Mouse Support
 
 For a detailed list of shortcuts and mouse interactions, please refer to the **[Shortcuts Documentation](./docs/features/shortcuts.md)**.
