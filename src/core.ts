@@ -98,7 +98,14 @@ export class MepCLI {
         type: K,
         promptClass: PromptConstructor<ExtensionRegistry[K]["result"], ExtensionRegistry[K]["options"]>
     ): void {
-        MepCLI.registry.set(type as string, promptClass);
+        const key = type as string;
+        if (MepCLI.registry.has(key)) {
+            console.warn(
+                `[MepCLI] Warning: Prompt type "${key}" is already registered. ` +
+                `The existing implementation will be overwritten.`
+            );
+        }
+        MepCLI.registry.set(key, promptClass);
     }
 
     public static prompt<K extends keyof ExtensionRegistry>(
