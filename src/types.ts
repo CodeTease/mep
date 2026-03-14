@@ -2,6 +2,8 @@
  * Type definitions for Mep CLI interactions.
  */
 
+export interface ExtensionRegistry {}
+
 export interface ThemeConfig {
     main: string;    // Primary branding color (e.g., cursor, selected item, values)
     success: string; // Success messages, checkmarks

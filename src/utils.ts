@@ -469,3 +469,5 @@ export function generateProgressBar(current: number, total: number, width: numbe
 
     return `[${filled}${empty}] ${percentStr}`;
 }
+
+export const truncate = Layout.truncate;

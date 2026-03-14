@@ -5,6 +5,10 @@
 
 export * from './types';
 export * from './core';
+export { ANSI } from './ansi';
+export { InputParser } from './input';
+export { Prompt, type PromptConstructor } from './base';
+export { stringWidth, truncate, stripAnsi } from './utils';
 export * from './prompts/map';
 export * from './prompts/semver';
 export * from './prompts/ip';
