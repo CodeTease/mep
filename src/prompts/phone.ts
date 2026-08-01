@@ -36,12 +36,37 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         return COUNTRIES[this.selectedCountryIndex];
     }
 
+    private getMasks(maskValue: string | string[] = this.currentCountry[3]): string[] {
+        return Array.isArray(maskValue) ? maskValue : [maskValue];
+    }
+
+    private getMaskPlaceholderCount(mask: string): number {
+        return mask.split('#').length - 1;
+    }
+
+    private get activeMask(): string {
+        const masks = this.getMasks(this.currentCountry[3]);
+        const targetLength = this.rawNumber.length;
+        const matchingMask = masks.find(mask => this.getMaskPlaceholderCount(mask) >= targetLength);
+
+        return matchingMask ?? masks[masks.length - 1] ?? '';
+    }
+
     private get mask(): string {
-        return this.currentCountry[3];
+        return this.activeMask;
     }
 
     private get dialCode(): string {
         return this.currentCountry[2];
+    }
+
+    private getValidLengths(): number[] {
+        const lengths = this.getMasks(this.currentCountry[3]).map(mask => this.getMaskPlaceholderCount(mask));
+        return [...new Set(lengths)].sort((a, b) => a - b);
+    }
+
+    private getMinRawLength(): number {
+        return Math.min(...this.getMasks(this.currentCountry[3]).map(mask => this.getMaskPlaceholderCount(mask)));
     }
 
     /**
@@ -68,7 +93,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
      * Maps rawIndex to visual index, handling skipping of static characters.
      */
     private getVisualPosition(rawIndex: number): number {
-        const mask = this.mask;
+        const mask = this.activeMask;
         let v = 0;
         let r = 0;
 
@@ -100,7 +125,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
      * Formats the raw number according to the mask.
      */
     private formatNumber(): string {
-        const mask = this.mask;
+        const mask = this.activeMask;
         let result = '';
         let rawIdx = 0;
 
@@ -124,7 +149,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
      * Renders the formatted number with highlighting.
      */
     private renderFormattedNumber(): string {
-        const mask = this.mask;
+        const mask = this.activeMask;
         let output = '';
         let rawIdx = 0;
 
@@ -388,7 +413,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     }
 
     private getMaxRawLength(): number {
-        return this.mask.split('#').length - 1;
+        return Math.max(...this.getMasks(this.currentCountry[3]).map(mask => this.getMaskPlaceholderCount(mask)));
     }
 
     private enforceMaxLen() {
@@ -401,9 +426,15 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
 
     private validateAndSubmit() {
         if (this.options.strict) {
-            const max = this.getMaxRawLength();
-            if (this.rawNumber.length !== max) {
-                this.errorMsg = `Number too short (expected ${max} digits)`;
+            const validLengths = this.getValidLengths();
+            if (!validLengths.includes(this.rawNumber.length)) {
+                const formatted = validLengths.length === 1
+                    ? `${validLengths[0]} digit`
+                    : validLengths.length === 2
+                        ? `${validLengths[0]} or ${validLengths[1]} digits`
+                        : `${validLengths.slice(0, -1).join(', ')} or ${validLengths[validLengths.length - 1]} digits`;
+
+                this.errorMsg = `Expected ${formatted}`;
                 this.render(false);
                 return;
             }

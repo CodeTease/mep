@@ -101,4 +101,22 @@ describe('PhonePrompt', () => {
         const result = await promise;
         expect(result).toBe('+841234567890');
     });
+
+    it('should accept a longer valid length for multi-mask countries in strict mode', async () => {
+        const prompt = new PhonePrompt({
+            message: 'Strict UK',
+            defaultCountry: 'GB',
+            strict: true
+        });
+
+        const promise = prompt.run();
+        await delay(10);
+
+        '12345678901'.split('').forEach(k => sendKey(k));
+        await delay(10);
+        sendKey('\r');
+
+        const result = await promise;
+        expect(result).toBe('+4412345678901');
+    });
 });
