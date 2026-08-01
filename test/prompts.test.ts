@@ -1,5 +1,6 @@
 import { CalculatorPrompt } from '../src/prompts/calculator';
 import { CronPrompt } from '../src/prompts/cron';
+import { MapPrompt } from '../src/prompts/map';
 import { TreePrompt } from '../src/prompts/tree';
 import { TreeSelectPrompt } from '../src/prompts/tree-select';
 import { SpreadsheetPrompt } from '../src/prompts/spreadsheet';
@@ -137,6 +138,44 @@ describe('Complex Prompts', () => {
             sendKey('\r');
             const result = await promise;
             expect(result).toBe('1 1 * * *');
+        });
+    });
+
+    describe('MapPrompt', () => {
+        it('should mask values for selected keys', async () => {
+            const prompt = new MapPrompt({
+                message: 'Map',
+                mask: (key: string) => key.toLowerCase() === 'token'
+            });
+
+            const promise = prompt.run();
+            await delay(10);
+
+            sendKey('t');
+            sendKey('o');
+            sendKey('k');
+            sendKey('e');
+            sendKey('n');
+            await delay(10);
+
+            sendKey('\t');
+            await delay(10);
+
+            sendKey('s');
+            sendKey('e');
+            sendKey('c');
+            sendKey('r');
+            sendKey('e');
+            sendKey('t');
+            await delay(10);
+
+            sendKey('\r');
+            const result = await promise;
+            const output = stdoutSpy.mock.calls.flat().join('');
+
+            expect(result).toEqual({ token: 'secret' });
+            expect(output).toContain('******');
+            expect(output).not.toContain('secret');
         });
     });
 

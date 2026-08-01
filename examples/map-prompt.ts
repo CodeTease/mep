@@ -5,7 +5,8 @@ import { MepCLI } from "../src"
 try {
     const envVars = await MepCLI.map({
         message: "Configure Environment Variables (Map):",
-        initial: { "API_URL": "http://localhost:8080", "DB_HOST": "127.0.0.1" }
+        initial: { "API_URL": "http://localhost:8080", "API_TOKEN": "secret", "DB_HOST": "127.0.0.1" },
+        mask: (key: string) => key.toLowerCase() === 'api_token'
     });
     console.log(`\n Map Result:`, envVars);
 

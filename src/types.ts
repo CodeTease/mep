@@ -300,6 +300,7 @@ export interface CalendarOptions extends BaseOptions {
 export interface MapOptions extends BaseOptions {
     initial?: Record<string, string>;
     suggestions?: string[];
+    mask?: boolean | ((key: string, value: string) => boolean);
 }
 
 export interface SemVerOptions extends BaseOptions {

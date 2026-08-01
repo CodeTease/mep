@@ -87,9 +87,11 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
             const padding = ' '.repeat(Math.max(0, maxKeyWidth - keyVisualWidth));
 
             // Render Value
-            let valStr = item.value;
+            const shouldMask = this.shouldMaskValue(item.key, item.value);
+            const displayValue = shouldMask ? '*'.repeat(stringWidth(item.value)) : item.value;
+            let valStr = displayValue;
             if (isRowActive && this.colIndex === 1) {
-                valStr = `${theme.main}${ANSI.UNDERLINE}${valStr || ' '}${ANSI.RESET}`;
+                valStr = `${theme.main}${ANSI.UNDERLINE}${displayValue || ' '}${ANSI.RESET}`;
             }
 
             output += `${pointer}${keyStr}${padding}${valStr}`;
@@ -103,6 +105,14 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
         }
 
         this.renderFrame(output);
+    }
+
+    private shouldMaskValue(key: string, value: string): boolean {
+        if (typeof this.options.mask === 'function') {
+            return this.options.mask(key, value);
+        }
+
+        return this.options.mask === true;
     }
 
     private pad(str: string, width: number): string {
