@@ -48,10 +48,10 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@swc/cli": "^0.8.0",
-    "@swc/core": "^1.15.18",
+    "@swc/cli": "^0.8.1",
+    "@swc/core": "^1.15.47",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.19.15",
+    "@types/node": "^22.20.1",
     "typescript": "^5.9.3"
   }
 }
