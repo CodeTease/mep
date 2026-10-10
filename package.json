@@ -47,11 +47,11 @@
   "author": "CodeTease",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.5.15",
     "@swc/cli": "^0.8.1",
-    "@swc/core": "^1.15.47",
+    "@swc/core": "^1.16.13",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.20.1",
-    "typescript": "^5.9.3"
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
   }
 }

@@ -1,66 +1,62 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-    "vcs": {
-        "enabled": false,
-        "clientKind": "git",
-        "useIgnoreFile": false
-    },
-    "files": {
-        "ignoreUnknown": false,
-        "ignore": [
-            "**/dist/**",
-            "**/coverage/**",
-            "**/test/**",
-            "**/examples/**",
-            "**/media/**",
-            "**/node_modules/**"
-        ],
-        "include": [
-            "src/**/*.ts"
-        ]
-    },
-    "formatter": {
-        "enabled": true,
-        "indentStyle": "space",
-        "indentWidth": 4,
-        "lineWidth": 120
-    },
-    "javascript": {
-        "formatter": {
-            "quoteStyle": "single"
-        }
-    },
-    "organizeImports": {
-        "enabled": true
-    },
-    "linter": {
-        "enabled": true,
-        "rules": {
-            "recommended": true,
-            "suspicious": {
-                "noExplicitAny": "off",
-                "noControlCharactersInRegex": "off",
-                "noEmptyInterface": "off",
-                "noArrayIndexKey": "off",
-                "noImplicitAnyLet": "off",
-                "noAssignInExpressions": "off"
-            },
-            "correctness": {
-                "noUnusedVariables": "warn",
-                "noUnusedImports": "warn"
-            },
-            "complexity": {
-                "noBannedTypes": "off",
-                "noForEach": "off",
-                "noStaticOnlyClass": "off"
-            },
-            "style": {
-                "noNonNullAssertion": "off",
-                "noParameterAssign": "off",
-                "useTemplate": "off",
-                "noUnusedTemplateLiteral": "off",
-                "noUselessElse": "off"
-            }
-        }
-    }
+	"$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"**/src/**/*.ts",
+			"!**/dist/**",
+			"!**/coverage/**",
+			"!**/test/**",
+			"!**/examples/**",
+			"!**/media/**",
+			"!**/node_modules/**"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "space",
+		"indentWidth": 4,
+		"lineWidth": 120
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single"
+		}
+	},
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"suspicious": {
+				"noExplicitAny": "off",
+				"noControlCharactersInRegex": "off",
+				"noEmptyInterface": "off",
+				"noArrayIndexKey": "off",
+				"noImplicitAnyLet": "off",
+				"noAssignInExpressions": "off"
+			},
+			"correctness": {
+				"noUnusedVariables": "warn",
+				"noUnusedImports": "warn"
+			},
+			"complexity": {
+				"noBannedTypes": "off",
+				"noForEach": "off",
+				"noStaticOnlyClass": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off",
+				"noParameterAssign": "off",
+				"useTemplate": "off",
+				"noUnusedTemplateLiteral": "off",
+				"noUselessElse": "off"
+			}
+		}
+	}
 }
