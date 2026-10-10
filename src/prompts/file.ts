@@ -1,17 +1,16 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { FileOptions } from '../types';
-import * as fs from 'fs';
-import * as path from 'path';
+import { theme } from '../theme';
+import type { FileOptions } from '../types';
 
 /**
  * Implementation of FilePrompt with autocomplete.
  */
 export class FilePrompt extends Prompt<string, FileOptions> {
     private input: string = '';
-    private cursor: number = 0;
     private suggestions: string[] = [];
     private selectedSuggestion: number = -1;
     private errorMsg: string = '';
@@ -20,7 +19,6 @@ export class FilePrompt extends Prompt<string, FileOptions> {
     constructor(options: FileOptions) {
         super(options);
         this.input = options.basePath || '';
-        this.cursor = this.input.length;
         this.updateSuggestions();
     }
 
@@ -31,33 +29,35 @@ export class FilePrompt extends Prompt<string, FileOptions> {
         try {
             // Determine the directory to scan and the partial file name
             const isDirQuery = this.input.endsWith('/') || this.input.endsWith('\\');
-            const dir = isDirQuery ? this.input : (path.dirname(this.input) || '.');
+            const dir = isDirQuery ? this.input : path.dirname(this.input) || '.';
             const partial = isDirQuery ? '' : path.basename(this.input);
 
             if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
                 const files = fs.readdirSync(dir);
                 this.suggestions = files
-                    .filter(f => f.toLowerCase().startsWith(partial.toLowerCase()))
-                    .filter(f => {
+                    .filter((f) => f.toLowerCase().startsWith(partial.toLowerCase()))
+                    .filter((f) => {
                         const fullPath = path.join(dir, f);
                         try {
                             const stats = fs.statSync(fullPath);
                             const isDir = stats.isDirectory();
                             if (this.options.onlyDirectories && !isDir) return false;
                             if (this.options.extensions && !isDir) {
-                                return this.options.extensions.some(ext => f.endsWith(ext));
+                                return this.options.extensions.some((ext) => f.endsWith(ext));
                             }
                             return true;
                         } catch (_e) {
                             return false;
                         }
                     })
-                    .map(f => {
+                    .map((f) => {
                         const fullPath = path.join(dir, f);
                         try {
                             // Append separator if the file is a directory
                             if (fs.statSync(fullPath).isDirectory()) return f + path.sep;
-                        } catch (_e) { /* ignore */ }
+                        } catch (_e) {
+                            /* ignore */
+                        }
                         return f;
                     });
             } else {
@@ -135,10 +135,8 @@ export class FilePrompt extends Prompt<string, FileOptions> {
                 const dir = isDir ? this.input : path.dirname(this.input);
 
                 // Construct the new path accurately
-                const baseDir = (dir === '.' && !this.input.startsWith('.')) ? '' : dir;
+                const baseDir = dir === '.' && !this.input.startsWith('.') ? '' : dir;
                 this.input = path.join(baseDir, suggestion);
-                this.cursor = this.input.length;
-
                 // Immediately refresh suggestions for the new path
                 this.updateSuggestions();
                 this.render(false);

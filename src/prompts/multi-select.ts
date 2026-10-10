@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { MultiSelectOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, MultiSelectOptions } from '../types';
 
 // --- Implementation: MultiSelect Prompt ---
 export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
@@ -15,7 +15,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
 
     constructor(options: MultiSelectOptions<V>) {
         super(options);
-        this.checkedState = options.choices.map(c => !!c.selected);
+        this.checkedState = options.choices.map((c) => !!c.selected);
         this.selectedIndex = 0;
     }
 
@@ -23,7 +23,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
         if (!this.searchBuffer) return this.options.choices.map((c, i) => ({ ...c, originalIndex: i }));
         return this.options.choices
             .map((c, i) => ({ ...c, originalIndex: i }))
-            .filter(c => c.title.toLowerCase().includes(this.searchBuffer.toLowerCase()));
+            .filter((c) => c.title.toLowerCase().includes(this.searchBuffer.toLowerCase()));
     }
 
     protected render(_firstRender: boolean) {
@@ -52,7 +52,8 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
                 if (index > 0) output += '\n';
 
                 const actualIndex = this.scrollTop + index;
-                const cursor = actualIndex === this.selectedIndex ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : ' ';
+                const cursor =
+                    actualIndex === this.selectedIndex ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : ' ';
                 const isChecked = this.checkedState[choice.originalIndex];
                 const checkbox = isChecked
                     ? `${theme.success}${symbols.checked}${ANSI.RESET}`
@@ -92,9 +93,7 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
                 return;
             }
 
-            const results = this.options.choices
-                .filter((_, i) => this.checkedState[i])
-                .map(c => c.value);
+            const results = this.options.choices.filter((_, i) => this.checkedState[i]).map((c) => c.value);
             this.submit(results);
             return;
         }
@@ -107,15 +106,17 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             let potentialAdd = 0;
 
             // Calculate potential selections
-            choices.forEach(c => {
+            choices.forEach((c) => {
                 if (!newCheckedState[c.originalIndex]) potentialAdd++;
             });
 
             const currentSelected = newCheckedState.filter(Boolean).length;
-            if (this.options.max && (currentSelected + potentialAdd) > this.options.max) {
+            if (this.options.max && currentSelected + potentialAdd > this.options.max) {
                 this.errorMsg = `Max limit ${this.options.max} reached`;
             } else {
-                choices.forEach(c => newCheckedState[c.originalIndex] = true);
+                choices.forEach((c) => {
+                    newCheckedState[c.originalIndex] = true;
+                });
                 this.checkedState = newCheckedState;
                 this.errorMsg = '';
             }
@@ -125,7 +126,9 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
 
         // Ctrl+X (\x18): Deselect All Visible
         if (char === '\x18') {
-            choices.forEach(c => this.checkedState[c.originalIndex] = false);
+            choices.forEach((c) => {
+                this.checkedState[c.originalIndex] = false;
+            });
             this.errorMsg = '';
             this.render(false);
             return;
@@ -156,7 +159,8 @@ export class MultiSelectPrompt<V> extends Prompt<any[], MultiSelectOptions<V>> {
             return;
         }
 
-        if (char === '\u0008' || char === '\x7f') { // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            // Backspace
             if (this.searchBuffer.length > 0) {
                 this.searchBuffer = this.searchBuffer.slice(0, -1);
                 this.selectedIndex = 0;

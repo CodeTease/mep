@@ -1,7 +1,7 @@
-import { Prompt } from '../base';
-import { BoxOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
 import { theme } from '../theme';
+import type { BoxOptions, MouseEvent } from '../types';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 
@@ -28,7 +28,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
                 top: initial.top ?? 0,
                 right: initial.right ?? 0,
                 bottom: initial.bottom ?? 0,
-                left: initial.left ?? 0
+                left: initial.left ?? 0,
             };
         } else {
             this.values = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -39,7 +39,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
 
     private commitBuffer() {
         let val = parseInt(this.inputBuffer, 10);
-        if (isNaN(val)) val = 0;
+        if (Number.isNaN(val)) val = 0;
 
         // Apply constraints
         if (this.options.min !== undefined && val < this.options.min) val = this.options.min;
@@ -57,7 +57,7 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
 
     private increment(amount: number) {
         let val = parseInt(this.inputBuffer, 10);
-        if (isNaN(val)) val = 0;
+        if (Number.isNaN(val)) val = 0;
         val += amount;
 
         if (this.options.min !== undefined && val < this.options.min) val = this.options.min;
@@ -90,10 +90,10 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
         // [ Left ]   [ Right ]
         //      [ Bottom ]
 
-        // We need to pad to align them nicely. 
+        // We need to pad to align them nicely.
         // Simple manual padding for MVP.
 
-        // Calculate center padding based on longest string? 
+        // Calculate center padding based on longest string?
         // Keep it simple.
 
         let output = title + '\n\n';
@@ -187,7 +187,8 @@ export class BoxPrompt extends Prompt<BoxValues, BoxOptions> {
 
         // Increment/Decrement (+ / -)
         const step = this.options.step || 1;
-        if (char === '+' || char === '=') { // = is usually unshifted +
+        if (char === '+' || char === '=') {
+            // = is usually unshifted +
             this.increment(step);
             this.render(false);
             return;

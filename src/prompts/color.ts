@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { ColorOptions, MouseEvent } from '../types';
+import type { ColorOptions, MouseEvent } from '../types';
 
 interface RGB {
     r: number;
@@ -12,7 +12,6 @@ interface RGB {
 export class ColorPrompt extends Prompt<string, ColorOptions> {
     private rgb: RGB;
     private activeChannel: 'r' | 'g' | 'b' = 'r';
-    private inputBuffer: string = '';
 
     constructor(options: ColorOptions) {
         super(options);
@@ -21,15 +20,17 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
 
     private parseHex(hex: string): RGB {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : { r: 0, g: 0, b: 0 };
+        return result
+            ? {
+                  r: parseInt(result[1], 16),
+                  g: parseInt(result[2], 16),
+                  b: parseInt(result[3], 16),
+              }
+            : { r: 0, g: 0, b: 0 };
     }
 
     private rgbToHex(r: number, g: number, b: number): string {
-        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
     }
 
     // Helper to format ANSI TrueColor background
@@ -62,7 +63,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
         const channels: ('r' | 'g' | 'b')[] = ['r', 'g', 'b'];
         const labels = { r: 'Red  ', g: 'Green', b: 'Blue ' };
 
-        channels.forEach(ch => {
+        channels.forEach((ch) => {
             const val = this.rgb[ch];
             const isActive = this.activeChannel === ch;
 
@@ -150,7 +151,7 @@ export class ColorPrompt extends Prompt<string, ColorOptions> {
             // If Ctrl is held, adjust by a larger step (fast adjust).
             const fast = !!event.ctrl;
             const step = fast ? 10 : 1;
-            const change = event.scroll === 'up' ? step : (event.scroll === 'down' ? -step : 0);
+            const change = event.scroll === 'up' ? step : event.scroll === 'down' ? -step : 0;
             if (change !== 0) {
                 const val = this.rgb[this.activeChannel] + change;
                 this.rgb[this.activeChannel] = Math.max(0, Math.min(255, val));

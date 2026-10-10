@@ -67,7 +67,9 @@ export class Spinner {
     public success(message?: string): this {
         this.stop();
         const text = message ?? this.text;
-        process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.success}${symbols.tick}${ANSI.RESET} ${text}\n`);
+        process.stdout.write(
+            `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.success}${symbols.tick}${ANSI.RESET} ${text}\n`,
+        );
         return this;
     }
 
@@ -77,7 +79,9 @@ export class Spinner {
     public error(message?: string): this {
         this.stop();
         const text = message ?? this.text;
-        process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.error}${symbols.cross}${ANSI.RESET} ${text}\n`);
+        process.stdout.write(
+            `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.error}${symbols.cross}${ANSI.RESET} ${text}\n`,
+        );
         return this;
     }
 

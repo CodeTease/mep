@@ -1,8 +1,8 @@
-import { Prompt } from '../base';
 import { ANSI } from '../ansi';
-import { theme } from '../theme';
+import { Prompt } from '../base';
 import { symbols } from '../symbols';
-import { ScrollOptions } from '../types';
+import { theme } from '../theme';
+import type { ScrollOptions } from '../types';
 import { stringWidth } from '../utils';
 
 export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
@@ -29,7 +29,10 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
         const contentWidth = width - 4; // Border (2) + Padding (2)
 
         // 1. Header & Progress
-        const percent = Math.min(100, Math.round(((this.scrollTop + this.height) / Math.max(this.height, this.lines.length)) * 100));
+        const percent = Math.min(
+            100,
+            Math.round(((this.scrollTop + this.height) / Math.max(this.height, this.lines.length)) * 100),
+        );
         const header = `${theme.title}${symbols.pointer} ${ANSI.BOLD}${this.options.message}${ANSI.RESET} ${theme.muted}[${percent}%]${ANSI.RESET}`;
 
         // 2. Viewport
@@ -43,7 +46,7 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
         const borderTop = `${theme.muted}${symbols.topLeft}${symbols.horizontal.repeat(width - 2)}${symbols.topRight}${ANSI.RESET}`;
         const borderBottom = `${theme.muted}${symbols.bottomLeft}${symbols.horizontal.repeat(width - 2)}${symbols.bottomRight}${ANSI.RESET}`;
 
-        const contentRows = visibleLines.map(line => {
+        const contentRows = visibleLines.map((line) => {
             let displayLine = line;
             const len = stringWidth(displayLine);
             if (len > contentWidth) {
@@ -66,13 +69,7 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
             footer = `${theme.success}>> Press Enter to accept${ANSI.RESET}`;
         }
 
-        const output = [
-            header,
-            borderTop,
-            ...contentRows,
-            borderBottom,
-            footer
-        ].join('\n');
+        const output = [header, borderTop, ...contentRows, borderBottom, footer].join('\n');
 
         this.renderFrame(output);
     }
@@ -106,12 +103,14 @@ export class ScrollPrompt extends Prompt<boolean, ScrollOptions> {
             }
         }
         // PageUp
-        else if (key.toString('hex') === '1b5b357e') { // Standard PageUp sequence
+        else if (key.toString('hex') === '1b5b357e') {
+            // Standard PageUp sequence
             this.scrollTop = Math.max(0, this.scrollTop - this.height);
             didScroll = true;
         }
         // PageDown / Space
-        else if (char === ' ' || key.toString('hex') === '1b5b367e') { // Standard PageDown sequence
+        else if (char === ' ' || key.toString('hex') === '1b5b367e') {
+            // Standard PageDown sequence
             this.scrollTop = Math.min(this.lines.length - this.height, this.scrollTop + this.height);
             if (this.scrollTop < 0) this.scrollTop = 0; // Fix if content < height
             didScroll = true;

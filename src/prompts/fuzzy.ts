@@ -1,9 +1,9 @@
-import { SelectPrompt } from './select';
-import { FuzzySelectOptions } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
-import { fuzzyMatch } from '../utils';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { FuzzySelectOptions } from '../types';
+import { fuzzyMatch } from '../utils';
+import { SelectPrompt } from './select';
 
 export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>> {
     private filteredResults: any[] = [];
@@ -52,15 +52,17 @@ export class FuzzySelectPrompt<V> extends SelectPrompt<V, FuzzySelectOptions<V>>
         if (!this.searchBuffer) {
             this.filteredResults = this.options.choices;
         } else {
-            const results = this.options.choices.map(c => {
-                if (this.isSeparator(c)) return null;
-                const match = fuzzyMatch(this.searchBuffer, (c as any).title);
-                return { choice: c, match };
-            }).filter(item => item && item.match !== null)
+            const results = this.options.choices
+                .map((c) => {
+                    if (this.isSeparator(c)) return null;
+                    const match = fuzzyMatch(this.searchBuffer, (c as any).title);
+                    return { choice: c, match };
+                })
+                .filter((item) => item && item.match !== null)
                 // Sort by score descending
                 .sort((a, b) => b!.match!.score - a!.match!.score);
 
-            this.filteredResults = results.map(r => {
+            this.filteredResults = results.map((r) => {
                 (r!.choice as any)._match = r!.match;
                 return r!.choice;
             });

@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { FormOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { FormOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
@@ -15,7 +15,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
     constructor(options: FormOptions) {
         super(options);
-        this.options.fields.forEach(field => {
+        this.options.fields.forEach((field) => {
             this.values[field.name] = field.initial || '';
         });
         this.cursor = this.values[this.options.fields[0].name].length;
@@ -91,7 +91,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         if (cursorLineIndex !== -1) {
             // Calculate lines up from bottom
             const totalLines = outputLines.length;
-            const linesUp = (totalLines - 1) - cursorLineIndex;
+            const linesUp = totalLines - 1 - cursorLineIndex;
 
             if (linesUp > 0) {
                 this.print(`\x1b[${linesUp}A`);
@@ -107,7 +107,11 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
     protected handleInput(char: string, key: Buffer) {
         // Navigation: Up / Shift+Tab
-        if (this.isUp(char) || (char === '\t' && key /* how to detect Shift+Tab? usually \u001b[Z */) || char === '\u001b[Z') {
+        if (
+            this.isUp(char) ||
+            (char === '\t' && key) /* how to detect Shift+Tab? usually \u001b[Z */ ||
+            char === '\u001b[Z'
+        ) {
             this.validateCurrentField();
             this.moveFocus(-1);
             return;
@@ -122,7 +126,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Enter
         if (char === '\r' || char === '\n') {
-            this.validateCurrentField().then(isValid => {
+            this.validateCurrentField().then((isValid) => {
                 if (isValid) {
                     if (this.activeIndex < this.options.fields.length - 1) {
                         this.moveFocus(1);
@@ -139,7 +143,8 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         const activeField = this.options.fields[this.activeIndex];
         const val = this.values[activeField.name];
 
-        if (char === '\u0008' || char === '\x7f') { // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            // Backspace
             if (this.cursor > 0) {
                 const pre = val.slice(0, this.cursor - 1);
                 const post = val.slice(this.cursor);

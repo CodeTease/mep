@@ -1,10 +1,10 @@
-import { Prompt } from '../base';
-import { BreadcrumbOptions, MouseEvent } from '../types';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { ANSI } from '../ansi';
-import { theme } from '../theme';
+import { Prompt } from '../base';
 import { symbols } from '../symbols';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import { theme } from '../theme';
+import type { BreadcrumbOptions, MouseEvent } from '../types';
 
 interface StackItem {
     path: string;
@@ -49,13 +49,13 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
             await fs.access(dir);
 
             const dirents = await fs.readdir(dir, { withFileTypes: true });
-            let entries = dirents.map(d => ({
+            let entries = dirents.map((d) => ({
                 name: d.name,
-                isDirectory: d.isDirectory()
+                isDirectory: d.isDirectory(),
             }));
 
             if (!this.showHidden) {
-                entries = entries.filter(e => !e.name.startsWith('.'));
+                entries = entries.filter((e) => !e.name.startsWith('.'));
             }
 
             entries.sort((a, b) => {
@@ -83,14 +83,14 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
 
     protected async drillDown() {
         const entry = this.currentEntries[this.cursor];
-        if (!entry || !entry.isDirectory) return;
+        if (!entry?.isDirectory) return;
 
         const nextPath = path.join(this.currentPath, entry.name);
 
         this.stack.push({
             path: this.currentPath,
             cursor: this.cursor,
-            scrollTop: this.scrollTop
+            scrollTop: this.scrollTop,
         });
 
         this.currentPath = nextPath;
@@ -135,7 +135,8 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
             // Truncate logic: Keep root and tail segments that fit
             // e.g., root > ... > folder > subfolder
             let suffix = segments[segments.length - 1];
-            for (let i = segments.length - 2; i >= 1; i--) { // Stop before root (index 0)
+            for (let i = segments.length - 2; i >= 1; i--) {
+                // Stop before root (index 0)
                 const next = segments[i] + this.separator + suffix;
                 if (next.length + 4 > availableWidth) break; // +4 for "... "
                 suffix = next;
@@ -187,7 +188,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
                 if (index < visibleEntries.length - 1) output += '\n';
             });
 
-            // Add a hint about navigation if plenty of space? 
+            // Add a hint about navigation if plenty of space?
             // Optional: output += `\n${theme.muted}(Use Arrow Keys, Enter to Select, Backspace to Up)${ANSI.RESET}`;
         }
 
@@ -220,7 +221,7 @@ export class BreadcrumbPrompt extends Prompt<string, BreadcrumbOptions> {
         // Right Arrow
         if (this.isRight(char)) {
             const entry = this.currentEntries[this.cursor];
-            if (entry && entry.isDirectory) {
+            if (entry?.isDirectory) {
                 this.drillDown();
             }
             return;

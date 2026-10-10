@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { SnippetOptions, MouseEvent } from '../types';
+import type { MouseEvent, SnippetOptions } from '../types';
 
 interface Token {
     type: 'static' | 'variable';
@@ -26,7 +26,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
             this.values = { ...options.values };
         }
         // Ensure all vars have entries
-        this.variableTokens.forEach(idx => {
+        this.variableTokens.forEach((idx) => {
             const varName = this.tokens[idx].value;
             if (this.values[varName] === undefined) {
                 this.values[varName] = '';
@@ -172,7 +172,8 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
         const varName = this.tokens[activeTokenIdx].value;
         const val = this.values[varName];
 
-        if (char === '\u0008' || char === '\x7f') { // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            // Backspace
             if (this.cursor > 0) {
                 const pre = val.slice(0, this.cursor - 1);
                 const post = val.slice(this.cursor);
@@ -226,7 +227,7 @@ export class SnippetPrompt extends Prompt<string, SnippetOptions> {
     private submitSnippet() {
         // Construct final string
         let result = '';
-        this.tokens.forEach(token => {
+        this.tokens.forEach((token) => {
             if (token.type === 'static') {
                 result += token.value;
             } else {

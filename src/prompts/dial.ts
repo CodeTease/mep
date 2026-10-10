@@ -1,7 +1,7 @@
-import { Prompt } from '../base';
-import { DialOptions, MouseEvent } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import { theme } from '../theme';
+import type { DialOptions, MouseEvent } from '../types';
 
 export class DialPrompt extends Prompt<number, DialOptions> {
     private currentValue: number;
@@ -41,7 +41,7 @@ export class DialPrompt extends Prompt<number, DialOptions> {
         // Knob usually goes from Bottom-Left (135 deg) to Bottom-Right (405 deg)
         // 0 deg is Right. 90 deg is Down.
         for (let a = 135; a <= 405; a += 10) {
-            const rad = a * Math.PI / 180;
+            const rad = (a * Math.PI) / 180;
             const rX = Math.round(centerX + radius * Math.cos(rad) * 2);
             const rY = Math.round(centerY + radius * Math.sin(rad));
             if (rY >= 0 && rY < height && rX >= 0 && rX < width) {
@@ -53,8 +53,8 @@ export class DialPrompt extends Prompt<number, DialOptions> {
         const totalRange = this.options.max - this.options.min;
         // Avoid division by zero
         const percent = totalRange === 0 ? 0 : (this.currentValue - this.options.min) / totalRange;
-        const angleDeg = 135 + (percent * 270);
-        const rad = angleDeg * Math.PI / 180;
+        const angleDeg = 135 + percent * 270;
+        const rad = (angleDeg * Math.PI) / 180;
 
         const ptrX = Math.round(centerX + radius * Math.cos(rad) * 2);
         const ptrY = Math.round(centerY + radius * Math.sin(rad));

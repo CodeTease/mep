@@ -1,6 +1,6 @@
 import { ANSI } from './ansi';
 import { InputParser } from './input';
-import { BaseOptions, MouseEvent } from './types';
+import type { BaseOptions, MouseEvent } from './types';
 import { detectCapabilities, stringWidth, stripAnsi } from './utils';
 
 /**
@@ -45,7 +45,7 @@ export abstract class Prompt<T, O> {
         if (process.platform === 'win32' && !Prompt.warnedComponents.has(componentName)) {
             console.warn(
                 `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} ${componentName} may hang on Windows TTY after multiple cycles. ` +
-                `Press 'Enter' if unresponsive.`
+                    `Press 'Enter' if unresponsive.`,
             );
             Prompt.warnedComponents.add(componentName);
         }
@@ -61,7 +61,7 @@ export abstract class Prompt<T, O> {
         if (!Prompt.warnedComponents.has(componentName)) {
             console.warn(
                 `${ANSI.FG_YELLOW}Warning:${ANSI.RESET} ${componentName} is an experimental prompt and may have bugs or unexpected behavior. ` +
-                `Use with caution.`
+                    `Use with caution.`,
             );
             Prompt.warnedComponents.add(componentName);
         }
@@ -69,7 +69,7 @@ export abstract class Prompt<T, O> {
 
     protected abstract render(firstRender: boolean): void;
     protected abstract handleInput(char: string, key: Buffer): void;
-    protected handleMouse(_event: MouseEvent): void { }
+    protected handleMouse(_event: MouseEvent): void {}
 
     protected print(text: string) {
         this.stdout.write(text);
@@ -97,7 +97,8 @@ export abstract class Prompt<T, O> {
             this.render(true);
 
             this._onKeyHandler = (char: string, buffer: Buffer) => {
-                if (char === '\u0003') { // Ctrl+C
+                if (char === '\u0003') {
+                    // Ctrl+C
                     this.cleanup();
                     this.print(ANSI.SHOW_CURSOR + '\n');
                     if (this._reject) this._reject(new Error('User force closed'));
@@ -185,7 +186,7 @@ export abstract class Prompt<T, O> {
         const rawLines = content.split('\n');
 
         // Truncate lines to prevent wrapping artifacts
-        const newLines = rawLines.map(line => this.truncate(line, width));
+        const newLines = rawLines.map((line) => this.truncate(line, width));
 
         // 1. First Render Case
         if (this.lastRenderLines.length === 0) {

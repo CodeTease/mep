@@ -29,9 +29,9 @@ export const ANSI = {
     BG_RED: '\x1b[41m',
 
     // Cursor & Erasing
-    ERASE_LINE: '\x1b[2K',      // Clear current line
-    ERASE_DOWN: '\x1b[J',       // Clear from cursor to end of screen
-    CURSOR_LEFT: '\x1b[1000D',  // Move cursor to start of line
+    ERASE_LINE: '\x1b[2K', // Clear current line
+    ERASE_DOWN: '\x1b[J', // Clear from cursor to end of screen
+    CURSOR_LEFT: '\x1b[1000D', // Move cursor to start of line
     HIDE_CURSOR: '\x1b[?25l',
     SHOW_CURSOR: '\x1b[?25h',
     UP: '\x1b[A',

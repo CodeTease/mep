@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { DateOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { DateOptions, MouseEvent } from '../types';
 
 // --- Implementation: Date Prompt ---
 export class DatePrompt extends Prompt<Date, DateOptions> {
@@ -60,7 +60,8 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
             return;
         }
 
-        if (char === '\t' || this.isRight(char)) { // Right / Tab
+        if (char === '\t' || this.isRight(char)) {
+            // Right / Tab
             if (char === '\t') {
                 this.selectedField = (this.selectedField + 1) % 5;
             } else {
@@ -72,7 +73,8 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
             return;
         }
 
-        if (char === '\x1b[Z' || this.isLeft(char)) { // Left / Shift+Tab
+        if (char === '\x1b[Z' || this.isLeft(char)) {
+            // Left / Shift+Tab
             if (char === '\x1b[Z') {
                 this.selectedField = (this.selectedField - 1 + 5) % 5;
             } else {
@@ -98,8 +100,8 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
 
             if (this.selectedField === 1 && (val < 1 || val > 12)) valid = false; // Month
             if (this.selectedField === 2 && (val < 1 || val > 31)) valid = false; // Day (rough check)
-            if (this.selectedField === 3 && (val > 23)) valid = false; // Hour
-            if (this.selectedField === 4 && (val > 59)) valid = false; // Minute
+            if (this.selectedField === 3 && val > 23) valid = false; // Hour
+            if (this.selectedField === 4 && val > 59) valid = false; // Minute
 
             if (!valid) {
                 nextBuffer = char;
@@ -112,8 +114,7 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
 
             if (this.selectedField === 0) {
                 d.setFullYear(finalVal);
-            }
-            else if (this.selectedField === 1) d.setMonth(Math.max(0, Math.min(11, finalVal - 1)));
+            } else if (this.selectedField === 1) d.setMonth(Math.max(0, Math.min(11, finalVal - 1)));
             else if (this.selectedField === 2) d.setDate(Math.max(1, Math.min(31, finalVal)));
             else if (this.selectedField === 3) d.setHours(Math.max(0, Math.min(23, finalVal)));
             else if (this.selectedField === 4) d.setMinutes(Math.max(0, Math.min(59, finalVal)));
@@ -158,11 +159,21 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
         const d = new Date(this.value);
 
         switch (this.selectedField) {
-            case 0: d.setFullYear(d.getFullYear() + dir); break;
-            case 1: d.setMonth(d.getMonth() + dir); break;
-            case 2: d.setDate(d.getDate() + dir); break;
-            case 3: d.setHours(d.getHours() + dir); break;
-            case 4: d.setMinutes(d.getMinutes() + dir); break;
+            case 0:
+                d.setFullYear(d.getFullYear() + dir);
+                break;
+            case 1:
+                d.setMonth(d.getMonth() + dir);
+                break;
+            case 2:
+                d.setDate(d.getDate() + dir);
+                break;
+            case 3:
+                d.setHours(d.getHours() + dir);
+                break;
+            case 4:
+                d.setMinutes(d.getMinutes() + dir);
+                break;
         }
 
         this.value = d;

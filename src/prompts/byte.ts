@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { ByteOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { ByteOptions, MouseEvent } from '../types';
 
 const UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
 
@@ -71,14 +71,14 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
         // Enter
         if (char === '\r' || char === '\n') {
             const finalVal = parseFloat(this.buffer);
-            if (isNaN(finalVal)) {
+            if (Number.isNaN(finalVal)) {
                 this.errorMsg = 'Invalid number';
                 this.render(false);
                 return;
             }
 
             // Calculate Bytes: value * 1024^index
-            const bytes = finalVal * Math.pow(1024, this.unitIndex);
+            const bytes = finalVal * 1024 ** this.unitIndex;
 
             // Min/Max Validation (in bytes)
             if (this.options.min !== undefined && bytes < this.options.min) {
@@ -104,7 +104,8 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
             }
             return;
         }
-        if (char === '\x1b[Z' || this.isLeft(char)) { // Shift+Tab or Left
+        if (char === '\x1b[Z' || this.isLeft(char)) {
+            // Shift+Tab or Left
             if (this.unitIndex > 0) {
                 this.unitIndex--;
                 this.render(false);
@@ -153,7 +154,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
     private formatBytes(bytes: number): string {
         if (bytes === 0) return '0 B';
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + UNITS[i];
+        return parseFloat((bytes / 1024 ** i).toFixed(2)) + ' ' + UNITS[i];
     }
 
     protected handleMouse(event: MouseEvent) {

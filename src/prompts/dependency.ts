@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { DependencyOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { DependencyOptions, MouseEvent } from '../types';
 
 export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
     private selectedIndex: number = 0;
@@ -18,7 +18,7 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
         super(options);
         // Initialize checked state from options (default selected)
         // We also need to run initial validation/resolution
-        this.checkedState = options.choices.map(c => !!c.selected);
+        this.checkedState = options.choices.map((c) => !!c.selected);
 
         if (options.autoResolve !== false) {
             // Run resolution for all initially selected items
@@ -31,19 +31,20 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
     }
 
     private resolveDependencies(index: number, value: boolean) {
-        // If autoResolve is false, we don't do anything automatically, 
+        // If autoResolve is false, we don't do anything automatically,
         // validation will handle it on submit.
         if (this.options.autoResolve === false) return;
 
         const choices = this.options.choices;
         const visited = new Set<number>();
-        const queue: { idx: number, val: boolean, reason?: string }[] = [];
+        const queue: { idx: number; val: boolean; reason?: string }[] = [];
 
         queue.push({ idx: index, val: value });
 
         // Process queue
         let loops = 0;
-        while (queue.length > 0 && loops < 1000) { // Safety break
+        while (queue.length > 0 && loops < 1000) {
+            // Safety break
             loops++;
             const current = queue.shift()!;
             if (visited.has(current.idx)) continue;
@@ -64,13 +65,13 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
                 // Turning ON
                 // 1. Check Conflicts (Disable items that THIS item conflicts with)
                 if (currentItem.conflictsWith) {
-                    currentItem.conflictsWith.forEach(conflictVal => {
-                        const conflictIdx = choices.findIndex(c => c.value === conflictVal);
+                    currentItem.conflictsWith.forEach((conflictVal) => {
+                        const conflictIdx = choices.findIndex((c) => c.value === conflictVal);
                         if (conflictIdx !== -1 && this.checkedState[conflictIdx]) {
                             queue.push({
                                 idx: conflictIdx,
                                 val: false,
-                                reason: `Disabled ${choices[conflictIdx].title} due to conflict with ${currentItem.title}`
+                                reason: `Disabled ${choices[conflictIdx].title} due to conflict with ${currentItem.title}`,
                             });
                         }
                     });
@@ -82,36 +83,36 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
                     // Skip self and unchecked items
                     if (otherIdx === current.idx || !this.checkedState[otherIdx]) return;
 
-                    if (other.conflictsWith && other.conflictsWith.includes(currentItem.value)) {
+                    if (other.conflictsWith?.includes(currentItem.value)) {
                         queue.push({
                             idx: otherIdx,
                             val: false,
-                            reason: `Disabled ${other.title} because it conflicts with ${currentItem.title}`
+                            reason: `Disabled ${other.title} because it conflicts with ${currentItem.title}`,
                         });
                     }
                 });
                 // 2. Check Dependencies (Enable them)
                 if (currentItem.dependsOn) {
-                    currentItem.dependsOn.forEach(depVal => {
-                        const depIdx = choices.findIndex(c => c.value === depVal);
+                    currentItem.dependsOn.forEach((depVal) => {
+                        const depIdx = choices.findIndex((c) => c.value === depVal);
                         if (depIdx !== -1 && !this.checkedState[depIdx]) {
                             queue.push({
                                 idx: depIdx,
                                 val: true,
-                                reason: `Enabled ${choices[depIdx].title} because ${currentItem.title} requires it`
+                                reason: `Enabled ${choices[depIdx].title} because ${currentItem.title} requires it`,
                             });
                         }
                     });
                 }
                 // 3. Check Triggers (Enable them)
                 if (currentItem.triggers) {
-                    currentItem.triggers.forEach(trigVal => {
-                        const trigIdx = choices.findIndex(c => c.value === trigVal);
+                    currentItem.triggers.forEach((trigVal) => {
+                        const trigIdx = choices.findIndex((c) => c.value === trigVal);
                         if (trigIdx !== -1 && !this.checkedState[trigIdx]) {
                             queue.push({
                                 idx: trigIdx,
                                 val: true,
-                                reason: `Triggered ${choices[trigIdx].title} from ${currentItem.title}`
+                                reason: `Triggered ${choices[trigIdx].title} from ${currentItem.title}`,
                             });
                         }
                     });
@@ -120,11 +121,11 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
                 // Turning OFF
                 // Check if other ON items depend on this one. If so, disable them.
                 choices.forEach((other, otherIdx) => {
-                    if (this.checkedState[otherIdx] && other.dependsOn && other.dependsOn.includes(currentItem.value)) {
+                    if (this.checkedState[otherIdx] && other.dependsOn?.includes(currentItem.value)) {
                         queue.push({
                             idx: otherIdx,
                             val: false,
-                            reason: `Disabled ${other.title} because it depends on ${currentItem.title}`
+                            reason: `Disabled ${other.title} because it depends on ${currentItem.title}`,
                         });
                     }
                 });
@@ -164,9 +165,7 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
                 ? `${theme.success}${symbols.checked}${ANSI.RESET}`
                 : `${theme.muted}${symbols.unchecked}${ANSI.RESET}`;
 
-            let title = actualIndex === this.selectedIndex
-                ? `${theme.main}${choice.title}${ANSI.RESET}`
-                : choice.title;
+            let title = actualIndex === this.selectedIndex ? `${theme.main}${choice.title}${ANSI.RESET}` : choice.title;
 
             // Add tags for relationships
             if (choice.dependsOn && choice.dependsOn.length > 0) {
@@ -218,7 +217,7 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
             }
 
             // Dependency Logic Check (if autoResolve was off, or double check)
-            // Even if autoResolve is on, we check for cycles or invalid states that might have slipped? 
+            // Even if autoResolve is on, we check for cycles or invalid states that might have slipped?
             // Or just check if manual toggle left things broken (if autoResolve is OFF).
             if (this.options.autoResolve === false) {
                 const invalid = this.validateDependencies();
@@ -231,9 +230,7 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
 
             this.cleanup();
 
-            const results = this.options.choices
-                .filter((_, i) => this.checkedState[i])
-                .map(c => c.value);
+            const results = this.options.choices.filter((_, i) => this.checkedState[i]).map((c) => c.value);
 
             this.submit(results);
             return;
@@ -268,11 +265,13 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
             this.render(false);
         }
 
-        if (this.isUp(char)) { // Up
+        if (this.isUp(char)) {
+            // Up
             this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.choices.length - 1;
             this.render(false);
         }
-        if (this.isDown(char)) { // Down
+        if (this.isDown(char)) {
+            // Down
             this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
             this.render(false);
         }
@@ -288,7 +287,7 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
             // Check dependencies
             if (item.dependsOn) {
                 for (const depVal of item.dependsOn) {
-                    const depIdx = choices.findIndex(c => c.value === depVal);
+                    const depIdx = choices.findIndex((c) => c.value === depVal);
                     if (depIdx === -1 || !this.checkedState[depIdx]) {
                         return `${item.title} requires ${depVal}`; // Should look up title for depVal ideally
                     }
@@ -298,7 +297,7 @@ export class DependencyPrompt<V> extends Prompt<V[], DependencyOptions<V>> {
             // Check conflicts
             if (item.conflictsWith) {
                 for (const conVal of item.conflictsWith) {
-                    const conIdx = choices.findIndex(c => c.value === conVal);
+                    const conIdx = choices.findIndex((c) => c.value === conVal);
                     if (conIdx !== -1 && this.checkedState[conIdx]) {
                         return `${item.title} conflicts with ${choices[conIdx].title}`;
                     }

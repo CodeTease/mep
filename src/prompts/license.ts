@@ -1,32 +1,32 @@
 import { ANSI } from '../ansi';
-import { SelectPrompt } from './select';
-import { theme } from '../theme';
-import { symbols } from '../symbols';
-import { LicenseOptions, License } from '../types';
-import { Layout } from '../utils';
 import { POPULAR_LICENSES } from '../data/licenses';
+import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { License, LicenseOptions } from '../types';
+import { Layout } from '../utils';
+import { SelectPrompt } from './select';
 
 export class LicensePrompt extends SelectPrompt<string> {
     private licenses: License[];
 
     constructor(options: LicenseOptions) {
         // Map licenses to choices expected by SelectPrompt
-        const choices = POPULAR_LICENSES.map(l => ({
+        const choices = POPULAR_LICENSES.map((l) => ({
             title: l.id,
             value: l.id,
-            description: l.name
+            description: l.name,
         }));
 
         super({
             ...options,
-            choices
+            choices,
         });
 
         this.licenses = POPULAR_LICENSES;
 
         // Set initial selection if provided
         if (options.defaultLicense) {
-            const idx = this.licenses.findIndex(l => l.id === options.defaultLicense);
+            const idx = this.licenses.findIndex((l) => l.id === options.defaultLicense);
             if (idx !== -1) {
                 (this as any).selectedIndex = idx;
             }
@@ -114,7 +114,7 @@ export class LicensePrompt extends SelectPrompt<string> {
         const selectedChoice = choices[this.selectedIndex];
         if (!selectedChoice || 'separator' in selectedChoice) return '';
 
-        const license = this.licenses.find(l => l.id === selectedChoice.value);
+        const license = this.licenses.find((l) => l.id === selectedChoice.value);
 
         if (!license) return '';
 
@@ -122,14 +122,19 @@ export class LicensePrompt extends SelectPrompt<string> {
         output += `${ANSI.BOLD}${license.name}${ANSI.RESET}\n`;
 
         const wrappedDesc = Layout.wrap(license.description, maxWidth);
-        const coloredDesc = wrappedDesc.split('\n').map(line => `${theme.muted}${line}${ANSI.RESET}`).join('\n');
+        const coloredDesc = wrappedDesc
+            .split('\n')
+            .map((line) => `${theme.muted}${line}${ANSI.RESET}`)
+            .join('\n');
 
         output += `${coloredDesc}\n\n`;
 
         // Permissions
         if (license.permissions.length > 0) {
             output += `${ANSI.FG_GREEN}Permissions:${ANSI.RESET}\n`;
-            license.permissions.forEach(p => output += ` ${theme.success}${symbols.checked} ${p}${ANSI.RESET}\n`);
+            license.permissions.forEach((p) => {
+                output += ` ${theme.success}${symbols.checked} ${p}${ANSI.RESET}\n`;
+            });
             output += '\n';
         }
 
@@ -137,14 +142,18 @@ export class LicensePrompt extends SelectPrompt<string> {
         if (license.conditions.length > 0) {
             output += `${ANSI.FG_BLUE}Conditions:${ANSI.RESET}\n`;
             // symbols.info doesn't exist, use 'i' or similar
-            license.conditions.forEach(c => output += ` ${ANSI.FG_BLUE}ℹ ${c}${ANSI.RESET}\n`);
+            license.conditions.forEach((c) => {
+                output += ` ${ANSI.FG_BLUE}ℹ ${c}${ANSI.RESET}\n`;
+            });
             output += '\n';
         }
 
         // Limitations
         if (license.limitations.length > 0) {
             output += `${ANSI.FG_RED}Limitations:${ANSI.RESET}\n`;
-            license.limitations.forEach(l => output += ` ${theme.error}${symbols.cross} ${l}${ANSI.RESET}\n`);
+            license.limitations.forEach((l) => {
+                output += ` ${theme.error}${symbols.cross} ${l}${ANSI.RESET}\n`;
+            });
         }
 
         return output;

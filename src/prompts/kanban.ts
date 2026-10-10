@@ -1,6 +1,6 @@
-import { Prompt } from '../base';
-import { KanbanOptions, KanbanItem, KanbanColumn, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import type { KanbanColumn, KanbanItem, KanbanOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[]>, KanbanOptions<V>> {
@@ -48,46 +48,47 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
         const viewportHeight = 10;
 
         for (let r = 0; r < viewportHeight; r++) {
-            const rowLine = this.columns.map((col, cIndex) => {
-                const scrollTop = this.scrollStates[cIndex];
-                const itemIndex = r + scrollTop;
-                const item = col.items[itemIndex];
+            const rowLine = this.columns
+                .map((col, cIndex) => {
+                    const scrollTop = this.scrollStates[cIndex];
+                    const itemIndex = r + scrollTop;
+                    const item = col.items[itemIndex];
 
-                let content = '';
-                if (item) {
-                    const isCursor = cIndex === this.activeCol && itemIndex === this.activeRow;
-                    let prefix = ' ';
-                    const suffix = ' ';
-                    let style = '';
+                    let content = '';
+                    if (item) {
+                        const isCursor = cIndex === this.activeCol && itemIndex === this.activeRow;
+                        let prefix = ' ';
+                        const suffix = ' ';
+                        let style = '';
 
-                    if (isCursor) {
-                        if (this.grabbed) {
-                            style = ANSI.BG_YELLOW + ANSI.FG_BLACK;
-                            prefix = '>';
-                        } else {
-                            style = ANSI.FG_CYAN + ANSI.BOLD;
-                            prefix = '>';
+                        if (isCursor) {
+                            if (this.grabbed) {
+                                style = ANSI.BG_YELLOW + ANSI.FG_BLACK;
+                                prefix = '>';
+                            } else {
+                                style = ANSI.FG_CYAN + ANSI.BOLD;
+                                prefix = '>';
+                            }
                         }
-                    }
 
-                    const title = this.truncate(item.title, colWidth - 4);
-                    content = `${prefix} ${title}${suffix}`;
-                    content = content.padEnd(colWidth);
+                        const title = this.truncate(item.title, colWidth - 4);
+                        content = `${prefix} ${title}${suffix}`;
+                        content = content.padEnd(colWidth);
 
-                    const plain = `${prefix} ${title}${suffix}`.padEnd(colWidth);
+                        const plain = `${prefix} ${title}${suffix}`.padEnd(colWidth);
 
-                    if (style) {
-                        content = style + plain + ANSI.RESET;
+                        if (style) {
+                            content = style + plain + ANSI.RESET;
+                        } else {
+                            content = plain;
+                        }
                     } else {
-                        content = plain;
+                        // Empty slot
+                        content = ' '.repeat(colWidth);
                     }
-
-                } else {
-                    // Empty slot
-                    content = ' '.repeat(colWidth);
-                }
-                return content;
-            }).join('');
+                    return content;
+                })
+                .join('');
 
             output += rowLine + '\n';
         }
@@ -144,16 +145,18 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
     }
 
     protected handleInput(char: string, _key: Buffer): void {
-        if (char === '\r' || char === '\n') { // Enter
+        if (char === '\r' || char === '\n') {
+            // Enter
             const result: Record<string, V[]> = {};
-            this.columns.forEach(c => {
+            this.columns.forEach((c) => {
                 result[c.id] = c.items;
             });
             this.submit(result);
             return;
         }
 
-        if (char === ' ') { // Space
+        if (char === ' ') {
+            // Space
             this.grabbed = !this.grabbed;
             this.render(false);
             return;

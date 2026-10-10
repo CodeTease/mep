@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { EmojiOptions, EmojiItem, MouseEvent } from '../types';
+import type { EmojiItem, EmojiOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class EmojiPrompt extends Prompt<string, EmojiOptions> {
@@ -55,10 +55,11 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
             this.filtered = this.sortedEmojis;
         } else {
             const lowerSearch = this.search.toLowerCase();
-            this.filtered = this.sortedEmojis.filter(e =>
-                e.name.toLowerCase().includes(lowerSearch) ||
-                (e.description && e.description.toLowerCase().includes(lowerSearch)) ||
-                e.char === this.search // Allow searching by exact char
+            this.filtered = this.sortedEmojis.filter(
+                (e) =>
+                    e.name.toLowerCase().includes(lowerSearch) ||
+                    e.description?.toLowerCase().includes(lowerSearch) ||
+                    e.char === this.search, // Allow searching by exact char
             );
         }
         this.cursor = 0;
@@ -69,7 +70,9 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
         // Prepare header (Search bar)
         const icon = `${theme.success}?`;
         const title = `${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}`;
-        const searchDisplay = this.search ? `${theme.main}${this.search}${ANSI.RESET}` : `${theme.muted}Type to search...${ANSI.RESET}`;
+        const searchDisplay = this.search
+            ? `${theme.main}${this.search}${ANSI.RESET}`
+            : `${theme.muted}Type to search...${ANSI.RESET}`;
 
         let output = `${icon} ${title} ${searchDisplay}\n`;
 

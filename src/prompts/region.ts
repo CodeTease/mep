@@ -1,16 +1,15 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { RegionOptions, MouseEvent, MapRegion } from '../types';
+import type { MapRegion, MouseEvent, RegionOptions } from '../types';
 
 export class RegionPrompt extends Prompt<string, RegionOptions> {
     private cursorIndex: number = 0;
-    private errorMsg: string = '';
 
     constructor(options: RegionOptions) {
         super(options);
         if (options.initial) {
-            const idx = options.regions.findIndex(r => r.id === options.initial);
+            const idx = options.regions.findIndex((r) => r.id === options.initial);
             if (idx !== -1) this.cursorIndex = idx;
         }
     }
@@ -24,7 +23,7 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
         // Prepare Map Buffer
         const lines = this.options.mapArt.split('\n');
         const height = lines.length;
-        const width = Math.max(...lines.map(l => l.length));
+        const width = Math.max(...lines.map((l) => l.length));
 
         // Overlay regions
         // We will build the output line by line.
@@ -35,13 +34,13 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
             if (line.length < width) line += ' '.repeat(width - line.length);
 
             // Check for regions on this line
-            const regionsOnLine = this.options.regions.filter(r => Math.round(r.y) === y);
+            const regionsOnLine = this.options.regions.filter((r) => Math.round(r.y) === y);
 
             // Reconstruct line with overlays
             // This is naive string replacement; might break if overlaps
             const lineBuffer = line.split('');
 
-            regionsOnLine.forEach(r => {
+            regionsOnLine.forEach((r) => {
                 const label = r.label || '•';
 
                 // Draw label starting at r.x
@@ -59,10 +58,9 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
             let renderedLine = '';
             for (let x = 0; x < lineBuffer.length; x++) {
                 // Check if this x,y belongs to a region
-                const activeRegion = this.options.regions.find(r =>
-                    Math.round(r.y) === y &&
-                    x >= Math.round(r.x) &&
-                    x < Math.round(r.x) + (r.label || '•').length
+                const activeRegion = this.options.regions.find(
+                    (r) =>
+                        Math.round(r.y) === y && x >= Math.round(r.x) && x < Math.round(r.x) + (r.label || '•').length,
                 );
 
                 if (activeRegion) {
@@ -81,7 +79,7 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
 
         // Region Description
         const currentRegion = this.options.regions[this.cursorIndex];
-        if (currentRegion && currentRegion.description) {
+        if (currentRegion?.description) {
             output += `\n${theme.main}❯ ${ANSI.BOLD}${currentRegion.id}${ANSI.RESET}: ${currentRegion.description}`;
         } else {
             output += `\n${theme.main}❯ ${ANSI.BOLD}${currentRegion.id}${ANSI.RESET}`;
@@ -150,7 +148,7 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
             }
 
             if (isValid) {
-                const score = distSq + (anglePenalty * anglePenalty * 5); // Heuristic
+                const score = distSq + anglePenalty * anglePenalty * 5; // Heuristic
                 if (score < bestScore) {
                     bestScore = score;
                     bestCandidate = r;

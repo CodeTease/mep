@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { BaseOptions } from '../types';
+import { theme } from '../theme';
+import type { BaseOptions } from '../types';
 
 interface SpamOptions extends BaseOptions {
     threshold: number; // Number of presses required

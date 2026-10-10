@@ -43,8 +43,7 @@ export function detectCapabilities() {
         const lang = env.LANG || '';
         const lcAll = env.LC_ALL || '';
 
-        return (lang && lang.toUpperCase().endsWith('UTF-8')) ||
-            (lcAll && lcAll.toUpperCase().endsWith('UTF-8'));
+        return lang?.toUpperCase().endsWith('UTF-8') || lcAll?.toUpperCase().endsWith('UTF-8');
     };
 
     return {
@@ -54,7 +53,7 @@ export function detectCapabilities() {
         hasUnicode: isTTY && isUnicodeSupported(),
         // Check if mouse should be enabled (TTY and not CI, or explicit override)
         // SGR is widely supported in modern terminals
-        hasMouse: isTTY && !isCI
+        hasMouse: isTTY && !isCI,
     };
 }
 
@@ -71,29 +70,29 @@ export function stripAnsi(str: string): string {
  * Format: [start, end] inclusive.
  */
 const WIDE_RANGES: [number, number][] = [
-    [0x1100, 0x11FF], // Hangul Jamo
-    [0x2E80, 0x2EFF], // CJK Radicals Supplement
-    [0x2F00, 0x2FDF], // Kangxi Radicals
-    [0x3000, 0x303F], // CJK Symbols and Punctuation
-    [0x3040, 0x309F], // Hiragana
-    [0x30A0, 0x30FF], // Katakana
-    [0x3100, 0x312F], // Bopomofo
-    [0x3130, 0x318F], // Hangul Compatibility Jamo
-    [0x3200, 0x32FF], // Enclosed CJK Letters and Months
-    [0x3300, 0x33FF], // CJK Compatibility
-    [0x3400, 0x4DBF], // CJK Unified Ideographs Extension A
-    [0x4E00, 0x9FFF], // CJK Unified Ideographs
-    [0xA960, 0xA97F], // Hangul Jamo Extended-A
-    [0xAC00, 0xD7AF], // Hangul Syllables
-    [0xD7B0, 0xD7FF], // Hangul Jamo Extended-B
-    [0xF900, 0xFAFF], // CJK Compatibility Ideographs
-    [0xFE10, 0xFE1F], // Vertical Forms
-    [0xFE30, 0xFE4F], // CJK Compatibility Forms
-    [0xFE50, 0xFE6F], // Small Form Variants
-    [0xFF01, 0xFF60], // Fullwidth ASCII variants
-    [0xFFE0, 0xFFE6], // Fullwidth currency/symbols
-    [0x1F300, 0x1F6FF], // Miscellaneous Symbols and Pictographs (Emoji)
-    [0x1F900, 0x1F9FF], // Supplemental Symbols and Pictographs
+    [0x1100, 0x11ff], // Hangul Jamo
+    [0x2e80, 0x2eff], // CJK Radicals Supplement
+    [0x2f00, 0x2fdf], // Kangxi Radicals
+    [0x3000, 0x303f], // CJK Symbols and Punctuation
+    [0x3040, 0x309f], // Hiragana
+    [0x30a0, 0x30ff], // Katakana
+    [0x3100, 0x312f], // Bopomofo
+    [0x3130, 0x318f], // Hangul Compatibility Jamo
+    [0x3200, 0x32ff], // Enclosed CJK Letters and Months
+    [0x3300, 0x33ff], // CJK Compatibility
+    [0x3400, 0x4dbf], // CJK Unified Ideographs Extension A
+    [0x4e00, 0x9fff], // CJK Unified Ideographs
+    [0xa960, 0xa97f], // Hangul Jamo Extended-A
+    [0xac00, 0xd7af], // Hangul Syllables
+    [0xd7b0, 0xd7ff], // Hangul Jamo Extended-B
+    [0xf900, 0xfaff], // CJK Compatibility Ideographs
+    [0xfe10, 0xfe1f], // Vertical Forms
+    [0xfe30, 0xfe4f], // CJK Compatibility Forms
+    [0xfe50, 0xfe6f], // Small Form Variants
+    [0xff01, 0xff60], // Fullwidth ASCII variants
+    [0xffe0, 0xffe6], // Fullwidth currency/symbols
+    [0x1f300, 0x1f6ff], // Miscellaneous Symbols and Pictographs (Emoji)
+    [0x1f900, 0x1f9ff], // Supplemental Symbols and Pictographs
 ];
 
 /**
@@ -140,7 +139,7 @@ export function stringWidth(str: string): number {
                 // Continue, this is the start of CSI
                 continue;
             }
-            if ((str[i] >= '@' && str[i] <= '~')) {
+            if (str[i] >= '@' && str[i] <= '~') {
                 inAnsi = false;
             }
             continue;
@@ -148,11 +147,11 @@ export function stringWidth(str: string): number {
 
         // Handle surrogate pairs for high code points (Emoji)
         let cp = code;
-        if (code >= 0xD800 && code <= 0xDBFF && i + 1 < str.length) {
+        if (code >= 0xd800 && code <= 0xdbff && i + 1 < str.length) {
             const next = str.charCodeAt(i + 1);
-            if (next >= 0xDC00 && next <= 0xDFFF) {
+            if (next >= 0xdc00 && next <= 0xdfff) {
                 // Calculate code point from surrogate pair
-                cp = (code - 0xD800) * 0x400 + (next - 0xDC00) + 0x10000;
+                cp = (code - 0xd800) * 0x400 + (next - 0xdc00) + 0x10000;
                 i++; // Skip next char
             }
         }
@@ -167,7 +166,7 @@ export function stringWidth(str: string): number {
  * Uses Intl.Segmenter (Node 16+).
  */
 export function safeSplit(str: string): string[] {
-    // @ts-ignore - Intl.Segmenter is available in Node 16+ but TS might complain depending on lib settings
+    // @ts-expect-error - Intl.Segmenter is available in Node 16+ but TS might complain depending on lib settings
     const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
     const segments = segmenter.segment(str);
     const result: string[] = [];
@@ -208,7 +207,7 @@ export function fuzzyMatch(query: string, target: string): { score: number; indi
             // Bonus: Consecutive match
             if (lastMatchIdx !== -1 && targetIdx === lastMatchIdx + 1) {
                 consecutive++;
-                charScore += (consecutive * 2); // Increasing bonus for longer runs
+                charScore += consecutive * 2; // Increasing bonus for longer runs
             } else {
                 consecutive = 0;
             }
@@ -222,7 +221,10 @@ export function fuzzyMatch(query: string, target: string): { score: number; indi
                 const prevChar = target.charAt(targetIdx - 1);
                 if (/[\s_\-.]/.test(prevChar) || prevChar === '/') {
                     charScore += 4;
-                } else if (prevChar !== prevChar.toUpperCase() && target.charAt(targetIdx) === target.charAt(targetIdx).toUpperCase()) {
+                } else if (
+                    prevChar !== prevChar.toUpperCase() &&
+                    target.charAt(targetIdx) === target.charAt(targetIdx).toUpperCase()
+                ) {
                     // CamelCase hump
                     charScore += 3;
                 }
@@ -276,10 +278,10 @@ export const Layout = {
                 const code = str.charCodeAt(i);
 
                 // Handle surrogate pair
-                if (code >= 0xD800 && code <= 0xDBFF && i + 1 < str.length) {
+                if (code >= 0xd800 && code <= 0xdbff && i + 1 < str.length) {
                     const next = str.charCodeAt(i + 1);
-                    if (next >= 0xDC00 && next <= 0xDFFF) {
-                        const cp = (code - 0xD800) * 0x400 + (next - 0xDC00) + 0x10000;
+                    if (next >= 0xdc00 && next <= 0xdfff) {
+                        const cp = (code - 0xd800) * 0x400 + (next - 0xdc00) + 0x10000;
                         const w = isWideCodePoint(cp) ? 2 : 1;
                         if (currentWidth + w > width) break;
                         currentWidth += w;
@@ -328,7 +330,7 @@ export const Layout = {
      * @param width Total available width
      * @param options Configuration for ratio and gap
      */
-    split(left: string, right: string, width: number, options: { ratio?: number, gap?: number } = {}): string {
+    split(left: string, right: string, width: number, options: { ratio?: number; gap?: number } = {}): string {
         const ratio = options.ratio ?? 0.5;
         const gap = options.gap ?? 2;
 
@@ -338,7 +340,7 @@ export const Layout = {
         if (leftWidth < 1 || rightWidth < 1) {
             leftWidth = Math.max(0, width);
             rightWidth = 0;
-            // Fallback to single column if too narrow? 
+            // Fallback to single column if too narrow?
             // For now just prevent crash.
         }
 
@@ -367,27 +369,29 @@ export const Layout = {
      */
     wrap(str: string, width: number): string {
         const paragraphs = str.split('\n');
-        return paragraphs.map(para => {
-            const words = para.split(' ');
-            let currentLine = '';
-            const lines: string[] = [];
+        return paragraphs
+            .map((para) => {
+                const words = para.split(' ');
+                let currentLine = '';
+                const lines: string[] = [];
 
-            for (const word of words) {
-                const wordWidth = stringWidth(word);
-                const currentWidth = stringWidth(currentLine);
-                const spaceWidth = currentLine ? 1 : 0;
+                for (const word of words) {
+                    const wordWidth = stringWidth(word);
+                    const currentWidth = stringWidth(currentLine);
+                    const spaceWidth = currentLine ? 1 : 0;
 
-                if (currentWidth + spaceWidth + wordWidth <= width) {
-                    currentLine += (currentLine ? ' ' : '') + word;
-                } else {
-                    if (currentLine) lines.push(currentLine);
-                    currentLine = word;
+                    if (currentWidth + spaceWidth + wordWidth <= width) {
+                        currentLine += (currentLine ? ' ' : '') + word;
+                    } else {
+                        if (currentLine) lines.push(currentLine);
+                        currentLine = word;
+                    }
                 }
-            }
-            if (currentLine) lines.push(currentLine);
-            return lines.join('\n');
-        }).join('\n');
-    }
+                if (currentLine) lines.push(currentLine);
+                return lines.join('\n');
+            })
+            .join('\n');
+    },
 };
 
 /**
@@ -451,7 +455,7 @@ export const Graph = {
         }
 
         return order;
-    }
+    },
 };
 
 /**

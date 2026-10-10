@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { QuizSelectOptions } from '../types';
+import { theme } from '../theme';
+import type { QuizSelectOptions } from '../types';
 import { SelectPrompt } from './select';
 
 export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
@@ -19,9 +19,7 @@ export class QuizSelectPrompt<V> extends SelectPrompt<V, QuizSelectOptions<V>> {
             if (char === '\r' || char === '\n') {
                 const choices = this.getFilteredChoices();
                 // Ensure index is valid, though it should be captured
-                const value = choices[this.userSelectionIndex]
-                    ? (choices[this.userSelectionIndex] as any).value
-                    : null;
+                const value = choices[this.userSelectionIndex] ? (choices[this.userSelectionIndex] as any).value : null;
                 this.submit(value as V);
             }
             return;

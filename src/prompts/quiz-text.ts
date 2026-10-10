@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { QuizTextOptions } from '../types';
+import { theme } from '../theme';
+import type { QuizTextOptions } from '../types';
 import { TextPrompt } from './text';
 
 export class QuizTextPrompt extends TextPrompt<QuizTextOptions> {
@@ -28,7 +28,7 @@ export class QuizTextPrompt extends TextPrompt<QuizTextOptions> {
             // We caught the submission from TextPrompt logic.
             // Now verify correctness.
 
-            this.checkCorrectness(value).then(correct => {
+            this.checkCorrectness(value).then((correct) => {
                 this.isCorrect = correct;
                 this.status = 'revealed';
                 this.render(false);

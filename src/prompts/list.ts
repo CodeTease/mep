@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { ListOptions } from '../types';
+import { theme } from '../theme';
+import type { ListOptions } from '../types';
 
 // --- Implementation: List Prompt ---
 export class ListPrompt extends Prompt<string[], ListOptions> {
@@ -68,7 +68,7 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
         // 5. Position Cursor
         // If we printed lines after the input line (e.g. error msg), move up.
         const totalRows = lines.length;
-        const linesUp = (totalRows - 1) - inputLineIndex;
+        const linesUp = totalRows - 1 - inputLineIndex;
 
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
@@ -103,7 +103,8 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
             return;
         }
 
-        if (char === '\u0008' || char === '\x7f') { // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            // Backspace
             if (this.currentInput.length > 0) {
                 this.currentInput = this.currentInput.slice(0, -1);
                 this.render(false);

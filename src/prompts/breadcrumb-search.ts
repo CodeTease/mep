@@ -1,10 +1,10 @@
-import { BreadcrumbPrompt } from './breadcrumb';
-import { BreadcrumbOptions, MouseEvent } from '../types';
-import { theme } from '../theme';
+import * as path from 'node:path';
 import { ANSI } from '../ansi';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { BreadcrumbOptions, MouseEvent } from '../types';
 import { fuzzyMatch } from '../utils';
-import * as path from 'path';
+import { BreadcrumbPrompt } from './breadcrumb';
 
 export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
     private isSearchMode: boolean = false;
@@ -70,7 +70,7 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
                 // Drill down
 
                 // Hack: Find index in currentEntries
-                const realIndex = this.currentEntries.findIndex(e => e.name === entry.name);
+                const realIndex = this.currentEntries.findIndex((e) => e.name === entry.name);
                 if (realIndex !== -1) {
                     this.cursor = realIndex;
                     this.drillDown().then(() => {
@@ -120,15 +120,17 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
             return;
         }
 
-        const results = this.currentEntries.map(entry => {
-            const match = fuzzyMatch(this.searchBuffer, entry.name);
-            return { entry, match };
-        }).filter(item => item.match !== null)
+        const results = this.currentEntries
+            .map((entry) => {
+                const match = fuzzyMatch(this.searchBuffer, entry.name);
+                return { entry, match };
+            })
+            .filter((item) => item.match !== null)
             .sort((a, b) => b.match!.score - a.match!.score);
 
-        this.filteredEntries = results.map(r => ({
+        this.filteredEntries = results.map((r) => ({
             ...r.entry,
-            _match: r.match
+            _match: r.match,
         }));
 
         this.searchCursor = 0;

@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { OTPOptions } from '../types';
+import type { OTPOptions } from '../types';
 
 export class OTPPrompt extends Prompt<string, OTPOptions> {
     private slots: string[];
@@ -55,7 +55,7 @@ export class OTPPrompt extends Prompt<string, OTPOptions> {
             // If we are at the last slot
             if (this.cursor === this.length - 1) {
                 // Only submit if all slots are filled
-                if (this.slots.every(s => s !== '')) {
+                if (this.slots.every((s) => s !== '')) {
                     this.render(false); // Update view first
                     this.submit(this.slots.join(''));
                     return;

@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SlotOptions } from '../types';
+import { theme } from '../theme';
+import type { SlotOptions } from '../types';
 import { stringWidth } from '../utils';
 
 export class SlotPrompt extends Prompt<string, SlotOptions> {
@@ -67,7 +67,7 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
         output += `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         // Calculate dynamic width
-        const maxLen = Math.max(...this.options.choices.map(c => stringWidth(c)));
+        const maxLen = Math.max(...this.options.choices.map((c) => stringWidth(c)));
         const boxWidth = Math.max(20, maxLen + 6);
 
         const border = symbols.line.repeat(boxWidth - 2);

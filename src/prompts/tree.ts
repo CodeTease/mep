@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { TreeOptions, TreeNode, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, TreeNode, TreeOptions } from '../types';
 
 interface FlatNode<V> {
     node: TreeNode<V>;
@@ -30,7 +30,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
         this.recalculateFlatList();
 
         if (this.options.initial !== undefined) {
-            const index = this.flatList.findIndex(item => item.node.value === this.options.initial);
+            const index = this.flatList.findIndex((item) => item.node.value === this.options.initial);
             if (index !== -1) {
                 this.cursor = index;
             }
@@ -77,7 +77,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
             this.flatList.push({
                 node,
                 depth,
-                parent
+                parent,
             });
 
             if (node.children && node.children.length > 0 && this.expandedNodes.has(node)) {
@@ -91,7 +91,9 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
         else this.expandedNodes.delete(node);
 
         if (node.children) {
-            node.children.forEach(child => this.toggleRecursive(child, expand));
+            node.children.forEach((child) => {
+                this.toggleRecursive(child, expand);
+            });
         }
     }
 
@@ -213,7 +215,7 @@ export class TreePrompt<V> extends Prompt<V, TreeOptions<V>> {
                 return;
             } else {
                 if (currentItem.parent) {
-                    const parentIndex = this.flatList.findIndex(x => x.node === currentItem.parent);
+                    const parentIndex = this.flatList.findIndex((x) => x.node === currentItem.parent);
                     if (parentIndex !== -1) {
                         this.cursor = parentIndex;
                         this.render(false);

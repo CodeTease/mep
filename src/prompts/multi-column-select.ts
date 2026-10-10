@@ -1,9 +1,9 @@
-import { SelectPrompt } from './select';
-import { MultiColumnSelectOptions, SelectChoice } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
-import { stringWidth } from '../utils';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { MultiColumnSelectOptions, SelectChoice } from '../types';
+import { stringWidth } from '../utils';
+import { SelectPrompt } from './select';
 
 export class MultiColumnSelectPrompt<V> extends SelectPrompt<V, MultiColumnSelectOptions<V>> {
     protected cols: number = 1;
@@ -16,7 +16,7 @@ export class MultiColumnSelectPrompt<V> extends SelectPrompt<V, MultiColumnSelec
 
     private calculateLayout() {
         const termWidth = process.stdout.columns || 80;
-        const choices = this.options.choices.filter(c => !this.isSeparator(c)) as SelectChoice<V>[];
+        const choices = this.options.choices.filter((c) => !this.isSeparator(c)) as SelectChoice<V>[];
 
         if (choices.length === 0) {
             this.cols = 1;
@@ -183,4 +183,3 @@ export class MultiColumnSelectPrompt<V> extends SelectPrompt<V, MultiColumnSelec
         }
     }
 }
-

@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { GridOptions, MouseEvent } from '../types';
+import type { GridOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class GridPrompt extends Prompt<boolean[][], GridOptions> {
@@ -15,11 +15,9 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         super(options);
         // Initialize selection matrix
         if (options.initial) {
-            this.selected = options.initial.map(row => [...row]);
+            this.selected = options.initial.map((row) => [...row]);
         } else {
-            this.selected = options.rows.map(() =>
-                new Array(options.columns.length).fill(false)
-            );
+            this.selected = options.rows.map(() => new Array(options.columns.length).fill(false));
         }
 
         this.calculateLayout();
@@ -33,7 +31,7 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         }
 
         // Calculate width for each column
-        this.columnWidths = this.options.columns.map(col => {
+        this.columnWidths = this.options.columns.map((col) => {
             // Header width vs Cell width (3 chars for "[ ]")
             return Math.max(stringWidth(col), 3);
         });
@@ -48,13 +46,16 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         // Padding for the row label column
         output += ' '.repeat(this.rowLabelWidth + 2); // +2 for spacing/border
 
-        output += columns.map((col, i) => {
-            const width = this.columnWidths[i];
-            const padding = width - stringWidth(col);
-            const leftPad = Math.floor(padding / 2);
-            const rightPad = padding - leftPad;
-            return `${theme.muted}${' '.repeat(leftPad)}${col}${' '.repeat(rightPad)}${ANSI.RESET}`;
-        }).join('  ') + '\n';
+        output +=
+            columns
+                .map((col, i) => {
+                    const width = this.columnWidths[i];
+                    const padding = width - stringWidth(col);
+                    const leftPad = Math.floor(padding / 2);
+                    const rightPad = padding - leftPad;
+                    return `${theme.muted}${' '.repeat(leftPad)}${col}${' '.repeat(rightPad)}${ANSI.RESET}`;
+                })
+                .join('  ') + '\n';
 
         // Render Rows
         for (let r = 0; r < rows.length; r++) {
@@ -66,7 +67,7 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
 
             // Cells
             const cells = this.selected[r].map((isChecked, c) => {
-                const isFocused = (r === this.cursorRow && c === this.cursorCol);
+                const isFocused = r === this.cursorRow && c === this.cursorCol;
                 const width = this.columnWidths[c];
                 const content = isChecked ? `[${theme.success}x${ANSI.RESET}]` : '[ ]';
                 // content string width is 3 (ignoring ansi)
@@ -148,7 +149,7 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         // r: Toggle Row
         if (char === 'r') {
             const row = this.selected[this.cursorRow];
-            const allSelected = row.every(c => c);
+            const allSelected = row.every((c) => c);
             this.selected[this.cursorRow] = row.map(() => !allSelected);
             this.render(false);
             return;
@@ -157,30 +158,32 @@ export class GridPrompt extends Prompt<boolean[][], GridOptions> {
         // c: Toggle Column
         if (char === 'c') {
             const colIdx = this.cursorCol;
-            const colValues = this.selected.map(row => row[colIdx]);
-            const allSelected = colValues.every(c => c);
-            this.selected.forEach(row => row[colIdx] = !allSelected);
+            const colValues = this.selected.map((row) => row[colIdx]);
+            const allSelected = colValues.every((c) => c);
+            this.selected.forEach((row) => {
+                row[colIdx] = !allSelected;
+            });
             this.render(false);
             return;
         }
 
         // a: Select All
         if (char === 'a') {
-            this.selected = this.selected.map(row => row.map(() => true));
+            this.selected = this.selected.map((row) => row.map(() => true));
             this.render(false);
             return;
         }
 
         // x: Deselect All
         if (char === 'x') {
-            this.selected = this.selected.map(row => row.map(() => false));
+            this.selected = this.selected.map((row) => row.map(() => false));
             this.render(false);
             return;
         }
 
         // i: Invert
         if (char === 'i') {
-            this.selected = this.selected.map(row => row.map(v => !v));
+            this.selected = this.selected.map((row) => row.map((v) => !v));
             this.render(false);
             return;
         }

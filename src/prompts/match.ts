@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { MatchOptions, MatchItem, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MatchItem, MatchOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
@@ -28,7 +28,7 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
     }
 
     private normalize(items: (string | MatchItem)[]): MatchItem[] {
-        return items.map(item => {
+        return items.map((item) => {
             if (typeof item === 'string') {
                 return { id: item, label: item, value: item };
             }
@@ -43,10 +43,12 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
         // Adjust Scroll Top
         if (this.activeSide === 'source') {
             if (this.cursorSource < this.scrollTopSource) this.scrollTopSource = this.cursorSource;
-            if (this.cursorSource >= this.scrollTopSource + this.pageSize) this.scrollTopSource = this.cursorSource - this.pageSize + 1;
+            if (this.cursorSource >= this.scrollTopSource + this.pageSize)
+                this.scrollTopSource = this.cursorSource - this.pageSize + 1;
         } else {
             if (this.cursorTarget < this.scrollTopTarget) this.scrollTopTarget = this.cursorTarget;
-            if (this.cursorTarget >= this.scrollTopTarget + this.pageSize) this.scrollTopTarget = this.cursorTarget - this.pageSize + 1;
+            if (this.cursorTarget >= this.scrollTopTarget + this.pageSize)
+                this.scrollTopTarget = this.cursorTarget - this.pageSize + 1;
         }
 
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
@@ -140,13 +142,17 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
                 }
 
                 // Indicator
-                const linkIndicator = isLinkedToRelevant ? `${theme.success}<=${ANSI.RESET}` : (isLinkedToAny ? `${ANSI.DIM}<=${ANSI.RESET}` : '  ');
+                const linkIndicator = isLinkedToRelevant
+                    ? `${theme.success}<=${ANSI.RESET}`
+                    : isLinkedToAny
+                      ? `${ANSI.DIM}<=${ANSI.RESET}`
+                      : '  ';
 
                 targetStr = `${linkIndicator} ${prefix}${title}`;
             }
 
             // Pad Source
-            const sourceVisualLen = itemSource ? (stringWidth(this.stripAnsi(sourceStr))) : 0;
+            const sourceVisualLen = itemSource ? stringWidth(this.stripAnsi(sourceStr)) : 0;
             const padding = ' '.repeat(Math.max(0, colWidth - sourceVisualLen + 2)); // +2 extra space
 
             output += sourceStr + padding + '    ' + targetStr + '\n';
@@ -211,7 +217,6 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
                     } else {
                         // Link
                         if (this.options.constraints?.oneToMany === false) {
-
                             for (const [otherSId, tIds] of Array.from(this.links.entries())) {
                                 if (otherSId !== sId && tIds.has(tId)) {
                                     tIds.delete(tId);
@@ -233,7 +238,7 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
             // Check Required Constraint
             if (this.options.constraints?.required) {
                 // Check if all sources have at least one link
-                const allLinked = this.source.every(s => {
+                const allLinked = this.source.every((s) => {
                     return this.links.has(s.id) && this.links.get(s.id)!.size > 0;
                 });
 
@@ -247,8 +252,8 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
             for (const [sId, tIds] of Array.from(this.links.entries())) {
                 if (tIds.size > 0) {
                     // Map Target IDs back to Values
-                    const values = Array.from(tIds).map(tid => {
-                        return this.target.find(t => t.id === tid)?.value;
+                    const values = Array.from(tIds).map((tid) => {
+                        return this.target.find((t) => t.id === tid)?.value;
                     });
                     result[sId] = values;
                 }
@@ -258,7 +263,8 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
         }
 
         // Escape / Backspace to go back to Source
-        if (char === '\u001b' || char === '\u0008' || char === '\x7f' || char === 'h') { // h for vim left
+        if (char === '\u001b' || char === '\u0008' || char === '\x7f' || char === 'h') {
+            // h for vim left
             if (this.activeSide === 'target') {
                 this.activeSide = 'source';
                 this.pickedSourceIndex = null;

@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { MapOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MapOptions, MouseEvent } from '../types';
 import { stringWidth } from '../utils';
 
 interface MapItem {
@@ -37,14 +37,15 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         // Layout Calculation
-        const maxKeyWidth = Math.max(
-            5, // Minimum width
-            ...this.items.map((item, idx) => {
-                // Include ghost length in calculation if it's the active row
-                const ghostLen = (idx === this.rowIndex && this.colIndex === 0) ? stringWidth(this.ghost) : 0;
-                return stringWidth(item.key) + ghostLen;
-            })
-        ) + 2; // Padding
+        const maxKeyWidth =
+            Math.max(
+                5, // Minimum width
+                ...this.items.map((item, idx) => {
+                    // Include ghost length in calculation if it's the active row
+                    const ghostLen = idx === this.rowIndex && this.colIndex === 0 ? stringWidth(this.ghost) : 0;
+                    return stringWidth(item.key) + ghostLen;
+                }),
+            ) + 2; // Padding
 
         // Scrolling Logic
         if (this.rowIndex < this.scrollTop) {
@@ -73,7 +74,7 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
             // Render Key
             let keyStr = item.key;
             let ghostStr = '';
-            
+
             if (isRowActive && this.colIndex === 0) {
                 if (this.ghost) {
                     ghostStr = `${theme.muted}${this.ghost}${ANSI.RESET}`;
@@ -83,7 +84,8 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
 
             // Adjust padding manually
             // We need visual width of key + ghost (if active)
-            const keyVisualWidth = stringWidth(item.key) + (isRowActive && this.colIndex === 0 ? stringWidth(this.ghost) : 0);
+            const keyVisualWidth =
+                stringWidth(item.key) + (isRowActive && this.colIndex === 0 ? stringWidth(this.ghost) : 0);
             const padding = ' '.repeat(Math.max(0, maxKeyWidth - keyVisualWidth));
 
             // Render Value
@@ -124,15 +126,17 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
     private updateGhost() {
         this.ghost = '';
         if (this.colIndex !== 0 || !this.options.suggestions) return;
-        
+
         const currentKey = this.items[this.rowIndex].key;
         if (!currentKey) return;
 
         const lowerKey = currentKey.toLowerCase();
-        
+
         // Find first match
-        const match = this.options.suggestions.find(s => s.toLowerCase().startsWith(lowerKey) && s.length > currentKey.length);
-        
+        const match = this.options.suggestions.find(
+            (s) => s.toLowerCase().startsWith(lowerKey) && s.length > currentKey.length,
+        );
+
         if (match) {
             this.ghost = match.slice(currentKey.length);
         }
@@ -170,7 +174,7 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
                 // Down at last row adds new row
                 this.items.push({ key: '', value: '' });
                 this.rowIndex++;
-                this.colIndex = 0; 
+                this.colIndex = 0;
             }
             this.ghost = '';
             this.render(false);
@@ -184,7 +188,8 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
         }
 
         // CRUD
-        if (char === '\x0e') { // Ctrl+N
+        if (char === '\x0e') {
+            // Ctrl+N
             this.items.push({ key: '', value: '' });
             this.rowIndex = this.items.length - 1;
             this.colIndex = 0;
@@ -193,7 +198,8 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
             return;
         }
 
-        if (char === '\x04') { // Ctrl+D
+        if (char === '\x04') {
+            // Ctrl+D
             if (this.items.length > 1) {
                 this.items.splice(this.rowIndex, 1);
                 if (this.rowIndex >= this.items.length) {
@@ -210,21 +216,21 @@ export class MapPrompt extends Prompt<Record<string, string>, MapOptions> {
         // Submit
         if (char === '\r' || char === '\n') {
             // Validate duplicates
-            const keys = this.items.map(i => i.key);
+            const keys = this.items.map((i) => i.key);
             const duplicates = keys.filter((item, index) => keys.indexOf(item) !== index && item !== '');
             if (duplicates.length > 0) {
                 this.errorMsg = `Duplicate keys found: ${duplicates.join(', ')}`;
                 this.render(false);
                 return;
             }
-            if (keys.some(k => k === '')) {
+            if (keys.some((k) => k === '')) {
                 this.errorMsg = 'Keys cannot be empty';
                 this.render(false);
                 return;
             }
 
             const result: Record<string, string> = {};
-            this.items.forEach(item => {
+            this.items.forEach((item) => {
                 result[item.key] = item.value;
             });
             this.submit(result);

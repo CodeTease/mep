@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { TableOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, TableOptions } from '../types';
 import { stringWidth } from '../utils';
 
 export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
@@ -19,9 +19,9 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
 
     private calculateColWidths() {
         const { columns, data } = this.options;
-        this.colWidths = columns.map(c => stringWidth(c));
+        this.colWidths = columns.map((c) => stringWidth(c));
 
-        data.forEach(row => {
+        data.forEach((row) => {
             row.row.forEach((cell, idx) => {
                 if (idx < this.colWidths.length) {
                     this.colWidths[idx] = Math.max(this.colWidths[idx], stringWidth(cell));
@@ -30,7 +30,7 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
         });
 
         // Add padding
-        this.colWidths = this.colWidths.map(w => w + 2);
+        this.colWidths = this.colWidths.map((w) => w + 2);
     }
 
     protected render(_firstRender: boolean) {

@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { SortGridOptions, MouseEvent } from '../types';
+import type { MouseEvent, SortGridOptions } from '../types';
 import { stringWidth } from '../utils';
 
 export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
@@ -15,7 +15,7 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
     constructor(options: SortGridOptions) {
         super(options);
         // Deep copy grid data
-        this.gridData = options.data.map(row => [...row]);
+        this.gridData = options.data.map((row) => [...row]);
         this.calculateLayout();
     }
 
@@ -40,31 +40,33 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
         this.gridData.forEach((row, r) => {
-            const rowStr = row.map((cell, c) => {
-                const width = this.columnWidths[c] || stringWidth(cell) + 2;
-                const content = cell || '';
+            const rowStr = row
+                .map((cell, c) => {
+                    const width = this.columnWidths[c] || stringWidth(cell) + 2;
+                    const content = cell || '';
 
-                // Padding
-                const padding = Math.max(0, width - stringWidth(content));
-                const leftPad = Math.floor(padding / 2);
-                const rightPad = padding - leftPad;
+                    // Padding
+                    const padding = Math.max(0, width - stringWidth(content));
+                    const leftPad = Math.floor(padding / 2);
+                    const rightPad = padding - leftPad;
 
-                let cellStr = ' '.repeat(leftPad) + content + ' '.repeat(rightPad);
+                    let cellStr = ' '.repeat(leftPad) + content + ' '.repeat(rightPad);
 
-                // Styling
-                const isFocused = (r === this.cursorY && c === this.cursorX);
-                const isGrabbed = (r === this.grabbedY && c === this.grabbedX);
+                    // Styling
+                    const isFocused = r === this.cursorY && c === this.cursorX;
+                    const isGrabbed = r === this.grabbedY && c === this.grabbedX;
 
-                if (isGrabbed) {
-                    // Grabbed item style
-                    cellStr = `${ANSI.BG_RED}${ANSI.FG_WHITE}${cellStr}${ANSI.RESET}`;
-                } else if (isFocused) {
-                    // Focused item style
-                    cellStr = `${ANSI.REVERSE}${cellStr}${ANSI.RESET}`;
-                }
+                    if (isGrabbed) {
+                        // Grabbed item style
+                        cellStr = `${ANSI.BG_RED}${ANSI.FG_WHITE}${cellStr}${ANSI.RESET}`;
+                    } else if (isFocused) {
+                        // Focused item style
+                        cellStr = `${ANSI.REVERSE}${cellStr}${ANSI.RESET}`;
+                    }
 
-                return cellStr;
-            }).join(' '); // Space between columns
+                    return cellStr;
+                })
+                .join(' '); // Space between columns
 
             output += rowStr + '\n';
         });
@@ -135,7 +137,8 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
 
         if (direction === 'left') this.cursorX = Math.max(0, this.cursorX - 1);
         if (direction === 'right') {
-            const rowLen = this.gridData.length > 0 && this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
+            const rowLen =
+                this.gridData.length > 0 && this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
             this.cursorX = Math.min(rowLen - 1, this.cursorX + 1);
         }
 

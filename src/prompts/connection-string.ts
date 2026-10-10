@@ -1,8 +1,8 @@
-import { SelectPrompt } from './select';
-import { TextPrompt } from './text';
-import { NumberPrompt } from './number';
 import { ConfirmPrompt } from './confirm';
 import { FilePrompt } from './file';
+import { NumberPrompt } from './number';
+import { SelectPrompt } from './select';
+import { TextPrompt } from './text';
 
 export interface ConnectionStringOptions {
     message: string;
@@ -40,7 +40,7 @@ export async function connectionString(options: ConnectionStringOptions): Promis
     // 1. Protocol Selection
     const protocol = await new SelectPrompt({
         message: options.message,
-        choices: protocols.map(p => ({ title: p, value: p })),
+        choices: protocols.map((p) => ({ title: p, value: p })),
     }).run();
 
     const parts: ConnectionStringResult['parts'] = { protocol };

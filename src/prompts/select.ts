@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SelectOptions, MouseEvent, SelectChoice, Separator } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, SelectChoice, SelectOptions, Separator } from '../types';
 
 // --- Implementation: Select Prompt ---
 export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> extends Prompt<any, O> {
@@ -44,7 +44,7 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
 
     protected getFilteredChoices(): (SelectChoice<V> | Separator)[] {
         if (!this.searchBuffer) return this.options.choices;
-        return (this.options.choices as (SelectChoice<V> | Separator)[]).filter(c => {
+        return (this.options.choices as (SelectChoice<V> | Separator)[]).filter((c) => {
             if (this.isSeparator(c)) return false; // Hide separators when searching
             return c.title.toLowerCase().includes(this.searchBuffer.toLowerCase());
         });
@@ -116,14 +116,16 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
             return;
         }
 
-        if (this.isUp(char)) { // Up
+        if (this.isUp(char)) {
+            // Up
             if (choices.length > 0) {
                 this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, -1);
                 this.render(false);
             }
             return;
         }
-        if (this.isDown(char)) { // Down
+        if (this.isDown(char)) {
+            // Down
             if (choices.length > 0) {
                 this.selectedIndex = this.findNextSelectableIndex(this.selectedIndex, 1);
                 this.render(false);

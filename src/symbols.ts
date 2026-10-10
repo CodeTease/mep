@@ -48,7 +48,7 @@ const UnicodeSymbols: SymbolDefinition = {
     bottomLeft: '└',
     bottomRight: '┘',
     horizontal: '─',
-    vertical: '│'
+    vertical: '│',
 };
 
 const AsciiSymbols: SymbolDefinition = {
@@ -66,7 +66,7 @@ const AsciiSymbols: SymbolDefinition = {
     bottomLeft: '+',
     bottomRight: '+',
     horizontal: '-',
-    vertical: '|'
+    vertical: '|',
 };
 
 const capabilities = detectCapabilities();

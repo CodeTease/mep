@@ -108,5 +108,5 @@ export const COUNTRIES: CountryEntry[] = [
 
     // Central Asia
     ['KZ', 'Kazakhstan', '7', '### ###-##-##'],
-    ['UZ', 'Uzbekistan', '998', '## ### ## ##']
+    ['UZ', 'Uzbekistan', '998', '## ### ## ##'],
 ];

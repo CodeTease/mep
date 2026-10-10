@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { ToggleOptions, MouseEvent } from '../types';
+import type { MouseEvent, ToggleOptions } from '../types';
 
 // --- Implementation: Toggle Prompt ---
 export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
@@ -31,7 +31,8 @@ export class TogglePrompt extends Prompt<boolean, ToggleOptions> {
             this.submit(this.value);
             return;
         }
-        if (this.isLeft(char) || this.isRight(char) || char === 'h' || char === 'l') { // Left/Right
+        if (this.isLeft(char) || this.isRight(char) || char === 'h' || char === 'l') {
+            // Left/Right
             this.value = !this.value;
             this.render(false);
         }

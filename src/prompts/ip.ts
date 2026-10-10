@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { IPOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { IPOptions, MouseEvent } from '../types';
 
 export class IPPrompt extends Prompt<string, IPOptions> {
     private octets: string[] = ['', '', '', ''];
@@ -14,9 +14,9 @@ export class IPPrompt extends Prompt<string, IPOptions> {
         if (options.initial) {
             const parts = options.initial.split('.');
             if (parts.length === 4) {
-                this.octets = parts.map(p => {
+                this.octets = parts.map((p) => {
                     const num = parseInt(p, 10);
-                    return !isNaN(num) && num >= 0 && num <= 255 ? p : '';
+                    return !Number.isNaN(num) && num >= 0 && num <= 255 ? p : '';
                 });
             }
         }
@@ -54,7 +54,7 @@ export class IPPrompt extends Prompt<string, IPOptions> {
         this.errorMsg = '';
 
         if (char === '\r' || char === '\n') {
-            if (this.octets.every(o => o.length > 0)) {
+            if (this.octets.every((o) => o.length > 0)) {
                 this.submit(this.octets.join('.'));
             } else {
                 this.errorMsg = 'Invalid IP address';
@@ -63,7 +63,8 @@ export class IPPrompt extends Prompt<string, IPOptions> {
             return;
         }
 
-        if (char === '\u0008' || char === '\x7f') { // Backspace
+        if (char === '\u0008' || char === '\x7f') {
+            // Backspace
             const current = this.octets[this.activeOctet];
             if (current.length > 0) {
                 this.octets[this.activeOctet] = current.slice(0, -1);

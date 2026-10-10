@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { RangeOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, RangeOptions } from '../types';
 
 export class RangePrompt extends Prompt<[number, number], RangeOptions> {
     private activeHandle: 'low' | 'high' = 'low';
@@ -92,14 +92,16 @@ export class RangePrompt extends Prompt<[number, number], RangeOptions> {
         const step = this.options.step || 1;
         let [low, high] = this.value;
 
-        if (this.isLeft(char)) { // Left
+        if (this.isLeft(char)) {
+            // Left
             if (this.activeHandle === 'low') {
                 low = Math.max(this.options.min, low - step);
             } else {
                 high = Math.max(low, high - step);
             }
         }
-        if (this.isRight(char)) { // Right
+        if (this.isRight(char)) {
+            // Right
             if (this.activeHandle === 'low') {
                 low = Math.min(high, low + step);
             } else {
@@ -120,14 +122,16 @@ export class RangePrompt extends Prompt<[number, number], RangeOptions> {
             const step = this.options.step || 1;
             let [low, high] = this.value;
 
-            if (event.scroll === 'up') { // Increase
+            if (event.scroll === 'up') {
+                // Increase
                 if (this.activeHandle === 'low') {
                     low = Math.min(high, low + step);
                 } else {
                     high = Math.min(this.options.max, high + step);
                 }
             }
-            if (event.scroll === 'down') { // Decrease
+            if (event.scroll === 'down') {
+                // Decrease
                 if (this.activeHandle === 'low') {
                     low = Math.max(this.options.min, low - step);
                 } else {

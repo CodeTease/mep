@@ -1,8 +1,8 @@
-import { SelectRangePrompt } from './select-range';
-import { SelectRangeOptions } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { SelectRangeOptions } from '../types';
+import { SelectRangePrompt } from './select-range';
 
 export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
     private committedRanges: { start: number; end: number }[] = [];
@@ -23,7 +23,8 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
         for (let i = 1; i < this.committedRanges.length; i++) {
             const next = this.committedRanges[i];
 
-            if (current.end >= next.start - 1) { // Overlap or adjacent
+            if (current.end >= next.start - 1) {
+                // Overlap or adjacent
                 current.end = Math.max(current.end, next.end);
             } else {
                 merged.push(current);
@@ -172,7 +173,7 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                         content = `${theme.success}${title}${ANSI.RESET}`;
 
                         if (isDragging && !isCommitted) {
-                            // Distinguish dragging visual? Maybe dim? 
+                            // Distinguish dragging visual? Maybe dim?
                             // Using same style as single range prompt for consistency
                         }
                     }

@@ -2,7 +2,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { BaseOptions } from '../types';
+import type { BaseOptions } from '../types';
 
 interface WaitOptions extends BaseOptions {
     seconds: number;

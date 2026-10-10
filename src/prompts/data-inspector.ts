@@ -1,9 +1,9 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
-import { DataInspectorOptions, MouseEvent } from '../types';
-import { stripAnsi } from '../utils';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { DataInspectorOptions, MouseEvent } from '../types';
+import { stripAnsi } from '../utils';
 
 interface InspectorNode {
     key: string;
@@ -62,14 +62,14 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
             path: currentPath,
             parentRef,
             refKey: key,
-            isLeaf
+            isLeaf,
         };
 
         this.flatList.push(node);
 
         if (!isLeaf && this.expandedPaths.has(currentPath)) {
             const keys = Object.keys(data);
-            keys.forEach(k => {
+            keys.forEach((k) => {
                 this.traverse(data[k], k, depth + 1, data, `${currentPath}.${k}`);
             });
         }
@@ -77,13 +77,19 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
 
     private getValueColor(type: string): string {
         switch (type) {
-            case 'string': return ANSI.FG_GREEN;
-            case 'number': return ANSI.FG_YELLOW;
-            case 'boolean': return ANSI.FG_MAGENTA;
+            case 'string':
+                return ANSI.FG_GREEN;
+            case 'number':
+                return ANSI.FG_YELLOW;
+            case 'boolean':
+                return ANSI.FG_MAGENTA;
             case 'null':
-            case 'undefined': return ANSI.FG_GRAY;
-            case 'date': return ANSI.FG_BLUE;
-            default: return ANSI.RESET;
+            case 'undefined':
+                return ANSI.FG_GRAY;
+            case 'date':
+                return ANSI.FG_BLUE;
+            default:
+                return ANSI.RESET;
         }
     }
 
@@ -242,7 +248,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
             let newValue: any = this.editBuffer;
             if (node.type === 'number') {
                 newValue = Number(this.editBuffer);
-                if (isNaN(newValue)) newValue = 0; // Fallback
+                if (Number.isNaN(newValue)) newValue = 0; // Fallback
             }
 
             // Update Data
@@ -255,7 +261,8 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
         }
 
         // Esc: Cancel
-        if (key[0] === 27 && key.length === 1) { // Standard ESC
+        if (key[0] === 27 && key.length === 1) {
+            // Standard ESC
             this.editMode = false;
             this.render(false);
             return;

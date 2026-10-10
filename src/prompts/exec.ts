@@ -1,9 +1,9 @@
-import { spawn, ChildProcess } from 'child_process';
-import { Prompt } from '../base';
-import { ExecOptions } from '../types';
-import { theme } from '../theme';
-import { symbols } from '../symbols';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { ExecOptions } from '../types';
 
 export class ExecPrompt extends Prompt<void, ExecOptions> {
     private child?: ChildProcess;
@@ -24,7 +24,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
             shell: true,
             // Use 'ignore' for stdin so parent keeps control (and raw mode).
             // Use 'pipe' for stdout/stderr to capture output.
-            stdio: ['ignore', 'pipe', 'pipe']
+            stdio: ['ignore', 'pipe', 'pipe'],
         });
 
         // Capture stdout
@@ -57,7 +57,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
 
         this.child.on('exit', (code) => {
             if (this.status !== 'running') return;
-            
+
             if (code === 0) {
                 this.status = 'done';
                 this.render(false);
@@ -65,16 +65,16 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
             } else {
                 this.status = 'error';
                 this.render(false);
-                
+
                 const errorMessage = this.stderrBuffer.trim() || `Command failed with exit code ${code}`;
                 const err = new Error(errorMessage);
                 // Attach details
                 Object.assign(err, {
                     code,
                     stdout: this.stdoutBuffer,
-                    stderr: this.stderrBuffer
+                    stderr: this.stderrBuffer,
                 });
-                
+
                 this.cancel(err);
             }
         });

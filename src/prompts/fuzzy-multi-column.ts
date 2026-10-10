@@ -1,9 +1,9 @@
-import { MultiColumnSelectPrompt } from './multi-column-select';
-import { MultiColumnSelectOptions } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
-import { fuzzyMatch, stringWidth } from '../utils';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { MultiColumnSelectOptions } from '../types';
+import { fuzzyMatch, stringWidth } from '../utils';
+import { MultiColumnSelectPrompt } from './multi-column-select';
 
 export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
     private filteredResults: any[] = [];
@@ -51,15 +51,17 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
         if (!this.searchBuffer) {
             this.filteredResults = this.options.choices;
         } else {
-            const results = this.options.choices.map(c => {
-                if (this.isSeparator(c)) return null;
-                const match = fuzzyMatch(this.searchBuffer, (c as any).title);
-                return { choice: c, match };
-            }).filter(item => item && item.match !== null)
+            const results = this.options.choices
+                .map((c) => {
+                    if (this.isSeparator(c)) return null;
+                    const match = fuzzyMatch(this.searchBuffer, (c as any).title);
+                    return { choice: c, match };
+                })
+                .filter((item) => item && item.match !== null)
                 // Sort by score descending
                 .sort((a, b) => b!.match!.score - a!.match!.score);
 
-            this.filteredResults = results.map(r => {
+            this.filteredResults = results.map((r) => {
                 (r!.choice as any)._match = r!.match;
                 return r!.choice;
             });

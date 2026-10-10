@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SortOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, SortOptions } from '../types';
 
 export class SortPrompt extends Prompt<string[], SortOptions> {
     private items: string[];

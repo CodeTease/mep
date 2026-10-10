@@ -1,7 +1,7 @@
-import { Prompt } from '../base';
-import { DrawOptions, MouseEvent } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import { theme } from '../theme';
+import type { DrawOptions, MouseEvent } from '../types';
 
 export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
     private grid: boolean[][];
@@ -9,7 +9,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
     private cursorY: number = 0;
     private gridWidth: number;
     private gridHeight: number;
-    private lastMouse: { x: number, y: number } | null = null;
+    private lastMouse: { x: number; y: number } | null = null;
 
     constructor(options: DrawOptions) {
         super(options);
@@ -18,7 +18,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
 
         if (options.initial) {
             // Deep copy to avoid mutating original if passed
-            this.grid = options.initial.map(row => [...row]);
+            this.grid = options.initial.map((row) => [...row]);
         } else {
             this.grid = [];
             for (let y = 0; y < this.gridHeight; y++) {
@@ -34,16 +34,16 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
         let code = 0x2800; // Base Braille
 
         // Column 0
-        if (this.getPixel(baseX, baseY)) code |= 0x1;       // Dot 1
-        if (this.getPixel(baseX, baseY + 1)) code |= 0x2;   // Dot 2
-        if (this.getPixel(baseX, baseY + 2)) code |= 0x4;   // Dot 3
-        if (this.getPixel(baseX, baseY + 3)) code |= 0x40;  // Dot 7 (Bottom-left)
+        if (this.getPixel(baseX, baseY)) code |= 0x1; // Dot 1
+        if (this.getPixel(baseX, baseY + 1)) code |= 0x2; // Dot 2
+        if (this.getPixel(baseX, baseY + 2)) code |= 0x4; // Dot 3
+        if (this.getPixel(baseX, baseY + 3)) code |= 0x40; // Dot 7 (Bottom-left)
 
         // Column 1
-        if (this.getPixel(baseX + 1, baseY)) code |= 0x8;       // Dot 4
-        if (this.getPixel(baseX + 1, baseY + 1)) code |= 0x10;  // Dot 5
-        if (this.getPixel(baseX + 1, baseY + 2)) code |= 0x20;  // Dot 6
-        if (this.getPixel(baseX + 1, baseY + 3)) code |= 0x80;  // Dot 8 (Bottom-right)
+        if (this.getPixel(baseX + 1, baseY)) code |= 0x8; // Dot 4
+        if (this.getPixel(baseX + 1, baseY + 1)) code |= 0x10; // Dot 5
+        if (this.getPixel(baseX + 1, baseY + 2)) code |= 0x20; // Dot 6
+        if (this.getPixel(baseX + 1, baseY + 3)) code |= 0x80; // Dot 8 (Bottom-right)
 
         return String.fromCharCode(code);
     }
@@ -73,9 +73,7 @@ export class DrawPrompt extends Prompt<string | boolean[][], DrawOptions> {
 
                 // Highlight cursor position (pixel level approximation)
                 // If cursor is within this character block
-                const containsCursor =
-                    Math.floor(this.cursorX / 2) === x &&
-                    Math.floor(this.cursorY / 4) === y;
+                const containsCursor = Math.floor(this.cursorX / 2) === x && Math.floor(this.cursorY / 4) === y;
 
                 if (containsCursor) {
                     line += ANSI.REVERSE + char + ANSI.RESET;

@@ -1,8 +1,8 @@
-import { Prompt } from '../base';
-import { RegexOptions } from '../types';
 import { ANSI } from '../ansi';
-import { theme } from '../theme';
+import { Prompt } from '../base';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { RegexOptions } from '../types';
 import { safeSplit } from '../utils';
 
 export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
@@ -45,12 +45,28 @@ export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
         const beforeCursor = this.segments.slice(0, this.cursor).join('');
         const afterCursor = this.segments.slice(this.cursor).join('');
 
-        displayInput = theme.main + beforeCursor + ANSI.UNDERLINE + (afterCursor[0] || ' ') + ANSI.RESET + '\x1b[24m' + theme.main + afterCursor.slice(1);
+        displayInput =
+            theme.main +
+            beforeCursor +
+            ANSI.UNDERLINE +
+            (afterCursor[0] || ' ') +
+            ANSI.RESET +
+            '\x1b[24m' +
+            theme.main +
+            afterCursor.slice(1);
 
         if (this.segments.length === 0) {
             const placeholder = '(Type regex pattern)';
             // If empty, show cursor on the start of placeholder
-            displayInput = theme.muted + ANSI.UNDERLINE + placeholder[0] + ANSI.RESET + '\x1b[24m' + theme.muted + placeholder.slice(1) + ANSI.RESET;
+            displayInput =
+                theme.muted +
+                ANSI.UNDERLINE +
+                placeholder[0] +
+                ANSI.RESET +
+                '\x1b[24m' +
+                theme.muted +
+                placeholder.slice(1) +
+                ANSI.RESET;
         } else if (this.cursor >= this.segments.length) {
             // Cursor at end
             displayInput = theme.main + this.segments.join('') + ANSI.UNDERLINE + ' ' + ANSI.RESET + '\x1b[24m';
@@ -66,7 +82,7 @@ export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
         // Line 3+: Test Cases
         output += `\n\n${ANSI.BOLD}Test Cases:${ANSI.RESET}`;
 
-        this.options.tests.forEach(testCase => {
+        this.options.tests.forEach((testCase) => {
             let isMatch = false;
             if (this.regex) {
                 isMatch = this.regex.test(testCase);

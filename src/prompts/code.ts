@@ -1,9 +1,9 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
-import { CodeOptions, MouseEvent } from '../types';
-import { stringWidth } from '../utils';
 import { highlight } from '../highlight';
+import { theme } from '../theme';
+import type { CodeOptions, MouseEvent } from '../types';
+import { stringWidth } from '../utils';
 
 interface Token {
     type: 'static' | 'variable';
@@ -22,9 +22,9 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         super(options);
         this.parseTemplate();
         // Init values
-        this.variableTokens.forEach(idx => {
+        this.variableTokens.forEach((idx) => {
             const name = this.tokens[idx].value;
-            this.values[name] = (this.options.values && this.options.values[name]) || '';
+            this.values[name] = this.options.values?.[name] || '';
         });
 
         // Init cursor at end of first var
@@ -80,7 +80,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         // const activeVarName = this.tokens[activeTokenIdx].value;
 
         this.tokens.forEach((token, idx) => {
-            const val = (token.type === 'static') ? token.value : (this.values[token.value] || '');
+            const val = token.type === 'static' ? token.value : this.values[token.value] || '';
 
             if (idx === activeTokenIdx) {
                 activeVarStart = fullRawText.length;
@@ -153,9 +153,8 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
             }
             highlighted += ANSI.RESET;
         } else {
-            this.appendSegment(fullRawText, 0, activeVarStart, activeVarEnd, ANSI.RESET, (s) => highlighted += s);
+            this.appendSegment(fullRawText, 0, activeVarStart, activeVarEnd, ANSI.RESET, (s) => (highlighted += s));
         }
-
 
         // 3. Output Frame
         const warningMsg = shouldHighlight
@@ -198,7 +197,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
         activeStart: number,
         activeEnd: number,
         syntaxColor: string,
-        append: (s: string) => void
+        append: (s: string) => void,
     ) {
         const absEnd = absStart + text.length;
         const overlapStart = Math.max(absStart, activeStart);
@@ -223,13 +222,16 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
 
     protected handleInput(char: string, _key: Buffer) {
         if (char === '\u001b[Z') {
-            this.moveFocus(-1); return;
+            this.moveFocus(-1);
+            return;
         }
         if (char === '\t') {
-            this.moveFocus(1); return;
+            this.moveFocus(1);
+            return;
         }
         if (char === '\r' || char === '\n') {
-            this.submitCode(); return;
+            this.submitCode();
+            return;
         }
 
         const activeTokenIdx = this.variableTokens[this.activeVarIndex];
@@ -286,7 +288,7 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
 
     private submitCode() {
         let result = '';
-        this.tokens.forEach(token => {
+        this.tokens.forEach((token) => {
             if (token.type === 'static') {
                 result += token.value;
             } else {

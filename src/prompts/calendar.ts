@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { CalendarOptions, MouseEvent } from '../types';
+import type { CalendarOptions, MouseEvent } from '../types';
 
 // Helper types for internal state management
 type SingleSelection = Date;
@@ -76,8 +76,8 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         return new Date(year, month + 1, 0).getDate();
     }
 
-    private generateMonthGrid(year: number, month: number): { date: Date, inMonth: boolean }[] {
-        const days: { date: Date, inMonth: boolean }[] = [];
+    private generateMonthGrid(year: number, month: number): { date: Date; inMonth: boolean }[] {
+        const days: { date: Date; inMonth: boolean }[] = [];
 
         const firstDayOfMonth = new Date(year, month, 1);
         const startDayOfWeek = firstDayOfMonth.getDay(); // 0 (Sun) to 6 (Sat)
@@ -94,7 +94,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         for (let i = daysFromPrevMonth - 1; i >= 0; i--) {
             days.push({
                 date: new Date(year, month - 1, prevMonthDaysCount - i),
-                inMonth: false
+                inMonth: false,
             });
         }
 
@@ -103,7 +103,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         for (let i = 1; i <= daysInMonth; i++) {
             days.push({
                 date: new Date(year, month, i),
-                inMonth: true
+                inMonth: true,
             });
         }
 
@@ -112,7 +112,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         while (days.length < 42) {
             days.push({
                 date: new Date(year, month + 1, nextMonthDay++),
-                inMonth: false
+                inMonth: false,
             });
         }
 
@@ -120,9 +120,9 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     }
 
     private isSameDay(d1: Date, d2: Date): boolean {
-        return d1.getFullYear() === d2.getFullYear() &&
-            d1.getMonth() === d2.getMonth() &&
-            d1.getDate() === d2.getDate();
+        return (
+            d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate()
+        );
     }
 
     /**
@@ -131,7 +131,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     private isSelected(d: Date): boolean {
         const dTime = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
-        return this.selections.some(sel => {
+        return this.selections.some((sel) => {
             if (Array.isArray(sel)) {
                 // Range logic
                 const [start, end] = sel;
@@ -153,15 +153,30 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         if (!this.tempRangeStart) return false;
 
         const dTime = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-        const sTime = new Date(this.tempRangeStart.getFullYear(), this.tempRangeStart.getMonth(), this.tempRangeStart.getDate()).getTime();
+        const sTime = new Date(
+            this.tempRangeStart.getFullYear(),
+            this.tempRangeStart.getMonth(),
+            this.tempRangeStart.getDate(),
+        ).getTime();
         const cTime = new Date(this.cursor.getFullYear(), this.cursor.getMonth(), this.cursor.getDate()).getTime();
 
         return dTime >= Math.min(sTime, cTime) && dTime <= Math.max(sTime, cTime);
     }
 
     protected render(_firstRender: boolean): void {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+        const monthNames = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
         ];
 
         const year = this.viewDate.getFullYear();
@@ -169,15 +184,16 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
         const header = `${ANSI.BOLD}${monthNames[month]} ${year}${ANSI.RESET}`;
 
-        const weekDays = this.options.weekStart === 1
-            ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-            : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+        const weekDays =
+            this.options.weekStart === 1
+                ? ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+                : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
         const grid = this.generateMonthGrid(year, month);
 
         let output = `${theme.title}${this.options.message}${ANSI.RESET}\n`;
         output += `${theme.muted}< ${header} >${ANSI.RESET}\n`;
-        output += weekDays.map(d => `${theme.muted}${d}${ANSI.RESET}`).join(' ') + '\n';
+        output += weekDays.map((d) => `${theme.muted}${d}${ANSI.RESET}`).join(' ') + '\n';
 
         let rowLine = '';
         for (let i = 0; i < grid.length; i++) {
@@ -244,7 +260,10 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     }
 
     private syncViewDate() {
-        if (this.cursor.getMonth() !== this.viewDate.getMonth() || this.cursor.getFullYear() !== this.viewDate.getFullYear()) {
+        if (
+            this.cursor.getMonth() !== this.viewDate.getMonth() ||
+            this.cursor.getFullYear() !== this.viewDate.getFullYear()
+        ) {
             this.viewDate = new Date(this.cursor);
             this.viewDate.setDate(1);
         }
@@ -269,7 +288,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                 this.submit(this.selections.filter(Array.isArray) as RangeSelection[]);
             } else {
                 // Only Date[]
-                this.submit(this.selections.filter(sel => !Array.isArray(sel)) as Date[]);
+                this.submit(this.selections.filter((sel) => !Array.isArray(sel)) as Date[]);
             }
         } else {
             // Single Mode (Single Date or Single Range)
@@ -403,7 +422,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                 const date = this.cursor;
                 if (this.options.multiple) {
                     // Toggle selection
-                    const idx = this.selections.findIndex(s => !Array.isArray(s) && this.isSameDay(s, date));
+                    const idx = this.selections.findIndex((s) => !Array.isArray(s) && this.isSameDay(s, date));
                     if (idx >= 0) {
                         this.selections.splice(idx, 1);
                     } else {

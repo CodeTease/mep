@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { TreeSelectOptions, TreeSelectNode, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, TreeSelectNode, TreeSelectOptions } from '../types';
 
 interface FlatNode<V> {
     node: TreeSelectNode<V>;
@@ -84,8 +84,8 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
     private updateNodeStateFromChildren(node: TreeSelectNode<V>) {
         if (!node.children || node.children.length === 0) return;
 
-        const allChecked = node.children.every(c => c.selected === true);
-        const allUnchecked = node.children.every(c => !c.selected);
+        const allChecked = node.children.every((c) => c.selected === true);
+        const allUnchecked = node.children.every((c) => !c.selected);
 
         if (allChecked) {
             node.selected = true;
@@ -100,7 +100,9 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         node.selected = state;
 
         if (node.children) {
-            node.children.forEach(c => this.setNodeState(c, state, false));
+            node.children.forEach((c) => {
+                this.setNodeState(c, state, false);
+            });
         }
 
         if (updateParents) {
@@ -135,7 +137,9 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         else this.expandedNodes.delete(node);
 
         if (node.children) {
-            node.children.forEach(child => this.toggleRecursive(child, expand));
+            node.children.forEach((child) => {
+                this.toggleRecursive(child, expand);
+            });
         }
     }
 
@@ -240,7 +244,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
                 this.expandedNodes.delete(node);
                 this.recalculateFlatList();
             } else if (currentItem.parent) {
-                const parentIndex = this.flatList.findIndex(x => x.node === currentItem.parent);
+                const parentIndex = this.flatList.findIndex((x) => x.node === currentItem.parent);
                 if (parentIndex !== -1) {
                     this.cursor = parentIndex;
                 }
@@ -252,7 +256,7 @@ export class TreeSelectPrompt<V> extends Prompt<V[], TreeSelectOptions<V>> {
         // 4. Space: Toggle selection
         if (char === ' ') {
             if (!node.disabled) {
-                const newState = node.selected === true ? false : true;
+                const newState = node.selected !== true;
                 this.setNodeState(node, newState);
                 this.render(false);
             }

@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { TransferOptions, SelectChoice, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, SelectChoice, TransferOptions } from '../types';
 import { stringWidth } from '../utils';
 
 export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
@@ -24,7 +24,7 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
     }
 
     private normalize(items: (string | SelectChoice<V>)[]): SelectChoice<V>[] {
-        return items.map(item => {
+        return items.map((item) => {
             if (typeof item === 'string') {
                 return { title: item, value: item as unknown as V };
             }
@@ -48,10 +48,12 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
         // Adjust Scroll Top
         if (this.activeSide === 'left') {
             if (this.cursorLeft < this.scrollTopLeft) this.scrollTopLeft = this.cursorLeft;
-            if (this.cursorLeft >= this.scrollTopLeft + this.pageSize) this.scrollTopLeft = this.cursorLeft - this.pageSize + 1;
+            if (this.cursorLeft >= this.scrollTopLeft + this.pageSize)
+                this.scrollTopLeft = this.cursorLeft - this.pageSize + 1;
         } else {
             if (this.cursorRight < this.scrollTopRight) this.scrollTopRight = this.cursorRight;
-            if (this.cursorRight >= this.scrollTopRight + this.pageSize) this.scrollTopRight = this.cursorRight - this.pageSize + 1;
+            if (this.cursorRight >= this.scrollTopRight + this.pageSize)
+                this.scrollTopRight = this.cursorRight - this.pageSize + 1;
         }
 
         let output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
@@ -96,7 +98,7 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                 }
             }
 
-            const leftVisualWidth = itemLeft ? (stringWidth(this.truncate(itemLeft.title, colWidth - 2)) + 2) : 0;
+            const leftVisualWidth = itemLeft ? stringWidth(this.truncate(itemLeft.title, colWidth - 2)) + 2 : 0;
             // Pad visually
             const padding = ' '.repeat(Math.max(0, colWidth - leftVisualWidth));
 
@@ -110,8 +112,8 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
 
     protected handleInput(char: string) {
         if (char === '\r' || char === '\n') {
-            const leftValues = this.leftList.map(i => i.value);
-            const rightValues = this.rightList.map(i => i.value);
+            const leftValues = this.leftList.map((i) => i.value);
+            const rightValues = this.rightList.map((i) => i.value);
             this.submit([leftValues, rightValues]);
             return;
         }

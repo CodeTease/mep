@@ -1,90 +1,161 @@
-import {
-    TextOptions, SelectOptions, ConfirmOptions, CheckboxOptions, ThemeConfig, NumberOptions, ToggleOptions, ListOptions, SliderOptions,
-    DateOptions, FileOptions, MultiSelectOptions, RatingOptions, AutocompleteOptions, SortOptions, TableOptions, EditorOptions, TreeOptions,
-    KeypressOptions, FormOptions, SnippetOptions, SpamOptions, WaitOptions, CodeOptions, TreeSelectOptions, RangeOptions, TransferOptions, CronOptions,
-    ColorOptions, GridOptions, CalendarOptions, MapOptions, SemVerOptions, IPOptions, OTPOptions, QuizSelectOptions, QuizTextOptions,
-    KanbanOptions, KanbanItem, TimeOptions, HeatmapOptions, ByteOptions, PatternOptions, RegionOptions, SpreadsheetOptions, SelectRangeOptions, SortGridOptions
-} from './types';
-import { SlotOptions, GaugeOptions, CalculatorOptions, EmojiOptions, MatchOptions, DiffOptions, DialOptions, DrawOptions, MultiColumnSelectOptions, FuzzySelectOptions, MillerOptions, ScrollOptions, BreadcrumbOptions, ScheduleOptions, ScheduleTask, DataInspectorOptions, ExecOptions, ShortcutOptions, ShortcutResult, SeatOptions, DependencyOptions, LicenseOptions, RegexOptions, BoxOptions, PhoneOptions } from './types';
-import { theme } from './theme';
-import { Spinner } from './spinner';
-import { TextPrompt } from './prompts/text';
-import { SelectPrompt } from './prompts/select';
-import { CheckboxPrompt } from './prompts/checkbox';
-import { ConfirmPrompt } from './prompts/confirm';
-import { TogglePrompt } from './prompts/toggle';
-import { NumberPrompt } from './prompts/number';
-import { ListPrompt } from './prompts/list';
-import { SliderPrompt } from './prompts/slider';
-import { RangePrompt } from './prompts/range';
-import { TransferPrompt } from './prompts/transfer';
-import { CronPrompt } from './prompts/cron';
-import { DatePrompt } from './prompts/date';
-import { FilePrompt } from './prompts/file';
-import { MultiSelectPrompt } from './prompts/multi-select';
-import { RatingPrompt } from './prompts/rating';
+import type { PromptConstructor } from './base';
+import { Pipeline } from './pipeline';
 import { AutocompletePrompt } from './prompts/autocomplete';
-import { SortPrompt } from './prompts/sort';
-import { TablePrompt } from './prompts/table';
-import { EditorPrompt } from './prompts/editor';
-import { TreePrompt } from './prompts/tree';
-import { KeypressPrompt } from './prompts/keypress';
-import { FormPrompt } from './prompts/form';
-import { SnippetPrompt } from './prompts/snippet';
-import { SpamPrompt } from './prompts/spam';
-import { WaitPrompt } from './prompts/wait';
-import { CodePrompt } from './prompts/code';
-import { TreeSelectPrompt } from './prompts/tree-select';
-import { ColorPrompt } from './prompts/color';
-import { GridPrompt } from './prompts/grid';
+import { BoxPrompt } from './prompts/box';
+import { BreadcrumbPrompt } from './prompts/breadcrumb';
+import { BreadcrumbSearchPrompt } from './prompts/breadcrumb-search';
+import { BytePrompt } from './prompts/byte';
+import { CalculatorPrompt } from './prompts/calculator';
 import { CalendarPrompt } from './prompts/calendar';
-import { MapPrompt } from './prompts/map';
-import { SemVerPrompt } from './prompts/semver';
+import { CheckboxPrompt } from './prompts/checkbox';
+import { CodePrompt } from './prompts/code';
+import { ColorPrompt } from './prompts/color';
+import { ConfirmPrompt } from './prompts/confirm';
+import {
+    type ConnectionStringOptions,
+    type ConnectionStringResult,
+    connectionString,
+} from './prompts/connection-string';
+import { CronPrompt } from './prompts/cron';
+import { type CurlOptions, CurlPrompt, type CurlResult } from './prompts/curl';
+import { DataInspectorPrompt } from './prompts/data-inspector';
+import { DatePrompt } from './prompts/date';
+import { DependencyPrompt } from './prompts/dependency';
+import { DialPrompt } from './prompts/dial';
+import { DiffPrompt } from './prompts/diff';
+import { DrawPrompt } from './prompts/draw';
+import { EditorPrompt } from './prompts/editor';
+import { EmojiPrompt } from './prompts/emoji';
+import { ExecPrompt } from './prompts/exec';
+import { FilePrompt } from './prompts/file';
+import { FormPrompt } from './prompts/form';
+import { FuzzySelectPrompt } from './prompts/fuzzy';
+import { FuzzyMultiColumnPrompt } from './prompts/fuzzy-multi-column';
+import { GaugePrompt } from './prompts/gauge';
+import { GridPrompt } from './prompts/grid';
+import { HeatmapPrompt } from './prompts/heatmap';
 import { IPPrompt } from './prompts/ip';
+import { KanbanPrompt } from './prompts/kanban';
+import { KeypressPrompt } from './prompts/keypress';
+import { LicensePrompt } from './prompts/license';
+import { ListPrompt } from './prompts/list';
+import { MapPrompt } from './prompts/map';
+import { MatchPrompt } from './prompts/match';
+import { MillerPrompt } from './prompts/miller';
+import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
+import { MultiRangePrompt } from './prompts/multi-range';
+import { MultiSelectPrompt } from './prompts/multi-select';
+import { NumberPrompt } from './prompts/number';
 import { OTPPrompt } from './prompts/otp';
+import { PatternPrompt } from './prompts/pattern';
+import { PhonePrompt } from './prompts/phone';
 import { QuizSelectPrompt } from './prompts/quiz-select';
 import { QuizTextPrompt } from './prompts/quiz-text';
-import { KanbanPrompt } from './prompts/kanban';
-import { TimePrompt } from './prompts/time';
-import { HeatmapPrompt } from './prompts/heatmap';
-import { BytePrompt } from './prompts/byte';
-import { SlotPrompt } from './prompts/slot';
-import { GaugePrompt } from './prompts/gauge';
-import { CalculatorPrompt } from './prompts/calculator';
-import { EmojiPrompt } from './prompts/emoji';
-import { MatchPrompt } from './prompts/match';
-import { DiffPrompt } from './prompts/diff';
-import { DialPrompt } from './prompts/dial';
-import { DrawPrompt } from './prompts/draw';
-import { MultiColumnSelectPrompt } from './prompts/multi-column-select';
-import { FuzzySelectPrompt } from './prompts/fuzzy';
-import { MillerPrompt } from './prompts/miller';
-import { PatternPrompt } from './prompts/pattern';
-import { RegionPrompt } from './prompts/region';
-import { SpreadsheetPrompt } from './prompts/spreadsheet';
-import { ScrollPrompt } from './prompts/scroll';
-import { BreadcrumbPrompt } from './prompts/breadcrumb';
-import { SchedulePrompt } from './prompts/schedule';
-import { DataInspectorPrompt } from './prompts/data-inspector';
-import { ExecPrompt } from './prompts/exec';
-import { ShortcutPrompt } from './prompts/shortcut';
-import { SeatPrompt } from './prompts/seat';
-import { SelectRangePrompt } from './prompts/select-range';
-import { SortGridPrompt } from './prompts/sort-grid';
-import { DependencyPrompt } from './prompts/dependency';
-import { LicensePrompt } from './prompts/license';
+import { RangePrompt } from './prompts/range';
+import { RatingPrompt } from './prompts/rating';
 import { RegexPrompt } from './prompts/regex';
-import { BoxPrompt } from './prompts/box';
-import { PhonePrompt } from './prompts/phone';
-import { FuzzyMultiColumnPrompt } from './prompts/fuzzy-multi-column';
-import { MultiRangePrompt } from './prompts/multi-range';
-import { BreadcrumbSearchPrompt } from './prompts/breadcrumb-search';
-import { connectionString, ConnectionStringOptions, ConnectionStringResult } from './prompts/connection-string';
-import { CurlPrompt, CurlOptions, CurlResult } from './prompts/curl';
-import { Pipeline } from './pipeline';
+import { RegionPrompt } from './prompts/region';
+import { SchedulePrompt } from './prompts/schedule';
+import { ScrollPrompt } from './prompts/scroll';
+import { SeatPrompt } from './prompts/seat';
+import { SelectPrompt } from './prompts/select';
+import { SelectRangePrompt } from './prompts/select-range';
+import { SemVerPrompt } from './prompts/semver';
+import { ShortcutPrompt } from './prompts/shortcut';
+import { SliderPrompt } from './prompts/slider';
+import { SlotPrompt } from './prompts/slot';
+import { SnippetPrompt } from './prompts/snippet';
+import { SortPrompt } from './prompts/sort';
+import { SortGridPrompt } from './prompts/sort-grid';
+import { SpamPrompt } from './prompts/spam';
+import { SpreadsheetPrompt } from './prompts/spreadsheet';
+import { TablePrompt } from './prompts/table';
+import { TextPrompt } from './prompts/text';
+import { TimePrompt } from './prompts/time';
+import { TogglePrompt } from './prompts/toggle';
+import { TransferPrompt } from './prompts/transfer';
+import { TreePrompt } from './prompts/tree';
+import { TreeSelectPrompt } from './prompts/tree-select';
+import { WaitPrompt } from './prompts/wait';
+import { Spinner } from './spinner';
 import { TaskRunner } from './tasks';
-import { TaskGroupOptions, ExtensionRegistry } from './types';
-import { PromptConstructor } from './base';
+import { theme } from './theme';
+import type {
+    AutocompleteOptions,
+    BoxOptions,
+    BreadcrumbOptions,
+    ByteOptions,
+    CalculatorOptions,
+    CalendarOptions,
+    CheckboxOptions,
+    CodeOptions,
+    ColorOptions,
+    ConfirmOptions,
+    CronOptions,
+    DataInspectorOptions,
+    DateOptions,
+    DependencyOptions,
+    DialOptions,
+    DiffOptions,
+    DrawOptions,
+    EditorOptions,
+    EmojiOptions,
+    ExecOptions,
+    ExtensionRegistry,
+    FileOptions,
+    FormOptions,
+    FuzzySelectOptions,
+    GaugeOptions,
+    GridOptions,
+    HeatmapOptions,
+    IPOptions,
+    KanbanItem,
+    KanbanOptions,
+    KeypressOptions,
+    LicenseOptions,
+    ListOptions,
+    MapOptions,
+    MatchOptions,
+    MillerOptions,
+    MultiColumnSelectOptions,
+    MultiSelectOptions,
+    NumberOptions,
+    OTPOptions,
+    PatternOptions,
+    PhoneOptions,
+    QuizSelectOptions,
+    QuizTextOptions,
+    RangeOptions,
+    RatingOptions,
+    RegexOptions,
+    RegionOptions,
+    ScheduleOptions,
+    ScheduleTask,
+    ScrollOptions,
+    SeatOptions,
+    SelectOptions,
+    SelectRangeOptions,
+    SemVerOptions,
+    ShortcutOptions,
+    ShortcutResult,
+    SliderOptions,
+    SlotOptions,
+    SnippetOptions,
+    SortGridOptions,
+    SortOptions,
+    SpamOptions,
+    SpreadsheetOptions,
+    TableOptions,
+    TaskGroupOptions,
+    TextOptions,
+    ThemeConfig,
+    TimeOptions,
+    ToggleOptions,
+    TransferOptions,
+    TreeOptions,
+    TreeSelectOptions,
+    WaitOptions,
+} from './types';
 
 /**
  * Public Facade for Mep
@@ -96,25 +167,25 @@ export class MepCLI {
 
     public static register<K extends keyof ExtensionRegistry>(
         type: K,
-        promptClass: PromptConstructor<ExtensionRegistry[K]["result"], ExtensionRegistry[K]["options"]>
+        promptClass: PromptConstructor<ExtensionRegistry[K]['result'], ExtensionRegistry[K]['options']>,
     ): void {
         const key = type as string;
         if (MepCLI.registry.has(key)) {
             console.warn(
                 `[MepCLI] Warning: Prompt type "${key}" is already registered. ` +
-                `The existing implementation will be overwritten.`
+                    `The existing implementation will be overwritten.`,
             );
         }
         MepCLI.registry.set(key, promptClass);
     }
 
     public static prompt<K extends keyof ExtensionRegistry>(
-        options: { type: K } & ExtensionRegistry[K]["options"]
-    ): Promise<ExtensionRegistry[K]["result"]> {
+        options: { type: K } & ExtensionRegistry[K]['options'],
+    ): Promise<ExtensionRegistry[K]['result']> {
         const { type, ...promptOptions } = options as any;
         const TargetClass = MepCLI.registry.get(type as string);
         if (!TargetClass) throw new Error(`Prompt type "${String(type)}" is not registered.`);
-        const instance = new TargetClass(promptOptions as ExtensionRegistry[K]["options"]);
+        const instance = new TargetClass(promptOptions as ExtensionRegistry[K]['options']);
         return instance.run();
     }
 
@@ -1305,7 +1376,7 @@ export class MepCLI {
      * @returns A promise resolving to the box object.
      * @see {@link https://github.com/CodeTease/mep/blob/main/examples/box-prompt.ts}
      */
-    static box(options: BoxOptions): Promise<{ top: number, right: number, bottom: number, left: number }> {
+    static box(options: BoxOptions): Promise<{ top: number; right: number; bottom: number; left: number }> {
         return new BoxPrompt(options).run();
     }
 

@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { CalculatorOptions } from '../types';
+import { theme } from '../theme';
+import type { CalculatorOptions } from '../types';
 import { safeSplit, stringWidth } from '../utils';
 
 export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
@@ -30,7 +30,7 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
 
         try {
             const result = this.evaluate(input);
-            if (result !== null && !isNaN(result) && isFinite(result)) {
+            if (result !== null && !Number.isNaN(result) && Number.isFinite(result)) {
                 // Format precision if needed
                 if (this.options.precision !== undefined) {
                     this.previewValue = parseFloat(result.toFixed(this.options.precision)).toString();
@@ -66,7 +66,7 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
             // We can prefix them with Math.
 
             let checkStr = expr;
-            allowedMath.forEach(k => {
+            allowedMath.forEach((k) => {
                 checkStr = checkStr.replace(new RegExp(k, 'g'), '');
             });
 
@@ -75,7 +75,7 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
             }
 
             // Now prefix Math functions in the real expr
-            allowedMath.forEach(k => {
+            allowedMath.forEach((k) => {
                 // Replace 'sin(' with 'Math.sin('
                 // Be careful with PI and E
                 if (['PI', 'E'].includes(k)) {
@@ -137,7 +137,7 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
         if (previewStr) totalRows++;
         if (this.errorMsg) totalRows++;
 
-        const linesUp = (totalRows - 1);
+        const linesUp = totalRows - 1;
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
@@ -175,7 +175,7 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
         if (char === '\r' || char === '\n') {
             const input = this.segments.join('');
             const result = this.evaluate(input);
-            if (result === null || isNaN(result)) {
+            if (result === null || Number.isNaN(result)) {
                 this.errorMsg = 'Invalid expression';
                 this.render(false);
                 return;

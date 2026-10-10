@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { TextOptions } from '../types';
+import { theme } from '../theme';
+import type { TextOptions } from '../types';
 import { safeSplit, stringWidth } from '../utils';
 
 // --- Implementation: Text Prompt ---
@@ -33,7 +33,7 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         const result = this.options.suggest(currentValue);
 
         if (result instanceof Promise) {
-            result.then(suggestion => {
+            result.then((suggestion) => {
                 // Check if value is still the same (avoid race condition)
                 if (this.segments.join('') === currentValue) {
                     if (suggestion.startsWith(currentValue) && suggestion.length > currentValue.length) {
@@ -135,7 +135,6 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
             processedLines.push(currentLineSegments); // Last line
 
             processedLines.forEach((lineSegs: string[]) => {
-
                 // Reconstruct line string for display calculation
                 // If password, join with *?
                 let visibleLine = '';
@@ -177,7 +176,7 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         const errorOffset = this.errorMsg ? 1 : 0;
         const totalRows = displayValueLines.length + errorOffset;
 
-        const linesUp = (totalRows - 1) - cursorRelativeRow;
+        const linesUp = totalRows - 1 - cursorRelativeRow;
         if (linesUp > 0) {
             this.print(`\x1b[${linesUp}A`);
         }
@@ -310,22 +309,24 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                 this.errorMsg = 'Validating...';
                 this.render(false);
 
-                result.then(valid => {
-                    if (typeof valid === 'string' && valid.length > 0) {
-                        this.errorMsg = valid;
+                result
+                    .then((valid) => {
+                        if (typeof valid === 'string' && valid.length > 0) {
+                            this.errorMsg = valid;
+                            this.render(false);
+                        } else if (valid === false) {
+                            this.errorMsg = 'Invalid input';
+                            this.render(false);
+                        } else {
+                            this.errorMsg = '';
+                            this.render(false);
+                            this.submit(this.value);
+                        }
+                    })
+                    .catch((err) => {
+                        this.errorMsg = err.message || 'Validation failed';
                         this.render(false);
-                    } else if (valid === false) {
-                        this.errorMsg = 'Invalid input';
-                        this.render(false);
-                    } else {
-                        this.errorMsg = '';
-                        this.render(false);
-                        this.submit(this.value);
-                    }
-                }).catch(err => {
-                    this.errorMsg = err.message || 'Validation failed';
-                    this.render(false);
-                });
+                    });
                 return;
             }
 

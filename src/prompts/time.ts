@@ -1,6 +1,6 @@
-import { Prompt } from '../base';
-import { TimeOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import type { MouseEvent, TimeOptions } from '../types';
 
 export class TimePrompt extends Prompt<string, TimeOptions> {
     private hour: number = 0;
@@ -9,9 +9,13 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
 
     constructor(options: TimeOptions) {
         super(options);
-        const now = options.initial ? (typeof options.initial === 'string' ? new Date(options.initial) : options.initial) : new Date();
+        const now = options.initial
+            ? typeof options.initial === 'string'
+                ? new Date(options.initial)
+                : options.initial
+            : new Date();
         // Fallback if invalid date
-        if (isNaN(now.getTime())) {
+        if (Number.isNaN(now.getTime())) {
             this.hour = 0;
             this.minute = 0;
         } else {
@@ -43,7 +47,7 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
         };
 
         const getMinDisplay = (m: number) => m.toString().padStart(2, '0');
-        const getMeridiem = (h: number) => h >= 12 ? 'PM' : 'AM';
+        const getMeridiem = (h: number) => (h >= 12 ? 'PM' : 'AM');
 
         // Calculate Prev/Next values for visualization
         const adjustH = (val: number, delta: number) => {
@@ -126,7 +130,7 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
             output += line + '\n';
         }
 
-        output += ANSI.FG_GRAY + "(Use Arrows/Tab to navigate)" + ANSI.RESET;
+        output += ANSI.FG_GRAY + '(Use Arrows/Tab to navigate)' + ANSI.RESET;
 
         this.renderFrame(output);
     }
@@ -146,11 +150,12 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
         const is12h = this.options.format === '12h';
         const maxCols = is12h ? 2 : 1; // 0, 1, 2 or 0, 1
 
-        if (char === '\r' || char === '\n') { // Enter
+        if (char === '\r' || char === '\n') {
+            // Enter
             const h = this.hour.toString().padStart(2, '0');
             const m = this.minute.toString().padStart(2, '0');
             const result = is12h
-                ? `${((this.hour % 12) || 12).toString().padStart(2, '0')}:${m} ${this.hour >= 12 ? 'PM' : 'AM'}`
+                ? `${(this.hour % 12 || 12).toString().padStart(2, '0')}:${m} ${this.hour >= 12 ? 'PM' : 'AM'}`
                 : `${h}:${m}`;
             this.submit(result);
             return;
@@ -163,7 +168,8 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
             return;
         }
 
-        if (char === '\u001b[Z' || this.isLeft(char)) { // Shift+Tab or Left
+        if (char === '\u001b[Z' || this.isLeft(char)) {
+            // Shift+Tab or Left
             this.activeCol--;
             if (this.activeCol < 0) this.activeCol = maxCols;
             this.render(false);
@@ -189,20 +195,23 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
         // So DOWN arrow means INCREMENT index/value.
         // UP arrow means DECREMENT index/value.
 
-        if (this.activeCol === 0) { // Hour
+        if (this.activeCol === 0) {
+            // Hour
             let newH = this.hour + direction;
             if (newH < 0) newH = 23;
             if (newH > 23) newH = 0;
             this.hour = newH;
-        } else if (this.activeCol === 1) { // Minute
+        } else if (this.activeCol === 1) {
+            // Minute
             const step = this.options.step || 1;
-            let newM = this.minute + (direction * step);
+            let newM = this.minute + direction * step;
             if (newM < 0) newM = 60 - step; // Approx wrap
             // Better wrap logic for arbitrary steps:
             if (newM < 0) newM = 60 + newM; // e.g. -5 -> 55
             if (newM >= 60) newM = newM % 60;
             this.minute = newM;
-        } else if (this.activeCol === 2) { // Meridiem
+        } else if (this.activeCol === 2) {
+            // Meridiem
             // Toggle AM/PM
             this.hour = (this.hour + 12) % 24;
         }

@@ -1,5 +1,5 @@
+import type { SelectChoice, SemVerOptions } from '../types';
 import { SelectPrompt } from './select';
-import { SemVerOptions, SelectChoice } from '../types';
 
 export class SemVerPrompt extends SelectPrompt<string> {
     constructor(options: SemVerOptions) {
@@ -10,16 +10,16 @@ export class SemVerPrompt extends SelectPrompt<string> {
         const choices: SelectChoice<string>[] = [
             {
                 title: `Patch (${validVersion} -> ${major}.${minor}.${patch + 1})`,
-                value: `${major}.${minor}.${patch + 1}`
+                value: `${major}.${minor}.${patch + 1}`,
             },
             {
                 title: `Minor (${validVersion} -> ${major}.${minor + 1}.0)`,
-                value: `${major}.${minor + 1}.0`
+                value: `${major}.${minor + 1}.0`,
             },
             {
                 title: `Major (${validVersion} -> ${major + 1}.0.0)`,
-                value: `${major + 1}.0.0`
-            }
+                value: `${major + 1}.0.0`,
+            },
         ];
 
         super({ ...baseOptions, choices });

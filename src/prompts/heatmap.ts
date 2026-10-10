@@ -1,6 +1,6 @@
-import { Prompt } from '../base';
-import { HeatmapOptions, HeatmapLegend, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import type { HeatmapLegend, HeatmapOptions, MouseEvent } from '../types';
 
 export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
     private grid: number[][];
@@ -14,13 +14,13 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
         const rows = options.rows.length;
         const cols = options.columns.length;
         if (options.initial) {
-            this.grid = options.initial.map(row => [...row]);
+            this.grid = options.initial.map((row) => [...row]);
         } else {
             this.grid = Array.from({ length: rows }, () => Array(cols).fill(0));
         }
 
         // Get sorted valid values for cycling
-        this.validValues = options.legend.map(l => l.value).sort((a, b) => a - b);
+        this.validValues = options.legend.map((l) => l.value).sort((a, b) => a - b);
     }
 
     protected render(_firstRender: boolean): void {
@@ -28,7 +28,7 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
 
         // Render Column Headers
         output += '     '; // Offset for row labels
-        this.options.columns.forEach(col => {
+        this.options.columns.forEach((col) => {
             // Show first 2 chars
             const label = col.substring(0, 2).padEnd(2);
             output += ` ${label} `;
@@ -60,16 +60,16 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
 
         // Legend
         output += '\nLegend: ';
-        this.options.legend.forEach(l => {
+        this.options.legend.forEach((l) => {
             output += `${l.value}:${l.color(l.char)}  `;
         });
-        output += '\n' + ANSI.FG_GRAY + "(Arrows to move, Space to cycle, 0-9 to set)" + ANSI.RESET;
+        output += '\n' + ANSI.FG_GRAY + '(Arrows to move, Space to cycle, 0-9 to set)' + ANSI.RESET;
 
         this.renderFrame(output);
     }
 
     private getLegend(val: number): HeatmapLegend | undefined {
-        return this.options.legend.find(l => l.value === val);
+        return this.options.legend.find((l) => l.value === val);
     }
 
     protected handleMouse(event: MouseEvent): void {
@@ -84,7 +84,8 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
     }
 
     protected handleInput(char: string, _key: Buffer): void {
-        if (char === '\r' || char === '\n') { // Enter
+        if (char === '\r' || char === '\n') {
+            // Enter
             this.submit(this.grid);
             return;
         }
@@ -97,7 +98,8 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
             if (this.cursorCol > 0) this.cursorCol--;
         } else if (this.isRight(char)) {
             if (this.cursorCol < this.options.columns.length - 1) this.cursorCol++;
-        } else if (char === '\t') { // Tab -> Right (Cycle)
+        } else if (char === '\t') {
+            // Tab -> Right (Cycle)
             this.cursorCol++;
             if (this.cursorCol >= this.options.columns.length) {
                 this.cursorCol = 0;
@@ -106,7 +108,8 @@ export class HeatmapPrompt extends Prompt<number[][], HeatmapOptions> {
                     this.cursorRow = 0;
                 }
             }
-        } else if (char === '\u001b[Z') { // Shift+Tab -> Left (Cycle)
+        } else if (char === '\u001b[Z') {
+            // Shift+Tab -> Left (Cycle)
             this.cursorCol--;
             if (this.cursorCol < 0) {
                 this.cursorCol = this.options.columns.length - 1;

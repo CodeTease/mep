@@ -1,11 +1,10 @@
 import { ANSI } from './ansi';
 import { symbols } from './symbols';
-import { TaskConfig, TaskGroupOptions, TaskState } from './types';
+import type { TaskConfig, TaskGroupOptions, TaskState } from './types';
 import { generateProgressBar } from './utils';
 
 export class TaskRunner {
     private tasks: Map<string, TaskState> = new Map();
-    private options: TaskGroupOptions;
     private timer?: NodeJS.Timeout;
     private frameIndex: number = 0;
     private isRunning: boolean = false;
@@ -16,11 +15,10 @@ export class TaskRunner {
     private stdout: NodeJS.WriteStream = process.stdout;
 
     // Console Hijacking
-    private originalConsole: { log: any, warn: any, error: any } | null = null;
+    private originalConsole: { log: any; warn: any; error: any } | null = null;
     private logBuffer: string[] = [];
 
-    constructor(options: TaskGroupOptions = {}) {
-        this.options = options;
+    constructor(_options: TaskGroupOptions = {}) {
         this.handleSigInt = this.handleSigInt.bind(this);
     }
 
@@ -133,16 +131,18 @@ export class TaskRunner {
         this.originalConsole = {
             log: console.log,
             warn: console.warn,
-            error: console.error
+            error: console.error,
         };
 
-        const logger = (_type: string) => (...args: any[]) => {
-            // Use util.format for proper string interpolation
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            const util = require('util');
-            const msg = util.format(...args);
-            this.logBuffer.push(msg);
-        };
+        const logger =
+            (_type: string) =>
+            (...args: any[]) => {
+                // Use util.format for proper string interpolation
+                // eslint-disable-next-line @typescript-eslint/no-require-imports
+                const util = require('node:util');
+                const msg = util.format(...args);
+                this.logBuffer.push(msg);
+            };
 
         console.log = logger('log');
         console.warn = logger('warn');

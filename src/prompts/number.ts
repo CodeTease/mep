@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { NumberOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, NumberOptions } from '../types';
 
 // --- Implementation: Number Prompt ---
 export class NumberPrompt extends Prompt<number, NumberOptions> {
@@ -54,7 +54,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         // Enter
         if (char === '\r' || char === '\n') {
             const num = parseFloat(this.stringValue);
-            if (this.stringValue.trim() === '' || isNaN(num)) {
+            if (this.stringValue.trim() === '' || Number.isNaN(num)) {
                 this.errorMsg = 'Please enter a valid number.';
                 this.render(false);
                 return;
@@ -77,7 +77,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         // Up Arrow (Increment)
         if (this.isUp(char)) {
             let num = parseFloat(this.stringValue) || 0;
-            num += (this.options.step ?? 1);
+            num += this.options.step ?? 1;
             if (this.options.max !== undefined && num > this.options.max) num = this.options.max;
             // Round to avoid float errors
             num = Math.round(num * 10000) / 10000;
@@ -92,7 +92,7 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
         // Down Arrow (Decrement)
         if (this.isDown(char)) {
             let num = parseFloat(this.stringValue) || 0;
-            num -= (this.options.step ?? 1);
+            num -= this.options.step ?? 1;
             if (this.options.min !== undefined && num < this.options.min) num = this.options.min;
             // Round to avoid float errors
             num = Math.round(num * 10000) / 10000;

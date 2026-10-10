@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { ConfirmOptions, MouseEvent } from '../types';
+import type { ConfirmOptions, MouseEvent } from '../types';
 
 // --- Implementation: Confirm Prompt ---
 export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
@@ -26,8 +26,14 @@ export class ConfirmPrompt extends Prompt<boolean, ConfirmOptions> {
             this.submit(this.value);
             return;
         }
-        if (c === 'y') { this.value = true; this.render(false); }
-        if (c === 'n') { this.value = false; this.render(false); }
+        if (c === 'y') {
+            this.value = true;
+            this.render(false);
+        }
+        if (c === 'n') {
+            this.value = false;
+            this.render(false);
+        }
 
         // Allow left/right to toggle as well for better UX
         if (this.isLeft(char) || this.isRight(char)) {

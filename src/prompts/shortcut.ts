@@ -1,7 +1,7 @@
-import { Prompt } from '../base';
-import { ShortcutOptions, ShortcutResult } from '../types';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
 import { theme } from '../theme';
+import type { ShortcutOptions, ShortcutResult } from '../types';
 
 export class ShortcutPrompt extends Prompt<ShortcutResult, ShortcutOptions> {
     private currentKey?: ShortcutResult;
@@ -63,17 +63,21 @@ export class ShortcutPrompt extends Prompt<ShortcutResult, ShortcutOptions> {
         // Control Keys (1-26, except Backspace, Tab, Enter, Esc)
         if (code >= 1 && code <= 26) {
             // Exclude special control codes
-            if (char === '\t') { // Ctrl+I
+            if (char === '\t') {
+                // Ctrl+I
                 name = 'Tab';
-            } else if (char === '\n' || char === '\r') { // Ctrl+J / Ctrl+M
+            } else if (char === '\n' || char === '\r') {
+                // Ctrl+J / Ctrl+M
                 name = 'Enter';
-            } else if (char === '\b') { // Ctrl+H
+            } else if (char === '\b') {
+                // Ctrl+H
                 name = 'Backspace';
             } else {
                 ctrl = true;
                 name = String.fromCharCode(code + 64); // 1 -> 'A'
             }
-        } else if (code === 27) { // Escape
+        } else if (code === 27) {
+            // Escape
             if (raw.length === 1) {
                 name = 'Escape';
             } else {
@@ -94,7 +98,10 @@ export class ShortcutPrompt extends Prompt<ShortcutResult, ShortcutOptions> {
                     else if (raw === '\u001b[H') name = 'Home';
                     else if (raw === '\u001b[F') name = 'End';
                     else if (raw === '\u001b[3~') name = 'Delete';
-                    else if (raw === '\u001b[Z') { name = 'Tab'; shift = true; } // Shift+Tab
+                    else if (raw === '\u001b[Z') {
+                        name = 'Tab';
+                        shift = true;
+                    } // Shift+Tab
                     else {
                         name = 'Unknown';
                     }
@@ -109,7 +116,7 @@ export class ShortcutPrompt extends Prompt<ShortcutResult, ShortcutOptions> {
 
             if (char === ' ') name = 'Space';
 
-            // Special Symbols map? 
+            // Special Symbols map?
             // Keep it simple for now.
         }
 
@@ -118,7 +125,7 @@ export class ShortcutPrompt extends Prompt<ShortcutResult, ShortcutOptions> {
             ctrl,
             shift,
             meta,
-            sequence: raw
+            sequence: raw,
         };
     }
 }

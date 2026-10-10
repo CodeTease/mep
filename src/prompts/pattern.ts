@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { PatternOptions, MouseEvent } from '../types';
+import type { MouseEvent, PatternOptions } from '../types';
 
 interface Point {
     r: number;
@@ -23,7 +23,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
     private nodeSpacingX: number = 4;
     private nodeSpacingY: number = 2;
 
-    private lastMouse: { x: number, y: number } | null = null;
+    private lastMouse: { x: number; y: number } | null = null;
 
     constructor(options: PatternOptions) {
         super(options);
@@ -39,7 +39,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
     private getPoint(index: number): Point {
         return {
             r: Math.floor(index / this.cols),
-            c: index % this.cols
+            c: index % this.cols,
         };
     }
 
@@ -60,7 +60,9 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
         // Adjust height/width slightly to ensure we cover full lines
         const bufferHeight = this.rows * this.nodeSpacingY + 1;
         const bufferWidth = this.cols * this.nodeSpacingX + 1;
-        const buffer: string[][] = Array(bufferHeight).fill(null).map(() => Array(bufferWidth).fill(' '));
+        const buffer: string[][] = Array(bufferHeight)
+            .fill(null)
+            .map(() => Array(bufferWidth).fill(' '));
 
         // Draw connections
         for (let i = 0; i < this.path.length - 1; i++) {
@@ -161,7 +163,7 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
 
             // Check bounds
             if (ry >= 0 && ry < buffer.length && rx >= 0 && rx < buffer[0].length) {
-                const isNode = (ry % this.nodeSpacingY === 0) && (rx % this.nodeSpacingX === 0);
+                const isNode = ry % this.nodeSpacingY === 0 && rx % this.nodeSpacingX === 0;
 
                 if (!isNode) {
                     // Determine char based on slope

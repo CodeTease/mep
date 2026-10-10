@@ -1,8 +1,8 @@
-import { Prompt } from '../base';
-import { MillerOptions, TreeNode, MouseEvent } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
 import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { MillerOptions, MouseEvent, TreeNode } from '../types';
 import { stringWidth, stripAnsi } from '../utils';
 
 export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
@@ -40,7 +40,7 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
         let current = this.options.data;
         for (let i = 0; i < depth; i++) {
             const sel = this.selections[i];
-            if (current[sel] && current[sel].children) {
+            if (current[sel]?.children) {
                 current = current[sel].children!;
             } else {
                 return undefined;
@@ -93,7 +93,9 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
 
                 let prefix = ' ';
                 if (isSelected) {
-                    prefix = isFocused ? `${theme.main}${symbols.pointer}${ANSI.RESET}` : `${theme.muted}${symbols.pointer}${ANSI.RESET}`;
+                    prefix = isFocused
+                        ? `${theme.main}${symbols.pointer}${ANSI.RESET}`
+                        : `${theme.muted}${symbols.pointer}${ANSI.RESET}`;
                 }
 
                 let title = item.title;

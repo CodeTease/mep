@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { CheckboxOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { CheckboxOptions, MouseEvent } from '../types';
 
 // --- Implementation: Checkbox Prompt ---
 export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
@@ -15,7 +15,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
 
     constructor(options: CheckboxOptions<V>) {
         super(options);
-        this.checkedState = options.choices.map(c => !!c.selected);
+        this.checkedState = options.choices.map((c) => !!c.selected);
     }
 
     protected render(_firstRender: boolean) {
@@ -51,9 +51,8 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
                 ? `${theme.success}${symbols.checked}${ANSI.RESET}`
                 : `${theme.muted}${symbols.unchecked}${ANSI.RESET}`;
 
-            const title = actualIndex === this.selectedIndex
-                ? `${theme.main}${choice.title}${ANSI.RESET}`
-                : choice.title;
+            const title =
+                actualIndex === this.selectedIndex ? `${theme.main}${choice.title}${ANSI.RESET}` : choice.title;
 
             output += `${cursor} ${checkbox} ${title}`;
         });
@@ -88,9 +87,7 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
 
             this.cleanup();
 
-            const results = this.options.choices
-                .filter((_, i) => this.checkedState[i])
-                .map(c => c.value);
+            const results = this.options.choices.filter((_, i) => this.checkedState[i]).map((c) => c.value);
 
             if ((this as any)._resolve) (this as any)._resolve(results);
             return;
@@ -120,11 +117,11 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
 
         // 'i': Invert Selection
         if (char === 'i') {
-            const potentialCount = this.checkedState.filter(s => !s).length;
+            const potentialCount = this.checkedState.filter((s) => !s).length;
             if (this.options.max && potentialCount > this.options.max) {
                 this.errorMsg = `Cannot invert: Result exceeds max limit ${this.options.max}`;
             } else {
-                this.checkedState = this.checkedState.map(s => !s);
+                this.checkedState = this.checkedState.map((s) => !s);
                 this.errorMsg = '';
             }
             this.render(false);
@@ -146,12 +143,14 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
             this.render(false);
         }
 
-        if (this.isUp(char)) { // Up
+        if (this.isUp(char)) {
+            // Up
             this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.choices.length - 1;
             this.errorMsg = '';
             this.render(false);
         }
-        if (this.isDown(char)) { // Down
+        if (this.isDown(char)) {
+            // Down
             this.selectedIndex = this.selectedIndex < this.options.choices.length - 1 ? this.selectedIndex + 1 : 0;
             this.errorMsg = '';
             this.render(false);

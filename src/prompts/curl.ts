@@ -1,11 +1,11 @@
-import { Prompt } from '../base';
 import { ANSI } from '../ansi';
-import { theme } from '../theme';
+import { Prompt } from '../base';
 import { symbols } from '../symbols';
-import { MapPrompt } from './map';
-import { CodePrompt } from './code';
+import { theme } from '../theme';
 import { safeSplit, stringWidth } from '../utils';
-import { ShellType, ShellStrategy, BashStrategy, PowerShellStrategy, CmdStrategy } from './curl-utils';
+import { CodePrompt } from './code';
+import { BashStrategy, CmdStrategy, PowerShellStrategy, type ShellStrategy, type ShellType } from './curl-utils';
+import { MapPrompt } from './map';
 
 export interface CurlOptions {
     message: string;
@@ -32,17 +32,26 @@ enum Section {
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 const COMMON_HEADERS = [
-    'Accept', 'Accept-Encoding', 'Accept-Language',
-    'Authorization', 'Cache-Control', 'Connection',
-    'Content-Type', 'Cookie', 'Host',
-    'Origin', 'Pragma', 'Referer',
-    'User-Agent', 'X-Requested-With'
+    'Accept',
+    'Accept-Encoding',
+    'Accept-Language',
+    'Authorization',
+    'Cache-Control',
+    'Connection',
+    'Content-Type',
+    'Cookie',
+    'Host',
+    'Origin',
+    'Pragma',
+    'Referer',
+    'User-Agent',
+    'X-Requested-With',
 ];
 
 export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     private section: Section = Section.METHOD;
     private methodIndex: number = 0;
-    
+
     // URL State
     private urlSegments: string[] = [];
     private urlCursor: number = 0;
@@ -58,7 +67,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     private strategies: Record<ShellType, ShellStrategy> = {
         bash: new BashStrategy(),
         powershell: new PowerShellStrategy(),
-        cmd: new CmdStrategy()
+        cmd: new CmdStrategy(),
     };
 
     constructor(options: CurlOptions) {
@@ -131,7 +140,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         // URL
         const urlStr = this.url;
         const displayUrl = urlStr || 'http://localhost...';
-        
+
         cmd += `${continuation}${strategy.escape(displayUrl)}`;
 
         return cmd;
@@ -150,26 +159,27 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         output += `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message} ${shellLabel}${ANSI.RESET}\n`;
 
         // 1. Method
-        const methodLabel = this.section === Section.METHOD
-            ? `${theme.main}${ANSI.REVERSE} ${this.currentMethod} ${ANSI.RESET}`
-            : `${ANSI.BOLD}[${this.currentMethod}]${ANSI.RESET}`;
+        const methodLabel =
+            this.section === Section.METHOD
+                ? `${theme.main}${ANSI.REVERSE} ${this.currentMethod} ${ANSI.RESET}`
+                : `${ANSI.BOLD}[${this.currentMethod}]${ANSI.RESET}`;
 
         output += `\n${methodLabel}`;
 
         // 2. URL
         const urlActive = this.section === Section.URL;
         const urlPrefix = urlActive ? `${theme.main}${ANSI.BOLD} URL: ${ANSI.RESET}` : ` URL: `;
-        
+
         let urlDisplay = '';
         if (this.urlSegments.length === 0 && urlActive) {
             // Placeholder/Empty state when active
-            urlDisplay = ''; 
+            urlDisplay = '';
         } else if (this.urlSegments.length === 0 && !urlActive) {
             urlDisplay = `${theme.muted}http://localhost:3000${ANSI.RESET}`;
         } else {
             urlDisplay = this.urlSegments.join('');
         }
-        
+
         output += `${urlPrefix}${urlDisplay}\n`;
 
         // 3. Headers
@@ -234,7 +244,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
 
                 // Calculate visual cursor position
                 let targetCol = prefixLen;
-                
+
                 // Add width of segments up to cursor
                 for (let i = 0; i < this.urlCursor; i++) {
                     targetCol += stringWidth(this.urlSegments[i]);
@@ -269,7 +279,8 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             return;
         }
 
-        if (char === '\u001b[Z') { // Shift+Tab
+        if (char === '\u001b[Z') {
+            // Shift+Tab
             this.cycleSection(-1);
             this.render(false);
             return;
@@ -347,7 +358,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
                 while (i >= 0 && this.urlSegments[i] === ' ') i--;
                 // Skip word characters
                 while (i >= 0 && this.urlSegments[i] !== ' ') i--;
-                
+
                 const deleteCount = this.urlCursor - (i + 1);
                 this.urlSegments.splice(i + 1, deleteCount);
                 this.urlCursor = i + 1;
@@ -441,7 +452,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             const result = await new MapPrompt({
                 message: 'Edit Headers',
                 initial: this.headers,
-                suggestions: COMMON_HEADERS
+                suggestions: COMMON_HEADERS,
             }).run();
             this.headers = result;
         } catch (_e) {
@@ -459,9 +470,9 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
         try {
             const result = await new CodePrompt({
                 message: 'Edit Body (JSON)',
-                template: '${json}',
+                template: '$' + '{json}',
                 highlight: true,
-                values: this.body ? { json: this.body } : undefined
+                values: this.body ? { json: this.body } : undefined,
             }).run();
             this.body = result;
         } catch (_e) {
@@ -478,7 +489,7 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             url: this.url,
             headers: this.headers,
             body: this.hasBody ? this.body : undefined,
-            command: this.generateCommand(false) // Single line for clipboard/usage
+            command: this.generateCommand(false), // Single line for clipboard/usage
         });
     }
 }

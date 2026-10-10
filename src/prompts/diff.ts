@@ -1,7 +1,7 @@
-import { Prompt } from '../base';
-import { DiffOptions } from '../types';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import { theme } from '../theme';
+import type { DiffOptions } from '../types';
 import { EditorPrompt } from './editor';
 
 export class DiffPrompt extends Prompt<string, DiffOptions> {
@@ -30,7 +30,7 @@ export class DiffPrompt extends Prompt<string, DiffOptions> {
         if (originalLines.length === 0) {
             output += `${ANSI.FG_GRAY}│ ${ANSI.DIM}(empty)${ANSI.RESET}\n`;
         } else {
-            originalLines.forEach(line => {
+            originalLines.forEach((line) => {
                 const truncated = this.truncate(line, width - 4);
                 output += `${ANSI.FG_GRAY}│ ${ANSI.FG_RED}- ${truncated}${ANSI.RESET}\n`;
             });
@@ -42,7 +42,7 @@ export class DiffPrompt extends Prompt<string, DiffOptions> {
         if (modifiedLines.length === 0) {
             output += `${ANSI.FG_GRAY}│ ${ANSI.DIM}(empty)${ANSI.RESET}\n`;
         } else {
-            modifiedLines.forEach(line => {
+            modifiedLines.forEach((line) => {
                 const truncated = this.truncate(line, width - 4);
                 output += `${ANSI.FG_GRAY}│ ${ANSI.FG_GREEN}+ ${truncated}${ANSI.RESET}\n`;
             });
@@ -96,12 +96,15 @@ ${this.options.modified}
                 message: 'Resolve conflict (Edit)',
                 initial: initial,
                 extension: '.txt',
-                waitUserInput: false // Launch immediately
-            }).run().then(result => {
-                this.submit(result);
-            }).catch(_err => {
-                this.submit(initial);
-            });
+                waitUserInput: false, // Launch immediately
+            })
+                .run()
+                .then((result) => {
+                    this.submit(result);
+                })
+                .catch((_err) => {
+                    this.submit(initial);
+                });
         }
     }
 }

@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SpreadsheetOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, SpreadsheetOptions } from '../types';
 import { stringWidth } from '../utils';
 
 export class SpreadsheetPrompt extends Prompt<Record<string, any>[], SpreadsheetOptions> {
@@ -24,12 +24,12 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
     }
 
     private calculateColWidths() {
-        this.colWidths = this.options.columns.map(col => {
+        this.colWidths = this.options.columns.map((col) => {
             if (col.width) return col.width;
 
             // Auto calculate based on header and data
             let max = stringWidth(col.name);
-            this.options.data.forEach(row => {
+            this.options.data.forEach((row) => {
                 const val = String(row[col.key] || '');
                 max = Math.max(max, stringWidth(val));
             });
@@ -49,7 +49,8 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         // Viewport Logic (Rows)
         const maxScrollRow = Math.max(0, this.options.data.length - this.viewportHeight);
         if (this.cursorRow < this.scrollRow) this.scrollRow = this.cursorRow;
-        if (this.cursorRow >= this.scrollRow + this.viewportHeight) this.scrollRow = this.cursorRow - this.viewportHeight + 1;
+        if (this.cursorRow >= this.scrollRow + this.viewportHeight)
+            this.scrollRow = this.cursorRow - this.viewportHeight + 1;
         this.scrollRow = Math.min(maxScrollRow, this.scrollRow);
 
         // Viewport Logic (Columns - Horizontal Scroll)
@@ -71,7 +72,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         let headerStr = '   ';
         let totalWidth = 3;
 
-        visibleCols.forEach(idx => {
+        visibleCols.forEach((idx) => {
             const col = this.options.columns[idx];
             const w = this.colWidths[idx];
             headerStr += this.pad(col.name, w) + ' ';
@@ -90,10 +91,10 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             // Row Number
             let rowStr = `${ANSI.DIM}${String(rowIndex + 1).padEnd(3)}${ANSI.RESET}`;
 
-            visibleCols.forEach(colIndex => {
+            visibleCols.forEach((colIndex) => {
                 const col = this.options.columns[colIndex];
                 const w = this.colWidths[colIndex];
-                const isCursor = (rowIndex === this.cursorRow) && (colIndex === this.cursorCol);
+                const isCursor = rowIndex === this.cursorRow && colIndex === this.cursorCol;
 
                 let val = String(rowData[col.key] || '');
                 if (isCursor && this.editMode) {
@@ -236,7 +237,8 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             return;
         }
 
-        if (char === '\x1b') { // Esc
+        if (char === '\x1b') {
+            // Esc
             this.editMode = false;
             this.render(false);
             return;

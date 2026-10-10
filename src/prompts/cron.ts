@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { CronOptions, MouseEvent } from '../types';
+import type { CronOptions, MouseEvent } from '../types';
 
 interface FieldConfig {
     label: string;
@@ -14,7 +14,7 @@ const FIELDS: FieldConfig[] = [
     { label: 'Hour', min: 0, max: 23 },
     { label: 'Day', min: 1, max: 31 },
     { label: 'Month', min: 1, max: 12 },
-    { label: 'Weekday', min: 0, max: 6 }
+    { label: 'Weekday', min: 0, max: 6 },
 ];
 
 export class CronPrompt extends Prompt<string, CronOptions> {
@@ -67,8 +67,8 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         const val = this.fields[this.activeField];
         if (val === '*') return;
 
-        let num = parseInt(val);
-        if (isNaN(num)) {
+        let num = parseInt(val, 10);
+        if (Number.isNaN(num)) {
             this.fields[this.activeField] = config.min.toString();
         } else {
             num = Math.max(config.min, Math.min(num, config.max));
@@ -102,12 +102,12 @@ export class CronPrompt extends Prompt<string, CronOptions> {
 
         const config = this.currentConfig;
         const currentVal = this.fields[this.activeField];
-        let numVal = parseInt(currentVal);
+        let numVal = parseInt(currentVal, 10);
 
         if (this.isUp(char)) {
             if (currentVal === '*') {
                 this.fields[this.activeField] = config.min.toString();
-            } else if (!isNaN(numVal)) {
+            } else if (!Number.isNaN(numVal)) {
                 numVal++;
                 if (numVal > config.max) numVal = config.min;
                 this.fields[this.activeField] = numVal.toString();
@@ -120,7 +120,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         if (this.isDown(char)) {
             if (currentVal === '*') {
                 this.fields[this.activeField] = config.max.toString();
-            } else if (!isNaN(numVal)) {
+            } else if (!Number.isNaN(numVal)) {
                 numVal--;
                 if (numVal < config.min) numVal = config.max;
                 this.fields[this.activeField] = numVal.toString();
@@ -140,18 +140,19 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         // Direct Input
         if (/^[0-9]$/.test(char)) {
             const nextBuffer = this.buffer + char;
-            const nextNum = parseInt(nextBuffer);
+            const nextNum = parseInt(nextBuffer, 10);
 
             // Check if valid
-            if (!isNaN(nextNum) && nextNum <= config.max) {
+            if (!Number.isNaN(nextNum) && nextNum <= config.max) {
                 this.buffer = nextBuffer;
 
-                if (nextNum >= 0) { // Should be positive
+                if (nextNum >= 0) {
+                    // Should be positive
                     this.fields[this.activeField] = nextNum.toString();
                 }
             } else {
-                const freshNum = parseInt(char);
-                if (!isNaN(freshNum) && freshNum <= config.max) {
+                const freshNum = parseInt(char, 10);
+                if (!Number.isNaN(freshNum) && freshNum <= config.max) {
                     this.buffer = char;
                     this.fields[this.activeField] = freshNum.toString();
                 }
@@ -164,20 +165,22 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         if (event.action === 'scroll') {
             const config = this.currentConfig;
             const currentVal = this.fields[this.activeField];
-            let numVal = parseInt(currentVal);
+            let numVal = parseInt(currentVal, 10);
 
-            if (event.scroll === 'up') { // Increase
+            if (event.scroll === 'up') {
+                // Increase
                 if (currentVal === '*') {
                     this.fields[this.activeField] = config.min.toString();
-                } else if (!isNaN(numVal)) {
+                } else if (!Number.isNaN(numVal)) {
                     numVal++;
                     if (numVal > config.max) numVal = config.min;
                     this.fields[this.activeField] = numVal.toString();
                 }
-            } else { // Decrease
+            } else {
+                // Decrease
                 if (currentVal === '*') {
                     this.fields[this.activeField] = config.max.toString();
-                } else if (!isNaN(numVal)) {
+                } else if (!Number.isNaN(numVal)) {
                     numVal--;
                     if (numVal < config.min) numVal = config.max;
                     this.fields[this.activeField] = numVal.toString();

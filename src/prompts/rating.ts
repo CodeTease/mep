@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { RatingOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, RatingOptions } from '../types';
 
 export class RatingPrompt extends Prompt<number, RatingOptions> {
     constructor(options: RatingOptions) {
@@ -39,13 +39,14 @@ export class RatingPrompt extends Prompt<number, RatingOptions> {
         }
 
         // Arrow keys
-        if (this.isLeft(char) || this.isDown(char)) { // Left/Down decreases
+        if (this.isLeft(char) || this.isDown(char)) {
+            // Left/Down decreases
             if (this.value > min) {
                 this.value--;
                 this.render(false);
             }
-        }
-        else if (this.isRight(char) || this.isUp(char)) { // Right/Up increases
+        } else if (this.isRight(char) || this.isUp(char)) {
+            // Right/Up increases
             if (this.value < max) {
                 this.value++;
                 this.render(false);
@@ -53,8 +54,8 @@ export class RatingPrompt extends Prompt<number, RatingOptions> {
         }
 
         // Number keys (1-9)
-        const num = parseInt(char);
-        if (!isNaN(num)) {
+        const num = parseInt(char, 10);
+        if (!Number.isNaN(num)) {
             if (num >= min && num <= max) {
                 this.value = num;
                 this.render(false);

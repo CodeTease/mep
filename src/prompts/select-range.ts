@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SelectRangeOptions } from '../types';
+import { theme } from '../theme';
+import type { SelectRangeOptions } from '../types';
 import { SelectPrompt } from './select';
 
 export class SelectRangePrompt<V> extends SelectPrompt<V, SelectRangeOptions<V>> {

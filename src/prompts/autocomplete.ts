@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { AutocompleteOptions, SelectChoice, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { AutocompleteOptions, MouseEvent, SelectChoice } from '../types';
 import { stringWidth } from '../utils';
 
 export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
@@ -77,7 +77,9 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
         let output = '';
 
         // Header
-        const icon = this.loading ? `${theme.main}${symbols.spinner[this.spinnerFrame]}${ANSI.RESET}` : `${theme.success}?${ANSI.RESET}`;
+        const icon = this.loading
+            ? `${theme.main}${symbols.spinner[this.spinnerFrame]}${ANSI.RESET}`
+            : `${theme.success}?${ANSI.RESET}`;
         output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} ${this.input}`;
 
         output += '\n';

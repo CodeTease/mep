@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { ScheduleOptions, ScheduleTask, MouseEvent } from '../types';
+import type { MouseEvent, ScheduleOptions, ScheduleTask } from '../types';
 import { stringWidth } from '../utils';
 
 export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
@@ -21,17 +21,17 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
     constructor(options: ScheduleOptions) {
         super(options);
         // Deep clone to avoid mutating original data before submission
-        this.tasks = options.data.map(t => ({
+        this.tasks = options.data.map((t) => ({
             ...t,
             start: new Date(t.start),
-            end: new Date(t.end)
+            end: new Date(t.end),
         }));
 
         // Initial Calculations
-        const minTaskDate = Math.min(...this.tasks.map(t => t.start.getTime()));
-        const maxTaskDate = Math.max(...this.tasks.map(t => t.end.getTime()));
+        const minTaskDate = Math.min(...this.tasks.map((t) => t.start.getTime()));
+        const maxTaskDate = Math.max(...this.tasks.map((t) => t.end.getTime()));
 
-        const opts = options as (ScheduleOptions & { startDate?: Date, endDate?: Date });
+        const opts = options as ScheduleOptions & { startDate?: Date; endDate?: Date };
         const minDate = opts.startDate ? opts.startDate.getTime() : minTaskDate;
         const maxDate = opts.endDate ? opts.endDate.getTime() : maxTaskDate;
 
@@ -42,13 +42,11 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         this.msPerChar = range / 60;
 
         // Start view slightly before the earliest task
-        this.viewStartDate = opts.startDate
-            ? minDate
-            : minDate - (this.msPerChar * 5);
+        this.viewStartDate = opts.startDate ? minDate : minDate - this.msPerChar * 5;
     }
 
     private get maxNameWidth(): number {
-        return Math.max(...this.tasks.map(t => stringWidth(t.name))) + 2;
+        return Math.max(...this.tasks.map((t) => stringWidth(t.name))) + 2;
     }
 
     protected render(_firstRender: boolean) {
@@ -64,7 +62,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         const headerPadding = ' '.repeat(this.nameColWidth + 2);
         let headerLine = '';
         for (let i = 0; i < timelineWidth; i += 10) {
-            const timeAtTick = new Date(this.viewStartDate + (i * this.msPerChar));
+            const timeAtTick = new Date(this.viewStartDate + i * this.msPerChar);
             // Format: MM/DD or HH:mm depending on zoom
             const tickLabel = this.formatDateCompact(timeAtTick);
             // Ensure we don't overflow
@@ -128,7 +126,9 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
                 const barColor = isSelected ? theme.main : ANSI.FG_GRAY;
 
                 // Metadata hints
-                const durationLabel = isSelected ? ` ${this.formatDuration(task.end.getTime() - task.start.getTime())}` : '';
+                const durationLabel = isSelected
+                    ? ` ${this.formatDuration(task.end.getTime() - task.start.getTime())}`
+                    : '';
 
                 timelineStr = preSpace + barColor + barChar.repeat(barLen) + reset + durationLabel;
             } else if (barEnd <= 0) {
@@ -153,7 +153,8 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         // Else show Time
         const msPerDay = 86400000;
 
-        if (this.msPerChar * 10 > msPerDay * 30) { // Very zoomed out
+        if (this.msPerChar * 10 > msPerDay * 30) {
+            // Very zoomed out
             return `${d.getMonth() + 1}/${d.getFullYear()}`;
         }
         if (this.msPerChar * 10 > msPerDay) {
@@ -179,7 +180,8 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
             this.render(false);
             return;
         }
-        if (char === '\u001b[Z') { // Shift+Tab
+        if (char === '\u001b[Z') {
+            // Shift+Tab
             this.cursor = (this.cursor - 1 + this.tasks.length) % this.tasks.length;
             this.render(false);
             return;
@@ -197,12 +199,14 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         }
 
         // PageUp/Down: Horizontal Scroll
-        if (key.toString() === '\x1b[5~') { // PageUp
+        if (key.toString() === '\x1b[5~') {
+            // PageUp
             this.scrollView(-10);
             this.render(false);
             return;
         }
-        if (key.toString() === '\x1b[6~') { // PageDown
+        if (key.toString() === '\x1b[6~') {
+            // PageDown
             this.scrollView(10);
             this.render(false);
             return;
@@ -290,7 +294,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
     }
 
     private scrollView(chars: number) {
-        let newStart = this.viewStartDate + (chars * this.msPerChar);
+        let newStart = this.viewStartDate + chars * this.msPerChar;
 
         // Clamp if fixed start is provided to prevent scrolling before the start date
         if (this.minViewDate !== undefined && newStart < this.minViewDate) {

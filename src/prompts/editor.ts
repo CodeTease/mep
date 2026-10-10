@@ -1,12 +1,12 @@
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
-import { spawn } from 'child_process';
-import { Prompt } from '../base';
-import { EditorOptions } from '../types';
-import { theme } from '../theme';
-import { symbols } from '../symbols';
+import { spawn } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { EditorOptions } from '../types';
 
 export class EditorPrompt extends Prompt<string, EditorOptions> {
     private errorMsg: string = '';
@@ -72,7 +72,7 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
         }
     }
 
-    private resolveEditor(): { cmd: string, args: string[] } {
+    private resolveEditor(): { cmd: string; args: string[] } {
         // 1. Env vars
         const envEditor = process.env.VISUAL || process.env.EDITOR;
         if (envEditor) {
@@ -131,7 +131,7 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
         // 4. Spawn
         const child = spawn(cmd, editorArgs, {
             stdio: 'inherit',
-            shell: true
+            shell: true,
         });
 
         child.on('error', (err) => {

@@ -1,21 +1,16 @@
 // src/input.ts
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 
 export class InputParser extends EventEmitter {
     private buffer: string = '';
     private timeout: NodeJS.Timeout | null = null;
     private state: 'NORMAL' | 'ESC' | 'CSI' | 'MOUSE_SGR' = 'NORMAL';
 
-    constructor() {
-        super();
-    }
-
     /**
      * Feed data into the parser.
      */
     public feed(data: Buffer) {
-
         const input = data.toString('utf-8');
 
         for (let i = 0; i < input.length; i++) {
@@ -108,7 +103,7 @@ export class InputParser extends EventEmitter {
 
             if (b & 64) {
                 action = 'scroll';
-                const scroll = (b & 1) ? 'down' : 'up';
+                const scroll = b & 1 ? 'down' : 'up';
                 this.emit('mouse', {
                     name: 'mouse',
                     x,
@@ -118,7 +113,7 @@ export class InputParser extends EventEmitter {
                     scroll,
                     shift,
                     ctrl,
-                    meta
+                    meta,
                 });
                 if (scroll === 'up') this.emit('scrollup');
                 else this.emit('scrolldown');
@@ -143,7 +138,7 @@ export class InputParser extends EventEmitter {
                 action,
                 shift,
                 ctrl,
-                meta
+                meta,
             });
         }
     }

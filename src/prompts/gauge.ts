@@ -1,7 +1,7 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
 import { theme } from '../theme';
-import { GaugeOptions } from '../types';
+import type { GaugeOptions } from '../types';
 
 export class GaugePrompt extends Prompt<string, GaugeOptions> {
     private cursor: number = 0; // 0 to 100

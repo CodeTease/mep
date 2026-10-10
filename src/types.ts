@@ -2,7 +2,6 @@
  * Type definitions for Mep CLI interactions.
  */
 
-
 /**
  * Extension registry for custom prompts.
  * Extend this interface via declaration merging to register custom prompt types:
@@ -17,20 +16,20 @@
  * const result = await MepCLI.prompt({ type: 'myPrompt', message: '...' });
  * @see {@link https://github.com/CodeTease/mep/blob/main/examples/extension-registry.ts}
  */
-export interface ExtensionRegistry { }
+export interface ExtensionRegistry {}
 
 export interface ThemeConfig {
-    main: string;    // Primary branding color (e.g., cursor, selected item, values)
+    main: string; // Primary branding color (e.g., cursor, selected item, values)
     success: string; // Success messages, checkmarks
-    error: string;   // Error messages, cross marks
-    muted: string;   // Placeholders, help text, unselected items
-    title: string;   // Questions/Titles
+    error: string; // Error messages, cross marks
+    muted: string; // Placeholders, help text, unselected items
+    title: string; // Questions/Titles
     syntax: {
-        key: string;         // JSON Key color
-        string: string;      // JSON String value color
-        number: string;      // JSON Number value color
-        boolean: string;     // JSON Boolean value color
-        null: string;       // JSON Null value color
+        key: string; // JSON Key color
+        string: string; // JSON String value color
+        number: string; // JSON Number value color
+        boolean: string; // JSON Boolean value color
+        null: string; // JSON Null value color
         punctuation: string; // JSON Punctuation color
     };
 }
@@ -226,10 +225,13 @@ export interface FormOptions extends BaseOptions {
 export interface SnippetOptions extends BaseOptions {
     template: string;
     values?: Record<string, string>;
-    fields?: Record<string, {
-        message?: string;
-        validate?: (value: string) => string | boolean;
-    }>;
+    fields?: Record<
+        string,
+        {
+            message?: string;
+            validate?: (value: string) => string | boolean;
+        }
+    >;
 }
 
 export interface SpamOptions extends BaseOptions {
@@ -369,8 +371,8 @@ export interface HeatmapOptions extends BaseOptions {
 
 export interface ByteOptions extends BaseOptions {
     initial?: number; // Field initial in bytes
-    min?: number;     // Min bytes
-    max?: number;     // Max bytes
+    min?: number; // Min bytes
+    max?: number; // Max bytes
 }
 
 // --- Slot Machine Types ---
@@ -616,8 +618,8 @@ export interface BoxOptions extends BaseOptions {
 // --- Phone Types ---
 export interface PhoneOptions extends BaseOptions {
     defaultCountry?: string; // ISO Code (e.g., 'VN')
-    placeholder?: string;    // Custom placeholder if no default mask
-    strict?: boolean;        // Enforce strict mask length
+    placeholder?: string; // Custom placeholder if no default mask
+    strict?: boolean; // Enforce strict mask length
     validate?: (value: string) => string | boolean | Promise<string | boolean>;
 }
 

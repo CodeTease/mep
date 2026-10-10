@@ -1,7 +1,7 @@
-import { Prompt } from '../base';
-import { SeatOptions, MouseEvent } from '../types';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
 import { theme } from '../theme';
+import type { MouseEvent, SeatOptions } from '../types';
 
 interface SeatNode {
     x: number;
@@ -26,7 +26,9 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
         super(options);
         this.parseLayout();
         if (options.initial) {
-            options.initial.forEach(id => this.selected.add(id));
+            options.initial.forEach((id) => {
+                this.selected.add(id);
+            });
         }
         this.checkWindowsAttention();
     }
@@ -44,8 +46,10 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
                 const isOccupied = char.toUpperCase() === 'X';
 
                 // Label generation: Rows (A, B...), Cols (1, 2...)
-                const rowLabel = this.options.rows ? (this.options.rows[y] || String(y + 1)) : String.fromCharCode(65 + y);
-                const colLabel = this.options.cols ? (this.options.cols[x] || String(x + 1)) : String(x + 1);
+                const rowLabel = this.options.rows
+                    ? this.options.rows[y] || String(y + 1)
+                    : String.fromCharCode(65 + y);
+                const colLabel = this.options.cols ? this.options.cols[x] || String(x + 1) : String(x + 1);
 
                 const label = `${rowLabel}${colLabel}`;
 
@@ -63,7 +67,12 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
                 }
 
                 return {
-                    x, y, char, label, selectable, status
+                    x,
+                    y,
+                    char,
+                    label,
+                    selectable,
+                    status,
                 };
             });
         });
@@ -125,7 +134,7 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
             if (!row) return;
             const node = row[this.cursorX];
 
-            if (node && node.selectable && node.status !== 'occupied') {
+            if (node?.selectable && node.status !== 'occupied') {
                 if (this.selected.has(node.label)) {
                     this.selected.delete(node.label);
                 } else {
@@ -141,7 +150,6 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
         else if (this.isDown(char)) this.move(0, 1);
         else if (this.isLeft(char)) this.move(-1, 0);
         else if (this.isRight(char)) this.move(1, 0);
-
         // Tab / Shift+Tab
         else if (char === '\t') this.move(1, 0);
         else if (char === '\u001b[Z') this.move(-1, 0);
@@ -179,7 +187,6 @@ export class SeatPrompt extends Prompt<string[], SeatOptions> {
                 this.render(false);
                 return;
             }
-
         } while (limit > 0);
     }
 }

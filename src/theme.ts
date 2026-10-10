@@ -1,5 +1,5 @@
 import { ANSI } from './ansi';
-import { ThemeConfig } from './types';
+import type { ThemeConfig } from './types';
 
 export const theme: ThemeConfig = {
     main: ANSI.FG_CYAN,
@@ -15,5 +15,5 @@ export const theme: ThemeConfig = {
         boolean: ANSI.FG_MAGENTA,
         null: ANSI.FG_RED,
         punctuation: ANSI.FG_WHITE,
-    }
+    },
 };

@@ -1,8 +1,8 @@
-import { Prompt } from '../base';
-import { PhoneOptions } from '../types';
-import { COUNTRIES, CountryEntry } from '../data/countries';
-import { theme } from '../theme';
 import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import { COUNTRIES, type CountryEntry } from '../data/countries';
+import { theme } from '../theme';
+import type { PhoneOptions } from '../types';
 import { fuzzyMatch, stripAnsi } from '../utils';
 
 export class PhonePrompt extends Prompt<string, PhoneOptions> {
@@ -22,7 +22,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
 
         // Initialize country
         if (options.defaultCountry) {
-            const idx = COUNTRIES.findIndex(c => c[0] === options.defaultCountry?.toUpperCase());
+            const idx = COUNTRIES.findIndex((c) => c[0] === options.defaultCountry?.toUpperCase());
             if (idx !== -1) this.selectedCountryIndex = idx;
         } else {
             // Default to US or VN? Let's default to index 0 (US in our list usually, or whatever is first)
@@ -47,13 +47,9 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     private get activeMask(): string {
         const masks = this.getMasks(this.currentCountry[3]);
         const targetLength = this.rawNumber.length;
-        const matchingMask = masks.find(mask => this.getMaskPlaceholderCount(mask) >= targetLength);
+        const matchingMask = masks.find((mask) => this.getMaskPlaceholderCount(mask) >= targetLength);
 
         return matchingMask ?? masks[masks.length - 1] ?? '';
-    }
-
-    private get mask(): string {
-        return this.activeMask;
     }
 
     private get dialCode(): string {
@@ -61,32 +57,8 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     }
 
     private getValidLengths(): number[] {
-        const lengths = this.getMasks(this.currentCountry[3]).map(mask => this.getMaskPlaceholderCount(mask));
+        const lengths = this.getMasks(this.currentCountry[3]).map((mask) => this.getMaskPlaceholderCount(mask));
         return [...new Set(lengths)].sort((a, b) => a - b);
-    }
-
-    private getMinRawLength(): number {
-        return Math.min(...this.getMasks(this.currentCountry[3]).map(mask => this.getMaskPlaceholderCount(mask)));
-    }
-
-    /**
-     * Maps a raw index (index in the digit-only string) to a visual index in the formatted string.
-     */
-    private getVisualIndex(rawIndex: number, mask: string): number {
-        let rawCounter = 0;
-        for (let i = 0; i < mask.length; i++) {
-            if (rawCounter === rawIndex) {
-                if (mask[i] === '#') {
-                    return i;
-                }
-            }
-
-            if (mask[i] === '#') {
-                rawCounter++;
-            }
-        }
-        // If we went past the end
-        return mask.length;
     }
 
     /**
@@ -99,7 +71,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
 
         while (v < mask.length) {
             if (r === rawIndex) {
-                // We reached the raw position. 
+                // We reached the raw position.
                 // However, if the current mask char is NOT a placeholder, we should skip it
                 // because the user doesn't type it.
                 // E.g. mask "###-###". rawIndex 3.
@@ -119,30 +91,6 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             v++;
         }
         return v;
-    }
-
-    /**
-     * Formats the raw number according to the mask.
-     */
-    private formatNumber(): string {
-        const mask = this.activeMask;
-        let result = '';
-        let rawIdx = 0;
-
-        for (let i = 0; i < mask.length; i++) {
-            const m = mask[i];
-            if (m === '#') {
-                if (rawIdx < this.rawNumber.length) {
-                    result += this.rawNumber[rawIdx];
-                    rawIdx++;
-                } else {
-                    result += m; // Placeholder
-                }
-            } else {
-                result += m;
-            }
-        }
-        return result;
     }
 
     /**
@@ -215,7 +163,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         this.renderFrame(output);
 
         // 3. Cursor Positioning
-        const errorOffset = (this.errorMsg || (this.activeSection === 'country' && this.searchBuffer)) ? 1 : 0;
+        const errorOffset = this.errorMsg || (this.activeSection === 'country' && this.searchBuffer) ? 1 : 0;
         const totalRows = 1 + errorOffset;
 
         // Reset cursor to end of render
@@ -299,7 +247,8 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         }
 
         // Arrows
-        if (char === '\u001b[D') { // Left
+        if (char === '\u001b[D') {
+            // Left
             if (this.activeSection === 'number') {
                 if (this.cursor > 0) {
                     this.cursor--;
@@ -311,7 +260,8 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             return;
         }
 
-        if (char === '\u001b[C') { // Right
+        if (char === '\u001b[C') {
+            // Right
             if (this.activeSection === 'country') {
                 this.activeSection = 'number';
             } else {
@@ -323,7 +273,8 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             return;
         }
 
-        if (char === '\u001b[A') { // Up
+        if (char === '\u001b[A') {
+            // Up
             if (this.activeSection === 'country') {
                 this.cycleCountry(-1);
             }
@@ -331,7 +282,8 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             return;
         }
 
-        if (char === '\u001b[B') { // Down
+        if (char === '\u001b[B') {
+            // Down
             if (this.activeSection === 'country') {
                 this.cycleCountry(1);
             }
@@ -351,7 +303,8 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
                     // Check max length
                     const maxLen = this.getMaxRawLength();
                     if (this.rawNumber.length < maxLen) {
-                        this.rawNumber = this.rawNumber.slice(0, this.cursor) + char + this.rawNumber.slice(this.cursor);
+                        this.rawNumber =
+                            this.rawNumber.slice(0, this.cursor) + char + this.rawNumber.slice(this.cursor);
                         this.cursor++;
                         this.errorMsg = '';
                         this.render(false);
@@ -385,10 +338,11 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             if (fuzzy) score += fuzzy.score;
 
             return { index: i, score };
-        }).filter(x => x.score > 0)
+        })
+            .filter((x) => x.score > 0)
             .sort((a, b) => b.score - a.score);
 
-        this.filteredIndices = matches.map(m => m.index);
+        this.filteredIndices = matches.map((m) => m.index);
 
         // Auto-select first match
         if (this.filteredIndices.length > 0) {
@@ -413,7 +367,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     }
 
     private getMaxRawLength(): number {
-        return Math.max(...this.getMasks(this.currentCountry[3]).map(mask => this.getMaskPlaceholderCount(mask)));
+        return Math.max(...this.getMasks(this.currentCountry[3]).map((mask) => this.getMaskPlaceholderCount(mask)));
     }
 
     private enforceMaxLen() {
@@ -428,11 +382,12 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         if (this.options.strict) {
             const validLengths = this.getValidLengths();
             if (!validLengths.includes(this.rawNumber.length)) {
-                const formatted = validLengths.length === 1
-                    ? `${validLengths[0]} digit`
-                    : validLengths.length === 2
-                        ? `${validLengths[0]} or ${validLengths[1]} digits`
-                        : `${validLengths.slice(0, -1).join(', ')} or ${validLengths[validLengths.length - 1]} digits`;
+                const formatted =
+                    validLengths.length === 1
+                        ? `${validLengths[0]} digit`
+                        : validLengths.length === 2
+                          ? `${validLengths[0]} or ${validLengths[1]} digits`
+                          : `${validLengths.slice(0, -1).join(', ')} or ${validLengths[validLengths.length - 1]} digits`;
 
                 this.errorMsg = `Expected ${formatted}`;
                 this.render(false);

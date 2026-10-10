@@ -1,8 +1,8 @@
 import { ANSI } from '../ansi';
 import { Prompt } from '../base';
-import { theme } from '../theme';
 import { symbols } from '../symbols';
-import { SliderOptions, MouseEvent } from '../types';
+import { theme } from '../theme';
+import type { MouseEvent, SliderOptions } from '../types';
 
 // --- Implementation: Slider Prompt ---
 export class SliderPrompt extends Prompt<number, SliderOptions> {
@@ -37,13 +37,15 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
 
         const step = this.options.step || 1;
 
-        if (this.isLeft(char)) { // Left
+        if (this.isLeft(char)) {
+            // Left
             this.value = Math.max(this.options.min, this.value - step);
             // Round to avoid float errors
             this.value = Math.round(this.value * 10000) / 10000;
             this.render(false);
         }
-        if (this.isRight(char)) { // Right
+        if (this.isRight(char)) {
+            // Right
             this.value = Math.min(this.options.max, this.value + step);
             // Round to avoid float errors
             this.value = Math.round(this.value * 10000) / 10000;
@@ -55,10 +57,12 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
         if (event.action === 'scroll') {
             const step = this.options.step || 1;
 
-            if (event.scroll === 'up') { // Scroll Up -> Increase
+            if (event.scroll === 'up') {
+                // Scroll Up -> Increase
                 this.value = Math.min(this.options.max, this.value + step);
             }
-            if (event.scroll === 'down') { // Scroll Down -> Decrease
+            if (event.scroll === 'down') {
+                // Scroll Down -> Decrease
                 this.value = Math.max(this.options.min, this.value - step);
             }
 
