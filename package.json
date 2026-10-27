@@ -1,6 +1,6 @@
 {
   "name": "mepcli",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-rc.2",
   "description": "Zero-dependency interactive CLI prompt",
   "repository": {
     "type": "git",
@@ -47,9 +47,9 @@
   "author": "CodeTease",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
+    "@biomejs/biome": "^2.6.3",
     "@swc/cli": "^0.8.1",
-    "@swc/core": "^1.16.13",
+    "@swc/core": "^1.16.20",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
     "typescript": "^7.0.2"
