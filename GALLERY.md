@@ -6,14 +6,11 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ### Text Prompt
 
-**Normal:** 
-
+**Normal:**
 
 ![Text Prompt - Normal](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/text-1.png)
 
-
-**Suggestion:** 
-
+**Suggestion:**
 
 ![Text Prompt - Suggestion](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/text-2.png)
 ![Text Prompt - Suggestion GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/text-suggestion.gif)
@@ -107,7 +104,7 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ### Editor Prompt
 
-*Not available due to terminal limitations.*
+_Not available due to terminal limitations._
 
 ### Keypress Prompt
 
@@ -118,12 +115,14 @@ This gallery showcases a variety of interactive command-line prompts created usi
 
 ![Tree Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/tree.png)
 ![Tree Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/tree.gif)
-> *Example media of [Tree Prompt](examples/tree-prompt.ts)*
+
+> _Example media of [Tree Prompt](examples/tree-prompt.ts)_
 
 ### Form Prompt
 
 ![Form Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/form.gif)
-> *Example media of [Form Prompt](examples/form-prompt.ts)*
+
+> _Example media of [Form Prompt](examples/form-prompt.ts)_
 
 ### Snippet Prompt
 
@@ -132,158 +131,175 @@ This gallery showcases a variety of interactive command-line prompts created usi
 ### Spam Prompt
 
 ![Spam Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/spam.gif)
-> *Example media of [Spam Prompt](examples/spam-prompt.ts)*
+
+> _Example media of [Spam Prompt](examples/spam-prompt.ts)_
 
 ### Wait Prompt
 
 ![Wait Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/wait.gif)
-> *Example media of [Wait Prompt](examples/wait-prompt.ts)*
+
+> _Example media of [Wait Prompt](examples/wait-prompt.ts)_
 
 ### Code Prompt
 
 ![Code Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/code.gif)
-> *Example media of [Code Prompt](examples/code-prompt.ts)*
+
+> _Example media of [Code Prompt](examples/code-prompt.ts)_
 
 ### Cron Prompt
 
 ![Cron Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/cron.gif)
-> *Example media of [Cron Prompt](examples/cron-prompt.ts)*
+
+> _Example media of [Cron Prompt](examples/cron-prompt.ts)_
 
 ### Color Prompt
 
 ![Color Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/color.gif)
-> *Example media of [Color Prompt](examples/color-prompt.ts)*
+
+> _Example media of [Color Prompt](examples/color-prompt.ts)_
 
 ### Grid Prompt
 
 ![Grid Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/grid.gif)
-> *Example media of [Grid Prompt](examples/grid-prompt.ts)*
+
+> _Example media of [Grid Prompt](examples/grid-prompt.ts)_
 
 ### Map Prompt
 
 ![Map Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/map.gif)
-> *Example media of [Map Prompt](examples/map-prompt.ts)*
+
+> _Example media of [Map Prompt](examples/map-prompt.ts)_
 
 ### IP Prompt
 
 ![IP Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/ip.gif)
-> *Example media of [IP Prompt](examples/ip-prompt.ts)*
+
+> _Example media of [IP Prompt](examples/ip-prompt.ts)_
 
 ### SemVer Prompt
 
 ![SemVer Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/semver.gif)
-> *Example media of [SemVer Prompt](examples/semver-prompt.ts)*
+
+> _Example media of [SemVer Prompt](examples/semver-prompt.ts)_
 
 ### OTP Prompt
 
 ![OTP Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/otp.gif)
-> *Example media of [OTP Prompt](examples/otp-prompt.ts)*
+
+> _Example media of [OTP Prompt](examples/otp-prompt.ts)_
 
 ### Quiz Select Prompt
 
 ![Quiz Select Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/quiz-select.gif)
-> *Example media of [Quiz Select Prompt](examples/quiz-select-prompt.ts)*
+
+> _Example media of [Quiz Select Prompt](examples/quiz-select-prompt.ts)_
 
 ### Quiz Text Prompt
 
 ![Quiz Text Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/quiz-text.gif)
-> *Example media of [Quiz Text Prompt](examples/quiz-text-prompt.ts)*
+
+> _Example media of [Quiz Text Prompt](examples/quiz-text-prompt.ts)_
 
 ### Kanban Prompt
 
 ![Kanban Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/kanban.gif)
-> *Example media of [Kanban Prompt](examples/kanban-prompt.ts)*
+
+> _Example media of [Kanban Prompt](examples/kanban-prompt.ts)_
 
 ### Time Prompt
 
 ![Time Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/time.gif)
-> *Example media of [Time Prompt](examples/time-prompt.ts)*
+
+> _Example media of [Time Prompt](examples/time-prompt.ts)_
 
 ### Heatmap Prompt
 
 ![Heatmap Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/heatmap.gif)
-> *Example media of [Heatmap Prompt](examples/heatmap-prompt.ts)*
+
+> _Example media of [Heatmap Prompt](examples/heatmap-prompt.ts)_
 
 ### Box Prompt
 
 ![Box Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/box.png)
 ![Box Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/box.gif)
-> *Example media of [Box Prompt](examples/box-prompt.ts)*
+
+> _Example media of [Box Prompt](examples/box-prompt.ts)_
 
 ### Calendar Prompt
 
 **Single:**
 
-
 ![Calendar Prompt - Single](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/calendar-single.gif)
-
 
 **Multi-Single:**
 
-
 ![Calendar Prompt - Multi-Single](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/calendar-multi-single.gif)
-
 
 **Range:**
 
-
 ![Calendar Prompt - Range](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/calendar-range.gif)
-
 
 **Multi-Range:**
 
-
 ![Calendar Prompt - Multi-Range](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/calendar-multi-range.gif)
 
-> *Example media of [Calendar Prompt](examples/calendar-prompt.ts)*
+> _Example media of [Calendar Prompt](examples/calendar-prompt.ts)_
 
 ### Dependency Prompt
 
 ![Dependency Prompt - 1](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/dependency-1.png)
 ![Dependency Prompt - 2](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/dependency-2.png)
 ![Dependency Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/dependency.gif)
-> *Example media of [Dependency Prompt](examples/dependency-prompts.ts)*
+
+> _Example media of [Dependency Prompt](examples/dependency-prompts.ts)_
 
 ### License Prompt
 
 ![License Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/license.png)
 ![License Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/license.gif)
-> *Example media of [License Prompt](examples/license-prompts.ts)*
+
+> _Example media of [License Prompt](examples/license-prompts.ts)_
 
 ### Regex Prompt
 
 ![Regex Prompt - Image](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/regex.png)
 ![Regex Prompt - GIF](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/regex.gif)
-> *Example media of [Regex Prompt](examples/regex-prompt.ts)*
+
+> _Example media of [Regex Prompt](examples/regex-prompt.ts)_
 
 ### Byte Prompt
 
 ![Byte Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/byte.gif)
-> *Example media of [Byte Prompt](examples/byte-prompt.ts)*
+
+> _Example media of [Byte Prompt](examples/byte-prompt.ts)_
 
 ### Slot Prompt
 
 ![Slot Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/slot.gif)
-> *Example media of [Slot Prompt](examples/slot-prompt.ts)*
+
+> _Example media of [Slot Prompt](examples/slot-prompt.ts)_
 
 ### Gauge Prompt
 
 ![Gauge Prompt](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/gauge.gif)
-> *Example media of [Gauge Prompt](examples/gauge-prompt.ts)*
 
-*More coming soon...*
+> _Example media of [Gauge Prompt](examples/gauge-prompt.ts)_
 
---- 
+_More coming soon..._
+
+---
 
 ## Other Features
 
 ### Task Runner
 
 ![Task Runner](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/task-runner.gif)
-> *Example media of [Task Runner](examples/task-runner.ts)*
+
+> _Example media of [Task Runner](examples/task-runner.ts)_
 
 ### Pipeline
 
 ![Pipeline - 1](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/pipeline-1.gif)
 ![Pipeline - 2](https://raw.githubusercontent.com/CodeTease/mep/refs/heads/main/media/pipeline-2.gif)
-> *Example media of [Pipeline](examples/pipeline-demo.ts)*
+
+> _Example media of [Pipeline](examples/pipeline-demo.ts)_

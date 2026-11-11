@@ -5,6 +5,7 @@ Most input prompts in Mep support a `validate` function in their options. This a
 ## Usage
 
 The `validate` function receives the current value and should return:
+
 - `true` (boolean): Validation passed.
 - `string`: Validation failed; the string is displayed as the error message.
 
@@ -12,12 +13,13 @@ The `validate` function receives the current value and should return:
 
 ```typescript
 const username = await MepCLI.text({
-    message: 'Choose a username',
-    validate: (value) => {
-        if (value.length < 3) return 'Username must be at least 3 characters.';
-        if (/[^a-z0-9]/.test(value)) return 'Only lowercase letters and numbers allowed.';
-        return true;
-    }
+  message: "Choose a username",
+  validate: (value) => {
+    if (value.length < 3) return "Username must be at least 3 characters.";
+    if (/[^a-z0-9]/.test(value))
+      return "Only lowercase letters and numbers allowed.";
+    return true;
+  },
 });
 ```
 
@@ -25,11 +27,11 @@ const username = await MepCLI.text({
 
 ```typescript
 const age = await MepCLI.number({
-    message: 'Enter your age',
-    validate: (value) => {
-        if (value < 18) return 'You must be 18 or older.';
-        return true;
-    }
+  message: "Enter your age",
+  validate: (value) => {
+    if (value < 18) return "You must be 18 or older.";
+    return true;
+  },
 });
 ```
 

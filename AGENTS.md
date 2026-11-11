@@ -25,6 +25,7 @@ bun run typecheck       # TypeScript check
 bun run test            # Run the Bun test suite
 bun run lint            # Check src/ with Biome
 bun run build           # Compile JavaScript and generate declarations in dist/
+bun fmt 		# Format the codebase, add --check will not write
 ```
 
 For focused tests, run `bun test test/<file>.test.ts` (for example, `bun test test/prompts.test.ts`). Run relevant tests and typecheck for code changes; run lint and build as appropriate, especially for changes to source or package exports. Do not claim a check passed unless it was run.

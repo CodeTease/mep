@@ -8,9 +8,9 @@ The `ip` prompt validates and formats IP addresses (IPv4/IPv6).
 
 ```typescript
 const serverIp = await MepCLI.ip({
-    message: 'Enter Server IP',
-    initial: '192.168.1.1',
-    version: 4 // or 6
+  message: "Enter Server IP",
+  initial: "192.168.1.1",
+  version: 4, // or 6
 });
 ```
 
@@ -20,8 +20,8 @@ The `connectionString` prompt interactively builds a database connection URL (e.
 
 ```typescript
 const dbUrl = await MepCLI.connectionString({
-    message: 'Configure Database',
-    initial: 'postgres://user:pass@localhost:5432/db'
+  message: "Configure Database",
+  initial: "postgres://user:pass@localhost:5432/db",
 });
 ```
 
@@ -31,9 +31,9 @@ The `curl` prompt is a powerful HTTP client builder. It allows constructing requ
 
 ```typescript
 const request = await MepCLI.curl({
-    message: 'Test API Endpoint',
-    initialMethod: 'GET',
-    initialUrl: 'https://api.example.com/health'
+  message: "Test API Endpoint",
+  initialMethod: "GET",
+  initialUrl: "https://api.example.com/health",
 });
 ```
 
@@ -43,8 +43,8 @@ The `phone` prompt accepts phone numbers with country code selection and validat
 
 ```typescript
 const mobile = await MepCLI.phone({
-    message: 'Enter your mobile number',
-    defaultCountry: 'US'
+  message: "Enter your mobile number",
+  defaultCountry: "US",
 });
 ```
 
@@ -54,8 +54,8 @@ The `otp` (One-Time Password) prompt accepts a fixed-length numeric code, typica
 
 ```typescript
 const code = await MepCLI.otp({
-    message: 'Enter verification code',
-    length: 6
+  message: "Enter verification code",
+  length: 6,
 });
 ```
 
@@ -65,8 +65,8 @@ The `region` prompt allows selecting a cloud region (e.g., AWS us-east-1) from a
 
 ```typescript
 const region = await MepCLI.region({
-    message: 'Select Deployment Region',
-    provider: 'aws'
+  message: "Select Deployment Region",
+  provider: "aws",
 });
 ```
 

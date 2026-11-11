@@ -14,16 +14,16 @@ The `curl` prompt is a specialized tool for building and testing HTTP requests d
 
 ```typescript
 const result = await MepCLI.curl({
-    message: 'Configure Webhook',
-    initialMethod: 'POST',
-    initialUrl: 'https://hooks.slack.com/services/...',
-    initialHeaders: {
-        'Content-Type': 'application/json'
-    },
-    initialBody: '{"text": "Hello World"}'
+  message: "Configure Webhook",
+  initialMethod: "POST",
+  initialUrl: "https://hooks.slack.com/services/...",
+  initialHeaders: {
+    "Content-Type": "application/json",
+  },
+  initialBody: '{"text": "Hello World"}',
 });
 
-console.log('Generated Command:', result.command);
+console.log("Generated Command:", result.command);
 // curl -X POST https://... -H "Content-Type: application/json" -d '{"text": "Hello World"}'
 ```
 

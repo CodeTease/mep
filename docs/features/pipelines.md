@@ -5,69 +5,82 @@ Pipelines provide a powerful, sequential workflow engine. Based on the philosoph
 ## Usage
 
 ```typescript
-import { MepCLI, Pipeline, PipelineExit } from 'mepcli';
-import { z } from 'zod';
+import { MepCLI, Pipeline, PipelineExit } from "mepcli";
+import { z } from "zod";
 
 interface Context {
-    name: string;
-    age: number;
-    email?: string;
-    parentalConsent?: boolean;
+  name: string;
+  age: number;
+  email?: string;
+  parentalConsent?: boolean;
 }
 
 const result = await new Pipeline<Context>({
-    onPipelineStart: (ctx) => console.log('Starting registration...'),
-    onPipelineComplete: (ctx) => console.log('Registration finished!')
+  onPipelineStart: (ctx) => console.log("Starting registration..."),
+  onPipelineComplete: (ctx) => console.log("Registration finished!"),
 })
-    // 1. Named Step - result is automatically assigned to `ctx.name`
-    .step('name', async () => {
-        return await MepCLI.text({ message: 'What is your name?' });
-    }, {
-        validate: (val) => val.length > 0 || 'Name is required'
-    })
-    
-    // 2. Another Named Step with Transformation and Zod validation
-    .step('age', async () => {
-        return await MepCLI.number({ message: 'How old are you?' });
-    }, {
-        transform: (val) => Number(val),
-        validate: z.number().min(0, "Age must be positive")
-    })
-    
-    // 3. Conditional Step - runs only if condition is true
-    .stepIf(
-        (ctx) => ctx.age < 18,
-        'parentalConsent',
-        async () => {
-            return await MepCLI.confirm({ message: 'Do you have parental consent?' });
-        },
-        {
-            validate: (val) => val === true || 'Parental consent is required for under 18'
-        }
-    )
+  // 1. Named Step - result is automatically assigned to `ctx.name`
+  .step(
+    "name",
+    async () => {
+      return await MepCLI.text({ message: "What is your name?" });
+    },
+    {
+      validate: (val) => val.length > 0 || "Name is required",
+    },
+  )
 
-    // 4. Anonymous Step - can merge a partial object into context
-    .step(async (ctx) => {
-        const email = await MepCLI.text({ message: 'Email address (optional):' });
-        if (email) {
-            return { email }; // Merged into context
-        }
-    })
-    .run();
+  // 2. Another Named Step with Transformation and Zod validation
+  .step(
+    "age",
+    async () => {
+      return await MepCLI.number({ message: "How old are you?" });
+    },
+    {
+      transform: (val) => Number(val),
+      validate: z.number().min(0, "Age must be positive"),
+    },
+  )
 
-console.log('Final Context:', result);
+  // 3. Conditional Step - runs only if condition is true
+  .stepIf(
+    (ctx) => ctx.age < 18,
+    "parentalConsent",
+    async () => {
+      return await MepCLI.confirm({ message: "Do you have parental consent?" });
+    },
+    {
+      validate: (val) =>
+        val === true || "Parental consent is required for under 18",
+    },
+  )
+
+  // 4. Anonymous Step - can merge a partial object into context
+  .step(async (ctx) => {
+    const email = await MepCLI.text({ message: "Email address (optional):" });
+    if (email) {
+      return { email }; // Merged into context
+    }
+  })
+  .run();
+
+console.log("Final Context:", result);
 ```
 
 ## Step Types
 
 ### Named Steps
+
 Assigns the return value of the action directly to the context under the specified key.
+
 ```typescript
 .step('username', async () => await MepCLI.text({ message: 'Username:' }))
 ```
 
 ### Anonymous Steps
+
 Executes an action that either mutates the context directly or returns a partial context object to merge into the context.
+
 ```typescript
 .step(async (ctx) => {
     ctx.timestamp = Date.now();
@@ -76,7 +89,9 @@ Executes an action that either mutates the context directly or returns a partial
 ```
 
 ### Conditional Steps
+
 Executes a step only if a given condition is met. Available as `.stepIf(condition, name, action)` and `.stepIf(condition, action)`.
+
 ```typescript
 .stepIf((ctx) => ctx.needsSetup, 'setup', async () => doSetup())
 ```
@@ -127,16 +142,19 @@ new Pipeline<UserContext>()
 Pipelines have first-class support for validation using generic schemas (like Zod) or custom functions.
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 new Pipeline({
-    // Validates the entire context object when the pipeline finishes
-    validate: z.object({
-        name: z.string(),
-        age: z.number().min(18)
-    })
-}).step('name', /* ... */).run();
+  // Validates the entire context object when the pipeline finishes
+  validate: z.object({
+    name: z.string(),
+    age: z.number().min(18),
+  }),
+})
+  .step("name" /* ... */)
+  .run();
 ```
+
 Both `.parse()` and `.safeParse()` are supported out of the box.
 
 ## Early Exit
@@ -144,12 +162,12 @@ Both `.parse()` and `.safeParse()` are supported out of the box.
 You can prematurely stop the pipeline from executing further steps by returning `PipelineExit`.
 
 ```typescript
-import { PipelineExit } from 'mepcli';
+import { PipelineExit } from "mepcli";
 
 pipeline.step(async (ctx) => {
-    if (ctx.shouldStop) {
-        return PipelineExit;
-    }
+  if (ctx.shouldStop) {
+    return PipelineExit;
+  }
 });
 ```
 
@@ -159,12 +177,12 @@ The Pipeline also accepts global options during initialization to hook into its 
 
 ```typescript
 const options = {
-    onPipelineStart: (ctx) => {},
-    onPipelineComplete: (ctx) => {},
-    onStepStart: (meta, ctx) => {},
-    onStepComplete: (meta, ctx) => {},
-    onError: (err, meta, ctx) => {},
-    signal: abortController.signal // Support for aborting the pipeline globally
+  onPipelineStart: (ctx) => {},
+  onPipelineComplete: (ctx) => {},
+  onStepStart: (meta, ctx) => {},
+  onStepComplete: (meta, ctx) => {},
+  onError: (err, meta, ctx) => {},
+  signal: abortController.signal, // Support for aborting the pipeline globally
 };
 
 const pipeline = new Pipeline(options);
@@ -175,12 +193,14 @@ const pipeline = new Pipeline(options);
 The Pipeline can inject a `TaskRunner` inside all of its steps if passed directly to `.run()`:
 
 ```typescript
-import { TaskRunner } from 'mepcli';
+import { TaskRunner } from "mepcli";
 
 const tasks = new TaskRunner();
-const pipeline = new Pipeline().step('download', async (ctx, tasksEnv) => {
-    // tasksEnv is the injected TaskRunner
-    tasksEnv?.add('Downloading file...', async () => { /* ... */ });
+const pipeline = new Pipeline().step("download", async (ctx, tasksEnv) => {
+  // tasksEnv is the injected TaskRunner
+  tasksEnv?.add("Downloading file...", async () => {
+    /* ... */
+  });
 });
 
 await pipeline.run({}, tasks);
@@ -189,6 +209,7 @@ await pipeline.run({}, tasks);
 ## Error Handling
 
 By default, any error thrown within a step (including timeouts and validation failures) will halt the pipeline and throw an error (`PipelineValidationError`, `PipelineTimeoutError`, etc.). You can prevent this using:
+
 - `fallback`: Provides a default value if an error occurs.
 - `optional: true`: Ignores the error and continues.
 - `onError`: Allows you to attach side effects before the error bubbles up.

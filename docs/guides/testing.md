@@ -7,27 +7,25 @@ Mep prompts are designed to be testable. The library uses an internal abstractio
 You can use frameworks like Jest or Vitest.
 
 ```typescript
-import { MepCLI } from 'mepcli';
-import { TextPrompt } from 'mepcli/dist/prompts/text';
+import { MepCLI } from "mepcli";
+import { TextPrompt } from "mepcli/dist/prompts/text";
 
-describe('TextPrompt', () => {
-    
-    it('should return user input', async () => {
-        // 1. Instantiate the prompt
-        const prompt = new TextPrompt({ message: 'Name?' });
+describe("TextPrompt", () => {
+  it("should return user input", async () => {
+    // 1. Instantiate the prompt
+    const prompt = new TextPrompt({ message: "Name?" });
 
-        // 2. Start the prompt in a non-blocking way
-        const promise = prompt.run();
+    // 2. Start the prompt in a non-blocking way
+    const promise = prompt.run();
 
-        // 3. Simulate input
-        prompt.input.emit('keypress', 'Alice');
-        prompt.input.emit('submit'); // Enter key
+    // 3. Simulate input
+    prompt.input.emit("keypress", "Alice");
+    prompt.input.emit("submit"); // Enter key
 
-        // 4. Assert result
-        const result = await promise;
-        expect(result).toBe('Alice');
-    });
-
+    // 4. Assert result
+    const result = await promise;
+    expect(result).toBe("Alice");
+  });
 });
 ```
 
@@ -37,10 +35,10 @@ When writing tests, you often need to simulate specific key combinations (like a
 
 ```typescript
 // Simulate Down Arrow
-prompt.input.emit('keypress', undefined, { name: 'down' });
+prompt.input.emit("keypress", undefined, { name: "down" });
 
 // Simulate Space
-prompt.input.emit('keypress', ' ', { name: 'space' });
+prompt.input.emit("keypress", " ", { name: "space" });
 ```
 
 ## Related

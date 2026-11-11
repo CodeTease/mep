@@ -8,9 +8,9 @@ The `file` prompt allows selecting a file from the disk.
 
 ```typescript
 const configPath = await MepCLI.file({
-    message: 'Select configuration file',
-    basePath: './config',
-    extensions: ['json', 'yaml', 'toml']
+  message: "Select configuration file",
+  basePath: "./config",
+  extensions: ["json", "yaml", "toml"],
 });
 ```
 
@@ -34,9 +34,9 @@ The `miller` prompt implements "Miller Columns" (like macOS Finder) for deep hie
 
 ```typescript
 const path = await MepCLI.miller({
-    message: 'Browse files',
-    separator: '/',
-    root: process.cwd()
+  message: "Browse files",
+  separator: "/",
+  root: process.cwd(),
 });
 ```
 
@@ -46,8 +46,8 @@ The `breadcrumb` prompt allows navigation via a breadcrumb trail.
 
 ```typescript
 const location = await MepCLI.breadcrumb({
-    message: 'Go to folder',
-    path: 'home/user/documents'
+  message: "Go to folder",
+  path: "home/user/documents",
 });
 ```
 
@@ -57,8 +57,8 @@ Combines breadcrumb navigation with search capabilities.
 
 ```typescript
 const file = await MepCLI.breadcrumbSearch({
-    message: 'Find file',
-    root: './src'
+  message: "Find file",
+  root: "./src",
 });
 ```
 

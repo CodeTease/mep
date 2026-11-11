@@ -3,29 +3,29 @@ name: Publish to NPM via OIDC
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 env:
   NODE_VERSION: 22
 
 permissions:
   contents: read
-  id-token: write 
+  id-token: write
 
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
     environment: npm
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v6.2.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -33,10 +33,10 @@ jobs:
       # OIDC trusted publishing requires modern npm
       - name: Update NPM
         run: npm install -g npm@latest
-        
+
       - name: Install Dependencies
         run: bun ci
-        
+
       - name: Build Project
         run: bun run build
 
@@ -46,15 +46,15 @@ jobs:
         run: |
           # Extract tag name from ref (e.g., v1.0.0-alpha.1 -> 1.0.0-alpha.1)
           VERSION=${GITHUB_REF#refs/tags/v}
-          
+
           # Default distribution tag
           NPM_TAG="latest"
-          
+
           # Check for pre-release patterns using regex
           if [[ $VERSION =~ -(alpha|beta|rc|next)\.?[0-9]*$ ]]; then
             NPM_TAG=${BASH_REMATCH[1]}
           fi
-          
+
           echo "tag=$NPM_TAG" >> $GITHUB_OUTPUT
           echo "Target NPM distribution tag: $NPM_TAG"
 

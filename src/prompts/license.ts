@@ -1,161 +1,173 @@
-import { ANSI } from '../ansi';
-import { POPULAR_LICENSES } from '../data/licenses';
-import { symbols } from '../symbols';
-import { theme } from '../theme';
-import type { License, LicenseOptions } from '../types';
-import { Layout } from '../utils';
-import { SelectPrompt } from './select';
+import { ANSI } from "../ansi";
+import { POPULAR_LICENSES } from "../data/licenses";
+import { symbols } from "../symbols";
+import { theme } from "../theme";
+import type { License, LicenseOptions } from "../types";
+import { Layout } from "../utils";
+import { SelectPrompt } from "./select";
 
 export class LicensePrompt extends SelectPrompt<string> {
-    private licenses: License[];
+  private licenses: License[];
 
-    constructor(options: LicenseOptions) {
-        // Map licenses to choices expected by SelectPrompt
-        const choices = POPULAR_LICENSES.map((l) => ({
-            title: l.id,
-            value: l.id,
-            description: l.name,
-        }));
+  constructor(options: LicenseOptions) {
+    // Map licenses to choices expected by SelectPrompt
+    const choices = POPULAR_LICENSES.map((l) => ({
+      title: l.id,
+      value: l.id,
+      description: l.name,
+    }));
 
-        super({
-            ...options,
-            choices,
-        });
+    super({
+      ...options,
+      choices,
+    });
 
-        this.licenses = POPULAR_LICENSES;
+    this.licenses = POPULAR_LICENSES;
 
-        // Set initial selection if provided
-        if (options.defaultLicense) {
-            const idx = this.licenses.findIndex((l) => l.id === options.defaultLicense);
-            if (idx !== -1) {
-                (this as any).selectedIndex = idx;
-            }
-        }
+    // Set initial selection if provided
+    if (options.defaultLicense) {
+      const idx = this.licenses.findIndex(
+        (l) => l.id === options.defaultLicense,
+      );
+      if (idx !== -1) {
+        (this as any).selectedIndex = idx;
+      }
+    }
+  }
+
+  protected render(_firstRender: boolean) {
+    const choices = this.getFilteredChoices();
+
+    // Adjust Scroll Top
+    if (this.selectedIndex < this.scrollTop) {
+      this.scrollTop = this.selectedIndex;
+    } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
+      this.scrollTop = this.selectedIndex - this.pageSize + 1;
+    }
+    // Handle Filtering Edge Case: if list shrinks, scrollTop might be too high
+    if (this.scrollTop > choices.length - 1) {
+      this.scrollTop = Math.max(0, choices.length - this.pageSize);
     }
 
-    protected render(_firstRender: boolean) {
-        const choices = this.getFilteredChoices();
+    const width = this.stdout.columns || 80;
+    const gap = 2;
+    const ratio = 0.3;
 
-        // Adjust Scroll Top
-        if (this.selectedIndex < this.scrollTop) {
-            this.scrollTop = this.selectedIndex;
-        } else if (this.selectedIndex >= this.scrollTop + this.pageSize) {
-            this.scrollTop = this.selectedIndex - this.pageSize + 1;
-        }
-        // Handle Filtering Edge Case: if list shrinks, scrollTop might be too high
-        if (this.scrollTop > choices.length - 1) {
-            this.scrollTop = Math.max(0, choices.length - this.pageSize);
-        }
+    // Calculate dimensions
+    // Left column: 30% or min 20 chars
+    // Right column: rest
+    const leftWidth = Math.floor((width - gap) * ratio);
+    const rightWidth = width - leftWidth - gap;
 
-        const width = this.stdout.columns || 80;
-        const gap = 2;
-        const ratio = 0.3;
+    const leftContent = this.renderList();
+    const rightContent = this.renderDetails(rightWidth);
 
-        // Calculate dimensions
-        // Left column: 30% or min 20 chars
-        // Right column: rest
-        const leftWidth = Math.floor((width - gap) * ratio);
-        const rightWidth = width - leftWidth - gap;
+    const content = Layout.split(leftContent, rightContent, width, {
+      ratio,
+      gap,
+    });
 
-        const leftContent = this.renderList();
-        const rightContent = this.renderDetails(rightWidth);
+    // Header
+    const searchStr = this.searchBuffer
+      ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}`
+      : "";
+    const header = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr} ${theme.muted}(Use arrows to navigate, Enter to select)${ANSI.RESET}`;
 
-        const content = Layout.split(leftContent, rightContent, width, { ratio, gap });
+    // Combine
+    this.renderFrame(`${header}\n${content}`);
+  }
 
-        // Header
-        const searchStr = this.searchBuffer ? ` ${theme.muted}(Filter: ${this.searchBuffer})${ANSI.RESET}` : '';
-        const header = `${theme.success}? ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}${searchStr} ${theme.muted}(Use arrows to navigate, Enter to select)${ANSI.RESET}`;
+  private renderList(): string {
+    const choices = this.getFilteredChoices();
+    let output = "";
 
-        // Combine
-        this.renderFrame(`${header}\n${content}`);
+    if (choices.length === 0) {
+      output += `  ${theme.muted}No results found${ANSI.RESET}`;
+      return output + "\n".repeat(this.pageSize - 1);
     }
 
-    private renderList(): string {
-        const choices = this.getFilteredChoices();
-        let output = '';
+    const visibleChoices = choices.slice(
+      this.scrollTop,
+      this.scrollTop + this.pageSize,
+    );
 
-        if (choices.length === 0) {
-            output += `  ${theme.muted}No results found${ANSI.RESET}`;
-            return output + '\n'.repeat(this.pageSize - 1);
-        }
+    visibleChoices.forEach((choice, index) => {
+      const actualIndex = this.scrollTop + index;
+      const isSelected = actualIndex === this.selectedIndex;
 
-        const visibleChoices = choices.slice(this.scrollTop, this.scrollTop + this.pageSize);
+      const cursor = isSelected ? `${theme.main}${symbols.pointer}` : " ";
 
-        visibleChoices.forEach((choice, index) => {
-            const actualIndex = this.scrollTop + index;
-            const isSelected = actualIndex === this.selectedIndex;
+      // Handle Separator type safety
+      if ("separator" in choice) {
+        output += `${theme.muted}${choice.text || "---"}${ANSI.RESET}\n`;
+        return;
+      }
 
-            const cursor = isSelected ? `${theme.main}${symbols.pointer}` : ' ';
+      const title = isSelected
+        ? `${theme.main}${choice.title}${ANSI.RESET}`
+        : choice.title;
 
-            // Handle Separator type safety
-            if ('separator' in choice) {
-                output += `${theme.muted}${choice.text || '---'}${ANSI.RESET}\n`;
-                return;
-            }
+      output += `${cursor} ${title}\n`;
+    });
 
-            const title = isSelected ? `${theme.main}${choice.title}${ANSI.RESET}` : choice.title;
-
-            output += `${cursor} ${title}\n`;
-        });
-
-        // Fill remaining lines to maintain height
-        const filledLines = visibleChoices.length;
-        if (filledLines < this.pageSize) {
-            output += '\n'.repeat(this.pageSize - filledLines);
-        }
-
-        return output;
+    // Fill remaining lines to maintain height
+    const filledLines = visibleChoices.length;
+    if (filledLines < this.pageSize) {
+      output += "\n".repeat(this.pageSize - filledLines);
     }
 
-    private renderDetails(maxWidth: number): string {
-        const choices = this.getFilteredChoices();
-        if (choices.length === 0) return '';
+    return output;
+  }
 
-        const selectedChoice = choices[this.selectedIndex];
-        if (!selectedChoice || 'separator' in selectedChoice) return '';
+  private renderDetails(maxWidth: number): string {
+    const choices = this.getFilteredChoices();
+    if (choices.length === 0) return "";
 
-        const license = this.licenses.find((l) => l.id === selectedChoice.value);
+    const selectedChoice = choices[this.selectedIndex];
+    if (!selectedChoice || "separator" in selectedChoice) return "";
 
-        if (!license) return '';
+    const license = this.licenses.find((l) => l.id === selectedChoice.value);
 
-        let output = '';
-        output += `${ANSI.BOLD}${license.name}${ANSI.RESET}\n`;
+    if (!license) return "";
 
-        const wrappedDesc = Layout.wrap(license.description, maxWidth);
-        const coloredDesc = wrappedDesc
-            .split('\n')
-            .map((line) => `${theme.muted}${line}${ANSI.RESET}`)
-            .join('\n');
+    let output = "";
+    output += `${ANSI.BOLD}${license.name}${ANSI.RESET}\n`;
 
-        output += `${coloredDesc}\n\n`;
+    const wrappedDesc = Layout.wrap(license.description, maxWidth);
+    const coloredDesc = wrappedDesc
+      .split("\n")
+      .map((line) => `${theme.muted}${line}${ANSI.RESET}`)
+      .join("\n");
 
-        // Permissions
-        if (license.permissions.length > 0) {
-            output += `${ANSI.FG_GREEN}Permissions:${ANSI.RESET}\n`;
-            license.permissions.forEach((p) => {
-                output += ` ${theme.success}${symbols.checked} ${p}${ANSI.RESET}\n`;
-            });
-            output += '\n';
-        }
+    output += `${coloredDesc}\n\n`;
 
-        // Conditions
-        if (license.conditions.length > 0) {
-            output += `${ANSI.FG_BLUE}Conditions:${ANSI.RESET}\n`;
-            // symbols.info doesn't exist, use 'i' or similar
-            license.conditions.forEach((c) => {
-                output += ` ${ANSI.FG_BLUE}ℹ ${c}${ANSI.RESET}\n`;
-            });
-            output += '\n';
-        }
-
-        // Limitations
-        if (license.limitations.length > 0) {
-            output += `${ANSI.FG_RED}Limitations:${ANSI.RESET}\n`;
-            license.limitations.forEach((l) => {
-                output += ` ${theme.error}${symbols.cross} ${l}${ANSI.RESET}\n`;
-            });
-        }
-
-        return output;
+    // Permissions
+    if (license.permissions.length > 0) {
+      output += `${ANSI.FG_GREEN}Permissions:${ANSI.RESET}\n`;
+      license.permissions.forEach((p) => {
+        output += ` ${theme.success}${symbols.checked} ${p}${ANSI.RESET}\n`;
+      });
+      output += "\n";
     }
+
+    // Conditions
+    if (license.conditions.length > 0) {
+      output += `${ANSI.FG_BLUE}Conditions:${ANSI.RESET}\n`;
+      // symbols.info doesn't exist, use 'i' or similar
+      license.conditions.forEach((c) => {
+        output += ` ${ANSI.FG_BLUE}ℹ ${c}${ANSI.RESET}\n`;
+      });
+      output += "\n";
+    }
+
+    // Limitations
+    if (license.limitations.length > 0) {
+      output += `${ANSI.FG_RED}Limitations:${ANSI.RESET}\n`;
+      license.limitations.forEach((l) => {
+        output += ` ${theme.error}${symbols.cross} ${l}${ANSI.RESET}\n`;
+      });
+    }
+
+    return output;
+  }
 }

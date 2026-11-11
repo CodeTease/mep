@@ -1,131 +1,133 @@
-import { ANSI } from '../ansi';
-import { Prompt } from '../base';
-import { symbols } from '../symbols';
-import { theme } from '../theme';
-import type { IPOptions, MouseEvent } from '../types';
+import { ANSI } from "../ansi";
+import { Prompt } from "../base";
+import { symbols } from "../symbols";
+import { theme } from "../theme";
+import type { IPOptions, MouseEvent } from "../types";
 
 export class IPPrompt extends Prompt<string, IPOptions> {
-    private octets: string[] = ['', '', '', ''];
-    private activeOctet: number = 0;
-    private errorMsg: string = '';
+  private octets: string[] = ["", "", "", ""];
+  private activeOctet: number = 0;
+  private errorMsg: string = "";
 
-    constructor(options: IPOptions) {
-        super(options);
-        if (options.initial) {
-            const parts = options.initial.split('.');
-            if (parts.length === 4) {
-                this.octets = parts.map((p) => {
-                    const num = parseInt(p, 10);
-                    return !Number.isNaN(num) && num >= 0 && num <= 255 ? p : '';
-                });
-            }
-        }
-    }
-
-    protected render(_firstRender: boolean) {
-        let output = '';
-
-        // Title
-        const icon = this.errorMsg ? `${theme.error}${symbols.cross}` : `${theme.success}?`;
-        output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
-
-        // IP Render
-        const partsDisplay = this.octets.map((octet, index) => {
-            const isEmpty = octet.length === 0;
-            let displayVal = isEmpty ? '_' : octet;
-
-            if (index === this.activeOctet) {
-                // Highlight active
-                displayVal = `${theme.main}${ANSI.UNDERLINE}${displayVal}${ANSI.RESET}`;
-            }
-            return displayVal;
+  constructor(options: IPOptions) {
+    super(options);
+    if (options.initial) {
+      const parts = options.initial.split(".");
+      if (parts.length === 4) {
+        this.octets = parts.map((p) => {
+          const num = parseInt(p, 10);
+          return !Number.isNaN(num) && num >= 0 && num <= 255 ? p : "";
         });
+      }
+    }
+  }
 
-        output += `  ${partsDisplay.join('.')}`;
+  protected render(_firstRender: boolean) {
+    let output = "";
 
-        if (this.errorMsg) {
-            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
-        }
+    // Title
+    const icon = this.errorMsg
+      ? `${theme.error}${symbols.cross}`
+      : `${theme.success}?`;
+    output += `${icon} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET}\n`;
 
-        this.renderFrame(output);
+    // IP Render
+    const partsDisplay = this.octets.map((octet, index) => {
+      const isEmpty = octet.length === 0;
+      let displayVal = isEmpty ? "_" : octet;
+
+      if (index === this.activeOctet) {
+        // Highlight active
+        displayVal = `${theme.main}${ANSI.UNDERLINE}${displayVal}${ANSI.RESET}`;
+      }
+      return displayVal;
+    });
+
+    output += `  ${partsDisplay.join(".")}`;
+
+    if (this.errorMsg) {
+      output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
     }
 
-    protected handleInput(char: string) {
-        this.errorMsg = '';
+    this.renderFrame(output);
+  }
 
-        if (char === '\r' || char === '\n') {
-            if (this.octets.every((o) => o.length > 0)) {
-                this.submit(this.octets.join('.'));
-            } else {
-                this.errorMsg = 'Invalid IP address';
-                this.render(false);
-            }
-            return;
-        }
+  protected handleInput(char: string) {
+    this.errorMsg = "";
 
-        if (char === '\u0008' || char === '\x7f') {
-            // Backspace
-            const current = this.octets[this.activeOctet];
-            if (current.length > 0) {
-                this.octets[this.activeOctet] = current.slice(0, -1);
-            } else if (this.activeOctet > 0) {
-                this.activeOctet--;
-            }
-            this.render(false);
-            return;
-        }
-
-        // Navigation
-        if (this.isLeft(char) && this.activeOctet > 0) {
-            this.activeOctet--;
-            this.render(false);
-            return;
-        }
-        if (this.isRight(char) && this.activeOctet < 3) {
-            this.activeOctet++;
-            this.render(false);
-            return;
-        }
-
-        // Dot navigation
-        if (char === '.') {
-            if (this.activeOctet < 3) {
-                this.activeOctet++;
-                this.render(false);
-            }
-            return;
-        }
-
-        // Numbers
-        if (/^\d$/.test(char)) {
-            const current = this.octets[this.activeOctet];
-            const newValue = current + char;
-
-            if (parseInt(newValue, 10) <= 255) {
-                this.octets[this.activeOctet] = newValue;
-
-                // Auto-jump if 3 digits
-                if (newValue.length === 3 && this.activeOctet < 3) {
-                    this.activeOctet++;
-                }
-                this.render(false);
-            }
-        }
+    if (char === "\r" || char === "\n") {
+      if (this.octets.every((o) => o.length > 0)) {
+        this.submit(this.octets.join("."));
+      } else {
+        this.errorMsg = "Invalid IP address";
+        this.render(false);
+      }
+      return;
     }
 
-    protected handleMouse(event: MouseEvent) {
-        if (event.action === 'scroll') {
-            if (event.scroll === 'up') {
-                if (this.activeOctet > 0) {
-                    this.activeOctet--;
-                    this.render(false);
-                }
-            } else if (event.scroll === 'down') {
-                if (this.activeOctet < 3) {
-                    this.activeOctet++;
-                    this.render(false);
-                }
-            }
-        }
+    if (char === "\u0008" || char === "\x7f") {
+      // Backspace
+      const current = this.octets[this.activeOctet];
+      if (current.length > 0) {
+        this.octets[this.activeOctet] = current.slice(0, -1);
+      } else if (this.activeOctet > 0) {
+        this.activeOctet--;
+      }
+      this.render(false);
+      return;
     }
+
+    // Navigation
+    if (this.isLeft(char) && this.activeOctet > 0) {
+      this.activeOctet--;
+      this.render(false);
+      return;
+    }
+    if (this.isRight(char) && this.activeOctet < 3) {
+      this.activeOctet++;
+      this.render(false);
+      return;
+    }
+
+    // Dot navigation
+    if (char === ".") {
+      if (this.activeOctet < 3) {
+        this.activeOctet++;
+        this.render(false);
+      }
+      return;
+    }
+
+    // Numbers
+    if (/^\d$/.test(char)) {
+      const current = this.octets[this.activeOctet];
+      const newValue = current + char;
+
+      if (parseInt(newValue, 10) <= 255) {
+        this.octets[this.activeOctet] = newValue;
+
+        // Auto-jump if 3 digits
+        if (newValue.length === 3 && this.activeOctet < 3) {
+          this.activeOctet++;
+        }
+        this.render(false);
+      }
+    }
+  }
+
+  protected handleMouse(event: MouseEvent) {
+    if (event.action === "scroll") {
+      if (event.scroll === "up") {
+        if (this.activeOctet > 0) {
+          this.activeOctet--;
+          this.render(false);
+        }
+      } else if (event.scroll === "down") {
+        if (this.activeOctet < 3) {
+          this.activeOctet++;
+          this.render(false);
+        }
+      }
+    }
+  }
 }

@@ -9,7 +9,7 @@ The `keypress` prompt is useful for "Press any key to continue" scenarios or det
 ### Basic Usage
 
 ```typescript
-console.log('Press any key to start...');
+console.log("Press any key to start...");
 const key = await MepCLI.keypress({});
 console.log(`You pressed: ${key}`);
 ```
@@ -37,15 +37,15 @@ A `MouseEvent` object is structured as follows:
 
 ```typescript
 export interface MouseEvent {
-    name: 'mouse';
-    x: number;       // Terminal column
-    y: number;       // Terminal row
-    button: number;  // 0: Left, 1: Middle, 2: Right
-    action: 'press' | 'release' | 'move' | 'scroll';
-    scroll?: 'up' | 'down';
-    shift?: boolean;
-    ctrl?: boolean;
-    meta?: boolean;
+  name: "mouse";
+  x: number; // Terminal column
+  y: number; // Terminal row
+  button: number; // 0: Left, 1: Middle, 2: Right
+  action: "press" | "release" | "move" | "scroll";
+  scroll?: "up" | "down";
+  shift?: boolean;
+  ctrl?: boolean;
+  meta?: boolean;
 }
 ```
 

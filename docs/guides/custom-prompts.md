@@ -5,51 +5,51 @@ Mep allows you to create custom prompts by extending the base `Prompt` class. Th
 ## Basic Structure
 
 ```typescript
-import { Prompt } from 'mepcli'; // or ./src if local
-import { MouseEvent } from 'mepcli';
+import { Prompt } from "mepcli"; // or ./src if local
+import { MouseEvent } from "mepcli";
 
 interface MyPromptOptions {
-    message: string;
+  message: string;
 }
 
 export class MyPrompt extends Prompt<string, MyPromptOptions> {
-    
-    constructor(options: MyPromptOptions) {
-        super(options);
-        this.value = '';
-    }
+  constructor(options: MyPromptOptions) {
+    super(options);
+    this.value = "";
+  }
 
-    // Handle keypress events
-    protected handleInput(char: string, key: Buffer): void {
-        if (char === '\r' || char === '\n') {
-            this.submit(this.value); // Resolve the promise
-        } else if (char === '\u0003') {
-            this.cancel('User cancelled'); // Ctrl+C
-        } else if (!/^[\x00-\x1F]/.test(char)) { // Typeable characters
-            // Update state based on input
-            this.value += char;
-            this.render(false); // Re-draw
-        }
+  // Handle keypress events
+  protected handleInput(char: string, key: Buffer): void {
+    if (char === "\r" || char === "\n") {
+      this.submit(this.value); // Resolve the promise
+    } else if (char === "\u0003") {
+      this.cancel("User cancelled"); // Ctrl+C
+    } else if (!/^[\x00-\x1F]/.test(char)) {
+      // Typeable characters
+      // Update state based on input
+      this.value += char;
+      this.render(false); // Re-draw
     }
+  }
 
-    // Handle mouse events (Optional)
-    protected handleMouse(event: MouseEvent): void {
-        if (event.action === 'scroll') {
-             // Example: Handle scroll interaction conceptually 
-             // ... update internal scroll offset ...
-             this.render(false);
-        }
+  // Handle mouse events (Optional)
+  protected handleMouse(event: MouseEvent): void {
+    if (event.action === "scroll") {
+      // Example: Handle scroll interaction conceptually
+      // ... update internal scroll offset ...
+      this.render(false);
     }
+  }
 
-    // Render the prompt to the string buffer
-    protected render(firstRender: boolean): void {
-        const { message } = this.options;
-        const prefix = `[?]`; // Access theme if needed
-        
-        // Pass the output string to the engine which handles diffing and drawing
-        // Do NOT use console.log here.
-        this.renderFrame(`${prefix} ${message} ${this.value}`);
-    }
+  // Render the prompt to the string buffer
+  protected render(firstRender: boolean): void {
+    const { message } = this.options;
+    const prefix = `[?]`; // Access theme if needed
+
+    // Pass the output string to the engine which handles diffing and drawing
+    // Do NOT use console.log here.
+    this.renderFrame(`${prefix} ${message} ${this.value}`);
+  }
 }
 ```
 
