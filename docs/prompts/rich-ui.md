@@ -43,6 +43,8 @@ const volume = await MepCLI.slider({
 });
 ```
 
+If `min` and `max` are equal, the track has no length: the slider renders the handle at the start so the fixed value stays visible.
+
 ## Range
 
 The `range` prompt selects a start and end value (two handles).

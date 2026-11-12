@@ -14,7 +14,8 @@ export class SliderPrompt extends Prompt<number, SliderOptions> {
   protected render(_firstRender: boolean) {
     const width = 20;
     const range = this.options.max - this.options.min;
-    const ratio = (this.value - this.options.min) / range;
+    // Avoid division by zero if min === max: keep the handle visible at the start.
+    const ratio = range === 0 ? 0 : (this.value - this.options.min) / range;
     const pos = Math.round(ratio * width);
 
     let bar = "";
