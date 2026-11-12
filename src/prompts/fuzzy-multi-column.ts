@@ -71,7 +71,7 @@ export class FuzzyMultiColumnPrompt<V> extends MultiColumnSelectPrompt<V> {
       });
     }
 
-    this.selectedIndex = 0;
+    this.selectedIndex = this.findSelectableIndex(0, 1, false) ?? 0;
     this.render(false);
   }
 
