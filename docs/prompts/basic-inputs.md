@@ -62,15 +62,14 @@ const deleteFile = await MepCLI.confirm({
 
 ## Number
 
-The `number` prompt accepts numeric input. It supports arrow keys to increment/decrement.
+The `number` prompt accepts numeric input. It supports arrow keys to increment/decrement. Only complete numeric literals are submitted: malformed input such as `1.2.3` or `1-2` shows an error instead of being partially parsed.
 
 ```typescript
 const age = await MepCLI.number({
   message: "How old are you?",
   min: 0,
   max: 120,
-  float: false, // Set to true for decimals
-  increment: 1, // Step size for arrow keys
+  step: 1, // Step size for arrow keys
   initial: 18,
 });
 ```

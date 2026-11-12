@@ -53,11 +53,29 @@ export class NumberPrompt extends Prompt<number, NumberOptions> {
     }
   }
 
+  /**
+   * Parses the displayed text strictly.
+   *
+   * `parseFloat` stops at the first invalid character, so inputs such as
+   * `1.2.3` or `1-2` would silently resolve with a different value than the
+   * one shown on screen. Only complete numeric literals are accepted here.
+   */
+  private parseNumber(value: string): number | undefined {
+    const trimmed = value.trim();
+    // Optional sign, then digits with at most one decimal part (or a bare fraction).
+    if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(trimmed)) {
+      return undefined;
+    }
+
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
   protected handleInput(char: string) {
     // Enter
     if (char === "\r" || char === "\n") {
-      const num = parseFloat(this.stringValue);
-      if (this.stringValue.trim() === "" || Number.isNaN(num)) {
+      const num = this.parseNumber(this.stringValue);
+      if (num === undefined) {
         this.errorMsg = "Please enter a valid number.";
         this.render(false);
         return;
