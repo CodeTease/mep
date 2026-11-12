@@ -77,7 +77,7 @@ const assigned = await MepCLI.transfer({
 
 ## Form
 
-The `form` prompt collects multiple fields in a single view. If you need to sequentially ask users for input step-by-step, see the [Pipeline Workflow Engine](../features/pipelines.md) documentation.
+The `form` prompt collects multiple fields in a single view. Use `Up`/`Down` or `Shift+Tab`/`Tab` to move between fields, and `Enter` to validate the current field and advance (or submit from the last field). If you need to sequentially ask users for input step-by-step, see the [Pipeline Workflow Engine](../features/pipelines.md) documentation.
 
 ```typescript
 const user = await MepCLI.form({
