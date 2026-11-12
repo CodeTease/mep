@@ -44,9 +44,13 @@ The `code` prompt provides a mini code editor with syntax highlighting for vario
 const config = await MepCLI.code({
   message: "Edit configuration",
   language: "json",
-  initial: '{\n  "debug": true\n}',
+  template: '{\n  "debug": ${debug}\n}',
+  values: { debug: "true" },
 });
 ```
+
+Placeholders use the `${name}` syntax. A template without placeholders is read-only: edit keys are
+ignored and `Enter` submits the template unchanged.
 
 ## Regex
 
