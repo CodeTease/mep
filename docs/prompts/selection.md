@@ -88,7 +88,9 @@ const tags = await MepCLI.list({
 
 ## Autocomplete
 
-The `autocomplete` prompt filters choices as you type. It supports async suggestions.
+The `autocomplete` prompt filters choices as you type. It supports async suggestions, which are debounced
+by 300 ms. A suggestion that is still in flight when the prompt is submitted or cancelled is discarded
+instead of being rendered.
 
 ```typescript
 const country = await MepCLI.autocomplete({
