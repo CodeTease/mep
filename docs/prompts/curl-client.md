@@ -27,6 +27,12 @@ console.log("Generated Command:", result.command);
 // curl -X POST https://... -H "Content-Type: application/json" -d '{"text": "Hello World"}'
 ```
 
+## Shell Escaping
+
+The generated command is quoted for the selected shell (`bash`, `powershell`, or `cmd`, cycled with `s`). For `cmd`,
+percent signs are doubled, so values such as `%PATH%` or URL-encoded bodies like `{"q":"100%25 off"}` are not expanded
+by `cmd.exe` when the command is run from a `.bat` or `.cmd` file.
+
 ## Related
 
 - [Network & Cloud Prompts](./network-cloud.md)

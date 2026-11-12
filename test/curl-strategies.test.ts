@@ -55,5 +55,16 @@ describe("Curl Shell Strategies", () => {
       // Expect: "{\"key\": \"value\"}"
       expect(strategy.escape(json)).toBe('"{\\"key\\": \\"value\\"}"');
     });
+
+    it("should escape percent signs by doubling them", () => {
+      expect(strategy.escape("%PATH%")).toBe('"%%PATH%%"');
+    });
+
+    it("should keep URL-encoded percent sequences literal", () => {
+      // e.g. { "q": "100%25 off" } -> "{\"q\": \"100%%25 off\"}"
+      expect(strategy.escape('{"q":"100%25 off"}')).toBe(
+        '"{\\"q\\":\\"100%%25 off\\"}"',
+      );
+    });
   });
 });
