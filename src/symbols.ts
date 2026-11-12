@@ -5,6 +5,8 @@ export interface SymbolDefinition {
   tick: string;
   /** Used for error messages or invalid states */
   cross: string;
+  /** Used for informational messages */
+  info: string;
   /** Used to point to the current selection */
   pointer: string;
   /** Used for separators or sliders */
@@ -36,6 +38,7 @@ export interface SymbolDefinition {
 const UnicodeSymbols: SymbolDefinition = {
   tick: "✔",
   cross: "✖",
+  info: "ℹ",
   pointer: "❯",
   line: "─",
   checked: "◉",
@@ -54,6 +57,7 @@ const UnicodeSymbols: SymbolDefinition = {
 const AsciiSymbols: SymbolDefinition = {
   tick: "+",
   cross: "x",
+  info: "i",
   pointer: ">",
   line: "-",
   checked: "[x]",

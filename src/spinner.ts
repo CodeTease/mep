@@ -2,6 +2,15 @@ import { ANSI } from "./ansi";
 import { symbols } from "./symbols";
 import { theme } from "./theme";
 
+/**
+ * Visual style used when {@link Spinner.stop} writes its final message.
+ *
+ * - `success`: green tick prefix
+ * - `error`: red cross prefix
+ * - `info`: main colour info prefix
+ */
+export type SpinnerStopType = "success" | "error" | "info";
+
 export class Spinner {
   private text: string;
   private timer?: NodeJS.Timeout;
@@ -36,20 +45,34 @@ export class Spinner {
   }
 
   /**
-   * Stops the spinner animation.
+   * Stops the spinner animation and replaces the current line with a final
+   * message.
+   *
+   * The line is always terminated with a newline, so output written after
+   * stopping starts on a fresh line. When no `message` is given, the spinner's
+   * current text is kept. Calling `stop()` when the spinner is not running is a
+   * no-op.
+   *
+   * @param message - Final message shown in place of the animation frame.
+   * @param type - Optional style prefix: `success`, `error`, or `info`.
    */
-  public stop(): this {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = undefined;
+  public stop(message?: string, type?: SpinnerStopType): this {
+    if (!this.halt()) return this;
+
+    const text = message ?? this.text;
+    let prefix = "";
+
+    if (type === "success") {
+      prefix = `${theme.success}${symbols.tick}${ANSI.RESET} `;
+    } else if (type === "error") {
+      prefix = `${theme.error}${symbols.cross}${ANSI.RESET} `;
+    } else if (type === "info") {
+      prefix = `${theme.main}${symbols.info}${ANSI.RESET} `;
     }
 
-    if (this.isSpinning) {
-      this.isSpinning = false;
-      process.stdout.write(ANSI.SHOW_CURSOR);
-      process.removeListener("SIGINT", this.handleSignal);
-    }
-
+    process.stdout.write(
+      `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${prefix}${text}\n`,
+    );
     return this;
   }
 
@@ -65,7 +88,7 @@ export class Spinner {
    * Stops the spinner and shows a success message.
    */
   public success(message?: string): this {
-    this.stop();
+    this.halt();
     const text = message ?? this.text;
     process.stdout.write(
       `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.success}${symbols.tick}${ANSI.RESET} ${text}\n`,
@@ -77,7 +100,7 @@ export class Spinner {
    * Stops the spinner and shows an error message.
    */
   public error(message?: string): this {
-    this.stop();
+    this.halt();
     const text = message ?? this.text;
     process.stdout.write(
       `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.error}${symbols.cross}${ANSI.RESET} ${text}\n`,
@@ -89,9 +112,28 @@ export class Spinner {
    * Stops the spinner and clears the line.
    */
   public clear(): this {
-    this.stop();
+    this.halt();
     process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
     return this;
+  }
+
+  /**
+   * Stops the animation loop and restores the terminal cursor.
+   *
+   * @returns `true` when the spinner was running and has been stopped.
+   */
+  private halt(): boolean {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = undefined;
+    }
+
+    if (!this.isSpinning) return false;
+
+    this.isSpinning = false;
+    process.stdout.write(ANSI.SHOW_CURSOR);
+    process.removeListener("SIGINT", this.handleSignal);
+    return true;
   }
 
   private render(): void {
