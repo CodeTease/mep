@@ -106,13 +106,14 @@ The `snippet` prompt fills in variables within a code template.
 ```typescript
 const component = await MepCLI.snippet({
   message: "Generate Component",
-  template: `export const {{name}} = () => <div>{{text}}</div>;`,
-  fields: [
-    { name: "name", message: "Component Name" },
-    { name: "text", message: "Button Text" },
-  ],
+  template: 'export const ${name} = () => <div>${text}</div>;',
+  values: { name: "Button", text: "Click me" },
 });
 ```
+
+Placeholders use the `${name}` syntax. Use `Tab`/`Shift+Tab` (or the mouse wheel) to move between
+placeholders. A template without placeholders is read-only: edit keys are ignored and `Enter`
+submits the template unchanged.
 
 ## Color
 

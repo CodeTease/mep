@@ -646,15 +646,13 @@ export class MepCLI {
    * @example
    * const component = await MepCLI.snippet({
    *   message: 'Create Component',
-   *   template: `export function {{name}}() {
-   *   return <div>{{content}}</div>;
-   * }`,
-   *   fields: {
-   *     name: { message: 'Component Name' },
-   *     content: { message: 'Content' }
+   *   template: 'export function ${name}() { return <div>${content}</div>; }',
+   *   values: {
+   *     name: 'Component',
+   *     content: 'Hello'
    *   }
    * });
-   * @param options - Template string with {{variables}} and field config.
+   * @param options - Template string with `${variables}` and field config.
    * @returns A promise resolving to the compiled string.
    * @see {@link https://github.com/CodeTease/mep/blob/main/examples/snippet-prompt.ts}
    */
