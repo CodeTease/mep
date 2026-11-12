@@ -212,12 +212,10 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
     } else if (this.activeCol === 1) {
       // Minute
       const step = this.options.step || 1;
-      let newM = this.minute + direction * step;
-      if (newM < 0) newM = 60 - step; // Approx wrap
-      // Better wrap logic for arbitrary steps:
-      if (newM < 0) newM = 60 + newM; // e.g. -5 -> 55
-      if (newM >= 60) newM = newM % 60;
-      this.minute = newM;
+      const newM = this.minute + direction * step;
+      // Wrap around 60 while staying on the step grid, including negative
+      // values (e.g. a step of 7 wraps 4 -> 57 instead of -> 53).
+      this.minute = ((newM % 60) + 60) % 60;
     } else if (this.activeCol === 2) {
       // Meridiem
       // Toggle AM/PM
