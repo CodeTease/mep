@@ -371,6 +371,11 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
   }
 
   private cycleCountry(dir: number) {
+    // An empty filter (the search matched no country) has nothing to cycle
+    // through. Keep the last valid country instead of selecting an
+    // undefined index, which would crash on the next render.
+    if (this.filteredIndices.length === 0) return;
+
     // Cycle within filtered list
     const currentInFiltered = this.filteredIndices.indexOf(
       this.selectedCountryIndex,
@@ -380,7 +385,10 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     if (nextIdx < 0) nextIdx = this.filteredIndices.length - 1;
     if (nextIdx >= this.filteredIndices.length) nextIdx = 0;
 
-    this.selectedCountryIndex = this.filteredIndices[nextIdx];
+    const nextCountryIndex = this.filteredIndices[nextIdx];
+    if (nextCountryIndex === undefined) return;
+
+    this.selectedCountryIndex = nextCountryIndex;
     this.enforceMaxLen();
   }
 

@@ -104,6 +104,38 @@ describe("PhonePrompt", () => {
     expect(result).toBe("+841234567890");
   });
 
+  it("should not crash when cycling a country filter that matches nothing", async () => {
+    const prompt = new PhonePrompt({
+      message: "Phone",
+      defaultCountry: "VN",
+    });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    // Switch to the country section and type a filter with no matches.
+    // Digits never match an ISO code, name, or dial code, so the filter stays
+    // empty at every prefix and VN remains the last valid country.
+    sendKey("\t");
+    "0000".split("").forEach((k) => sendKey(k));
+    await delay(10);
+
+    // Cycling an empty filtered list must be a no-op, not a TypeError.
+    expect(() => sendKey("\u001b[A")).not.toThrow();
+    expect(() => sendKey("\u001b[B")).not.toThrow();
+    await delay(10);
+
+    // The last valid country (VN) is kept, so the number still submits with +84.
+    sendKey("\t");
+    await delay(10);
+    "0901234567".split("").forEach((k) => sendKey(k));
+    await delay(10);
+    sendKey("\r");
+
+    const result = await promise;
+    expect(result).toBe("+840901234567");
+  });
+
   it("should accept a longer valid length for multi-mask countries in strict mode", async () => {
     const prompt = new PhonePrompt({
       message: "Strict UK",
