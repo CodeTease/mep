@@ -123,51 +123,77 @@ export class MultiColumnSelectPrompt<V> extends SelectPrompt<
     this.renderFrame(output);
   }
 
+  /**
+   * Finds the closest selectable choice at (or after) `startIndex`, moving in
+   * `direction`. Returns undefined when every candidate is a separator.
+   */
+  protected findSelectableIndex(
+    startIndex: number,
+    direction: 1 | -1,
+    wrap: boolean,
+  ): number | undefined {
+    const choices = this.getFilteredChoices();
+    if (choices.length === 0) return undefined;
+
+    let index = startIndex;
+    for (let count = 0; count < choices.length; count++) {
+      if (index < 0 || index >= choices.length) {
+        if (!wrap) return undefined;
+        index = index < 0 ? choices.length - 1 : 0;
+      }
+
+      if (!this.isSeparator(choices[index])) return index;
+      index += direction;
+    }
+
+    return undefined;
+  }
+
+  private moveSelection(offset: number, wrap: boolean) {
+    const direction = offset > 0 ? 1 : -1;
+    const next = this.findSelectableIndex(
+      this.selectedIndex + offset,
+      direction,
+      wrap,
+    );
+
+    if (next !== undefined) {
+      this.selectedIndex = next;
+    }
+    this.render(false);
+  }
+
   protected handleInput(char: string) {
     const choices = this.getFilteredChoices();
 
     if (char === "\r" || char === "\n") {
-      if (choices.length > 0) {
-        this.submit((choices[this.selectedIndex] as any).value);
-      }
+      const choice = choices[this.selectedIndex];
+      // A separator has no value, so submitting while one is highlighted would
+      // resolve the prompt with undefined.
+      if (!choice || this.isSeparator(choice)) return;
+
+      this.submit(choice.value);
       return;
     }
 
     if (this.isUp(char)) {
-      const newIndex = this.selectedIndex - this.cols;
-      if (newIndex >= 0) {
-        this.selectedIndex = newIndex;
-      }
-      this.render(false);
+      // Vertical movement keeps the cursor in its column and does not wrap.
+      this.moveSelection(-this.cols, false);
       return;
     }
 
     if (this.isDown(char)) {
-      const newIndex = this.selectedIndex + this.cols;
-      if (newIndex < choices.length) {
-        this.selectedIndex = newIndex;
-      }
-      this.render(false);
+      this.moveSelection(this.cols, false);
       return;
     }
 
     if (this.isLeft(char)) {
-      if (this.selectedIndex > 0) {
-        this.selectedIndex--;
-      } else {
-        this.selectedIndex = choices.length - 1;
-      }
-      this.render(false);
+      this.moveSelection(-1, true);
       return;
     }
 
     if (this.isRight(char)) {
-      if (this.selectedIndex < choices.length - 1) {
-        this.selectedIndex++;
-      } else {
-        this.selectedIndex = 0;
-      }
-      this.render(false);
+      this.moveSelection(1, true);
       return;
     }
 
@@ -175,7 +201,7 @@ export class MultiColumnSelectPrompt<V> extends SelectPrompt<
     if (char === "\u0008" || char === "\x7f") {
       if (this.searchBuffer.length > 0) {
         this.searchBuffer = this.searchBuffer.slice(0, -1);
-        this.selectedIndex = 0;
+        this.selectedIndex = this.findSelectableIndex(0, 1, false) ?? 0;
         this.calculateLayout();
         this.render(false);
       }
@@ -189,7 +215,7 @@ export class MultiColumnSelectPrompt<V> extends SelectPrompt<
       !char.startsWith("\x1b")
     ) {
       this.searchBuffer += char;
-      this.selectedIndex = 0;
+      this.selectedIndex = this.findSelectableIndex(0, 1, false) ?? 0;
       this.render(false);
     }
   }

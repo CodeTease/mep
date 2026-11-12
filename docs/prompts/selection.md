@@ -156,7 +156,7 @@ const file = await MepCLI.treeSelect({
 
 ## Multi-Column Select
 
-The `multiColumnSelect` prompt displays choices in a grid layout.
+The `multiColumnSelect` prompt displays choices in a grid layout. Separator entries (`{ separator: true }`) are visual dividers: every navigation direction skips them, and pressing Enter while a separator is highlighted is a no-op.
 
 ```typescript
 const item = await MepCLI.multiColumnSelect({
