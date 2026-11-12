@@ -96,6 +96,10 @@ export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
     this.options.tests.forEach((testCase) => {
       let isMatch = false;
       if (this.regex) {
+        // `test()` is stateful for /g and /y regexes: lastIndex persists
+        // between calls, so a shared instance would flip the results of
+        // repeated or identical test cases. Evaluate every case from the start.
+        this.regex.lastIndex = 0;
         isMatch = this.regex.test(testCase);
       }
 
@@ -107,6 +111,9 @@ export class RegexPrompt extends Prompt<RegExp, RegexOptions> {
       const color = isMatch ? theme.success : theme.muted;
       output += `\n ${statusIcon} ${color}${testCase}${ANSI.RESET}`;
     });
+
+    // Do not hand render state to the caller through the submitted regex.
+    if (this.regex) this.regex.lastIndex = 0;
 
     this.renderFrame(output);
   }
