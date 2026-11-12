@@ -35,6 +35,22 @@ const age = await MepCLI.number({
 });
 ```
 
+## Asynchronous Validation
+
+Some prompts accept a validator that returns a `Promise` (for example `text`, `list`, and `phone`). Mep waits for the promise to settle before accepting the input, so an async check cannot be bypassed by pressing `Enter` early. While the promise is pending, `PhonePrompt` ignores keystrokes so the submitted value is exactly the one the validator approved.
+
+```typescript
+const username = await MepCLI.text({
+  message: "Choose a username",
+  validate: async (value) => {
+    const taken = await isUsernameTaken(value);
+    return taken ? "That username is already taken." : true;
+  },
+});
+```
+
+If the promise resolves to an error string or `false`, or rejects, the prompt shows the error and stays open instead of submitting.
+
 ## Real-time Validation
 
 Validation typically runs when the user attempts to submit (presses Enter). However, some prompts (like `RegexPrompt`) may implement real-time feedback mechanisms visually, while `validate` acts as the final gatekeeper.

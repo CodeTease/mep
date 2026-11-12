@@ -13,6 +13,7 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     protected searchBuffer: string = '';
     protected lastLinesUp: number = 0;
     protected errorMsg: string = '';
+    private validating: boolean = false;
 
     // For country search/filtering
     protected filteredIndices: number[] = [];
@@ -209,6 +210,10 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
     }
 
     protected handleInput(char: string) {
+        // Ignore input while an async validator is in flight so the value that
+        // gets submitted is exactly the one the validator approved.
+        if (this.validating) return;
+
         // Handle common keys
         if (char === '\r' || char === '\n') {
             this.validateAndSubmit();
@@ -386,7 +391,9 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
         }
     }
 
-    private validateAndSubmit() {
+    private async validateAndSubmit() {
+        if (this.validating) return;
+
         if (this.options.strict) {
             const validLengths = this.getValidLengths();
             if (!validLengths.includes(this.rawNumber.length)) {
@@ -403,11 +410,23 @@ export class PhonePrompt extends Prompt<string, PhoneOptions> {
             }
         }
 
-        // Validation callback
+        // Validation callback (supports both synchronous and asynchronous validators)
         const e164 = `+${this.dialCode}${this.rawNumber}`;
         if (this.options.validate) {
-            const valid = this.options.validate(e164); // Pass strict format
-            if (typeof valid === 'string') {
+            let valid: string | boolean | undefined;
+
+            try {
+                this.validating = true;
+                valid = await this.options.validate(e164); // Pass strict format
+            } catch (err: any) {
+                this.errorMsg = err?.message || 'Validation failed';
+                this.render(false);
+                return;
+            } finally {
+                this.validating = false;
+            }
+
+            if (typeof valid === 'string' && valid.length > 0) {
                 this.errorMsg = valid;
                 this.render(false);
                 return;
