@@ -177,8 +177,13 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
     }
 
     // Instructions
-    if (this.pickedSourceIndex !== null) {
-      output += `\n${theme.success}Linking: ${this.source[this.pickedSourceIndex].label}${ANSI.RESET}`;
+    const pickedSource =
+      this.pickedSourceIndex !== null
+        ? this.source[this.pickedSourceIndex]
+        : undefined;
+
+    if (pickedSource) {
+      output += `\n${theme.success}Linking: ${pickedSource.label}${ANSI.RESET}`;
       output += `\n${ANSI.DIM}Select Target to Link/Unlink. Esc to Cancel.${ANSI.RESET}`;
     } else {
       output += `\n${ANSI.DIM}Space to Pick Source, Enter to Submit.${ANSI.RESET}`;
@@ -202,12 +207,12 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
     if (this.isDown(char)) {
       if (this.activeSide === "source") {
         this.cursorSource = Math.min(
-          this.source.length - 1,
+          Math.max(0, this.source.length - 1),
           this.cursorSource + 1,
         );
       } else {
         this.cursorTarget = Math.min(
-          this.target.length - 1,
+          Math.max(0, this.target.length - 1),
           this.cursorTarget + 1,
         );
       }
@@ -218,16 +223,25 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
     // Space: Action
     if (char === " ") {
       if (this.activeSide === "source") {
-        // Pick Source
-        this.pickedSourceIndex = this.cursorSource;
-        this.activeSide = "target";
-        // Try to find first linked target or stay at top?
-        // Stay at top or current pos is fine.
+        // Pick Source (no-op when the source list is empty)
+        const sourceItem = this.source[this.cursorSource];
+        if (sourceItem) {
+          this.pickedSourceIndex = this.cursorSource;
+          this.activeSide = "target";
+          // Try to find first linked target or stay at top?
+          // Stay at top or current pos is fine.
+        }
       } else {
         // Toggle Link
-        if (this.pickedSourceIndex !== null) {
-          const sId = this.source[this.pickedSourceIndex].id;
-          const tId = this.target[this.cursorTarget].id;
+        const sourceItem =
+          this.pickedSourceIndex !== null
+            ? this.source[this.pickedSourceIndex]
+            : undefined;
+        const targetItem = this.target[this.cursorTarget];
+
+        if (sourceItem && targetItem) {
+          const sId = sourceItem.id;
+          const tId = targetItem.id;
 
           if (!this.links.has(sId)) {
             this.links.set(sId, new Set());
@@ -326,12 +340,12 @@ export class MatchPrompt extends Prompt<Record<string, any[]>, MatchOptions> {
       } else {
         if (this.activeSide === "source") {
           this.cursorSource = Math.min(
-            this.source.length - 1,
+            Math.max(0, this.source.length - 1),
             this.cursorSource + 1,
           );
         } else {
           this.cursorTarget = Math.min(
-            this.target.length - 1,
+            Math.max(0, this.target.length - 1),
             this.cursorTarget + 1,
           );
         }

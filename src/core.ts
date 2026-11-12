@@ -1017,8 +1017,8 @@ export class MepCLI {
    *   source: ['Paris', 'London'],
    *   target: ['France', 'UK']
    * });
-   * @param options - Source and Target lists.
-   * @returns A promise resolving to linked pairs.
+   * @param options - Source and Target lists. Either list may be empty.
+   * @returns A promise resolving to linked pairs; an empty list yields `{}`.
    * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
    */
   static match(options: MatchOptions): Promise<Record<string, any[]>> {
