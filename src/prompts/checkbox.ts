@@ -95,13 +95,13 @@ export class CheckboxPrompt<V> extends Prompt<any[], CheckboxOptions<V>> {
         return;
       }
 
-      this.cleanup();
-
       const results = this.options.choices
         .filter((_, i) => this.checkedState[i])
         .map((c) => c.value);
 
-      if ((this as any)._resolve) (this as any)._resolve(results);
+      // Use the shared submit path so the prompt line is terminated with a
+      // newline, matching SelectPrompt and the other prompts.
+      this.submit(results);
       return;
     }
 
