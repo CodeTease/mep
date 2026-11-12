@@ -113,13 +113,9 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
     }
   }
 
-  protected handleInput(char: string, key: Buffer) {
+  protected handleInput(char: string, _key: Buffer) {
     // Navigation: Up / Shift+Tab
-    if (
-      this.isUp(char) ||
-      (char === "\t" && key) /* how to detect Shift+Tab? usually \u001b[Z */ ||
-      char === "\u001b[Z"
-    ) {
+    if (this.isUp(char) || char === "\u001b[Z") {
       this.validateCurrentField();
       this.moveFocus(-1);
       return;
