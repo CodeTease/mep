@@ -2,6 +2,12 @@ import { ANSI } from "../ansi";
 import { Prompt } from "../base";
 import type { MouseEvent, TimeOptions } from "../types";
 
+/**
+ * Normalizes a minute value into the 0-59 range. Handles negative values and
+ * steps larger than an hour so previews and selections stay on the step grid.
+ */
+const wrapMinute = (value: number): number => ((value % 60) + 60) % 60;
+
 export class TimePrompt extends Prompt<string, TimeOptions> {
   private hour: number = 0;
   private minute: number = 0;
@@ -55,11 +61,7 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
       if (n < 0) n = 24 + n;
       return n % 24;
     };
-    const adjustM = (val: number, delta: number) => {
-      let n = val + delta;
-      if (n < 0) n = 60 + n;
-      return n % 60;
-    };
+    const adjustM = (val: number, delta: number) => wrapMinute(val + delta);
 
     const curH = this.hour;
     const curM = this.minute;
@@ -212,12 +214,10 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
     } else if (this.activeCol === 1) {
       // Minute
       const step = this.options.step || 1;
-      let newM = this.minute + direction * step;
-      if (newM < 0) newM = 60 - step; // Approx wrap
-      // Better wrap logic for arbitrary steps:
-      if (newM < 0) newM = 60 + newM; // e.g. -5 -> 55
-      if (newM >= 60) newM = newM % 60;
-      this.minute = newM;
+      const newM = this.minute + direction * step;
+      // Wrap around 60 while staying on the step grid, including negative
+      // values (e.g. a step of 7 wraps 4 -> 57 instead of -> 53).
+      this.minute = wrapMinute(newM);
     } else if (this.activeCol === 2) {
       // Meridiem
       // Toggle AM/PM
