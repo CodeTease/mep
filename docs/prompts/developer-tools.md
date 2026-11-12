@@ -59,6 +59,16 @@ const emailRegex = await MepCLI.regex({
 });
 ```
 
+Pass `flags` to compile the pattern with modifiers. Test cases are evaluated independently, so stateful flags such as `g` or `y` do not make repeated test cases or re-renders disagree:
+
+```typescript
+const findDigits = await MEPCLI.regex({
+  message: "Match a digit group",
+  flags: "g",
+  tests: ["abc123", "abc123"],
+});
+```
+
 ## Dependency
 
 The `dependency` prompt manages package dependencies, highlighting conflicts or requirements.
