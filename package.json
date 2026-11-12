@@ -47,7 +47,7 @@
   "author": "CodeTease",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.6.6",
+    "@biomejs/biome": "^2.6.7",
     "@swc/cli": "^0.8.2",
     "@swc/core": "^1.16.22",
     "@types/jest": "^30.0.0",
