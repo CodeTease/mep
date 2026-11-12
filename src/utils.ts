@@ -100,9 +100,10 @@ const WIDE_RANGES: [number, number][] = [
 ];
 
 /**
- * Binary search to check if a code point is in the wide ranges.
+ * Checks whether a code point occupies two terminal columns.
+ * Binary search over the known wide ranges; everything else is one column.
  */
-function isWideCodePoint(cp: number): boolean {
+export function isWideCodePoint(cp: number): boolean {
   let low = 0;
   let high = WIDE_RANGES.length - 1;
 

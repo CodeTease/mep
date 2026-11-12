@@ -1,7 +1,7 @@
 import { ANSI } from "./ansi";
 import { InputParser } from "./input";
 import type { BaseOptions, MouseEvent } from "./types";
-import { detectCapabilities, stringWidth, stripAnsi } from "./utils";
+import { detectCapabilities, isWideCodePoint, stringWidth, stripAnsi } from "./utils";
 
 /**
  * Abstract base class for all prompts.
@@ -266,23 +266,46 @@ export abstract class Prompt<T, O> {
       return str;
     }
 
+    // Reserve three columns for the ellipsis.
+    const limit = width - 3;
     let currentWidth = 0;
     let cutIndex = 0;
     let inAnsi = false;
 
     for (let i = 0; i < str.length; i++) {
-      if (str[i] === "\x1b") inAnsi = true;
+      const char = str[i];
 
-      if (!inAnsi) {
-        const code = str.charCodeAt(i);
-        const charWidth = code > 255 ? 2 : 1;
-        if (currentWidth + charWidth > width - 3) {
-          break;
-        }
-        currentWidth += charWidth;
-      } else {
-        if (str[i] === "m" || (str[i] >= "A" && str[i] <= "Z")) inAnsi = false;
+      if (inAnsi) {
+        // The introducer is part of the sequence; CSI sequences end on @-~.
+        if (char !== "[" && char >= "@" && char <= "~") inAnsi = false;
+        cutIndex = i + 1;
+        continue;
       }
+
+      if (char === "\x1b") {
+        inAnsi = true;
+        cutIndex = i + 1;
+        continue;
+      }
+
+      // Measure the same way stringWidth() does, including surrogate pairs.
+      let codePoint = str.charCodeAt(i);
+      let charLength = 1;
+      if (codePoint >= 0xd800 && codePoint <= 0xdbff && i + 1 < str.length) {
+        const next = str.charCodeAt(i + 1);
+        if (next >= 0xdc00 && next <= 0xdfff) {
+          codePoint = (codePoint - 0xd800) * 0x400 + (next - 0xdc00) + 0x10000;
+          charLength = 2;
+        }
+      }
+
+      const charWidth = isWideCodePoint(codePoint) ? 2 : 1;
+      if (currentWidth + charWidth > limit) {
+        break;
+      }
+
+      currentWidth += charWidth;
+      i += charLength - 1;
       cutIndex = i + 1;
     }
 
