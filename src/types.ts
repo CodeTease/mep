@@ -19,644 +19,629 @@
 export interface ExtensionRegistry {}
 
 export interface ThemeConfig {
-  main: string; // Primary branding color (e.g., cursor, selected item, values)
-  success: string; // Success messages, checkmarks
-  error: string; // Error messages, cross marks
-  muted: string; // Placeholders, help text, unselected items
-  title: string; // Questions/Titles
-  syntax: {
-    key: string; // JSON Key color
-    string: string; // JSON String value color
-    number: string; // JSON Number value color
-    boolean: string; // JSON Boolean value color
-    null: string; // JSON Null value color
-    punctuation: string; // JSON Punctuation color
-  };
+    main: string; // Primary branding color (e.g., cursor, selected item, values)
+    success: string; // Success messages, checkmarks
+    error: string; // Error messages, cross marks
+    muted: string; // Placeholders, help text, unselected items
+    title: string; // Questions/Titles
+    syntax: {
+        key: string; // JSON Key color
+        string: string; // JSON String value color
+        number: string; // JSON Number value color
+        boolean: string; // JSON Boolean value color
+        null: string; // JSON Null value color
+        punctuation: string; // JSON Punctuation color
+    };
 }
 
 export interface BaseOptions {
-  message: string;
-  mouse?: boolean;
+    message: string;
+    mouse?: boolean;
 }
 
 export interface MouseEvent {
-  name: "mouse";
-  x: number;
-  y: number;
-  button: number;
-  action: "press" | "release" | "move" | "scroll";
-  scroll?: "up" | "down";
-  shift?: boolean;
-  ctrl?: boolean;
-  meta?: boolean;
+    name: 'mouse';
+    x: number;
+    y: number;
+    button: number;
+    action: 'press' | 'release' | 'move' | 'scroll';
+    scroll?: 'up' | 'down';
+    shift?: boolean;
+    ctrl?: boolean;
+    meta?: boolean;
 }
 
 export interface TextOptions extends BaseOptions {
-  placeholder?: string;
-  initial?: string;
-  validate?: (value: string) => string | boolean | Promise<string | boolean>;
-  isPassword?: boolean;
-  multiline?: boolean;
-  mask?: string;
-  suggest?: (input: string) => string | Promise<string>;
+    placeholder?: string;
+    initial?: string;
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
+    isPassword?: boolean;
+    multiline?: boolean;
+    mask?: string;
+    suggest?: (input: string) => string | Promise<string>;
 }
 
 export interface Separator {
-  separator: true;
-  text?: string;
+    separator: true;
+    text?: string;
 }
 
 export interface SelectChoice<V> {
-  title: string;
-  value: V;
-  description?: string; // Optional hint
+    title: string;
+    value: V;
+    description?: string; // Optional hint
 }
 
 export interface SelectOptions<V> extends BaseOptions {
-  choices: (SelectChoice<V> | Separator)[];
+    choices: (SelectChoice<V> | Separator)[];
 }
 
 export interface TransferOptions<V> extends BaseOptions {
-  source: (string | SelectChoice<V>)[];
-  target?: (string | SelectChoice<V>)[];
+    source: (string | SelectChoice<V>)[];
+    target?: (string | SelectChoice<V>)[];
 }
 
 export interface CronOptions extends BaseOptions {
-  initial?: string;
-  placeholder?: string;
+    initial?: string;
+    placeholder?: string;
 }
 
 // --- Checkbox Types ---
 export interface CheckboxChoice<V> extends SelectChoice<V> {
-  selected?: boolean; // Default checked state
+    selected?: boolean; // Default checked state
 }
 
 export interface CheckboxOptions<V> extends BaseOptions {
-  choices: CheckboxChoice<V>[];
-  min?: number; // Minimum selections required (optional)
-  max?: number; // Maximum selections allowed (optional)
+    choices: CheckboxChoice<V>[];
+    min?: number; // Minimum selections required (optional)
+    max?: number; // Maximum selections allowed (optional)
 }
 
 export interface ConfirmOptions extends BaseOptions {
-  initial?: boolean;
+    initial?: boolean;
 }
 
 export interface NumberOptions extends BaseOptions {
-  initial?: number;
-  min?: number;
-  max?: number;
-  step?: number;
-  placeholder?: string;
+    initial?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+    placeholder?: string;
 }
 
 export interface ToggleOptions extends BaseOptions {
-  initial?: boolean;
-  activeText?: string;
-  inactiveText?: string;
+    initial?: boolean;
+    activeText?: string;
+    inactiveText?: string;
 }
 
 export interface ListOptions extends BaseOptions {
-  placeholder?: string;
-  initial?: string[];
-  validate?: (value: string[]) => string | boolean | Promise<string | boolean>;
+    placeholder?: string;
+    initial?: string[];
+    validate?: (value: string[]) => string | boolean | Promise<string | boolean>;
 }
 
 export interface SliderOptions extends BaseOptions {
-  min: number;
-  max: number;
-  initial?: number;
-  step?: number;
-  unit?: string;
+    min: number;
+    max: number;
+    initial?: number;
+    step?: number;
+    unit?: string;
 }
 
 export interface RangeOptions extends BaseOptions {
-  min: number;
-  max: number;
-  initial?: [number, number];
-  step?: number;
-  unit?: string;
+    min: number;
+    max: number;
+    initial?: [number, number];
+    step?: number;
+    unit?: string;
 }
 
-export interface SelectRangeOptions<V> extends Omit<
-  SelectOptions<V>,
-  "initial"
-> {
-  initial?: [number, number]; // Start and End indices
+export interface SelectRangeOptions<V> extends Omit<SelectOptions<V>, 'initial'> {
+    initial?: [number, number]; // Start and End indices
 }
 
 export interface RatingOptions extends BaseOptions {
-  min?: number;
-  max?: number;
-  initial?: number;
+    min?: number;
+    max?: number;
+    initial?: number;
 }
 
 export interface DateOptions extends BaseOptions {
-  initial?: Date;
-  min?: Date;
-  max?: Date;
+    initial?: Date;
+    min?: Date;
+    max?: Date;
 }
 
 export interface FileOptions extends BaseOptions {
-  basePath?: string;
-  extensions?: string[];
-  onlyDirectories?: boolean;
+    basePath?: string;
+    extensions?: string[];
+    onlyDirectories?: boolean;
 }
 
 export interface MultiSelectOptions<V> extends CheckboxOptions<V> {
-  // Inherits choices, min, max
+    // Inherits choices, min, max
 }
 
 export interface AutocompleteOptions<V> extends BaseOptions {
-  suggest: (input: string) => Promise<SelectChoice<V>[]>;
-  limit?: number; // defaults to 10
-  fallback?: string; // Message when no results
-  initial?: string; // Initial query
+    suggest: (input: string) => Promise<SelectChoice<V>[]>;
+    limit?: number; // defaults to 10
+    fallback?: string; // Message when no results
+    initial?: string; // Initial query
 }
 
 export interface SortOptions extends BaseOptions {
-  items: string[];
+    items: string[];
 }
 
 export interface EditorOptions extends BaseOptions {
-  initial?: string;
-  extension?: string;
-  waitUserInput?: boolean;
+    initial?: string;
+    extension?: string;
+    waitUserInput?: boolean;
 }
 
 export interface TableRow<V> {
-  value: V;
-  row: string[];
+    value: V;
+    row: string[];
 }
 
 export interface TableOptions<V> extends BaseOptions {
-  columns: string[];
-  data: TableRow<V>[];
-  rows?: number; // display rows
+    columns: string[];
+    data: TableRow<V>[];
+    rows?: number; // display rows
 }
 
 export interface TreeNode<V> {
-  title: string;
-  value: V;
-  children?: TreeNode<V>[];
-  expanded?: boolean;
-  disabled?: boolean;
-  selected?: boolean | "indeterminate";
+    title: string;
+    value: V;
+    children?: TreeNode<V>[];
+    expanded?: boolean;
+    disabled?: boolean;
+    selected?: boolean | 'indeterminate';
 }
 
 export interface TreeOptions<V> extends BaseOptions {
-  data: TreeNode<V>[];
-  initial?: V;
-  indent?: number;
+    data: TreeNode<V>[];
+    initial?: V;
+    indent?: number;
 }
 
 export interface KeypressOptions extends BaseOptions {
-  keys?: string[];
-  showInvisible?: boolean;
+    keys?: string[];
+    showInvisible?: boolean;
 }
 
 export interface FormField {
-  name: string;
-  message: string;
-  initial?: string;
-  validate?: (value: string) => string | boolean | Promise<string | boolean>;
+    name: string;
+    message: string;
+    initial?: string;
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
 }
 
 export interface FormOptions extends BaseOptions {
-  fields: FormField[];
+    fields: FormField[];
 }
 
 export interface SnippetOptions extends BaseOptions {
-  template: string;
-  values?: Record<string, string>;
-  fields?: Record<
-    string,
-    {
-      message?: string;
-      validate?: (value: string) => string | boolean;
-    }
-  >;
+    template: string;
+    values?: Record<string, string>;
+    fields?: Record<
+        string,
+        {
+            message?: string;
+            validate?: (value: string) => string | boolean;
+        }
+    >;
 }
 
 export interface SpamOptions extends BaseOptions {
-  threshold: number;
-  spamKey?: string;
-  decay?: boolean;
+    threshold: number;
+    spamKey?: string;
+    decay?: boolean;
 }
 
 export interface WaitOptions extends BaseOptions {
-  seconds: number;
-  autoSubmit?: boolean;
+    seconds: number;
+    autoSubmit?: boolean;
 }
 
 export interface CodeOptions extends BaseOptions {
-  template: string;
-  language?:
-    | "json"
-    | "env"
-    | "toml"
-    | "csv"
-    | "sh"
-    | "bash"
-    | "zsh"
-    | "properties"
-    | "props"
-    | "conf";
-  /**
-   * Enable syntax highlighting (Experimental).
-   * @default true
-   */
-  highlight?: boolean;
-  /**
-   * Initial values for variables in the template.
-   */
-  values?: Record<string, string>;
+    template: string;
+    language?: 'json' | 'env' | 'toml' | 'csv' | 'sh' | 'bash' | 'zsh' | 'properties' | 'props' | 'conf';
+    /**
+     * Enable syntax highlighting (Experimental).
+     * @default true
+     */
+    highlight?: boolean;
+    /**
+     * Initial values for variables in the template.
+     */
+    values?: Record<string, string>;
 }
 
 export interface TreeSelectNode<V> {
-  title: string;
-  value: V;
-  children?: TreeSelectNode<V>[];
-  expanded?: boolean;
-  disabled?: boolean;
-  selected?: boolean | "indeterminate";
+    title: string;
+    value: V;
+    children?: TreeSelectNode<V>[];
+    expanded?: boolean;
+    disabled?: boolean;
+    selected?: boolean | 'indeterminate';
 }
 
 export interface TreeSelectOptions<V> extends BaseOptions {
-  data: TreeSelectNode<V>[];
-  initial?: V[];
-  indent?: number;
+    data: TreeSelectNode<V>[];
+    initial?: V[];
+    indent?: number;
 }
 
 export interface ColorOptions extends BaseOptions {
-  initial?: string; // Hex support (e.g. "#3B82F6")
-  format?: "hex" | "rgb" | "hsl";
+    initial?: string; // Hex support (e.g. "#3B82F6")
+    format?: 'hex' | 'rgb' | 'hsl';
 }
 
 export interface GridOptions extends BaseOptions {
-  rows: string[];
-  columns: string[];
-  initial?: boolean[][]; // Initial selected state
+    rows: string[];
+    columns: string[];
+    initial?: boolean[][]; // Initial selected state
 }
 
 export interface SortGridOptions extends BaseOptions {
-  data: string[][];
+    data: string[][];
 }
 
 export interface CalendarOptions extends BaseOptions {
-  mode?: "single" | "range";
-  multiple?: boolean; // Allow picking multiple dates or multiple ranges
-  initial?: Date | [Date, Date]; // Single date or Range tuple
-  min?: Date;
-  max?: Date;
-  weekStart?: 0 | 1; // 0 = Sunday, 1 = Monday
+    mode?: 'single' | 'range';
+    multiple?: boolean; // Allow picking multiple dates or multiple ranges
+    initial?: Date | [Date, Date]; // Single date or Range tuple
+    min?: Date;
+    max?: Date;
+    weekStart?: 0 | 1; // 0 = Sunday, 1 = Monday
 }
 
 // --- New Prompts ---
 export interface MapOptions extends BaseOptions {
-  initial?: Record<string, string>;
-  suggestions?: string[];
-  mask?: boolean | ((key: string, value: string) => boolean);
+    initial?: Record<string, string>;
+    suggestions?: string[];
+    mask?: boolean | ((key: string, value: string) => boolean);
 }
 
 export interface SemVerOptions extends BaseOptions {
-  currentVersion: string;
+    currentVersion: string;
 }
 
 export interface IPOptions extends BaseOptions {
-  initial?: string;
+    initial?: string;
 }
 
 export interface OTPOptions extends BaseOptions {
-  length?: number;
-  mask?: string;
-  secure?: boolean;
-  placeholder?: string;
+    length?: number;
+    mask?: string;
+    secure?: boolean;
+    placeholder?: string;
 }
 
 export interface QuizSelectOptions<V> extends SelectOptions<V> {
-  correctValue: V;
-  explanation?: string;
+    correctValue: V;
+    explanation?: string;
 }
 
 export interface QuizTextOptions extends TextOptions {
-  verify?: (value: string) => boolean | Promise<boolean>;
-  correctAnswer: string;
-  explanation?: string;
+    verify?: (value: string) => boolean | Promise<boolean>;
+    correctAnswer: string;
+    explanation?: string;
 }
 
 // --- Kanban Types ---
 export interface KanbanItem {
-  id: string;
-  title: string;
-  [key: string]: any;
+    id: string;
+    title: string;
+    [key: string]: any;
 }
 
 export interface KanbanColumn<V extends KanbanItem> {
-  id: string;
-  title: string;
-  items: V[];
+    id: string;
+    title: string;
+    items: V[];
 }
 
 export interface KanbanOptions<V extends KanbanItem> extends BaseOptions {
-  columns: KanbanColumn<V>[];
+    columns: KanbanColumn<V>[];
 }
 
 // --- Time Scroller Types ---
 export interface TimeOptions extends BaseOptions {
-  format?: "12h" | "24h";
-  step?: number;
-  initial?: Date | string;
+    format?: '12h' | '24h';
+    step?: number;
+    initial?: Date | string;
 }
 
 // --- Heatmap Types ---
 export interface HeatmapLegend {
-  value: number;
-  char: string;
-  color: (str: string) => string;
+    value: number;
+    char: string;
+    color: (str: string) => string;
 }
 
 export interface HeatmapOptions extends BaseOptions {
-  rows: string[];
-  columns: string[];
-  legend: HeatmapLegend[];
-  initial?: number[][];
+    rows: string[];
+    columns: string[];
+    legend: HeatmapLegend[];
+    initial?: number[][];
 }
 
 export interface ByteOptions extends BaseOptions {
-  initial?: number; // Field initial in bytes
-  min?: number; // Min bytes
-  max?: number; // Max bytes
+    initial?: number; // Field initial in bytes
+    min?: number; // Min bytes
+    max?: number; // Max bytes
 }
 
 // --- Slot Machine Types ---
 export interface SlotOptions extends BaseOptions {
-  choices: string[];
-  rows?: number; // Default: 3
-  initial?: number; // Default: 0
+    choices: string[];
+    rows?: number; // Default: 3
+    initial?: number; // Default: 0
 }
 
 // --- Rhythm Gauge Types ---
 export interface GaugeOptions extends BaseOptions {
-  theme?: Partial<ThemeConfig>;
-  width?: number; // Default: 40
-  /** Safe zone width as a percentage (0-1) or absolute character count (>1). Default: 0.2 (20%) */
-  safeZone?: number;
+    theme?: Partial<ThemeConfig>;
+    width?: number; // Default: 40
+    /** Safe zone width as a percentage (0-1) or absolute character count (>1). Default: 0.2 (20%) */
+    safeZone?: number;
 }
 
 // --- Calculator Types ---
 export interface CalculatorOptions extends BaseOptions {
-  initial?: string;
-  variables?: Record<string, number>;
-  precision?: number;
-  placeholder?: string;
+    initial?: string;
+    variables?: Record<string, number>;
+    precision?: number;
+    placeholder?: string;
 }
 
 // --- Emoji Types ---
 export interface EmojiItem {
-  char: string;
-  name: string;
-  description?: string;
+    char: string;
+    name: string;
+    description?: string;
 }
 
 export interface EmojiOptions extends BaseOptions {
-  emojis: EmojiItem[];
-  recent?: string[]; // Array of emoji names
-  cols?: number;
+    emojis: EmojiItem[];
+    recent?: string[]; // Array of emoji names
+    cols?: number;
 }
 
 // --- Match Types ---
 export interface MatchItem {
-  id: string;
-  label: string;
-  value?: any;
+    id: string;
+    label: string;
+    value?: any;
 }
 
 export interface MatchOptions extends BaseOptions {
-  source: (string | MatchItem)[];
-  target: (string | MatchItem)[];
-  constraints?: {
-    required?: boolean; // Must link all source items?
-    oneToMany?: boolean; // Can a target receive multiple sources?
-  };
+    source: (string | MatchItem)[];
+    target: (string | MatchItem)[];
+    constraints?: {
+        required?: boolean; // Must link all source items?
+        oneToMany?: boolean; // Can a target receive multiple sources?
+    };
 }
 
 // --- Diff Types ---
 export interface DiffOptions extends BaseOptions {
-  original: string;
-  modified: string;
-  context?: number;
-  mode?: "inline" | "split";
+    original: string;
+    modified: string;
+    context?: number;
+    mode?: 'inline' | 'split';
 }
 
 // --- Dial Types ---
 export interface DialOptions extends BaseOptions {
-  min: number;
-  max: number;
-  step?: number;
-  radius?: number;
-  pointerSymbol?: string;
-  initial?: number;
+    min: number;
+    max: number;
+    step?: number;
+    radius?: number;
+    pointerSymbol?: string;
+    initial?: number;
 }
 
 // --- Draw Types ---
 export interface DrawOptions extends BaseOptions {
-  width: number; // Width in characters
-  height: number; // Height in characters
-  exportType?: "matrix" | "text";
-  initial?: boolean[][];
+    width: number; // Width in characters
+    height: number; // Height in characters
+    exportType?: 'matrix' | 'text';
+    initial?: boolean[][];
 }
 
 // --- Multi-Column Select Types ---
 export interface MultiColumnSelectOptions<V> extends SelectOptions<V> {
-  cols?: number | "auto";
+    cols?: number | 'auto';
 }
 
 // --- Fuzzy Match Types ---
 export interface FuzzySelectOptions<V> extends SelectOptions<V> {
-  // Inherits choices
+    // Inherits choices
 }
 
 // --- Miller Columns Types ---
 export interface MillerOptions<V> extends BaseOptions {
-  data: TreeNode<V>[];
-  initial?: V[]; // Path of values to pre-select
-  separator?: string;
+    data: TreeNode<V>[];
+    initial?: V[]; // Path of values to pre-select
+    separator?: string;
 }
 
 // --- Pattern Lock Types ---
 export interface PatternOptions extends BaseOptions {
-  rows?: number; // Default 3
-  cols?: number; // Default 3
-  nodeChar?: string; // Default ●
-  lineChar?: string; // Default based on symbols
+    rows?: number; // Default 3
+    cols?: number; // Default 3
+    nodeChar?: string; // Default ●
+    lineChar?: string; // Default based on symbols
 }
 
 // --- Region/Map Selector Types ---
 export interface MapRegion {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-  description?: string;
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+    description?: string;
 }
 
 export interface RegionOptions extends BaseOptions {
-  mapArt: string;
-  regions: MapRegion[];
-  initial?: string; // Initial selected region ID
+    mapArt: string;
+    regions: MapRegion[];
+    initial?: string; // Initial selected region ID
 }
 
 // --- Spreadsheet Types ---
 export interface SpreadsheetColumn {
-  name: string;
-  key: string;
-  width?: number; // Fixed width, or auto if undefined
-  editable?: boolean;
+    name: string;
+    key: string;
+    width?: number; // Fixed width, or auto if undefined
+    editable?: boolean;
 }
 
 export interface SpreadsheetOptions extends BaseOptions {
-  columns: SpreadsheetColumn[];
-  data: Record<string, any>[];
-  rows?: number; // Viewport height
-  keyBindings?: {
-    save?: string[];
-    cancel?: string[];
-  };
+    columns: SpreadsheetColumn[];
+    data: Record<string, any>[];
+    rows?: number; // Viewport height
+    keyBindings?: {
+        save?: string[];
+        cancel?: string[];
+    };
 }
 
 // --- Scroll Prompt Types ---
 export interface ScrollOptions extends BaseOptions {
-  content: string;
-  height?: number; // Default: 10-15
-  requireScrollToBottom?: boolean;
+    content: string;
+    height?: number; // Default: 10-15
+    requireScrollToBottom?: boolean;
 }
 
 // --- Breadcrumb Types ---
 export interface BreadcrumbOptions extends BaseOptions {
-  root?: string;
-  separator?: string;
-  showHidden?: boolean;
+    root?: string;
+    separator?: string;
+    showHidden?: boolean;
 }
 
 // --- Schedule Types ---
 export interface ScheduleTask {
-  name: string;
-  start: Date;
-  end: Date;
-  metadata?: any;
+    name: string;
+    start: Date;
+    end: Date;
+    metadata?: any;
 }
 
 export interface ScheduleOptions extends BaseOptions {
-  data: ScheduleTask[];
+    data: ScheduleTask[];
 }
 
 // --- Data Inspector Types ---
 export interface DataInspectorOptions extends BaseOptions {
-  data: any;
-  maxDepth?: number;
+    data: any;
+    maxDepth?: number;
 }
 
 // --- Exec Types ---
 export interface ExecOptions extends BaseOptions {
-  command: string;
-  timeout?: number; // ms, default 0 (infinite)
-  cwd?: string;
-  streamOutput?: boolean; // default false
+    command: string;
+    timeout?: number; // ms, default 0 (infinite)
+    cwd?: string;
+    streamOutput?: boolean; // default false
 }
 
 // --- Shortcut Types ---
 export interface ShortcutResult {
-  name: string;
-  ctrl: boolean;
-  shift: boolean;
-  meta: boolean;
-  sequence: string;
+    name: string;
+    ctrl: boolean;
+    shift: boolean;
+    meta: boolean;
+    sequence: string;
 }
 
 export interface ShortcutOptions extends BaseOptions {
-  initial?: ShortcutResult;
+    initial?: ShortcutResult;
 }
 
 // --- Seat Types ---
 export interface SeatOptions extends BaseOptions {
-  layout: string[];
-  rows?: string[];
-  cols?: string[];
-  initial?: string[];
-  multiple?: boolean;
+    layout: string[];
+    rows?: string[];
+    cols?: string[];
+    initial?: string[];
+    multiple?: boolean;
 }
 
 // --- Dependency Types ---
 export interface DependencyItem<V> extends CheckboxChoice<V> {
-  dependsOn?: V[]; // Values this item depends on
-  triggers?: V[]; // Values this item triggers ON
-  conflictsWith?: V[]; // Values this item forces OFF
+    dependsOn?: V[]; // Values this item depends on
+    triggers?: V[]; // Values this item triggers ON
+    conflictsWith?: V[]; // Values this item forces OFF
 }
 
 export interface DependencyOptions<V> extends BaseOptions {
-  choices: DependencyItem<V>[];
-  min?: number;
-  max?: number;
-  autoResolve?: boolean; // Default true: automatically check dependencies
+    choices: DependencyItem<V>[];
+    min?: number;
+    max?: number;
+    autoResolve?: boolean; // Default true: automatically check dependencies
 }
 
 // --- License Types ---
 export interface License {
-  id: string; // SPDX
-  name: string;
-  description: string;
-  permissions: string[];
-  conditions: string[];
-  limitations: string[];
+    id: string; // SPDX
+    name: string;
+    description: string;
+    permissions: string[];
+    conditions: string[];
+    limitations: string[];
 }
 
 export interface LicenseOptions extends BaseOptions {
-  defaultLicense?: string;
+    defaultLicense?: string;
 }
 
 // --- Regex Types ---
 export interface RegexOptions extends BaseOptions {
-  tests: string[];
-  flags?: string;
+    tests: string[];
+    flags?: string;
 }
 
 // --- Box Model Types ---
 export interface BoxOptions extends BaseOptions {
-  initial?:
-    number | { top: number; right: number; bottom: number; left: number };
-  min?: number;
-  max?: number;
-  step?: number;
+    initial?: number | { top: number; right: number; bottom: number; left: number };
+    min?: number;
+    max?: number;
+    step?: number;
 }
 
 // --- Phone Types ---
 export interface PhoneOptions extends BaseOptions {
-  defaultCountry?: string; // ISO Code (e.g., 'VN')
-  placeholder?: string; // Custom placeholder if no default mask
-  strict?: boolean; // Enforce strict mask length
-  validate?: (value: string) => string | boolean | Promise<string | boolean>;
+    defaultCountry?: string; // ISO Code (e.g., 'VN')
+    placeholder?: string; // Custom placeholder if no default mask
+    strict?: boolean; // Enforce strict mask length
+    validate?: (value: string) => string | boolean | Promise<string | boolean>;
 }
 
 // --- TaskRunner Types ---
 
-export type TaskStatus =
-  "pending" | "loading" | "success" | "error" | "warning";
+export type TaskStatus = 'pending' | 'loading' | 'success' | 'error' | 'warning';
 
 export interface TaskConfig {
-  id: string;
-  title: string;
-  type?: "spinner" | "progress"; // Defaults to spinner
-  total?: number; // Only used for progress bar
+    id: string;
+    title: string;
+    type?: 'spinner' | 'progress'; // Defaults to spinner
+    total?: number; // Only used for progress bar
 }
 
 // Internal state of each Task
 export interface TaskState extends TaskConfig {
-  status: TaskStatus;
-  current: number; // Progress value
-  message?: string; // Secondary message (e.g. "Downloading 5MB/s...")
+    status: TaskStatus;
+    current: number; // Progress value
+    message?: string; // Secondary message (e.g. "Downloading 5MB/s...")
 }
 
 export interface TaskGroupOptions {
-  concurrency?: number; // (Optional) Limit concurrent tasks (for Pipeline)
-  renderer?: "default" | "minimal"; // Minimal for CI environments
+    concurrency?: number; // (Optional) Limit concurrent tasks (for Pipeline)
+    renderer?: 'default' | 'minimal'; // Minimal for CI environments
 }

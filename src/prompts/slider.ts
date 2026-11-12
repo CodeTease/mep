@@ -1,75 +1,75 @@
-import { ANSI } from "../ansi";
-import { Prompt } from "../base";
-import { symbols } from "../symbols";
-import { theme } from "../theme";
-import type { MouseEvent, SliderOptions } from "../types";
+import { ANSI } from '../ansi';
+import { Prompt } from '../base';
+import { symbols } from '../symbols';
+import { theme } from '../theme';
+import type { MouseEvent, SliderOptions } from '../types';
 
 // --- Implementation: Slider Prompt ---
 export class SliderPrompt extends Prompt<number, SliderOptions> {
-  constructor(options: SliderOptions) {
-    super(options);
-    this.value = options.initial ?? options.min;
-  }
-
-  protected render(_firstRender: boolean) {
-    const width = 20;
-    const range = this.options.max - this.options.min;
-    // Avoid division by zero if min === max: keep the handle visible at the start.
-    const ratio = range === 0 ? 0 : (this.value - this.options.min) / range;
-    const pos = Math.round(ratio * width);
-
-    let bar = "";
-    for (let i = 0; i <= width; i++) {
-      if (i === pos) bar += `${theme.main}O${ANSI.RESET}`;
-      else bar += symbols.line;
+    constructor(options: SliderOptions) {
+        super(options);
+        this.value = options.initial ?? options.min;
     }
 
-    const unit = this.options.unit || "";
-    const output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} [${bar}] ${this.value}${unit}`;
+    protected render(_firstRender: boolean) {
+        const width = 20;
+        const range = this.options.max - this.options.min;
+        // Avoid division by zero if min === max: keep the handle visible at the start.
+        const ratio = range === 0 ? 0 : (this.value - this.options.min) / range;
+        const pos = Math.round(ratio * width);
 
-    this.renderFrame(output);
-  }
+        let bar = '';
+        for (let i = 0; i <= width; i++) {
+            if (i === pos) bar += `${theme.main}O${ANSI.RESET}`;
+            else bar += symbols.line;
+        }
 
-  protected handleInput(char: string) {
-    if (char === "\r" || char === "\n") {
-      this.submit(this.value);
-      return;
+        const unit = this.options.unit || '';
+        const output = `${theme.success}?${ANSI.RESET} ${ANSI.BOLD}${theme.title}${this.options.message}${ANSI.RESET} [${bar}] ${this.value}${unit}`;
+
+        this.renderFrame(output);
     }
 
-    const step = this.options.step || 1;
+    protected handleInput(char: string) {
+        if (char === '\r' || char === '\n') {
+            this.submit(this.value);
+            return;
+        }
 
-    if (this.isLeft(char)) {
-      // Left
-      this.value = Math.max(this.options.min, this.value - step);
-      // Round to avoid float errors
-      this.value = Math.round(this.value * 10000) / 10000;
-      this.render(false);
+        const step = this.options.step || 1;
+
+        if (this.isLeft(char)) {
+            // Left
+            this.value = Math.max(this.options.min, this.value - step);
+            // Round to avoid float errors
+            this.value = Math.round(this.value * 10000) / 10000;
+            this.render(false);
+        }
+        if (this.isRight(char)) {
+            // Right
+            this.value = Math.min(this.options.max, this.value + step);
+            // Round to avoid float errors
+            this.value = Math.round(this.value * 10000) / 10000;
+            this.render(false);
+        }
     }
-    if (this.isRight(char)) {
-      // Right
-      this.value = Math.min(this.options.max, this.value + step);
-      // Round to avoid float errors
-      this.value = Math.round(this.value * 10000) / 10000;
-      this.render(false);
+
+    protected handleMouse(event: MouseEvent) {
+        if (event.action === 'scroll') {
+            const step = this.options.step || 1;
+
+            if (event.scroll === 'up') {
+                // Scroll Up -> Increase
+                this.value = Math.min(this.options.max, this.value + step);
+            }
+            if (event.scroll === 'down') {
+                // Scroll Down -> Decrease
+                this.value = Math.max(this.options.min, this.value - step);
+            }
+
+            // Round to avoid float errors
+            this.value = Math.round(this.value * 10000) / 10000;
+            this.render(false);
+        }
     }
-  }
-
-  protected handleMouse(event: MouseEvent) {
-    if (event.action === "scroll") {
-      const step = this.options.step || 1;
-
-      if (event.scroll === "up") {
-        // Scroll Up -> Increase
-        this.value = Math.min(this.options.max, this.value + step);
-      }
-      if (event.scroll === "down") {
-        // Scroll Down -> Decrease
-        this.value = Math.max(this.options.min, this.value - step);
-      }
-
-      // Round to avoid float errors
-      this.value = Math.round(this.value * 10000) / 10000;
-      this.render(false);
-    }
-  }
 }
