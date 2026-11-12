@@ -251,6 +251,11 @@ export class CodePrompt extends Prompt<string, CodeOptions> {
       return;
     }
 
+    // Templates without placeholders are read-only: there is nothing to edit.
+    if (this.variableTokens.length === 0) {
+      return;
+    }
+
     const activeTokenIdx = this.variableTokens[this.activeVarIndex];
     const varName = this.tokens[activeTokenIdx].value;
     const val = this.values[varName] || "";
