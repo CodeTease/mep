@@ -16,6 +16,10 @@ const board = await MepCLI.kanban({
 });
 ```
 
+Columns may be empty. Grabbing an empty column and pressing `Left`/`Right` only moves the cursor, so the returned columns never contain `undefined` entries.
+
+Press `Space` to grab or drop the item under the cursor, use the arrow keys to move it, and press `Enter` to submit the final board.
+
 ## Rating
 
 The `rating` prompt allows users to give a score (star rating).

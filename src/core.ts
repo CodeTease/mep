@@ -883,6 +883,8 @@ export class MepCLI {
    *     { id: 'done', title: 'Done', items: [] }
    *   ]
    * });
+   * Columns may be empty; grabbing an empty column and moving only changes the
+   * cursor, so no `undefined` entries are added to the returned columns.
    * @param options - Columns and their items.
    * @returns A promise resolving to the final column state.
    * @see {@link https://github.com/CodeTease/mep/blob/main/examples/kanban-prompt.ts}

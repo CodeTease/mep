@@ -222,7 +222,13 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<
   private moveItemHorizontal(direction: number) {
     const sourceCol = this.columns[this.activeCol];
     const targetCol = this.columns[this.activeCol + direction];
-    const item = sourceCol.items.splice(this.activeRow, 1)[0];
+
+    // Grabbing an empty column (or a row past the end) must not splice
+    // `undefined` into the target column.
+    const item = sourceCol.items[this.activeRow];
+    if (item === undefined) return;
+
+    sourceCol.items.splice(this.activeRow, 1);
 
     let targetIndex = this.activeRow;
     if (targetIndex > targetCol.items.length) {
