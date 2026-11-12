@@ -156,10 +156,18 @@ The `match` prompt asks users to connect items from two lists (e.g., Country -> 
 ```typescript
 const pairs = await MepCLI.match({
   message: "Match Pairs",
-  left: ["France", "Germany"],
-  right: ["Berlin", "Paris"],
+  source: ["France", "Germany"],
+  target: ["Berlin", "Paris"],
 });
+// Returns: { France: ["Paris"], Germany: ["Berlin"] }
 ```
+
+Press `Space` to pick a source item, move to a target, and press `Space` again to link or
+unlink the pair. `Enter` submits, resolving to a record of source IDs mapped to the linked
+target values; sources without links are omitted.
+
+An empty `source` or `target` list is allowed. In that case the pick and link actions are
+no-ops, navigation stays inside the available list, and submitting resolves to `{}`.
 
 ## Shortcut
 
