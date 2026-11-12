@@ -47,22 +47,39 @@ export class OTPPrompt extends Prompt<string, OTPOptions> {
     this.renderFrame(output);
   }
 
+  /**
+   * Finds the nearest empty slot, scanning forward from `from` and wrapping
+   * around once. Falls back to the last slot, which is always a valid cursor
+   * position for a non-empty code.
+   */
+  private findNextEmptySlot(from: number): number {
+    for (let offset = 1; offset <= this.length; offset++) {
+      const index = (from + offset) % this.length;
+      if (this.slots[index] === "") {
+        return index;
+      }
+    }
+
+    return this.length - 1;
+  }
+
   protected handleInput(char: string) {
     // Digits
     if (/^\d$/.test(char)) {
-      this.slots[this.cursor] = char;
+      // Clamp the write so a stale cursor can never extend the fixed-size array.
+      const index = Math.min(this.cursor, this.length - 1);
+      this.slots[index] = char;
 
-      // If we are at the last slot
-      if (this.cursor === this.length - 1) {
-        // Only submit if all slots are filled
-        if (this.slots.every((s) => s !== "")) {
-          this.render(false); // Update view first
-          this.submit(this.slots.join(""));
-          return;
-        }
+      // Submit once every slot is filled.
+      if (this.slots.every((s) => s !== "")) {
+        this.render(false); // Update view first
+        this.submit(this.slots.join(""));
+        return;
       }
 
-      this.cursor++;
+      // Keep the cursor on a real, empty slot (wrapping to an earlier gap) so
+      // subsequent digits can complete the code instead of growing the array.
+      this.cursor = this.findNextEmptySlot(index);
       this.render(false);
       return;
     }

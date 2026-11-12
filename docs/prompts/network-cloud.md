@@ -59,6 +59,8 @@ const code = await MepCLI.otp({
 });
 ```
 
+The code always has exactly `length` slots. Typing a digit moves the cursor to the next empty slot (wrapping back to an earlier gap when one remains), so digits are never written outside the code, and the prompt submits automatically once every slot is filled.
+
 ## Region
 
 The `region` prompt allows selecting a cloud region (e.g., AWS us-east-1) from a map or list.
