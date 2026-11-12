@@ -27,9 +27,7 @@ describe("SliderPrompt", () => {
     const output = stripAnsi(
       stdoutSpy.mock.calls.map((call) => String(call[0])).join(""),
     );
-    const line = output
-      .split("\n")
-      .find((entry) => entry.includes("? Slider"));
+    const line = output.split("\n").find((entry) => entry.includes("? Slider"));
     if (!line) return "";
     const open = line.indexOf("[", line.indexOf("? Slider"));
     return line.slice(open + 1, line.indexOf("]", open));

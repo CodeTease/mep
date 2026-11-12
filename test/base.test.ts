@@ -59,7 +59,10 @@ describe("Prompt.truncate", () => {
   });
 
   it("should preserve leading ANSI sequences", () => {
-    const result = probe.truncateTo(`${ANSI.FG_CYAN}${"─".repeat(12)}${ANSI.RESET}`, 10);
+    const result = probe.truncateTo(
+      `${ANSI.FG_CYAN}${"─".repeat(12)}${ANSI.RESET}`,
+      10,
+    );
 
     expect(result).toBe(`${ANSI.FG_CYAN}───────...${ANSI.RESET}`);
     expect(stringWidth(result)).toBe(10);
@@ -73,11 +76,19 @@ describe("Prompt.truncate", () => {
   });
 
   it("should never exceed the requested width", () => {
-    const samples = ["abcdefghij", "─".repeat(12), "你好世界你好世界", "🚀🚀🚀🚀", "a─你🚀".repeat(6)];
+    const samples = [
+      "abcdefghij",
+      "─".repeat(12),
+      "你好世界你好世界",
+      "🚀🚀🚀🚀",
+      "a─你🚀".repeat(6),
+    ];
 
     for (const sample of samples) {
       for (const width of [4, 5, 8, 10, 20]) {
-        expect(stringWidth(probe.truncateTo(sample, width))).toBeLessThanOrEqual(width);
+        expect(
+          stringWidth(probe.truncateTo(sample, width)),
+        ).toBeLessThanOrEqual(width);
       }
     }
   });

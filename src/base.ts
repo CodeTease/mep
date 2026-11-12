@@ -1,7 +1,12 @@
 import { ANSI } from "./ansi";
 import { InputParser } from "./input";
 import type { BaseOptions, MouseEvent } from "./types";
-import { detectCapabilities, isWideCodePoint, stringWidth, stripAnsi } from "./utils";
+import {
+  detectCapabilities,
+  isWideCodePoint,
+  stringWidth,
+  stripAnsi,
+} from "./utils";
 
 /**
  * Abstract base class for all prompts.
