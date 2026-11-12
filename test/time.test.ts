@@ -1,4 +1,5 @@
 import { TimePrompt } from "../src/prompts/time";
+import { stripAnsi } from "../src/utils";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -64,5 +65,37 @@ describe("TimePrompt", () => {
     sendKey("\r");
 
     await expect(promise).resolves.toBe("00:03");
+  });
+
+  it("should render previews that match the selected minute for steps larger than 60", async () => {
+    const prompt = new TimePrompt({
+      message: "Time",
+      step: 67,
+      initial: "2026-01-01T00:00:00",
+    });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    const initialRender = stripAnsi(
+      stdoutSpy.mock.calls.map((call) => String(call[0])).join(""),
+    );
+
+    // Previous preview wraps to 53 and next preview wraps to 07, matching
+    // the values the prompt selects when the minutes column is adjusted.
+    expect(initialRender).toContain("53");
+    expect(initialRender).toContain("07");
+    expect(initialRender).not.toContain("-7");
+
+    sendKey("\u001b[C");
+    await delay(10);
+
+    // Selecting the next value (0 + 67) wraps to 7.
+    sendKey("\u001b[B");
+    await delay(10);
+
+    sendKey("\r");
+
+    await expect(promise).resolves.toBe("00:07");
   });
 });
