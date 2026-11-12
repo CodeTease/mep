@@ -37,7 +37,9 @@ export class CmdStrategy implements ShellStrategy {
   escape(value: string): string {
     // e.g. {"key": "value"} -> "{\"key\": \"value\"}"
     // e.g. value with " -> "value with \""
-    const flattened = value.replace(/[\r\n]+/g, " ");
+    // cmd.exe expands %VAR% even inside double quotes, so percent signs are
+    // doubled to stay literal when the generated command runs in a batch file.
+    const flattened = value.replace(/[\r\n]+/g, " ").replace(/%/g, "%%");
     return `"${flattened.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
   }
 }
