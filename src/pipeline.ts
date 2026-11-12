@@ -251,8 +251,9 @@ export class Pipeline<Ctx extends Record<string, any> = Record<string, any>> {
         try {
           let result: any;
           if (step.timeout && step.timeout > 0) {
+            let timer: ReturnType<typeof setTimeout> | undefined;
             const timeoutPromise = new Promise<never>((_, reject) => {
-              setTimeout(() => {
+              timer = setTimeout(() => {
                 reject(
                   new PipelineTimeoutError(
                     `Step timed out after ${step.timeout}ms`,
@@ -262,10 +263,18 @@ export class Pipeline<Ctx extends Record<string, any> = Record<string, any>> {
                 );
               }, step.timeout);
             });
-            result = await Promise.race([
-              step.action(context, tasks),
-              timeoutPromise,
-            ]);
+            try {
+              result = await Promise.race([
+                step.action(context, tasks),
+                timeoutPromise,
+              ]);
+            } finally {
+              // Clear the timer so it cannot keep the event loop alive after
+              // the step settles (or throws) before the timeout elapses.
+              if (timer !== undefined) {
+                clearTimeout(timer);
+              }
+            }
           } else {
             result = await step.action(context, tasks);
           }

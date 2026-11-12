@@ -290,6 +290,42 @@ describe("Pipeline", () => {
       const res = await p.run();
       expect(res.a).toBe(1);
     });
+
+    it("should clear the timeout timer once the step completes", async () => {
+      jest.useFakeTimers();
+      try {
+        type Ctx = { a: number };
+        const p = new Pipeline<Ctx>();
+        p.step("a", async () => 1, { timeout: 60_000 });
+
+        const res = await p.run();
+        expect(res.a).toBe(1);
+        // A leftover timer would keep the event loop alive until it fires.
+        expect(jest.getTimerCount()).toBe(0);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("should clear the timeout timer when the step throws", async () => {
+      jest.useFakeTimers();
+      try {
+        type Ctx = { a: number };
+        const p = new Pipeline<Ctx>();
+        p.step(
+          "a",
+          () => {
+            throw new Error("sync failure");
+          },
+          { timeout: 60_000 },
+        );
+
+        await expect(p.run()).rejects.toThrow("sync failure");
+        expect(jest.getTimerCount()).toBe(0);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
   });
 
   describe("Local Error Handling", () => {
