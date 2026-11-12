@@ -532,6 +532,7 @@ export class MepCLI {
    *     return results.map(c => ({ title: c.name, value: c.id }));
    *   }
    * });
+   * Suggestions are debounced, and a search that is still in flight when the prompt settles is discarded.
    * @param options - `suggest` callback to filter/fetch choices.
    * @returns A promise resolving to the selected value.
    * @see {@link https://github.com/CodeTease/mep/blob/main/examples/selection-prompts.ts}

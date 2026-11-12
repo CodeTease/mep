@@ -16,6 +16,7 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
   private scrollTop: number = 0;
   private readonly pageSize: number = 7;
   private hasSearched: boolean = false;
+  private disposed: boolean = false;
 
   constructor(options: AutocompleteOptions<V>) {
     super(options);
@@ -25,26 +26,34 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
 
   private search(query: string) {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    if (this.disposed) return;
 
     this.loading = true;
     this.startSpinner();
     this.render(false);
 
     this.debounceTimer = setTimeout(async () => {
+      this.debounceTimer = undefined;
+
       try {
         const results = await this.options.suggest(query);
-        if (query !== this.input) return;
+        // Discard results that arrive after the prompt has settled or after
+        // the user typed something else.
+        if (this.disposed || query !== this.input) return;
 
         this.choices = results.slice(0, this.options.limit || 10);
         this.selectedIndex = 0;
         this.scrollTop = 0;
         this.hasSearched = true;
       } catch (_err) {
+        if (this.disposed) return;
         this.choices = [];
       } finally {
-        this.loading = false;
-        this.stopSpinner();
-        this.render(false);
+        if (!this.disposed) {
+          this.loading = false;
+          this.stopSpinner();
+          this.render(false);
+        }
       }
     }, 300); // 300ms debounce
   }
@@ -65,6 +74,11 @@ export class AutocompletePrompt<V> extends Prompt<V, AutocompleteOptions<V>> {
   }
 
   protected cleanup() {
+    this.disposed = true;
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = undefined;
+    }
     this.stopSpinner();
     super.cleanup();
   }
