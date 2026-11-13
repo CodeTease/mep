@@ -16,9 +16,12 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
 
     private colWidths: number[] = [];
     private viewportHeight: number;
+    private data: Record<string, any>[];
 
     constructor(options: SpreadsheetOptions) {
         super(options);
+        // Copy the rows so cell edits never mutate the caller's data before submission.
+        this.data = options.data.map((row) => ({ ...row }));
         this.viewportHeight = options.rows || 10;
         this.calculateColWidths();
     }
@@ -29,7 +32,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
 
             // Auto calculate based on header and data
             let max = stringWidth(col.name);
-            this.options.data.forEach((row) => {
+            this.data.forEach((row) => {
                 const val = String(row[col.key] || '');
                 max = Math.max(max, stringWidth(val));
             });
@@ -47,7 +50,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         output += `${ANSI.DIM}(Arrows: Move, Enter/Type: Edit, Esc: Cancel)${ANSI.RESET}\n`;
 
         // Viewport Logic (Rows)
-        const maxScrollRow = Math.max(0, this.options.data.length - this.viewportHeight);
+        const maxScrollRow = Math.max(0, this.data.length - this.viewportHeight);
         if (this.cursorRow < this.scrollRow) this.scrollRow = this.cursorRow;
         if (this.cursorRow >= this.scrollRow + this.viewportHeight)
             this.scrollRow = this.cursorRow - this.viewportHeight + 1;
@@ -85,9 +88,9 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         // Render Rows
         for (let i = 0; i < this.viewportHeight; i++) {
             const rowIndex = this.scrollRow + i;
-            if (rowIndex >= this.options.data.length) break;
+            if (rowIndex >= this.data.length) break;
 
-            const rowData = this.options.data[rowIndex];
+            const rowData = this.data[rowIndex];
             // Row Number
             let rowStr = `${ANSI.DIM}${String(rowIndex + 1).padEnd(3)}${ANSI.RESET}`;
 
@@ -151,7 +154,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             return;
         }
         if (this.isDown(char)) {
-            this.cursorRow = Math.min(this.options.data.length - 1, this.cursorRow + 1);
+            this.cursorRow = Math.min(this.data.length - 1, this.cursorRow + 1);
             this.render(false);
             return;
         }
@@ -203,7 +206,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
 
         // Shortcuts
         if (char === 's') {
-            this.submit(this.options.data);
+            this.submit(this.data);
             return;
         }
 
@@ -220,7 +223,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         if (col.editable === false) return;
 
         this.editMode = true;
-        const currentVal = String(this.options.data[this.cursorRow][col.key] || '');
+        const currentVal = String(this.data[this.cursorRow][col.key] || '');
         this.tempValue = initialChar ? initialChar : currentVal;
         this.render(false);
     }
@@ -229,7 +232,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         if (char === '\r' || char === '\n') {
             // Save
             const col = this.options.columns[this.cursorCol];
-            this.options.data[this.cursorRow][col.key] = this.tempValue;
+            this.data[this.cursorRow][col.key] = this.tempValue;
             this.editMode = false;
             // Recalculate width if needed?
             this.calculateColWidths(); // Update widths
@@ -262,7 +265,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
                 this.cursorRow = Math.max(0, this.cursorRow - 1);
                 this.render(false);
             } else {
-                this.cursorRow = Math.min(this.options.data.length - 1, this.cursorRow + 1);
+                this.cursorRow = Math.min(this.data.length - 1, this.cursorRow + 1);
                 this.render(false);
             }
         }
