@@ -37,7 +37,7 @@ const age = await MepCLI.number({
 
 ## Asynchronous Validation
 
-Some prompts accept a validator that returns a `Promise` (for example `text`, `list`, and `phone`). Mep waits for the promise to settle before accepting the input, so an async check cannot be bypassed by pressing `Enter` early. While the promise is pending, `PhonePrompt` ignores keystrokes so the submitted value is exactly the one the validator approved.
+Some prompts accept a validator that returns a `Promise` (for example `text`, `list`, and `phone`). Mep waits for the promise to settle before accepting the input, so an async check cannot be bypassed by pressing `Enter` early. While the promise is pending, `PhonePrompt` and `ListPrompt` ignore keystrokes so the submitted value is exactly the one the validator approved.
 
 ```typescript
 const username = await MepCLI.text({

@@ -8,6 +8,7 @@ import type { ListOptions } from '../types';
 export class ListPrompt extends Prompt<string[], ListOptions> {
     private currentInput: string = '';
     private errorMsg: string = '';
+    private validating: boolean = false;
 
     constructor(options: ListOptions) {
         super(options);
@@ -81,7 +82,43 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
         }
     }
 
+    /**
+     * Validates the collected tags and submits them.
+     * Supports synchronous and asynchronous validators; the prompt waits for
+     * the promise to settle so an async check cannot be bypassed by pressing Enter.
+     */
+    private async validateAndSubmit() {
+        if (this.validating) return;
+
+        if (this.options.validate) {
+            let result: string | boolean | undefined;
+
+            try {
+                this.validating = true;
+                result = await this.options.validate(this.value);
+            } catch (err: any) {
+                this.errorMsg = err?.message || 'Validation failed';
+                this.render(false);
+                return;
+            } finally {
+                this.validating = false;
+            }
+
+            if (result !== true) {
+                this.errorMsg = typeof result === 'string' ? result : 'Invalid input';
+                this.render(false);
+                return;
+            }
+        }
+
+        this.submit(this.value);
+    }
+
     protected handleInput(char: string) {
+        // Ignore input while an async validator is in flight so the submitted
+        // list is exactly the one the validator approved.
+        if (this.validating) return;
+
         if (char === '\r' || char === '\n') {
             if (this.currentInput.trim()) {
                 this.value.push(this.currentInput.trim());
@@ -90,15 +127,7 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
                 this.render(false);
             } else {
                 // Done if input is empty
-                if (this.options.validate) {
-                    const result = this.options.validate(this.value);
-                    if (result !== true) {
-                        this.errorMsg = typeof result === 'string' ? result : 'Invalid input';
-                        this.render(false);
-                        return;
-                    }
-                }
-                this.submit(this.value);
+                this.validateAndSubmit();
             }
             return;
         }
