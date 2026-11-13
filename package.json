@@ -14,15 +14,17 @@
     "LICENSE"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun check",
     "compile": "swc src -d dist --strip-leading-paths --config-file .swcrc",
     "types": "tsc --emitDeclarationOnly --outDir dist",
     "build": "bun run compile && bun run types",
     "prepublishOnly": "bun run build",
     "test": "bun test",
     "demo": "bun example.ts",
-    "lint": "biome check ./src",
-    "lint:fix": "biome check --write ./src"
+    "lint": "bun lint --no-script src",
+    "lint:fix": "bun lint --no-script --fix src",
+    "fmt": "bun fmt --no-script src",
+    "fmt:check": "bun fmt --no-script --check src"
   },
   "keywords": [
     "cli",
@@ -47,7 +49,6 @@
   "author": "CodeTease",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.6.7",
     "@swc/cli": "^0.8.2",
     "@swc/core": "^1.16.22",
     "@types/jest": "^30.0.0",

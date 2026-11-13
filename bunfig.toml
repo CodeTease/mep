@@ -1,0 +1,27 @@
+# Bun tooling configuration shared by `bun check`, `bun lint` and `bun fmt`.
+# Formatting: https://bun.com/docs/format
+# Linting:    https://bun.com/docs/lint
+#
+# The `fmt`, `fmt:check`, `lint` and `lint:fix` package scripts limit both tools
+# to `src/`, matching the repository's established scope.
+
+[fmt]
+printWidth = 120
+tabWidth = 4
+singleQuote = true
+
+[lint.rules]
+# Bun's defaults are ESLint's and typescript-eslint's recommended sets. The
+# rules below are switched off to keep the codebase compatible with the
+# patterns it already relies on (they match the previous Biome configuration).
+"@typescript-eslint/no-explicit-any" = "off"
+"@typescript-eslint/no-empty-object-type" = "off"
+"@typescript-eslint/no-non-null-assertion" = "off"
+"@typescript-eslint/ban-types" = "off"
+"no-control-regex" = "off"
+"no-useless-assignment" = "off"
+"no-param-reassign" = "off"
+"prefer-template" = "off"
+"no-else-return" = "off"
+"unicorn/no-array-for-each" = "off"
+"unicorn/no-static-only-class" = "off"

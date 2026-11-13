@@ -13,12 +13,14 @@ We welcome contributions! Whether it's fixing bugs, adding new prompts, or impro
 
 - Run examples: `bun run demo`
 - Run tests: `bun test`
+- Type check: `bun run typecheck`
 - Lint code: `bun run lint`
+- Format code: `bun run fmt`
 
 ## Style Guide
 
 - Use TypeScript.
-- Follow the existing code style (Biome).
+- Follow the existing code style (enforced by `bun fmt` and `bun lint`, configured in `bunfig.toml`).
 - Ensure new prompts have `options` interface and return types.
 - Add JSDoc comments for public APIs.
 

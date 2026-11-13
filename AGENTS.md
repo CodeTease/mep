@@ -12,7 +12,7 @@ Mep is a zero-dependency TypeScript library for interactive command-line prompts
 - Preserve type safety with explicit options and return types. Document public APIs with JSDoc, consistent with the contribution guide.
 - When adding or changing a public prompt, update the exports in `src/index.ts` and add or update focused tests under `test/`.
 - Add or update documentation under `docs/` when behavior or public usage changes. Examples are in `examples/` and `example.ts`.
-- Follow `biome.json`: four-space indentation, single quotes for JavaScript/TypeScript, and a 120-character line width. The configured lint scope is `src/` (tests and examples are excluded).
+- Follow `bunfig.toml`: four-space indentation, single quotes for JavaScript/TypeScript, and a 120-character line width, enforced by `bun fmt`. Linting uses Bun's built-in linter with the rule overrides in `[lint.rules]`. The configured lint and format scope is `src/` (tests and examples are excluded).
 - Treat `dist/` as build output; make implementation changes in `src/`, not generated files.
 
 ## Commands
@@ -21,14 +21,18 @@ Use Bun, as the package scripts and CI are configured for it:
 
 ```sh
 bun install             # Install dependencies
-bun run typecheck       # TypeScript check
+bun run typecheck       # Type check src/ with `bun check`
 bun run test            # Run the Bun test suite
-bun run lint            # Check src/ with Biome
+bun run lint            # Lint src/ with Bun's built-in linter
+bun run lint:fix        # Apply lint fixes
+bun run fmt             # Format src/ with Bun's built-in formatter
+bun run fmt:check       # Check formatting without writing (use in CI)
 bun run build           # Compile JavaScript and generate declarations in dist/
-bun fmt 		# Format the codebase, add --check will not write
 ```
 
 For focused tests, run `bun test test/<file>.test.ts` (for example, `bun test test/prompts.test.ts`). Run relevant tests and typecheck for code changes; run lint and build as appropriate, especially for changes to source or package exports. Do not claim a check passed unless it was run.
+
+Type checking, linting, and formatting use Bun's native tooling configured in `bunfig.toml`. The build still uses SWC for JavaScript and `tsc` for declarations, because Bun can only emit CommonJS as a single bundle: with `--no-bundle` it transpiles each file but leaves ES module syntax unchanged, and bundling would collapse `dist/` into one file and break the deep imports (such as `mepcli/dist/prompts/text`) that the documentation and published layout rely on.
 
 ## Tests
 
