@@ -123,4 +123,19 @@ describe("FormPrompt", () => {
     sendKey("\u0003"); // Ctrl+C
     await expect(promise).rejects.toThrow("User force closed");
   });
+
+  it("should render and submit a form with no fields", async () => {
+    const prompt = new FormPrompt({ message: "Form", fields: [] });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    // Typing and navigation are no-ops with no active field.
+    expect(() => sendKey("x")).not.toThrow();
+    sendKey("\u001b[B"); // Down
+    await delay(10);
+
+    sendKey("\r");
+    await expect(promise).resolves.toEqual({});
+  });
 });

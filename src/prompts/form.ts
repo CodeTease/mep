@@ -18,7 +18,8 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         this.options.fields.forEach((field) => {
             this.values[field.name] = field.initial || '';
         });
-        this.cursor = this.values[this.options.fields[0].name].length;
+        // A form may be configured without fields; there is no value to put the cursor after.
+        this.cursor = this.options.fields.length > 0 ? this.values[this.options.fields[0].name].length : 0;
     }
 
     protected render(firstRender: boolean) {
@@ -80,7 +81,11 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Instructions
         outputLines.push('');
-        outputLines.push(`${ANSI.RESET}${theme.muted}(Use Up/Down/Tab to navigate, Enter to submit)${ANSI.RESET}`);
+        if (this.options.fields.length === 0) {
+            outputLines.push(`${ANSI.RESET}${theme.muted}(No fields defined, press Enter to submit)${ANSI.RESET}`);
+        } else {
+            outputLines.push(`${ANSI.RESET}${theme.muted}(Use Up/Down/Tab to navigate, Enter to submit)${ANSI.RESET}`);
+        }
 
         const output = outputLines.join('\n');
         this.renderFrame(output);
@@ -144,6 +149,7 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Editing Active Field
         const activeField = this.options.fields[this.activeIndex];
+        if (!activeField) return;
         const val = this.values[activeField.name];
 
         if (char === '\u0008' || char === '\x7f') {
@@ -205,6 +211,8 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
     private async validateCurrentField(): Promise<boolean> {
         const field = this.options.fields[this.activeIndex];
+        // Nothing to validate when the form has no fields.
+        if (!field) return true;
         const val = this.values[field.name];
 
         if (field.validate) {
