@@ -161,7 +161,22 @@ import type {
  * Public Facade for Mep
  */
 export class MepCLI {
-    public static theme: ThemeConfig = theme;
+    /**
+     * The active theme.
+     *
+     * Reading returns the shared theme object that prompts import, so mutating
+     * its values (for example `MepCLI.theme.main`) affects every prompt.
+     * Assigning a complete theme replaces those shared values in place, which
+     * makes the documented `MepCLI.theme = { ...MepCLI.theme, main: color }`
+     * pattern take effect for prompts rendered afterwards.
+     */
+    public static get theme(): ThemeConfig {
+        return theme;
+    }
+
+    public static set theme(value: ThemeConfig) {
+        Object.assign(theme, value);
+    }
 
     private static registry = new Map<string, any>();
 
