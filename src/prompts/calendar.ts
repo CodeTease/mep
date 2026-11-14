@@ -269,6 +269,20 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         }
     }
 
+    // Replaces the cursor immutably so dates already stored as a range anchor
+    // or selection are never mutated by later navigation.
+    private moveCursor(date: Date) {
+        this.cursor = date;
+        this.syncViewDate();
+    }
+
+    private moveViewDate(months: number) {
+        const next = new Date(this.viewDate);
+        next.setMonth(next.getMonth() + months);
+        this.viewDate = next;
+        this.alignCursorToViewDate();
+    }
+
     // When the user navigates the visible month independently (mouse scroll or
     // '<'/'>'), keep the cursor in the newly viewed month so subsequent
     // cursor movements don't snap the view back to the old month.
@@ -310,75 +324,79 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             if (isLeft) d.setDate(d.getDate() - 1);
             if (isRight) d.setDate(d.getDate() + 1);
 
-            this.cursor = d;
-            this.syncViewDate();
+            this.moveCursor(d);
             this.render(false);
             return;
         }
 
         // PageUp (Month - 1)
         if (char === '\x1b[5~') {
-            this.cursor.setMonth(this.cursor.getMonth() - 1);
-            this.syncViewDate();
+            const d = new Date(this.cursor);
+            d.setMonth(d.getMonth() - 1);
+            this.moveCursor(d);
             this.render(false);
             return;
         }
         // PageDown (Month + 1)
         if (char === '\x1b[6~') {
-            this.cursor.setMonth(this.cursor.getMonth() + 1);
-            this.syncViewDate();
+            const d = new Date(this.cursor);
+            d.setMonth(d.getMonth() + 1);
+            this.moveCursor(d);
             this.render(false);
             return;
         }
 
         // Ctrl+Up (Year - 1)
         if (char === '\x1b[1;5A') {
-            this.cursor.setFullYear(this.cursor.getFullYear() - 1);
-            this.syncViewDate();
+            const d = new Date(this.cursor);
+            d.setFullYear(d.getFullYear() - 1);
+            this.moveCursor(d);
             this.render(false);
             return;
         }
         // Ctrl+Down (Year + 1)
         if (char === '\x1b[1;5B') {
-            this.cursor.setFullYear(this.cursor.getFullYear() + 1);
-            this.syncViewDate();
+            const d = new Date(this.cursor);
+            d.setFullYear(d.getFullYear() + 1);
+            this.moveCursor(d);
             this.render(false);
             return;
         }
 
         // Home (First Day of Month)
         if (char === '\x1b[H' || char === '\x1b[1~') {
-            this.cursor.setDate(1);
+            const d = new Date(this.cursor);
+            d.setDate(1);
+            this.moveCursor(d);
             this.render(false);
             return;
         }
 
         // End (Last Day of Month)
         if (char === '\x1b[F' || char === '\x1b[4~') {
-            this.cursor.setMonth(this.cursor.getMonth() + 1);
-            this.cursor.setDate(0);
+            const d = new Date(this.cursor);
+            d.setMonth(d.getMonth() + 1);
+            d.setDate(0);
+            this.moveCursor(d);
             this.render(false);
             return;
         }
 
         // t (Today)
         if (char === 't') {
-            this.cursor = new Date();
-            this.syncViewDate();
+            this.moveCursor(new Date());
             this.render(false);
             return;
         }
 
         // Month Navigation with < and > (shift+, shift+.)
         if (char === '<' || char === ',') {
-            this.viewDate.setMonth(this.viewDate.getMonth() - 1);
-            this.alignCursorToViewDate();
+            this.moveViewDate(-1);
             this.render(false);
             return;
         }
         if (char === '>' || char === '.') {
-            this.viewDate.setMonth(this.viewDate.getMonth() + 1);
-            this.alignCursorToViewDate();
+            this.moveViewDate(1);
             this.render(false);
             return;
         }
@@ -393,8 +411,9 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         if (char === '\r' || char === '\n' || char === ' ') {
             if (this.options.mode === 'range') {
                 if (!this.tempRangeStart) {
-                    // Start new range selection
-                    this.tempRangeStart = this.cursor;
+                    // Start new range selection. Clone the cursor so paging and
+                    // scrolling cannot move the anchor along with the cursor.
+                    this.tempRangeStart = new Date(this.cursor.getTime());
 
                     if (!this.options.multiple) {
                         this.selections = [];
@@ -418,8 +437,9 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                     }
                 }
             } else {
-                // Single Date Mode
-                const date = this.cursor;
+                // Single Date Mode. Store a copy so later navigation cannot
+                // mutate an already committed selection.
+                const date = new Date(this.cursor.getTime());
                 if (this.options.multiple) {
                     // Toggle selection
                     const idx = this.selections.findIndex((s) => !Array.isArray(s) && this.isSameDay(s, date));
@@ -446,12 +466,12 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
             if (event.ctrl) {
                 // Ctrl+Scroll: Day (Cursor)
-                this.cursor.setDate(this.cursor.getDate() + direction);
-                this.syncViewDate();
+                const d = new Date(this.cursor);
+                d.setDate(d.getDate() + direction);
+                this.moveCursor(d);
             } else {
                 // Normal Scroll: Month
-                this.viewDate.setMonth(this.viewDate.getMonth() + direction);
-                this.alignCursorToViewDate();
+                this.moveViewDate(direction);
             }
 
             this.render(false);
