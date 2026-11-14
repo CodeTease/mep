@@ -14,6 +14,7 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
     protected segments: string[] = [];
     protected lastLinesUp: number = 0;
     private ghost: string = '';
+    private validating: boolean = false;
 
     constructor(options: O) {
         super(options);
@@ -209,6 +210,10 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
     }
 
     protected handleInput(char: string) {
+        // Ignore keystrokes while an async validator is in flight so the text
+        // that gets submitted is exactly the one the validator approved.
+        if (this.validating) return;
+
         // Tab (Accept Suggestion)
         if (char === '\t') {
             if (this.ghost) {
@@ -300,17 +305,29 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
         }
     }
 
+    /**
+     * Validates the current text and submits it.
+     * Async validators are awaited before submitting, and the validated text is
+     * snapshotted so an edit made while the promise is pending cannot be
+     * submitted without re-validation.
+     */
     private validateAndSubmit() {
+        if (this.validating) return;
+
         this.value = this.segments.join('');
+        const candidate: string = this.value;
+
         if (this.options.validate) {
-            const result = this.options.validate(this.value);
+            const result = this.options.validate(candidate);
 
             if (result instanceof Promise) {
+                this.validating = true;
                 this.errorMsg = 'Validating...';
                 this.render(false);
 
                 result
                     .then((valid) => {
+                        this.validating = false;
                         if (typeof valid === 'string' && valid.length > 0) {
                             this.errorMsg = valid;
                             this.render(false);
@@ -320,11 +337,12 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
                         } else {
                             this.errorMsg = '';
                             this.render(false);
-                            this.submit(this.value);
+                            this.submit(candidate);
                         }
                     })
                     .catch((err) => {
-                        this.errorMsg = err.message || 'Validation failed';
+                        this.validating = false;
+                        this.errorMsg = err?.message || 'Validation failed';
                         this.render(false);
                     });
                 return;
@@ -342,6 +360,6 @@ export class TextPrompt<O extends TextOptions = TextOptions> extends Prompt<stri
             }
         }
 
-        this.submit(this.value);
+        this.submit(candidate);
     }
 }
