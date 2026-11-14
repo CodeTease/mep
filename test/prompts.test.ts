@@ -270,13 +270,14 @@ describe("Complex Prompts", () => {
 
   describe("SpreadsheetPrompt", () => {
     it("should edit cell value", async () => {
+      const data = [{ name: "John", age: 30 }];
       const prompt = new SpreadsheetPrompt({
         message: "Sheet",
         columns: [
           { name: "Name", key: "name", width: 10 },
           { name: "Age", key: "age", width: 5 },
         ],
-        data: [{ name: "John", age: 30 }],
+        data,
       });
 
       const promise = prompt.run();
@@ -307,6 +308,44 @@ describe("Complex Prompts", () => {
 
       const result = await promise;
       expect(result[0].name).toBe("Doe");
+      // Submission returns an edited copy instead of the caller's objects.
+      expect(data[0].name).toBe("John");
+      expect(result[0]).not.toBe(data[0]);
+    });
+
+    it("should not mutate caller data when cancelled after an edit", async () => {
+      const data = [{ name: "John", age: 30 }];
+      const prompt = new SpreadsheetPrompt({
+        message: "Sheet",
+        columns: [
+          { name: "Name", key: "name", width: 10 },
+          { name: "Age", key: "age", width: 5 },
+        ],
+        data,
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      // Edit the first cell.
+      sendKey("\r");
+      await delay(10);
+      sendKey("\x7f");
+      sendKey("\x7f");
+      sendKey("\x7f");
+      sendKey("\x7f");
+      sendKey("D");
+      sendKey("o");
+      sendKey("e");
+      await delay(10);
+
+      // Save the cell, then cancel the prompt with Ctrl+C.
+      sendKey("\r");
+      await delay(10);
+      sendKey("\u0003");
+
+      await expect(promise).rejects.toThrow("User force closed");
+      expect(data).toEqual([{ name: "John", age: 30 }]);
     });
   });
 });
