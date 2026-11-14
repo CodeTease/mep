@@ -122,16 +122,23 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Enter
         if (char === '\r' || char === '\n') {
-            this.validateCurrentField().then((isValid) => {
-                if (isValid) {
-                    if (this.activeIndex < this.options.fields.length - 1) {
-                        this.moveFocus(1);
-                    } else {
-                        // Submit
-                        this.submitForm();
+            this.validateCurrentField()
+                .then((isValid) => {
+                    if (isValid) {
+                        if (this.activeIndex < this.options.fields.length - 1) {
+                            this.moveFocus(1);
+                        } else {
+                            // Submit. Returned so an unexpected rejection reaches the catch below.
+                            return this.submitForm();
+                        }
                     }
-                }
-            });
+                })
+                .catch((err: any) => {
+                    // Validators are caught individually; this is a last resort so a
+                    // rejection can never leave the prompt promise unsettled.
+                    this.globalError = err?.message || 'Validation failed';
+                    this.render(false);
+                });
             return;
         }
 
@@ -236,14 +243,21 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         let allValid = true;
         for (const field of this.options.fields) {
             const val = this.values[field.name];
-            if (field.validate) {
+            if (!field.validate) continue;
+
+            try {
                 const res = await field.validate(val);
-                if (res !== true) {
+                if (res === true) {
+                    delete this.fieldErrors[field.name];
+                } else {
                     this.fieldErrors[field.name] = typeof res === 'string' ? res : 'Invalid value';
                     allValid = false;
-                } else {
-                    delete this.fieldErrors[field.name];
                 }
+            } catch (err: any) {
+                // A validator can pass during validateCurrentField() and still throw
+                // here; report it as a field error instead of rejecting the prompt.
+                this.fieldErrors[field.name] = err?.message || 'Validation failed';
+                allValid = false;
             }
         }
 

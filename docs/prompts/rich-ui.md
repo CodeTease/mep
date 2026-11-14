@@ -90,6 +90,8 @@ const user = await MepCLI.form({
 });
 ```
 
+If a field `validate` function throws, the thrown message is shown as that field's error instead of rejecting the prompt, including when the validator is called again during final submission.
+
 ## Map
 
 The `map` prompt is a Key-Value editor.

@@ -80,4 +80,47 @@ describe("FormPrompt", () => {
       last: "",
     });
   });
+
+  it("should surface a validator error thrown during submit", async () => {
+    let calls = 0;
+    const prompt = new FormPrompt({
+      message: "Form",
+      fields: [
+        {
+          name: "a",
+          message: "A",
+          initial: "value",
+          validate: () => {
+            calls++;
+            // Passes while validating the field, then throws when submitForm
+            // validates every field again.
+            if (calls > 1) throw new Error("boom");
+            return true;
+          },
+        },
+      ],
+    });
+
+    const unhandled: unknown[] = [];
+    const onUnhandled = (reason: unknown) => unhandled.push(reason);
+    process.on("unhandledRejection", onUnhandled);
+
+    const promise = prompt.run();
+    await delay(10);
+
+    sendKey("\r");
+    await delay(20);
+
+    process.removeListener("unhandledRejection", onUnhandled);
+
+    expect(calls).toBe(2);
+    expect(unhandled).toEqual([]);
+
+    const output = stdoutSpy.mock.calls.map((call) => String(call[0])).join("");
+    expect(output).toContain("boom");
+    expect(output).toContain("Please fix errors before submitting.");
+
+    sendKey("\u0003"); // Ctrl+C
+    await expect(promise).rejects.toThrow("User force closed");
+  });
 });
