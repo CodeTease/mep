@@ -113,4 +113,131 @@ describe("CalendarPrompt", () => {
       ]);
     });
   });
+
+  describe("min/max bounds", () => {
+    it("clamps an initial date below min", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2020, 0, 1),
+        min: new Date(2030, 0, 1),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2030, 0, 1));
+    });
+
+    it("clamps an initial date above max", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2040, 0, 1),
+        max: new Date(2030, 11, 31),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2030, 11, 31));
+    });
+
+    it("stops day navigation at min", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2026, 0, 12),
+        min: new Date(2026, 0, 10),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      for (let i = 0; i < 5; i++) {
+        sendKey("\x1b[D"); // Left
+      }
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2026, 0, 10));
+    });
+
+    it("stops month navigation at max", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2026, 0, 15),
+        max: new Date(2026, 1, 10),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[6~"); // PageDown -> clamped to Feb 10
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2026, 1, 10));
+    });
+
+    it("stops year navigation at max", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2026, 0, 15),
+        max: new Date(2026, 11, 31),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[1;5B"); // Ctrl+Down -> clamped to Dec 31 2026
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2026, 11, 31));
+    });
+
+    it("stops Home at min within the month", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2026, 0, 15),
+        min: new Date(2026, 0, 10),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[H"); // Home -> clamped to Jan 10
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2026, 0, 10));
+    });
+
+    it("does not page the view before the month containing min", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2026, 2, 10),
+        min: new Date(2026, 2, 10),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[5~"); // PageUp
+      await delay(10);
+
+      expect(renderedOutput()).toContain("March 2026");
+      expect(renderedOutput()).not.toContain("February 2026");
+
+      sendKey("\r");
+      await expect(promise).resolves.toEqual(new Date(2026, 2, 10));
+    });
+
+    it("throws when min is after max", () => {
+      expect(
+        () =>
+          new CalendarPrompt({
+            message: "Cal",
+            min: new Date(2026, 1, 1),
+            max: new Date(2026, 0, 1),
+          }),
+      ).toThrow('"min" must be on or before "max"');
+    });
+  });
 });
+

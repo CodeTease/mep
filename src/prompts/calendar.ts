@@ -23,6 +23,9 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     // Internal state for dragging/selecting a range before it is finalized
     private tempRangeStart: Date | null = null;
 
+    // Bounds validation feedback shown below the calendar
+    private errorMsg: string = '';
+
     constructor(options: ExtendedCalendarOptions) {
         super(options);
 
@@ -67,9 +70,63 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             }
         }
 
+        if (
+            this.options.min &&
+            this.options.max &&
+            this.startOfDay(this.options.min) > this.startOfDay(this.options.max)
+        ) {
+            throw new Error('CalendarPrompt: "min" must be on or before "max".');
+        }
+
+        // Enforce the configured bounds for both the cursor and any selection
+        // supplied through `initial`, so a submit cannot leave the allowed window.
+        this.selections = this.selections.map((selection) => this.clampSelection(selection));
+        this.cursor = this.clampToBounds(this.cursor);
+
         // Sync viewDate to cursor so we see the selected date
         this.viewDate = new Date(this.cursor);
         this.viewDate.setDate(1);
+    }
+
+    private startOfDay(date: Date): number {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    }
+
+    private isWithinBounds(date: Date): boolean {
+        const time = this.startOfDay(date);
+        if (this.options.min && time < this.startOfDay(this.options.min)) return false;
+        if (this.options.max && time > this.startOfDay(this.options.max)) return false;
+        return true;
+    }
+
+    private isSelectionWithinBounds(selection: SingleSelection | RangeSelection): boolean {
+        if (Array.isArray(selection)) {
+            return this.isWithinBounds(selection[0]) && this.isWithinBounds(selection[1]);
+        }
+        return this.isWithinBounds(selection);
+    }
+
+    /**
+     * Returns a copy of `date` moved inside the configured min/max window.
+     * Bounds are compared by calendar day, so a min/max carrying a time of day
+     * still allows the whole day it falls on.
+     */
+    private clampToBounds(date: Date): Date {
+        const clamped = new Date(date.getTime());
+        if (this.options.min && this.startOfDay(clamped) < this.startOfDay(this.options.min)) {
+            return new Date(this.options.min.getTime());
+        }
+        if (this.options.max && this.startOfDay(clamped) > this.startOfDay(this.options.max)) {
+            return new Date(this.options.max.getTime());
+        }
+        return clamped;
+    }
+
+    private clampSelection(selection: SingleSelection | RangeSelection): SingleSelection | RangeSelection {
+        if (Array.isArray(selection)) {
+            return [this.clampToBounds(selection[0]), this.clampToBounds(selection[1])];
+        }
+        return this.clampToBounds(selection);
     }
 
     private getDaysInMonth(year: number, month: number): number {
@@ -206,8 +263,9 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             const isSel = this.isSelected(cell.date);
             const isTemp = this.isInTempRange(cell.date);
             const isToday = this.isSameDay(cell.date, new Date());
+            const isDisabled = !this.isWithinBounds(cell.date);
 
-            if (!cell.inMonth) {
+            if (!cell.inMonth || isDisabled) {
                 style = theme.muted;
             }
 
@@ -216,7 +274,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
                 style = theme.main;
             }
 
-            if (isToday && !isSel && !isTemp) {
+            if (isToday && !isSel && !isTemp && !isDisabled) {
                 style += ANSI.UNDERLINE;
             }
 
@@ -256,6 +314,10 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
         output += `${theme.muted}${help}${ANSI.RESET}`;
 
+        if (this.errorMsg) {
+            output += `\n${theme.error}>> ${this.errorMsg}${ANSI.RESET}`;
+        }
+
         this.renderFrame(output);
     }
 
@@ -272,14 +334,28 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     // Replaces the cursor immutably so dates already stored as a range anchor
     // or selection are never mutated by later navigation.
     private moveCursor(date: Date) {
-        this.cursor = date;
+        this.cursor = this.clampToBounds(date);
         this.syncViewDate();
+    }
+
+    // Keeps the visible month inside the min/max month window.
+    private clampViewDate(date: Date): Date {
+        const candidate = new Date(date.getFullYear(), date.getMonth(), 1);
+        if (this.options.min) {
+            const minMonth = new Date(this.options.min.getFullYear(), this.options.min.getMonth(), 1);
+            if (candidate < minMonth) return minMonth;
+        }
+        if (this.options.max) {
+            const maxMonth = new Date(this.options.max.getFullYear(), this.options.max.getMonth(), 1);
+            if (candidate > maxMonth) return maxMonth;
+        }
+        return candidate;
     }
 
     private moveViewDate(months: number) {
         const next = new Date(this.viewDate);
         next.setMonth(next.getMonth() + months);
-        this.viewDate = next;
+        this.viewDate = this.clampViewDate(next);
         this.alignCursorToViewDate();
     }
 
@@ -292,10 +368,18 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         const month = this.viewDate.getMonth();
         const daysInTarget = this.getDaysInMonth(year, month);
         const newDay = Math.min(day, daysInTarget);
-        this.cursor = new Date(year, month, newDay);
+        this.cursor = this.clampToBounds(new Date(year, month, newDay));
     }
 
     private submitResult() {
+        if (!this.selections.every((selection) => this.isSelectionWithinBounds(selection))) {
+            this.errorMsg = 'Selection is outside the allowed date range.';
+            this.render(false);
+            return;
+        }
+
+        this.errorMsg = '';
+
         if (this.options.multiple) {
             if (this.options.mode === 'range') {
                 // Only RangeSelection[]
@@ -311,6 +395,9 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     }
 
     protected handleInput(char: string, _key: any): void {
+        // Any new input dismisses a previous bounds error.
+        this.errorMsg = '';
+
         const isUp = this.isUp(char);
         const isDown = this.isDown(char);
         const isLeft = this.isLeft(char);
@@ -463,6 +550,8 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
     protected handleMouse(event: MouseEvent): void {
         if (event.action === 'scroll') {
             const direction = event.scroll === 'up' ? -1 : 1;
+
+            this.errorMsg = '';
 
             if (event.ctrl) {
                 // Ctrl+Scroll: Day (Cursor)

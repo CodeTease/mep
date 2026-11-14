@@ -44,6 +44,15 @@ const vacation = await MepCLI.calendar({
   mode: "range", // Enable range selection
 });
 // Returns: [StartDate, EndDate]
+
+// Restrict the selectable window
+const sprintDay = await MepCLI.calendar({
+  message: "Select a day in the current sprint",
+  min: new Date(2026, 0, 5),
+  max: new Date(2026, 0, 16),
+});
+// Cursor and month paging are clamped to the min/max window, and days
+// outside it are shown muted. Initial dates outside the window are clamped.
 ```
 
 ## Schedule
