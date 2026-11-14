@@ -28,8 +28,12 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         }));
 
         // Initial Calculations
-        const minTaskDate = Math.min(...this.tasks.map((t) => t.start.getTime()));
-        const maxTaskDate = Math.max(...this.tasks.map((t) => t.end.getTime()));
+        // Math.min(...[]) is Infinity and Math.max(...[]) is -Infinity, so fall
+        // back to a one-day window around the current time when there are no tasks.
+        const taskStarts = this.tasks.map((t) => t.start.getTime());
+        const taskEnds = this.tasks.map((t) => t.end.getTime());
+        const minTaskDate = taskStarts.length > 0 ? Math.min(...taskStarts) : Date.now();
+        const maxTaskDate = taskEnds.length > 0 ? Math.max(...taskEnds) : minTaskDate + 86400000;
 
         const opts = options as ScheduleOptions & {
             startDate?: Date;
@@ -41,14 +45,16 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         if (opts.startDate) this.minViewDate = minDate;
 
         // Default Zoom: Fit the whole range into ~60 chars
-        const range = maxDate - minDate || 86400000; // default 1 day if 0
-        this.msPerChar = range / 60;
+        // Guard against a non-positive range (for example inverted start/end options).
+        const range = maxDate - minDate;
+        this.msPerChar = range > 0 ? range / 60 : 86400000 / 60; // default 1 day if invalid
 
         // Start view slightly before the earliest task
         this.viewStartDate = opts.startDate ? minDate : minDate - this.msPerChar * 5;
     }
 
     private get maxNameWidth(): number {
+        if (this.tasks.length === 0) return 0;
         return Math.max(...this.tasks.map((t) => stringWidth(t.name))) + 2;
     }
 
@@ -90,6 +96,10 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
         const visibleTasks = this.tasks.slice(this.scrollTop, this.scrollTop + this.pageSize);
 
         // 3. Render Rows
+        if (this.tasks.length === 0) {
+            output += `  ${theme.muted}No tasks scheduled${ANSI.RESET}\n`;
+        }
+
         visibleTasks.forEach((task, index) => {
             const actualIndex = this.scrollTop + index;
             const isSelected = actualIndex === this.cursor;
@@ -174,6 +184,14 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
     }
 
     protected handleInput(char: string, key: Buffer) {
+        if (char === '\r' || char === '\n') {
+            this.submit(this.tasks);
+            return;
+        }
+
+        // With no tasks there is no selected task to navigate, move or resize.
+        if (this.tasks.length === 0) return;
+
         const task = this.tasks[this.cursor];
         const step = Math.max(1, this.msPerChar); // Move by 1 char equivalent
 
@@ -262,10 +280,6 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
             this.render(false);
             return;
         }
-
-        if (char === '\r' || char === '\n') {
-            this.submit(this.tasks);
-        }
     }
 
     protected handleMouse(event: MouseEvent) {
@@ -282,6 +296,7 @@ export class SchedulePrompt extends Prompt<ScheduleTask[], ScheduleOptions> {
             } else {
                 // Move Task
                 const task = this.tasks[this.cursor];
+                if (!task) return;
                 const step = Math.max(1, this.msPerChar);
 
                 if (event.scroll === 'up') {

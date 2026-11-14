@@ -53,14 +53,15 @@ The `schedule` prompt is a Gantt-chart style interface for planning tasks over a
 ```typescript
 const plan = await MepCLI.schedule({
   message: "Plan your day",
-  startHour: 8,
-  endHour: 18,
-  tasks: [
-    { id: 1, name: "Meeting", start: 9, duration: 1 },
-    { id: 2, name: "Coding", start: 10, duration: 3 },
+  data: [
+    { name: "Meeting", start: new Date("2026-01-01T09:00:00"), end: new Date("2026-01-01T10:00:00") },
+    { name: "Coding", start: new Date("2026-01-01T10:00:00"), end: new Date("2026-01-01T13:00:00") },
   ],
 });
+// Returns: the (possibly adjusted) list of ScheduleTask objects
 ```
+
+Passing an empty `data` array renders an empty timeline with a `No tasks scheduled` hint. Movement and resize keys are ignored while the list is empty, and `Enter` resolves with an empty array.
 
 ## Cron
 

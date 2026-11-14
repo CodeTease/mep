@@ -1224,6 +1224,8 @@ export class MepCLI {
      *     { name: 'Meeting', start: new Date(), end: new Date() }
      *   ]
      * });
+     * An empty `data` array renders an empty timeline and resolves to `[]`; movement
+     * and resize keys are ignored while there are no tasks.
      * @param options - List of scheduled tasks.
      * @returns A promise resolving to the modified task list.
      * @see {@link https://github.com/CodeTease/mep/blob/main/examples/schedule-prompt.ts}
