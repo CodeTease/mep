@@ -90,6 +90,10 @@ const user = await MepCLI.form({
 });
 ```
 
+If a field `validate` function throws, the thrown message is shown as that field's error instead of rejecting the prompt, including when the validator is called again during final submission.
+
+An empty `fields` array is allowed: the form renders without any fields and pressing `Enter` resolves to `{}`.
+
 ## Map
 
 The `map` prompt is a Key-Value editor.

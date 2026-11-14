@@ -18,7 +18,8 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         this.options.fields.forEach((field) => {
             this.values[field.name] = field.initial || '';
         });
-        this.cursor = this.values[this.options.fields[0].name].length;
+        // A form may be configured without fields; there is no value to put the cursor after.
+        this.cursor = this.options.fields.length > 0 ? this.values[this.options.fields[0].name].length : 0;
     }
 
     protected render(firstRender: boolean) {
@@ -80,7 +81,11 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Instructions
         outputLines.push('');
-        outputLines.push(`${ANSI.RESET}${theme.muted}(Use Up/Down/Tab to navigate, Enter to submit)${ANSI.RESET}`);
+        if (this.options.fields.length === 0) {
+            outputLines.push(`${ANSI.RESET}${theme.muted}(No fields defined, press Enter to submit)${ANSI.RESET}`);
+        } else {
+            outputLines.push(`${ANSI.RESET}${theme.muted}(Use Up/Down/Tab to navigate, Enter to submit)${ANSI.RESET}`);
+        }
 
         const output = outputLines.join('\n');
         this.renderFrame(output);
@@ -122,21 +127,29 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
         // Enter
         if (char === '\r' || char === '\n') {
-            this.validateCurrentField().then((isValid) => {
-                if (isValid) {
-                    if (this.activeIndex < this.options.fields.length - 1) {
-                        this.moveFocus(1);
-                    } else {
-                        // Submit
-                        this.submitForm();
+            this.validateCurrentField()
+                .then((isValid) => {
+                    if (isValid) {
+                        if (this.activeIndex < this.options.fields.length - 1) {
+                            this.moveFocus(1);
+                        } else {
+                            // Submit. Returned so an unexpected rejection reaches the catch below.
+                            return this.submitForm();
+                        }
                     }
-                }
-            });
+                })
+                .catch((err: any) => {
+                    // Validators are caught individually; this is a last resort so a
+                    // rejection can never leave the prompt promise unsettled.
+                    this.globalError = err?.message || 'Validation failed';
+                    this.render(false);
+                });
             return;
         }
 
         // Editing Active Field
         const activeField = this.options.fields[this.activeIndex];
+        if (!activeField) return;
         const val = this.values[activeField.name];
 
         if (char === '\u0008' || char === '\x7f') {
@@ -198,6 +211,8 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
 
     private async validateCurrentField(): Promise<boolean> {
         const field = this.options.fields[this.activeIndex];
+        // Nothing to validate when the form has no fields.
+        if (!field) return true;
         const val = this.values[field.name];
 
         if (field.validate) {
@@ -236,14 +251,21 @@ export class FormPrompt extends Prompt<Record<string, string>, FormOptions> {
         let allValid = true;
         for (const field of this.options.fields) {
             const val = this.values[field.name];
-            if (field.validate) {
+            if (!field.validate) continue;
+
+            try {
                 const res = await field.validate(val);
-                if (res !== true) {
+                if (res === true) {
+                    delete this.fieldErrors[field.name];
+                } else {
                     this.fieldErrors[field.name] = typeof res === 'string' ? res : 'Invalid value';
                     allValid = false;
-                } else {
-                    delete this.fieldErrors[field.name];
                 }
+            } catch (err: any) {
+                // A validator can pass during validateCurrentField() and still throw
+                // here; report it as a field error instead of rejecting the prompt.
+                this.fieldErrors[field.name] = err?.message || 'Validation failed';
+                allValid = false;
             }
         }
 
