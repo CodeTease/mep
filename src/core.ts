@@ -559,6 +559,8 @@ export class MepCLI {
      *     { value: 2, row: ['Bob', 'User'] }
      *   ]
      * });
+     * When `data` is empty the table renders an empty state; there is no row to
+     * submit, so `Enter` and navigation keys are ignored.
      * @param options - Columns definition and row data.
      * @returns A promise resolving to the `value` of the selected row.
      * @see {@link https://github.com/CodeTease/mep/blob/main/examples/data-visualization.ts}

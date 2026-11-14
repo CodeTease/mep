@@ -22,6 +22,8 @@ const selectedUser = await MepCLI.table({
 });
 ```
 
+When `data` is empty, the table renders a `No rows found` message and keeps the prompt open. There is no row to submit, so `Enter` and the navigation keys are ignored until the prompt is cancelled.
+
 ## Spreadsheet
 
 The `spreadsheet` prompt allows editing a grid of data, similar to Excel.
