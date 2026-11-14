@@ -59,6 +59,10 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
         // Table Body
         const visibleRows = this.options.data.slice(this.scrollTop, this.scrollTop + this.pageSize);
 
+        if (visibleRows.length === 0) {
+            output += `  ${theme.muted}No rows found${ANSI.RESET}`;
+        }
+
         visibleRows.forEach((item, index) => {
             const actualIndex = this.scrollTop + index;
             if (index > 0) output += '\n';
@@ -90,6 +94,10 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
     }
 
     protected handleInput(char: string) {
+        // There is no row to select, so navigation and submission are no-ops.
+        // This mirrors SelectPrompt, which ignores input when the list is empty.
+        if (this.options.data.length === 0) return;
+
         if (char === '\r' || char === '\n') {
             this.submit(this.options.data[this.selectedIndex].value);
             return;
@@ -109,6 +117,8 @@ export class TablePrompt<V> extends Prompt<V, TableOptions<V>> {
     }
 
     protected handleMouse(event: MouseEvent) {
+        if (this.options.data.length === 0) return;
+
         if (event.action === 'scroll') {
             if (event.scroll === 'up') {
                 this.selectedIndex = this.selectedIndex > 0 ? this.selectedIndex - 1 : this.options.data.length - 1;
