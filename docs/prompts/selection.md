@@ -194,6 +194,15 @@ const commits = await MepCLI.selectRange({
 });
 ```
 
+`multiRange` commits a range when you press Space a second time, so you can anchor and commit several ranges before submitting. Committed ranges are remembered by choice, not by filtered position: typing a search after committing keeps the ranges intact, and Enter still submits them even if the current filter hides them or matches nothing.
+
+```typescript
+const lines = await MepCLI.multiRange({
+  message: "Select ranges of lines to delete",
+  choices: lines.map((line, index) => ({ title: line, value: index })),
+});
+```
+
 ## Related
 
 - [Rich UI Prompts](./rich-ui.md)

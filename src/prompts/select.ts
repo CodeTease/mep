@@ -42,12 +42,27 @@ export class SelectPrompt<V, O extends SelectOptions<V> = SelectOptions<V>> exte
         return nextIndex;
     }
 
-    protected getFilteredChoices(): (SelectChoice<V> | Separator)[] {
-        if (!this.searchBuffer) return this.options.choices;
-        return (this.options.choices as (SelectChoice<V> | Separator)[]).filter((c) => {
-            if (this.isSeparator(c)) return false; // Hide separators when searching
-            return c.title.toLowerCase().includes(this.searchBuffer.toLowerCase());
+    /**
+     * Indexes into `options.choices` for the currently visible choices.
+     * Prompts that need to remember a choice across filtering should store these
+     * indexes instead of positions in the filtered list.
+     */
+    protected getFilteredIndexes(): number[] {
+        const choices = this.options.choices as (SelectChoice<V> | Separator)[];
+        if (!this.searchBuffer) return choices.map((_, index) => index);
+
+        const search = this.searchBuffer.toLowerCase();
+        const indexes: number[] = [];
+        choices.forEach((choice, index) => {
+            if (this.isSeparator(choice)) return; // Hide separators when searching
+            if (choice.title.toLowerCase().includes(search)) indexes.push(index);
         });
+        return indexes;
+    }
+
+    protected getFilteredChoices(): (SelectChoice<V> | Separator)[] {
+        const choices = this.options.choices as (SelectChoice<V> | Separator)[];
+        return this.getFilteredIndexes().map((index) => choices[index]);
     }
 
     protected render(_firstRender: boolean) {
