@@ -4,6 +4,7 @@ import { symbols } from '../symbols';
 import { theme } from '../theme';
 import type { CalculatorOptions } from '../types';
 import { safeSplit, stringWidth } from '../utils';
+import { evaluateExpression } from './calculator-expression';
 
 export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
     protected errorMsg: string = '';
@@ -46,54 +47,7 @@ export class CalculatorPrompt extends Prompt<number, CalculatorOptions> {
     }
 
     private evaluate(expression: string): number | null {
-        let expr = expression;
-
-        // 1. Substitute variables
-        if (this.options.variables) {
-            // Sort keys by length desc to avoid partial replacement issues (e.g. 'var11' vs 'var1')
-            const keys = Object.keys(this.options.variables).sort((a, b) => b.length - a.length);
-            for (const key of keys) {
-                const val = this.options.variables[key];
-                const regex = new RegExp(`\\b${key}\\b`, 'g');
-                expr = expr.replace(regex, String(val));
-            }
-        }
-
-        // 2. Validate characters
-        if (/[a-zA-Z_]/.test(expr)) {
-            // Support basic Math functions: sin, cos, tan, log, sqrt, abs, pow, floor, ceil, round
-            const allowedMath = ['sin', 'cos', 'tan', 'log', 'sqrt', 'abs', 'pow', 'floor', 'ceil', 'round', 'PI', 'E'];
-            // We can prefix them with Math.
-
-            let checkStr = expr;
-            allowedMath.forEach((k) => {
-                checkStr = checkStr.replace(new RegExp(k, 'g'), '');
-            });
-
-            if (/[a-zA-Z_]/.test(checkStr)) {
-                return null; // Contains unknown variables or functions
-            }
-
-            // Now prefix Math functions in the real expr
-            allowedMath.forEach((k) => {
-                // Replace 'sin(' with 'Math.sin('
-                // Be careful with PI and E
-                if (['PI', 'E'].includes(k)) {
-                    expr = expr.replace(new RegExp(`\\b${k}\\b`, 'g'), `Math.${k}`);
-                } else {
-                    expr = expr.replace(new RegExp(`\\b${k}\\(`, 'g'), `Math.${k}(`);
-                }
-            });
-        }
-
-        // 3. Safe Eval using Function
-        try {
-            const func = new Function(`return (${expr})`);
-            const res = func();
-            return typeof res === 'number' ? res : null;
-        } catch (_err) {
-            return null;
-        }
+        return evaluateExpression(expression, this.options.variables);
     }
 
     protected render(firstRender: boolean) {
