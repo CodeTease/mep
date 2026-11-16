@@ -5,10 +5,25 @@ import type { SelectRangeOptions } from '../types';
 import { SelectRangePrompt } from './select-range';
 
 export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
+    // Ranges are stored as indexes into `options.choices`, not into the filtered
+    // list, so changing the search buffer cannot re-map or drop them.
     private committedRanges: { start: number; end: number }[] = [];
 
     constructor(options: SelectRangeOptions<V>) {
         super(options);
+    }
+
+    /**
+     * Commit a range expressed in filtered positions by translating it to
+     * indexes into `options.choices`.
+     */
+    private commitFilteredRange(start: number, end: number, filteredIndexes: number[]) {
+        const startIndex = filteredIndexes[start];
+        const endIndex = filteredIndexes[end];
+        if (startIndex === undefined || endIndex === undefined) return;
+
+        this.committedRanges.push({ start: startIndex, end: endIndex });
+        this.mergeRanges();
     }
 
     private mergeRanges() {
@@ -39,18 +54,17 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
         // Handle Enter (Submit)
         if (char === '\r' || char === '\n') {
             const choices = this.getFilteredChoices();
-            if (choices.length === 0) return;
+            const filteredIndexes = this.getFilteredIndexes();
 
             // If user was dragging, commit that range first
-            if (this.anchorIndex !== null) {
+            if (this.anchorIndex !== null && choices.length > 0) {
                 const start = Math.min(this.anchorIndex, this.selectedIndex);
                 const end = Math.max(this.anchorIndex, this.selectedIndex);
-                this.committedRanges.push({ start, end });
-                this.mergeRanges();
+                this.commitFilteredRange(start, end, filteredIndexes);
                 this.anchorIndex = null;
             }
 
-            // Collect all indices from committed ranges
+            // Collect all indexes from committed ranges
             const allIndices = new Set<number>();
             for (const range of this.committedRanges) {
                 for (let i = range.start; i <= range.end; i++) {
@@ -58,18 +72,22 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                 }
             }
 
+            // Fall back to the current cursor when nothing was committed
             if (allIndices.size === 0) {
-                allIndices.add(this.selectedIndex);
+                const currentIndex = filteredIndexes[this.selectedIndex];
+                if (currentIndex === undefined) return;
+                allIndices.add(currentIndex);
             }
 
+            const allChoices = this.options.choices;
             const selectedItems: V[] = [];
             const sortedIndices = Array.from(allIndices).sort((a, b) => a - b);
 
             for (const idx of sortedIndices) {
-                if (idx < choices.length) {
-                    const choice = choices[idx];
+                if (idx < allChoices.length) {
+                    const choice = allChoices[idx];
                     if (!this.isSeparator(choice)) {
-                        selectedItems.push((choice as any).value);
+                        selectedItems.push(choice.value);
                     }
                 }
             }
@@ -88,8 +106,7 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                 const start = Math.min(this.anchorIndex, this.selectedIndex);
                 const end = Math.max(this.anchorIndex, this.selectedIndex);
 
-                this.committedRanges.push({ start, end });
-                this.mergeRanges();
+                this.commitFilteredRange(start, end, this.getFilteredIndexes());
 
                 this.anchorIndex = null;
             }
@@ -102,6 +119,7 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
     protected render(_firstRender: boolean) {
         let output = '';
         const choices = this.getFilteredChoices();
+        const filteredIndexes = this.getFilteredIndexes();
 
         // Scroll Logic (inherited from SelectPrompt basically, but good to ensure)
         if (this.selectedIndex < this.scrollTop) {
@@ -124,11 +142,12 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
 
             visibleChoices.forEach((choice, index) => {
                 const actualIndex = this.scrollTop + index;
+                const choiceIndex = filteredIndexes[actualIndex];
                 if (index > 0) output += '\n';
 
                 let isCommitted = false;
                 for (const range of this.committedRanges) {
-                    if (actualIndex >= range.start && actualIndex <= range.end) {
+                    if (choiceIndex >= range.start && choiceIndex <= range.end) {
                         isCommitted = true;
                         break;
                     }
