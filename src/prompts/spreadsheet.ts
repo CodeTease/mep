@@ -154,7 +154,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             return;
         }
         if (this.isDown(char)) {
-            this.cursorRow = Math.min(this.data.length - 1, this.cursorRow + 1);
+            this.cursorRow = Math.max(0, Math.min(this.data.length - 1, this.cursorRow + 1));
             this.render(false);
             return;
         }
@@ -219,6 +219,8 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
     }
 
     private startEditing(initialChar: string = '') {
+        if (this.data.length === 0) return;
+
         const col = this.options.columns[this.cursorCol];
         if (col.editable === false) return;
 
@@ -265,7 +267,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
                 this.cursorRow = Math.max(0, this.cursorRow - 1);
                 this.render(false);
             } else {
-                this.cursorRow = Math.min(this.data.length - 1, this.cursorRow + 1);
+                this.cursorRow = Math.max(0, Math.min(this.data.length - 1, this.cursorRow + 1));
                 this.render(false);
             }
         }

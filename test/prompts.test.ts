@@ -347,5 +347,23 @@ describe("Complex Prompts", () => {
       await expect(promise).rejects.toThrow("User force closed");
       expect(data).toEqual([{ name: "John", age: 30 }]);
     });
+
+    it("should ignore editing when there are no rows", async () => {
+      const prompt = new SpreadsheetPrompt({
+        message: "Sheet",
+        columns: [{ name: "Name", key: "name" }],
+        data: [],
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[B");
+      sendKey("\r");
+      await delay(10);
+
+      sendKey("s");
+      await expect(promise).resolves.toEqual([]);
+    });
   });
 });
