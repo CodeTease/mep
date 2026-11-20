@@ -3,6 +3,12 @@ import { symbols } from './symbols';
 import type { TaskConfig, TaskGroupOptions, TaskState } from './types';
 import { generateProgressBar } from './utils';
 
+// Console hijacking is shared by every running TaskRunner. Runners may overlap,
+// so the original methods are captured once and restored only after the last
+// runner stops.
+let hijackCount = 0;
+let originalConsole: { log: any; warn: any; error: any } | null = null;
+
 export class TaskRunner {
     private tasks: Map<string, TaskState> = new Map();
     private timer?: NodeJS.Timeout;
@@ -15,7 +21,6 @@ export class TaskRunner {
     private stdout: NodeJS.WriteStream = process.stdout;
 
     // Console Hijacking
-    private originalConsole: { log: any; warn: any; error: any } | null = null;
     private logBuffer: string[] = [];
 
     constructor(_options: TaskGroupOptions = {}) {
@@ -133,11 +138,14 @@ export class TaskRunner {
     };
 
     private hijackConsole() {
-        this.originalConsole = {
-            log: console.log,
-            warn: console.warn,
-            error: console.error,
-        };
+        if (hijackCount === 0) {
+            originalConsole = {
+                log: console.log,
+                warn: console.warn,
+                error: console.error,
+            };
+        }
+        hijackCount++;
 
         const logger =
             (_type: string) =>
@@ -155,12 +163,15 @@ export class TaskRunner {
     }
 
     private restoreConsole() {
-        if (this.originalConsole) {
-            console.log = this.originalConsole.log;
-            console.warn = this.originalConsole.warn;
-            console.error = this.originalConsole.error;
-            this.originalConsole = null;
-        }
+        if (hijackCount === 0) return;
+        hijackCount--;
+
+        if (hijackCount > 0 || !originalConsole) return;
+
+        console.log = originalConsole.log;
+        console.warn = originalConsole.warn;
+        console.error = originalConsole.error;
+        originalConsole = null;
     }
 
     /**

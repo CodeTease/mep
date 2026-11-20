@@ -61,4 +61,28 @@ describe("TaskRunner", () => {
       expect.stringContaining("Buffered Log"),
     );
   });
+
+  test("should restore console after overlapping runners stop", () => {
+    const originalLog = console.log;
+    const originalWarn = console.warn;
+    const originalError = console.error;
+
+    const first = new TaskRunner();
+    const second = new TaskRunner();
+    first.add("t1", { title: "First" });
+    second.add("t2", { title: "Second" });
+
+    first.run();
+    second.run();
+
+    first.stop();
+    // The second runner is still active, so console remains hijacked.
+    expect(console.log).not.toBe(originalLog);
+
+    second.stop();
+
+    expect(console.log).toBe(originalLog);
+    expect(console.warn).toBe(originalWarn);
+    expect(console.error).toBe(originalError);
+  });
 });
