@@ -4,6 +4,7 @@ import { MapPrompt } from "../src/prompts/map";
 import { TreePrompt } from "../src/prompts/tree";
 import { TreeSelectPrompt } from "../src/prompts/tree-select";
 import { SpreadsheetPrompt } from "../src/prompts/spreadsheet";
+import { EmojiPrompt } from "../src/prompts/emoji";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -364,6 +365,24 @@ describe("Complex Prompts", () => {
 
       sendKey("s");
       await expect(promise).resolves.toEqual([]);
+    });
+  });
+
+  describe("EmojiPrompt", () => {
+    it("should render wide and ZWJ emoji without throwing", async () => {
+      const prompt = new EmojiPrompt({
+        message: "Emoji",
+        emojis: [
+          { char: "🏳️‍🌈", name: "rainbow" },
+          { char: "❤️‍🔥", name: "heart-on-fire" },
+        ],
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\r");
+      await expect(promise).resolves.toBe("🏳️‍🌈");
     });
   });
 });

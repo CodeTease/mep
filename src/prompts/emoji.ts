@@ -98,7 +98,8 @@ export class EmojiPrompt extends Prompt<string, EmojiOptions> {
                     // Emoji width is typically 2.
                     const emoji = item.char;
                     const width = stringWidth(emoji);
-                    const padding = 4 - width;
+                    // Wide/ZWJ sequences can exceed the 4-column cell; never pad negatively.
+                    const padding = Math.max(0, 4 - width);
                     const leftPad = Math.floor(padding / 2);
                     const rightPad = padding - leftPad;
 
