@@ -62,6 +62,9 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     // Render State
     private lastLinesUp: number = 0;
 
+    // Nested editor guard
+    private editing: boolean = false;
+
     // Shell State
     private shell: ShellType = 'bash';
     private strategies: Record<ShellType, ShellStrategy> = {
@@ -266,6 +269,9 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     }
 
     protected handleInput(char: string, _buffer: Buffer) {
+        // Ignore keys that were already queued while a nested editor is open.
+        if (this.editing) return;
+
         // Toggle Shell (only when not editing URL)
         if (char === 's' && this.section !== Section.URL) {
             this.cycleShell();
@@ -446,6 +452,9 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
     }
 
     private async editHeaders() {
+        if (this.editing) return;
+        this.editing = true;
+
         this.clear(); // Clear UI to prevent artifacts
         this.pauseInput();
         try {
@@ -457,13 +466,17 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             this.headers = result;
         } catch (_e) {
             // Cancelled
+        } finally {
+            this.editing = false;
+            this.resumeInput();
+            this.render(true); // Force full re-render
         }
-
-        this.resumeInput();
-        this.render(true); // Force full re-render
     }
 
     private async editBody() {
+        if (this.editing) return;
+        this.editing = true;
+
         this.clear(); // Clear UI to prevent artifacts
         this.pauseInput();
 
@@ -477,10 +490,11 @@ export class CurlPrompt extends Prompt<CurlResult, CurlOptions> {
             this.body = result;
         } catch (_e) {
             // Cancelled
+        } finally {
+            this.editing = false;
+            this.resumeInput();
+            this.render(true); // Force full re-render
         }
-
-        this.resumeInput();
-        this.render(true); // Force full re-render
     }
 
     private submitResult() {

@@ -93,3 +93,52 @@ describe("Prompt.truncate", () => {
     }
   });
 });
+
+class InputProbe extends Prompt<string, {}> {
+  protected render(_firstRender: boolean): void {}
+
+  protected handleInput(_char: string, _key: Buffer): void {}
+
+  public start(): void {
+    void this.run();
+  }
+
+  public pause(): void {
+    this.pauseInput();
+  }
+
+  public resume(): void {
+    this.resumeInput();
+  }
+
+  public dispose(): void {
+    this.cleanup();
+  }
+}
+
+describe("Prompt input listeners", () => {
+  it("should not duplicate the data listener when resumed repeatedly", () => {
+    const stdoutSpy = jest
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+    const baseline = process.stdin.listenerCount("data");
+    const probe = new InputProbe({});
+
+    try {
+      probe.start();
+      expect(process.stdin.listenerCount("data")).toBe(baseline + 1);
+
+      probe.pause();
+      expect(process.stdin.listenerCount("data")).toBe(baseline);
+
+      probe.resume();
+      probe.resume();
+      expect(process.stdin.listenerCount("data")).toBe(baseline + 1);
+    } finally {
+      probe.dispose();
+      stdoutSpy.mockRestore();
+    }
+
+    expect(process.stdin.listenerCount("data")).toBe(baseline);
+  });
+});

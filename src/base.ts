@@ -19,6 +19,7 @@ export abstract class Prompt<T, O> {
     private _inputParser: InputParser;
     private _onKeyHandler?: (char: string, key: Buffer) => void;
     private _onDataHandler?: (chunk: Buffer) => void;
+    private _inputAttached: boolean = false;
     private static warnedComponents = new Set<string>();
 
     protected lastRenderLines: string[] = [];
@@ -118,6 +119,7 @@ export abstract class Prompt<T, O> {
             };
 
             this.stdin.on('data', this._onDataHandler);
+            this._inputAttached = true;
         });
     }
 
@@ -129,6 +131,7 @@ export abstract class Prompt<T, O> {
         if (this._onDataHandler) {
             this.stdin.removeListener('data', this._onDataHandler);
         }
+        this._inputAttached = false;
         if (typeof this.stdin.setRawMode === 'function') {
             this.stdin.setRawMode(false);
         }
@@ -143,8 +146,9 @@ export abstract class Prompt<T, O> {
             this.stdin.setRawMode(true);
         }
         this.stdin.resume();
-        if (this._onDataHandler) {
+        if (this._onDataHandler && !this._inputAttached) {
             this.stdin.on('data', this._onDataHandler);
+            this._inputAttached = true;
         }
     }
 
@@ -152,6 +156,7 @@ export abstract class Prompt<T, O> {
         if (this._onDataHandler) {
             this.stdin.removeListener('data', this._onDataHandler);
         }
+        this._inputAttached = false;
         if (this._onKeyHandler) {
             this._inputParser.removeListener('keypress', this._onKeyHandler);
         }
