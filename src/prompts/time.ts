@@ -8,6 +8,32 @@ import type { MouseEvent, TimeOptions } from '../types';
  */
 const wrapMinute = (value: number): number => ((value % 60) + 60) % 60;
 
+/**
+ * Parses a clock string such as `14:30`, `7:05`, or `07:00 AM`.
+ * Returns `null` for anything else so full ISO/datetime strings still fall
+ * through to the native `Date` parser.
+ */
+const parseTimeString = (value: string): { hour: number; minute: number } | null => {
+    const match = value.trim().match(/^(\d{1,2}):(\d{2})(?:\s*([AaPp][Mm]))?$/);
+    if (!match) return null;
+
+    let hour = Number(match[1]);
+    const minute = Number(match[2]);
+    const meridiem = match[3]?.toUpperCase();
+
+    if (minute > 59) return null;
+
+    if (meridiem) {
+        if (hour < 1 || hour > 12) return null;
+        hour = hour % 12;
+        if (meridiem === 'PM') hour += 12;
+    } else if (hour > 23) {
+        return null;
+    }
+
+    return { hour, minute };
+};
+
 export class TimePrompt extends Prompt<string, TimeOptions> {
     private hour: number = 0;
     private minute: number = 0;
@@ -15,18 +41,18 @@ export class TimePrompt extends Prompt<string, TimeOptions> {
 
     constructor(options: TimeOptions) {
         super(options);
-        const now = options.initial
-            ? typeof options.initial === 'string'
-                ? new Date(options.initial)
-                : options.initial
-            : new Date();
-        // Fallback if invalid date
-        if (Number.isNaN(now.getTime())) {
-            this.hour = 0;
-            this.minute = 0;
+        const parsed = typeof options.initial === 'string' ? parseTimeString(options.initial) : null;
+
+        if (parsed) {
+            this.hour = parsed.hour;
+            this.minute = parsed.minute;
         } else {
-            this.hour = now.getHours();
-            this.minute = now.getMinutes();
+            // Fall back to full dates (Date instances and ISO/datetime strings).
+            const now = options.initial ? new Date(options.initial) : new Date();
+            if (!Number.isNaN(now.getTime())) {
+                this.hour = now.getHours();
+                this.minute = now.getMinutes();
+            }
         }
 
         // Round minute to nearest step

@@ -67,6 +67,56 @@ describe("TimePrompt", () => {
     await expect(promise).resolves.toBe("00:03");
   });
 
+  it("should honor a 12-hour string initial value", async () => {
+    const prompt = new TimePrompt({ message: "Time", initial: "07:00 AM" });
+
+    const promise = prompt.run();
+    await delay(10);
+    sendKey("\r");
+
+    await expect(promise).resolves.toBe("07:00");
+  });
+
+  it("should honor a 24-hour string initial value", async () => {
+    const prompt = new TimePrompt({ message: "Time", initial: "14:30" });
+
+    const promise = prompt.run();
+    await delay(10);
+    sendKey("\r");
+
+    await expect(promise).resolves.toBe("14:30");
+  });
+
+  it("should parse a single-digit hour and a lowercase meridiem", async () => {
+    const prompt = new TimePrompt({ message: "Time", initial: "7:05 pm" });
+
+    const promise = prompt.run();
+    await delay(10);
+    sendKey("\r");
+
+    await expect(promise).resolves.toBe("19:05");
+  });
+
+  it("should format a 12-hour string initial value as 12h", async () => {
+    const prompt = new TimePrompt({ message: "Time", format: "12h", initial: "12:00 AM" });
+
+    const promise = prompt.run();
+    await delay(10);
+    sendKey("\r");
+
+    await expect(promise).resolves.toBe("12:00 AM");
+  });
+
+  it("should still accept ISO datetime strings", async () => {
+    const prompt = new TimePrompt({ message: "Time", initial: "2026-01-01T09:45:00" });
+
+    const promise = prompt.run();
+    await delay(10);
+    sendKey("\r");
+
+    await expect(promise).resolves.toBe("09:45");
+  });
+
   it("should render previews that match the selected minute for steps larger than 60", async () => {
     const prompt = new TimePrompt({
       message: "Time",
