@@ -33,7 +33,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
             // Auto calculate based on header and data
             let max = stringWidth(col.name);
             this.data.forEach((row) => {
-                const val = String(row[col.key] || '');
+                const val = String(row[col.key] ?? '');
                 max = Math.max(max, stringWidth(val));
             });
             return Math.min(max + 2, 30); // Cap at 30 chars
@@ -99,7 +99,8 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
                 const w = this.colWidths[colIndex];
                 const isCursor = rowIndex === this.cursorRow && colIndex === this.cursorCol;
 
-                let val = String(rowData[col.key] || '');
+                // `??` keeps 0 and false visible while null/undefined stay blank.
+                let val = String(rowData[col.key] ?? '');
                 if (isCursor && this.editMode) {
                     val = this.tempValue;
                 }
@@ -225,7 +226,7 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         if (col.editable === false) return;
 
         this.editMode = true;
-        const currentVal = String(this.data[this.cursorRow][col.key] || '');
+        const currentVal = String(this.data[this.cursorRow][col.key] ?? '');
         this.tempValue = initialChar ? initialChar : currentVal;
         this.render(false);
     }
@@ -234,7 +235,12 @@ export class SpreadsheetPrompt extends Prompt<Record<string, any>[], Spreadsheet
         if (char === '\r' || char === '\n') {
             // Save
             const col = this.options.columns[this.cursorCol];
-            this.data[this.cursorRow][col.key] = this.tempValue;
+            const cell = this.data[this.cursorRow];
+            const original = cell[col.key];
+            // Keep the stored value when the text was not changed so an
+            // untouched edit does not turn 0 or false into a string. Blank
+            // null/undefined cells still save as '' like before.
+            cell[col.key] = original != null && String(original) === this.tempValue ? original : this.tempValue;
             this.editMode = false;
             // Recalculate width if needed?
             this.calculateColWidths(); // Update widths

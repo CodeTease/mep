@@ -43,6 +43,8 @@ const data = await MepCLI.spreadsheet({
 });
 ```
 
+Cell values are rendered with nullish semantics: `0` and `false` are shown and edited as-is, while `null` and `undefined` render blank. Saving an unedited cell keeps its original value, so a `0` cell does not turn into a string.
+
 ## Grid
 
 The `grid` prompt creates a checkbox matrix (rows x columns).

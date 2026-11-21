@@ -1180,6 +1180,8 @@ export class MepCLI {
      *   columns: [{ name: 'Name', key: 'name' }, { name: 'Age', key: 'age' }],
      *   data: [{ name: 'Alice', age: 25 }]
      * });
+     * Falsy cell values such as `0` and `false` render and edit as-is; only
+     * `null` and `undefined` are blank.
      * @param options - Column definitions and initial data rows.
      * @returns A promise resolving to the modified data array.
      * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
