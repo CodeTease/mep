@@ -22,7 +22,7 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
     }
 
     private spin() {
-        if (!this.isSpinning) return;
+        if (!this.isSpinning || this.options.choices.length === 0) return;
 
         this.selectedIndex = (this.selectedIndex + 1) % this.options.choices.length;
         this.render(false);
@@ -42,10 +42,16 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
 
     private finish() {
         if (this.spinTimer) clearTimeout(this.spinTimer);
-        this.submit(this.options.choices[this.selectedIndex]);
+        this.submit(this.options.choices[this.selectedIndex] ?? '');
     }
 
     protected handleInput(char: string, _key: Buffer) {
+        // An empty slot track cannot spin. Enter resolves an empty string and all other keys are no-ops.
+        if (this.options.choices.length === 0) {
+            if (char === '\r' || char === '\n') this.submit('');
+            return;
+        }
+
         if (char === ' ' || char === '\r' || char === '\n') {
             if (!this.isSpinning) {
                 // Start spinning
@@ -76,12 +82,14 @@ export class SlotPrompt extends Prompt<string, SlotOptions> {
         const centerRow = Math.floor(this.rows / 2);
 
         for (let i = 0; i < this.rows; i++) {
-            const offset = i - centerRow;
-            let index = (this.selectedIndex + offset) % this.options.choices.length;
-            if (index < 0) index += this.options.choices.length;
-
-            const item = this.options.choices[index];
-            const content = this.truncate(item, boxWidth - 4);
+            // An empty choice list renders blank rows instead of indexing with NaN.
+            let content = '';
+            if (this.options.choices.length > 0) {
+                const offset = i - centerRow;
+                let index = (this.selectedIndex + offset) % this.options.choices.length;
+                if (index < 0) index += this.options.choices.length;
+                content = this.truncate(this.options.choices[index], boxWidth - 4);
+            }
             const contentWidth = stringWidth(content);
             const padding = boxWidth - 4 - contentWidth;
             const leftPad = ' '.repeat(Math.floor(padding / 2));
