@@ -4,8 +4,8 @@ import { SelectPrompt } from './select';
 export class SemVerPrompt extends SelectPrompt<string> {
     constructor(options: SemVerOptions) {
         const { currentVersion, ...baseOptions } = options;
-        const validVersion = SemVerPrompt.parseVersion(currentVersion) || '0.0.1';
-        const [major, minor, patch] = validVersion.split('.').map(Number);
+        const [major, minor, patch] = SemVerPrompt.parseVersion(currentVersion) || [0, 0, 1];
+        const validVersion = `${major}.${minor}.${patch}`;
 
         const choices: SelectChoice<string>[] = [
             {
@@ -25,9 +25,15 @@ export class SemVerPrompt extends SelectPrompt<string> {
         super({ ...baseOptions, choices });
     }
 
-    private static parseVersion(version: string): string | null {
-        // Simple SemVer regex: x.y.z
-        const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
-        return match ? match[0] : null;
+    private static parseVersion(version: string): [number, number, number] | null {
+        // Accept a leading 'v'/'=' and surrounding whitespace, optional minor/patch
+        // components, and ignore prerelease and build metadata.
+        const match = version.trim().match(/^[v=]?\s*(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+][0-9A-Za-z.+-]+)?$/);
+        if (!match) return null;
+
+        const major = Number(match[1]);
+        const minor = Number(match[2] ?? 0);
+        const patch = Number(match[3] ?? 0);
+        return [major, minor, patch];
     }
 }
