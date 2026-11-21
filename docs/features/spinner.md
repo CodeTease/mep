@@ -32,6 +32,11 @@ Ctrl+C it restores the cursor, lets any other `SIGINT` listeners run, and only
 terminates the process asynchronously with status `130` when it is the sole
 listener and no exit code has been set.
 
+If stdout is a pipe whose reader goes away (for example `| head`), the spinner
+stops on the resulting `EPIPE`/`ERR_STREAM_DESTROYED` error instead of letting
+it crash the process. Later `stop()` calls are no-ops because there is nothing
+left to write to.
+
 ### `spinner.stop(message?: string, type?: 'success' | 'error' | 'info')`
 
 Stops the animation and replaces the line with a final message, then terminates

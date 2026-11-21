@@ -11,11 +11,25 @@ import { theme } from './theme';
  */
 export type SpinnerStopType = 'success' | 'error' | 'info';
 
+/**
+ * Returns `true` for write failures caused by a reader that went away, such as
+ * `| head` closing the pipe.
+ */
+const isClosedStreamError = (error: unknown): boolean => {
+    const code = (error as NodeJS.ErrnoException | undefined)?.code;
+    return code === 'EPIPE' || code === 'ERR_STREAM_DESTROYED';
+};
+
 export class Spinner {
+    private static running = new Set<Spinner>();
+    private static guardAttached = false;
+    private static guardRemoval?: NodeJS.Immediate;
+
     private text: string;
     private timer?: NodeJS.Timeout;
     private frameIndex: number = 0;
     private isSpinning: boolean = false;
+    private isStreamClosed: boolean = false;
 
     constructor(text: string) {
         this.text = text;
@@ -28,10 +42,13 @@ export class Spinner {
         if (this.isSpinning) return this;
 
         this.isSpinning = true;
-        process.stdout.write(ANSI.HIDE_CURSOR);
-
-        // Render immediately
+        this.isStreamClosed = false;
+        Spinner.attachGuard(this);
+        this.write(ANSI.HIDE_CURSOR);
         this.render();
+
+        // A synchronous write failure stops the spinner before it ever runs.
+        if (!this.isSpinning) return this;
 
         // Start loop
         this.timer = setInterval(() => {
@@ -70,7 +87,7 @@ export class Spinner {
             prefix = `${theme.main}${symbols.info}${ANSI.RESET} `;
         }
 
-        process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${prefix}${text}\n`);
+        this.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${prefix}${text}\n`);
         return this;
     }
 
@@ -88,9 +105,7 @@ export class Spinner {
     public success(message?: string): this {
         this.halt();
         const text = message ?? this.text;
-        process.stdout.write(
-            `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.success}${symbols.tick}${ANSI.RESET} ${text}\n`,
-        );
+        this.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.success}${symbols.tick}${ANSI.RESET} ${text}\n`);
         return this;
     }
 
@@ -100,9 +115,7 @@ export class Spinner {
     public error(message?: string): this {
         this.halt();
         const text = message ?? this.text;
-        process.stdout.write(
-            `${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.error}${symbols.cross}${ANSI.RESET} ${text}\n`,
-        );
+        this.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.error}${symbols.cross}${ANSI.RESET} ${text}\n`);
         return this;
     }
 
@@ -111,7 +124,7 @@ export class Spinner {
      */
     public clear(): this {
         this.halt();
-        process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
+        this.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`);
         return this;
     }
 
@@ -126,19 +139,85 @@ export class Spinner {
             this.timer = undefined;
         }
 
+        Spinner.detachGuard(this);
+
         if (!this.isSpinning) return false;
 
         this.isSpinning = false;
-        process.stdout.write(ANSI.SHOW_CURSOR);
+        this.write(ANSI.SHOW_CURSOR);
         process.removeListener('SIGINT', this.handleSignal);
         return true;
     }
 
     private render(): void {
+        if (!this.isSpinning) return;
+
         const frame = symbols.spinner[this.frameIndex];
-        process.stdout.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.main}${frame}${ANSI.RESET} ${this.text}`);
+        this.write(`${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}${theme.main}${frame}${ANSI.RESET} ${this.text}`);
         this.frameIndex = (this.frameIndex + 1) % symbols.spinner.length;
     }
+
+    /**
+     * Writes to stdout, ignoring failures caused by a closed reader.
+     */
+    private write(output: string): void {
+        if (this.isStreamClosed) return;
+
+        try {
+            process.stdout.write(output);
+        } catch (error) {
+            if (!isClosedStreamError(error)) throw error;
+            this.handleStreamClosed();
+        }
+    }
+
+    private handleStreamClosed(): void {
+        this.isStreamClosed = true;
+        // halt() skips the cursor restore because the stream is gone.
+        this.halt();
+    }
+
+    private static attachGuard(spinner: Spinner): void {
+        if (Spinner.guardRemoval) {
+            clearImmediate(Spinner.guardRemoval);
+            Spinner.guardRemoval = undefined;
+        }
+
+        Spinner.running.add(spinner);
+
+        if (Spinner.guardAttached) return;
+
+        Spinner.guardAttached = true;
+        process.stdout.on('error', Spinner.handleStreamError);
+    }
+
+    private static detachGuard(spinner: Spinner): void {
+        Spinner.running.delete(spinner);
+        if (Spinner.running.size > 0 || Spinner.guardRemoval || !Spinner.guardAttached) return;
+
+        // Write failures are reported asynchronously, so keep the guard for one
+        // more turn; removing it in the same tick can leave a late EPIPE
+        // unhandled, which aborts the process.
+        Spinner.guardRemoval = setImmediate(() => {
+            Spinner.guardRemoval = undefined;
+            if (Spinner.running.size > 0) return;
+
+            Spinner.guardAttached = false;
+            process.stdout.removeListener('error', Spinner.handleStreamError);
+        });
+    }
+
+    private static handleStreamError = (error: NodeJS.ErrnoException): void => {
+        if (isClosedStreamError(error)) {
+            // Copy first: stopping a spinner removes it from the set.
+            for (const spinner of [...Spinner.running]) spinner.handleStreamClosed();
+            return;
+        }
+
+        // Keep the default crash for unrelated failures when no host handler
+        // is listening.
+        if (process.stdout.listenerCount('error') === 1) throw error;
+    };
 
     private handleSignal = () => {
         // Host handlers (cleanup, telemetry, ...) may be registered after

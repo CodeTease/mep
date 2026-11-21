@@ -5,6 +5,9 @@ import { theme } from "../src/theme";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const createStreamError = (code: string): NodeJS.ErrnoException =>
+  Object.assign(new Error(`write ${code}`), { code });
+
 describe("Spinner", () => {
   let writeSpy: jest.SpyInstance;
   let initialSigintListeners: number;
@@ -19,7 +22,9 @@ describe("Spinner", () => {
   const output = (): string =>
     writeSpy.mock.calls.map((call) => String(call[0])).join("");
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Let deferred stream-guard removals from earlier tests settle first.
+    await delay(10);
     writeSpy = jest
       .spyOn(process.stdout, "write")
       .mockImplementation(() => true);
@@ -238,5 +243,107 @@ describe("Spinner", () => {
 
     expect(output()).toContain(ANSI.SHOW_CURSOR);
     expect(process.listenerCount("SIGINT")).toBe(initialSigintListeners);
+  });
+
+  it("stops the spinner when stdout reports a broken pipe", async () => {
+    const initialErrorListeners = process.stdout.listenerCount("error");
+    const spinner = createSpinner("Working").start();
+    writeSpy.mockClear();
+
+    expect(() => {
+      process.stdout.emit("error", createStreamError("EPIPE"));
+    }).not.toThrow();
+    await delay(10);
+
+    expect(process.stdout.listenerCount("error")).toBe(initialErrorListeners);
+
+    const writes = writeSpy.mock.calls.length;
+    await delay(120);
+    expect(writeSpy.mock.calls.length).toBe(writes);
+
+    // The stream is gone, so stop and success silently do nothing.
+    spinner.stop("Done");
+    spinner.success("Done");
+    expect(writeSpy.mock.calls.length).toBe(writes);
+  });
+
+  it("stops the spinner when stdout is destroyed", async () => {
+    const initialErrorListeners = process.stdout.listenerCount("error");
+    createSpinner("Working").start();
+
+    expect(() => {
+      process.stdout.emit("error", createStreamError("ERR_STREAM_DESTROYED"));
+    }).not.toThrow();
+    await delay(10);
+
+    expect(process.stdout.listenerCount("error")).toBe(initialErrorListeners);
+  });
+
+  it("stops every running spinner on a broken pipe", async () => {
+    const first = createSpinner("First").start();
+    const second = createSpinner("Second").start();
+
+    process.stdout.emit("error", createStreamError("EPIPE"));
+    await delay(10);
+    writeSpy.mockClear();
+
+    await delay(120);
+    expect(writeSpy).not.toHaveBeenCalled();
+
+    // Both are already stopped, so these are no-ops.
+    expect(first.stop()).toBe(first);
+    expect(second.stop()).toBe(second);
+    expect(writeSpy).not.toHaveBeenCalled();
+  });
+
+  it("stops the spinner when a write throws EPIPE", async () => {
+    const initialErrorListeners = process.stdout.listenerCount("error");
+    createSpinner("Working").start();
+    writeSpy.mockImplementationOnce(() => {
+      throw createStreamError("EPIPE");
+    });
+    writeSpy.mockClear();
+
+    // The next animation frame fails synchronously.
+    await delay(120);
+    const writes = writeSpy.mock.calls.length;
+    await delay(120);
+
+    expect(writeSpy.mock.calls.length).toBe(writes);
+    expect(process.stdout.listenerCount("error")).toBe(initialErrorListeners);
+  });
+
+  it("keeps the guard for pending writes and removes it afterwards", async () => {
+    const initialErrorListeners = process.stdout.listenerCount("error");
+    const spinner = createSpinner("Working").start();
+    spinner.stop();
+
+    // A late EPIPE from an in-flight write must not crash the process.
+    expect(() => {
+      process.stdout.emit("error", createStreamError("EPIPE"));
+    }).not.toThrow();
+
+    await delay(10);
+    expect(process.stdout.listenerCount("error")).toBe(initialErrorListeners);
+  });
+
+  it("does not leak the stream guard across start/stop cycles", async () => {
+    const initialErrorListeners = process.stdout.listenerCount("error");
+    const spinner = createSpinner("Working");
+
+    for (let i = 0; i < 25; i++) {
+      spinner.start();
+      spinner.stop();
+    }
+
+    await delay(10);
+    expect(process.stdout.listenerCount("error")).toBe(initialErrorListeners);
+  });
+
+  it("reraises unrelated stdout errors when no host handler is attached", () => {
+    createSpinner("Working").start();
+    const failure = Object.assign(new Error("boom"), { code: "EIO" });
+
+    expect(() => process.stdout.emit("error", failure)).toThrow(failure);
   });
 });
