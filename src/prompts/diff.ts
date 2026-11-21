@@ -102,8 +102,9 @@ ${this.options.modified}
                 .then((result) => {
                     this.submit(result);
                 })
-                .catch((_err) => {
-                    this.submit(initial);
+                .catch((err) => {
+                    // A cancelled editor must not hand back the conflict markers.
+                    this.cancel(err);
                 });
         }
     }
