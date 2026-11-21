@@ -95,7 +95,7 @@ export class DataInspectorPrompt extends Prompt<any, DataInspectorOptions> {
 
     private formatValue(value: any, type: string): string {
         if (type === 'string') return `"${value}"`;
-        if (type === 'date') return value.toISOString();
+        if (type === 'date') return Number.isNaN(value.getTime()) ? 'Invalid Date' : value.toISOString();
         if (type === 'array') return `Array(${value.length})`;
         if (type === 'object') return `Object{${Object.keys(value).length}}`;
         return String(value);
