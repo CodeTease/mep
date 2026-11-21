@@ -87,9 +87,11 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
 
         if (char === ' ') {
             if (this.grabbedX === null) {
-                // Grab
-                this.grabbedX = this.cursorX;
-                this.grabbedY = this.cursorY;
+                // Grab. Empty rows have no cell to pick up.
+                if (this.getRowLength(this.cursorY) > 0) {
+                    this.grabbedX = this.cursorX;
+                    this.grabbedY = this.cursorY;
+                }
             } else {
                 // Drop
                 this.grabbedX = null;
@@ -120,6 +122,15 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
         }
     }
 
+    private getRowLength(row: number): number {
+        const rowData = this.gridData[row];
+        return rowData ? rowData.length : 0;
+    }
+
+    private hasCell(row: number, col: number): boolean {
+        return row >= 0 && row < this.gridData.length && col >= 0 && col < this.getRowLength(row);
+    }
+
     protected move(direction: 'up' | 'down' | 'left' | 'right'): void {
         if (this.gridData.length === 0) return;
 
@@ -129,31 +140,34 @@ export class SortGridPrompt extends Prompt<string[][], SortGridOptions> {
         if (direction === 'up') this.cursorY = Math.max(0, this.cursorY - 1);
         if (direction === 'down') this.cursorY = Math.min(this.gridData.length - 1, this.cursorY + 1);
 
-        // Clamp cursorX if we moved to a shorter row
-        if (this.gridData.length > 0) {
-            const rowLen = this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
-            if (this.cursorX >= rowLen) this.cursorX = Math.max(0, rowLen - 1);
-        }
+        // Ragged rows make the valid range shift as the cursor moves between
+        // them, so clamp to the current row every time. Never go below zero:
+        // an empty row has no cells and a negative index would resolve to
+        // `undefined` on the next swap.
+        this.cursorX = Math.max(0, Math.min(this.cursorX, this.getRowLength(this.cursorY) - 1));
 
         if (direction === 'left') this.cursorX = Math.max(0, this.cursorX - 1);
         if (direction === 'right') {
-            const rowLen =
-                this.gridData.length > 0 && this.gridData[this.cursorY] ? this.gridData[this.cursorY].length : 0;
-            this.cursorX = Math.min(rowLen - 1, this.cursorX + 1);
+            this.cursorX = Math.min(Math.max(0, this.getRowLength(this.cursorY) - 1), this.cursorX + 1);
         }
 
         // If Grabbed, swap content
-        if (this.grabbedX !== null) {
+        if (this.grabbedX !== null && this.grabbedY !== null) {
             // If we moved
             if (oldX !== this.cursorX || oldY !== this.cursorY) {
-                const valA = this.gridData[oldY][oldX];
-                const valB = this.gridData[this.cursorY][this.cursorX];
+                // Empty or out-of-range cells hold no value. Swapping one would
+                // write `undefined` into a real cell and lose its data, so leave
+                // the grid alone; dropping the grab moves nothing.
+                if (this.hasCell(this.grabbedY, this.grabbedX) && this.hasCell(this.cursorY, this.cursorX)) {
+                    const valA = this.gridData[this.grabbedY][this.grabbedX];
+                    const valB = this.gridData[this.cursorY][this.cursorX];
 
-                this.gridData[oldY][oldX] = valB;
-                this.gridData[this.cursorY][this.cursorX] = valA;
+                    this.gridData[this.grabbedY][this.grabbedX] = valB;
+                    this.gridData[this.cursorY][this.cursorX] = valA;
 
-                this.grabbedX = this.cursorX;
-                this.grabbedY = this.cursorY;
+                    this.grabbedX = this.cursorX;
+                    this.grabbedY = this.cursorY;
+                }
             }
         }
 

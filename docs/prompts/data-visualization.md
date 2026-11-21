@@ -123,6 +123,8 @@ const dashboard = await MepCLI.sortGrid({
 });
 ```
 
+Rows may be ragged or empty. The cursor is clamped to the row it is on, and grabbing or dropping on a row without a cell at the cursor is a no-op, so the returned grid never gains `undefined` entries.
+
 ## Data Inspector
 
 The `inspector` prompt allows navigating deeply nested JSON objects.

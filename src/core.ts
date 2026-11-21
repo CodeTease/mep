@@ -1330,6 +1330,8 @@ export class MepCLI {
      *     ['News', 'Calendar']
      *   ]
      * });
+     * Rows may be ragged or empty; the cursor stays inside the current row and
+     * grabbing an empty row is a no-op, so no `undefined` cells are produced.
      * @param options - 2D array of strings.
      * @returns A promise resolving to the reordered 2D array.
      * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
