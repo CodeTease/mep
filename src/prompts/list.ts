@@ -12,7 +12,8 @@ export class ListPrompt extends Prompt<string[], ListOptions> {
 
     constructor(options: ListOptions) {
         super(options);
-        this.value = options.initial || [];
+        // Copy the caller's array so typing, Backspace, and cancel never mutate it.
+        this.value = [...(options.initial ?? [])];
     }
 
     protected render(_firstRender: boolean) {

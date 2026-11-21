@@ -150,4 +150,59 @@ describe("ListPrompt", () => {
 
     await expect(promise).resolves.toEqual(["kept"]);
   });
+
+  it("should not mutate the caller's initial array when submitting", async () => {
+    const initial = ["a"];
+    const prompt = new ListPrompt({ message: "Tags", initial });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    sendKey("b");
+    sendKey("\r"); // add "b"
+    await delay(10);
+    sendKey("\r"); // empty input: submit
+
+    await expect(promise).resolves.toEqual(["a", "b"]);
+    expect(initial).toEqual(["a"]);
+  });
+
+  it("should not mutate the caller's initial array when cancelled after a Backspace pop", async () => {
+    const initial = ["a"];
+    const prompt = new ListPrompt({ message: "Tags", initial });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    sendKey("b");
+    sendKey("\r"); // add "b"
+    await delay(10);
+    expect(initial).toEqual(["a"]);
+
+    sendKey("\x7f"); // Backspace on empty input: pop "b" back into the input
+    await delay(10);
+    expect(initial).toEqual(["a"]);
+
+    sendKey("\u0003"); // Ctrl+C cancels
+
+    await expect(promise).rejects.toThrow("User force closed");
+    expect(initial).toEqual(["a"]);
+  });
+
+  it("should not mutate the caller's initial array when cancelled after adding a tag", async () => {
+    const initial = ["a"];
+    const prompt = new ListPrompt({ message: "Tags", initial });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    sendKey("b");
+    sendKey("\r"); // add "b"
+    await delay(10);
+
+    sendKey("\u0003"); // Ctrl+C cancels
+
+    await expect(promise).rejects.toThrow("User force closed");
+    expect(initial).toEqual(["a"]);
+  });
 });
