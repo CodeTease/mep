@@ -11,6 +11,8 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
     private buffer: string = '';
     private unitIndex: number = 0;
     private errorMsg: string = '';
+    private initialBytes: number;
+    private edited: boolean = false;
 
     constructor(options: ByteOptions) {
         super(options);
@@ -27,6 +29,9 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
         this.inputValue = Math.round(val * 100) / 100;
         this.buffer = this.inputValue.toString();
         this.unitIndex = idx;
+        // Keep the exact initial value so an untouched submit returns it verbatim
+        // instead of the display-rounded approximation.
+        this.initialBytes = options.initial || 0;
     }
 
     protected render(_firstRender: boolean): void {
@@ -70,15 +75,21 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
 
         // Enter
         if (char === '\r' || char === '\n') {
-            const finalVal = parseFloat(this.buffer);
-            if (Number.isNaN(finalVal)) {
-                this.errorMsg = 'Invalid number';
-                this.render(false);
-                return;
-            }
+            let bytes: number;
+            if (this.edited) {
+                const finalVal = parseFloat(this.buffer);
+                if (Number.isNaN(finalVal)) {
+                    this.errorMsg = 'Invalid number';
+                    this.render(false);
+                    return;
+                }
 
-            // Calculate Bytes: value * 1024^index
-            const bytes = finalVal * 1024 ** this.unitIndex;
+                // Calculate Bytes: value * 1024^index
+                bytes = finalVal * 1024 ** this.unitIndex;
+            } else {
+                // Untouched: the displayed value is rounded, so return the exact original.
+                bytes = this.initialBytes;
+            }
 
             // Min/Max Validation (in bytes)
             if (this.options.min !== undefined && bytes < this.options.min) {
@@ -92,7 +103,9 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
                 return;
             }
 
-            this.submit(Math.round(bytes)); // Return integer bytes? Or float? Usually bytes are int.
+            // Untouched submitters get their exact bytes back; an edited value keeps
+            // the usual conversion and integer rounding.
+            this.submit(this.edited ? Math.round(bytes) : bytes);
             return;
         }
 
@@ -100,6 +113,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
         if (char === '\t' || this.isRight(char)) {
             if (this.unitIndex < UNITS.length - 1) {
                 this.unitIndex++;
+                this.edited = true;
                 this.render(false);
             }
             return;
@@ -108,6 +122,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
             // Shift+Tab or Left
             if (this.unitIndex > 0) {
                 this.unitIndex--;
+                this.edited = true;
                 this.render(false);
             }
             return;
@@ -127,6 +142,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
             if (val < 0) val = 0; // No negative bytes usually
 
             this.buffer = val.toString();
+            this.edited = true;
             this.render(false);
             return;
         }
@@ -135,6 +151,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
         if (char === '\u0008' || char === '\x7f') {
             if (this.buffer.length > 0) {
                 this.buffer = this.buffer.slice(0, -1);
+                this.edited = true;
                 this.render(false);
             }
             return;
@@ -146,6 +163,7 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
             if (char === '.' && this.buffer.includes('.')) return;
 
             this.buffer += char;
+            this.edited = true;
             this.render(false);
         }
     }
@@ -164,12 +182,14 @@ export class BytePrompt extends Prompt<number, ByteOptions> {
                 let val = parseFloat(this.buffer) || 0;
                 val += 1;
                 this.buffer = val.toString();
+                this.edited = true;
                 this.render(false);
             } else if (event.scroll === 'down') {
                 // Scroll down -> Decrease Value
                 let val = parseFloat(this.buffer) || 0;
                 val = Math.max(0, val - 1);
                 this.buffer = val.toString();
+                this.edited = true;
                 this.render(false);
             }
         }

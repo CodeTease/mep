@@ -76,7 +76,7 @@ const age = await MepCLI.number({
 
 ## Byte
 
-The `byte` prompt allows users to input data sizes (e.g., "10MB", "5KB"). It returns the value in bytes.
+The `byte` prompt allows users to input data sizes (e.g., "10MB", "5KB"). It returns the value in bytes. Submitting without editing returns the exact `initial` value, even when its display is rounded (for example `1500` shows as `1.46 KB` but submits as `1500`).
 
 ```typescript
 const limit = await MepCLI.byte({
