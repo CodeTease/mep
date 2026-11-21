@@ -249,6 +249,18 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
             return;
         }
 
+        // Mouse Down: a left press always starts a drag, even when motion
+        // events arrived before it. Motion alone must never start a drag.
+        if (event.action === 'press' && event.button === 0) {
+            this.isDragging = true;
+            this.path = []; // Reset
+            this.lastMouse = { x: event.x, y: event.y };
+            const idx = this.getIndex(this.cursor.r, this.cursor.c);
+            this.addToPath(idx);
+            this.render(false);
+            return;
+        }
+
         if (this.lastMouse) {
             const dx = event.x - this.lastMouse.x;
             const dy = event.y - this.lastMouse.y;
@@ -268,15 +280,6 @@ export class PatternPrompt extends Prompt<number[], PatternOptions> {
                     this.addToPath(idx);
                 }
 
-                this.render(false);
-            }
-        } else {
-            // Mouse Down
-            if (event.action === 'press' && event.button === 0) {
-                this.isDragging = true;
-                this.path = []; // Reset
-                const idx = this.getIndex(this.cursor.r, this.cursor.c);
-                this.addToPath(idx);
                 this.render(false);
             }
         }
