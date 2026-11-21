@@ -13,19 +13,6 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
         super(options);
     }
 
-    /**
-     * Commit a range expressed in filtered positions by translating it to
-     * indexes into `options.choices`.
-     */
-    private commitFilteredRange(start: number, end: number, filteredIndexes: number[]) {
-        const startIndex = filteredIndexes[start];
-        const endIndex = filteredIndexes[end];
-        if (startIndex === undefined || endIndex === undefined) return;
-
-        this.committedRanges.push({ start: startIndex, end: endIndex });
-        this.mergeRanges();
-    }
-
     private mergeRanges() {
         if (this.committedRanges.length === 0) return;
 
@@ -50,18 +37,21 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
         this.committedRanges = merged;
     }
 
+    private commitAnchoredRange() {
+        const range = this.getAnchoredRange();
+        if (range === null) return;
+
+        this.committedRanges.push(range);
+        this.mergeRanges();
+        this.clearAnchor();
+    }
+
     protected handleInput(char: string, key?: Buffer) {
         // Handle Enter (Submit)
         if (char === '\r' || char === '\n') {
-            const choices = this.getFilteredChoices();
-            const filteredIndexes = this.getFilteredIndexes();
-
             // If user was dragging, commit that range first
-            if (this.anchorIndex !== null && choices.length > 0) {
-                const start = Math.min(this.anchorIndex, this.selectedIndex);
-                const end = Math.max(this.anchorIndex, this.selectedIndex);
-                this.commitFilteredRange(start, end, filteredIndexes);
-                this.anchorIndex = null;
+            if (this.anchorIndex !== null) {
+                this.commitAnchoredRange();
             }
 
             // Collect all indexes from committed ranges
@@ -74,8 +64,8 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
 
             // Fall back to the current cursor when nothing was committed
             if (allIndices.size === 0) {
-                const currentIndex = filteredIndexes[this.selectedIndex];
-                if (currentIndex === undefined) return;
+                const currentIndex = this.getCursorChoiceIndex();
+                if (currentIndex === null) return;
                 allIndices.add(currentIndex);
             }
 
@@ -100,15 +90,10 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
         if (char === ' ') {
             if (this.anchorIndex === null) {
                 // Start dragging
-                this.anchorIndex = this.selectedIndex;
+                this.anchorAtCursor();
             } else {
                 // Commit range
-                const start = Math.min(this.anchorIndex, this.selectedIndex);
-                const end = Math.max(this.anchorIndex, this.selectedIndex);
-
-                this.commitFilteredRange(start, end, this.getFilteredIndexes());
-
-                this.anchorIndex = null;
+                this.commitAnchoredRange();
             }
             this.render(false);
             return;
@@ -120,6 +105,7 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
         let output = '';
         const choices = this.getFilteredChoices();
         const filteredIndexes = this.getFilteredIndexes();
+        const dragging = this.getAnchoredRange();
 
         // Scroll Logic (inherited from SelectPrompt basically, but good to ensure)
         if (this.selectedIndex < this.scrollTop) {
@@ -154,12 +140,8 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                 }
 
                 let isDragging = false;
-                if (this.anchorIndex !== null) {
-                    const min = Math.min(this.anchorIndex, this.selectedIndex);
-                    const max = Math.max(this.anchorIndex, this.selectedIndex);
-                    if (actualIndex >= min && actualIndex <= max) {
-                        isDragging = true;
-                    }
+                if (dragging !== null && choiceIndex >= dragging.start && choiceIndex <= dragging.end) {
+                    isDragging = true;
                 }
 
                 if (this.isSeparator(choice)) {
@@ -170,13 +152,13 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                     let content = title;
 
                     // Markers
-                    if (actualIndex === this.anchorIndex) {
+                    if (choiceIndex === this.anchorIndex) {
                         prefix = `${theme.muted}> ${ANSI.RESET}`;
                     }
                     if (actualIndex === this.selectedIndex) {
                         prefix = `${theme.main}${symbols.pointer} `;
                     }
-                    if (actualIndex === this.selectedIndex && actualIndex === this.anchorIndex) {
+                    if (actualIndex === this.selectedIndex && choiceIndex === this.anchorIndex) {
                         prefix = `${theme.main}${symbols.pointer}>`;
                     }
 
@@ -185,7 +167,7 @@ export class MultiRangePrompt<V> extends SelectRangePrompt<V> {
                         // Apply highlighting style
                         // If committed, maybe green? If dragging, maybe yellow or just highlighted?
 
-                        if (actualIndex !== this.selectedIndex && actualIndex !== this.anchorIndex) {
+                        if (actualIndex !== this.selectedIndex && choiceIndex !== this.anchorIndex) {
                             prefix = `${theme.success}* ${ANSI.RESET}`;
                         }
 

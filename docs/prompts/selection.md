@@ -194,6 +194,8 @@ const commits = await MepCLI.selectRange({
 });
 ```
 
+Pressing `Space` anchors the range at the highlighted choice and pressing it again clears the anchor. The anchor is remembered by choice rather than by filtered position: typing a search keeps the anchored range intact, and `Enter` still submits it even if the filter hides the anchor or matches nothing.
+
 `multiRange` commits a range when you press Space a second time, so you can anchor and commit several ranges before submitting. Committed ranges are remembered by choice, not by filtered position: typing a search after committing keeps the ranges intact, and Enter still submits them even if the current filter hides them or matches nothing.
 
 ```typescript

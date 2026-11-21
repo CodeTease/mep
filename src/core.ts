@@ -1316,6 +1316,8 @@ export class MepCLI {
      *     { title: 'chore: C', value: 'c' }
      *   ]
      * });
+     * The anchor is tracked by choice, so applying a filter keeps the anchored
+     * range and Enter still submits it.
      * @param options - Choices list.
      * @returns A promise resolving to the sub-array of values.
      * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}
