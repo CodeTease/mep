@@ -15,21 +15,32 @@ export class SpamPrompt extends Prompt<boolean, SpamOptions> {
     private width: number = 20; // Visual width of the bar
     private decayTimer?: NodeJS.Timeout;
 
-    constructor(options: SpamOptions) {
-        super(options);
+    public run(): Promise<boolean> {
+        this.startDecay();
+        return super.run();
+    }
 
-        if (options.decay) {
-            this.decayTimer = setInterval(() => {
-                if (this.count > 0) {
-                    this.count = Math.max(0, this.count - 1);
-                    this.render(false);
-                }
-            }, 200); // Drop 5 presses per second
+    private startDecay() {
+        this.stopDecay();
+        if (!this.options.decay) return;
+
+        this.decayTimer = setInterval(() => {
+            if (this.count > 0) {
+                this.count = Math.max(0, this.count - 1);
+                this.render(false);
+            }
+        }, 200); // Drop 5 presses per second
+    }
+
+    private stopDecay() {
+        if (this.decayTimer) {
+            clearInterval(this.decayTimer);
+            this.decayTimer = undefined;
         }
     }
 
     protected cleanup() {
-        if (this.decayTimer) clearInterval(this.decayTimer);
+        this.stopDecay();
         super.cleanup();
     }
 
