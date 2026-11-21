@@ -12,8 +12,10 @@ export class KanbanPrompt<V extends KanbanItem> extends Prompt<Record<string, V[
 
     constructor(options: KanbanOptions<V>) {
         super(options);
-        // Deep copy columns to avoid mutating original options during drag/drop
-        this.columns = JSON.parse(JSON.stringify(options.columns));
+        // Copy the column structure to avoid mutating original options during drag/drop.
+        // Items are only rearranged, so keeping their references preserves value types
+        // (Dates, undefined keys, class instances, cycles) that a JSON clone would lose.
+        this.columns = options.columns.map((column) => ({ ...column, items: [...column.items] }));
         this.scrollStates = new Array(this.columns.length).fill(0);
     }
 
