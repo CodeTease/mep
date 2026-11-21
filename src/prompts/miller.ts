@@ -148,8 +148,9 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
         const pathTitles = [];
         for (let i = 0; i <= this.activeCol; i++) {
             const data = this.getColumnData(i);
-            if (data && typeof this.selections[i] === 'number') {
-                pathTitles.push(data[this.selections[i]].title);
+            const item = data?.[this.selections[i]];
+            if (item) {
+                pathTitles.push(item.title);
             }
         }
         output += `${theme.muted}Path: ${pathTitles.join(' / ')}${ANSI.RESET}`;
@@ -163,17 +164,19 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
 
         // Enter
         if (char === '\r' || char === '\n') {
-            // Collect values
+            // Collect values. Empty columns contribute nothing, so empty data submits [].
             const values: V[] = [];
             for (let i = 0; i <= this.activeCol; i++) {
                 const d = this.getColumnData(i);
-                if (d) values.push(d[this.selections[i]].value);
+                const item = d?.[this.selections[i]];
+                if (item) values.push(item.value);
             }
             this.submit(values);
             return;
         }
 
         if (this.isUp(char)) {
+            if (currentData.length === 0) return;
             if (this.selections[this.activeCol] > 0) {
                 this.selections[this.activeCol]--;
                 // Reset subsequent columns
@@ -187,6 +190,7 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
         }
 
         if (this.isDown(char)) {
+            if (currentData.length === 0) return;
             if (this.selections[this.activeCol] < currentData.length - 1) {
                 this.selections[this.activeCol]++;
                 this.selections = this.selections.slice(0, this.activeCol + 1);
@@ -202,7 +206,7 @@ export class MillerPrompt<V> extends Prompt<V[], MillerOptions<V>> {
             // Expand
             const idx = this.selections[this.activeCol];
             const item = currentData[idx];
-            if (item.children && item.children.length > 0) {
+            if (item?.children && item.children.length > 0) {
                 this.activeCol++;
                 this.selections[this.activeCol] = 0;
                 this.render(false);
