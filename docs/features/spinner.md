@@ -27,6 +27,11 @@ Creates a new spinner instance.
 
 Starts the animation loop.
 
+While running, the spinner hides the cursor and listens for `SIGINT`. On
+Ctrl+C it restores the cursor, lets any other `SIGINT` listeners run, and only
+terminates the process asynchronously with status `130` when it is the sole
+listener and no exit code has been set.
+
 ### `spinner.stop(message?: string, type?: 'success' | 'error' | 'info')`
 
 Stops the animation and replaces the line with a final message, then terminates

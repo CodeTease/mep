@@ -141,7 +141,19 @@ export class Spinner {
     }
 
     private handleSignal = () => {
+        // Host handlers (cleanup, telemetry, ...) may be registered after
+        // `start()`; they decide whether Ctrl+C is handled, so only stop here.
+        const hasOtherListeners = process.listenerCount('SIGINT') > 1;
+
         this.stop();
-        process.exit(0);
+
+        if (hasOtherListeners) return;
+
+        // Let every other SIGINT listener run before terminating, then report
+        // the conventional interrupt status instead of a successful exit.
+        setImmediate(() => {
+            if (process.exitCode !== undefined) return;
+            process.exit(130);
+        });
     };
 }

@@ -3,6 +3,8 @@ import { Spinner } from "../src/spinner";
 import { symbols } from "../src/symbols";
 import { theme } from "../src/theme";
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 describe("Spinner", () => {
   let writeSpy: jest.SpyInstance;
   let initialSigintListeners: number;
@@ -155,5 +157,86 @@ describe("Spinner", () => {
     expect(output()).toBe(
       `${ANSI.SHOW_CURSOR}${ANSI.ERASE_LINE}${ANSI.CURSOR_LEFT}`,
     );
+  });
+
+  it("runs SIGINT listeners registered after start and restores the cursor", () => {
+    createSpinner("Working").start();
+    writeSpy.mockClear();
+    const handled = jest.fn();
+    process.on("SIGINT", handled);
+
+    try {
+      process.emit("SIGINT", "SIGINT");
+    } finally {
+      process.removeListener("SIGINT", handled);
+    }
+
+    expect(handled).toHaveBeenCalledTimes(1);
+    expect(output()).toContain(ANSI.SHOW_CURSOR);
+  });
+
+  it("does not exit when another SIGINT listener is registered", async () => {
+    const exitSpy = jest
+      .spyOn(process, "exit")
+      .mockImplementation((() => undefined) as never);
+    const handled = jest.fn();
+    process.on("SIGINT", handled);
+
+    try {
+      createSpinner("Working").start();
+      process.emit("SIGINT", "SIGINT");
+      await delay(10);
+
+      expect(handled).toHaveBeenCalledTimes(1);
+      expect(exitSpy).not.toHaveBeenCalled();
+    } finally {
+      process.removeListener("SIGINT", handled);
+      exitSpy.mockRestore();
+    }
+  });
+
+  it("exits with an interrupt status when no other SIGINT listener handles it", async () => {
+    const exitSpy = jest
+      .spyOn(process, "exit")
+      .mockImplementation((() => undefined) as never);
+
+    try {
+      createSpinner("Working").start();
+      process.emit("SIGINT", "SIGINT");
+      await delay(10);
+
+      expect(exitSpy).toHaveBeenCalledWith(130);
+    } finally {
+      exitSpy.mockRestore();
+    }
+  });
+
+  it("leaves an exit code set before the interrupt untouched", async () => {
+    const exitSpy = jest
+      .spyOn(process, "exit")
+      .mockImplementation((() => undefined) as never);
+    process.exitCode = 2;
+
+    try {
+      createSpinner("Working").start();
+      process.emit("SIGINT", "SIGINT");
+      await delay(10);
+
+      expect(process.exitCode).toBe(2);
+      expect(exitSpy).not.toHaveBeenCalled();
+    } finally {
+      process.exitCode = 0;
+      exitSpy.mockRestore();
+    }
+  });
+
+  it("restores the cursor on SIGINT", () => {
+    createSpinner("Working").start();
+    writeSpy.mockClear();
+
+    process.emit("SIGINT", "SIGINT");
+
+    expect(output()).toContain(ANSI.SHOW_CURSOR);
+    expect(process.listenerCount("SIGINT")).toBe(initialSigintListeners);
   });
 });
