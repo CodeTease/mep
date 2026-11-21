@@ -94,6 +94,15 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
     }
 
     private spawnEditor() {
+        if (this.status !== 'pending') return;
+
+        // An external editor needs a real terminal to attach to. Without one
+        // (pipes, CI, tests) the child cannot run, so settle instead of hanging.
+        if (!this.stdin.isTTY || typeof this.stdin.setRawMode !== 'function') {
+            this.cancel(new Error('Cannot launch editor: stdin is not a TTY'));
+            return;
+        }
+
         this.status = 'editing';
 
         // 1. Prepare Temp File
@@ -125,7 +134,9 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
         }
 
         // Pause stdin and raw mode to allow child process to take over TTY
-        this.stdin.setRawMode(false);
+        if (typeof this.stdin.setRawMode === 'function') {
+            this.stdin.setRawMode(false);
+        }
         this.stdin.pause();
 
         // 4. Spawn
@@ -179,7 +190,9 @@ export class EditorPrompt extends Prompt<string, EditorOptions> {
 
     private restoreMep() {
         this.stdin.resume();
-        this.stdin.setRawMode(true);
+        if (typeof this.stdin.setRawMode === 'function') {
+            this.stdin.setRawMode(true);
+        }
 
         // Re-enable mouse if it was enabled
         const shouldEnableMouse = (this.options as any).mouse !== false && this.capabilities.hasMouse;
