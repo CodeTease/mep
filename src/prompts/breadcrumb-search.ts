@@ -38,8 +38,7 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
 
         // Esc: Exit search mode
         if (char === '\x1b') {
-            this.isSearchMode = false;
-            this.searchBuffer = '';
+            this.exitSearch();
             this.render(false);
             return;
         }
@@ -49,13 +48,13 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
             if (this.searchBuffer.length > 0) {
                 this.searchBuffer = this.searchBuffer.slice(0, -1);
                 if (this.searchBuffer.length === 0) {
-                    this.isSearchMode = false;
+                    this.exitSearch();
                 } else {
                     this.updateSearchResults();
                 }
                 this.render(false);
             } else {
-                this.isSearchMode = false;
+                this.exitSearch();
                 this.render(false);
             }
             return;
@@ -73,10 +72,10 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
                 const realIndex = this.currentEntries.findIndex((e) => e.name === entry.name);
                 if (realIndex !== -1) {
                     this.cursor = realIndex;
-                    this.drillDown().then(() => {
-                        this.isSearchMode = false;
-                        this.searchBuffer = '';
-                    });
+                    // Leave search mode before loading, so the re-render in loadDirectory()
+                    // paints the new directory instead of the stale search results.
+                    this.exitSearch();
+                    this.drillDown();
                 }
             } else {
                 const fullPath = path.join(this.currentPath, entry.name);
@@ -112,6 +111,13 @@ export class BreadcrumbSearchPrompt extends BreadcrumbPrompt {
             this.updateSearchResults();
             this.render(false);
         }
+    }
+
+    private exitSearch() {
+        this.isSearchMode = false;
+        this.searchBuffer = '';
+        this.filteredEntries = [];
+        this.searchCursor = 0;
     }
 
     private updateSearchResults() {
