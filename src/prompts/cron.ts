@@ -17,23 +17,32 @@ const FIELDS: FieldConfig[] = [
     { label: 'Weekday', min: 0, max: 6 },
 ];
 
+const SECONDS_FIELD: FieldConfig = { label: 'Second', min: 0, max: 59 };
+
 export class CronPrompt extends Prompt<string, CronOptions> {
     private fields: string[] = ['*', '*', '*', '*', '*'];
+    private fieldConfigs: FieldConfig[] = FIELDS;
+    private originalExpression: string | null = null;
+    private editedFields: Set<number> = new Set();
     private activeField: number = 0;
     private buffer: string = '';
 
     constructor(options: CronOptions) {
         super(options);
         if (options.initial) {
-            const parts = options.initial.split(' ');
-            if (parts.length === 5) {
+            const parts = options.initial.trim().split(/\s+/);
+            // Accept both five-field and six-field (seconds) expressions, keeping the raw
+            // field text so an untouched submit can return the original expression.
+            if (parts.length === 5 || parts.length === 6) {
                 this.fields = parts;
+                this.fieldConfigs = parts.length === 6 ? [SECONDS_FIELD, ...FIELDS] : FIELDS;
+                this.originalExpression = options.initial;
             }
         }
     }
 
     private get currentConfig() {
-        return FIELDS[this.activeField];
+        return this.fieldConfigs[this.activeField];
     }
 
     protected render(_firstRender: boolean): void {
@@ -63,6 +72,10 @@ export class CronPrompt extends Prompt<string, CronOptions> {
     }
 
     private validateCurrentField() {
+        // Fields the user never touched keep their raw text (e.g. "*/5", "15,45"),
+        // so an unmodified initial expression is submitted verbatim.
+        if (!this.editedFields.has(this.activeField)) return;
+
         const config = this.currentConfig;
         const val = this.fields[this.activeField];
         if (val === '*') return;
@@ -76,16 +89,27 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         }
     }
 
+    private markEdited() {
+        this.editedFields.add(this.activeField);
+    }
+
+    private currentExpression(): string {
+        if (this.editedFields.size === 0 && this.originalExpression !== null) {
+            return this.originalExpression;
+        }
+        return this.fields.join(' ');
+    }
+
     protected handleInput(char: string) {
         if (char === '\r' || char === '\n') {
             this.validateCurrentField();
-            this.submit(this.fields.join(' '));
+            this.submit(this.currentExpression());
             return;
         }
 
         if (char === '\t' || this.isRight(char)) {
             this.validateCurrentField();
-            this.activeField = (this.activeField + 1) % 5;
+            this.activeField = (this.activeField + 1) % this.fields.length;
             this.buffer = '';
             this.render(false);
             return;
@@ -94,7 +118,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         // Shift+Tab detection is often '\x1b[Z'
         if (char === '\x1b[Z' || this.isLeft(char)) {
             this.validateCurrentField();
-            this.activeField = (this.activeField - 1 + 5) % 5;
+            this.activeField = (this.activeField - 1 + this.fields.length) % this.fields.length;
             this.buffer = '';
             this.render(false);
             return;
@@ -106,8 +130,10 @@ export class CronPrompt extends Prompt<string, CronOptions> {
 
         if (this.isUp(char)) {
             if (currentVal === '*') {
+                this.markEdited();
                 this.fields[this.activeField] = config.min.toString();
             } else if (!Number.isNaN(numVal)) {
+                this.markEdited();
                 numVal++;
                 if (numVal > config.max) numVal = config.min;
                 this.fields[this.activeField] = numVal.toString();
@@ -119,8 +145,10 @@ export class CronPrompt extends Prompt<string, CronOptions> {
 
         if (this.isDown(char)) {
             if (currentVal === '*') {
+                this.markEdited();
                 this.fields[this.activeField] = config.max.toString();
             } else if (!Number.isNaN(numVal)) {
+                this.markEdited();
                 numVal--;
                 if (numVal < config.min) numVal = config.max;
                 this.fields[this.activeField] = numVal.toString();
@@ -131,6 +159,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
         }
 
         if (char === ' ' || char.toLowerCase() === 'x') {
+            this.markEdited();
             this.fields[this.activeField] = '*';
             this.buffer = '';
             this.render(false);
@@ -145,6 +174,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
             // Check if valid
             if (!Number.isNaN(nextNum) && nextNum <= config.max) {
                 this.buffer = nextBuffer;
+                this.markEdited();
 
                 if (nextNum >= 0) {
                     // Should be positive
@@ -154,6 +184,7 @@ export class CronPrompt extends Prompt<string, CronOptions> {
                 const freshNum = parseInt(char, 10);
                 if (!Number.isNaN(freshNum) && freshNum <= config.max) {
                     this.buffer = char;
+                    this.markEdited();
                     this.fields[this.activeField] = freshNum.toString();
                 }
             }
@@ -170,8 +201,10 @@ export class CronPrompt extends Prompt<string, CronOptions> {
             if (event.scroll === 'up') {
                 // Increase
                 if (currentVal === '*') {
+                    this.markEdited();
                     this.fields[this.activeField] = config.min.toString();
                 } else if (!Number.isNaN(numVal)) {
+                    this.markEdited();
                     numVal++;
                     if (numVal > config.max) numVal = config.min;
                     this.fields[this.activeField] = numVal.toString();
@@ -179,8 +212,10 @@ export class CronPrompt extends Prompt<string, CronOptions> {
             } else {
                 // Decrease
                 if (currentVal === '*') {
+                    this.markEdited();
                     this.fields[this.activeField] = config.max.toString();
                 } else if (!Number.isNaN(numVal)) {
+                    this.markEdited();
                     numVal--;
                     if (numVal < config.min) numVal = config.max;
                     this.fields[this.activeField] = numVal.toString();

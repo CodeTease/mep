@@ -84,6 +84,8 @@ const jobSchedule = await MepCLI.cron({
 });
 ```
 
+The `initial` value accepts five-field and six-field (seconds) expressions. Pressing `Enter` without editing returns the initial expression unchanged, including step (`*/5`) and list (`15,45`) fields; only fields the user edits are normalized.
+
 ## Related
 
 - [Rich UI Prompts](./rich-ui.md)

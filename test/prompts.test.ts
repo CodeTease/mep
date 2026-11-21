@@ -144,6 +144,82 @@ describe("Complex Prompts", () => {
       const result = await promise;
       expect(result).toBe("1 1 * * *");
     });
+
+    it("should submit an untouched expression with a step value unchanged", async () => {
+      const prompt = new CronPrompt({
+        message: "Cron",
+        initial: "*/5 3 * * *",
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\r");
+
+      await expect(promise).resolves.toBe("*/5 3 * * *");
+    });
+
+    it("should submit an untouched expression with a list unchanged", async () => {
+      const prompt = new CronPrompt({
+        message: "Cron",
+        initial: "15,45 2 * * *",
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\r");
+
+      await expect(promise).resolves.toBe("15,45 2 * * *");
+    });
+
+    it("should accept and submit an untouched six-field expression", async () => {
+      const prompt = new CronPrompt({
+        message: "Cron",
+        initial: "0 */5 * * * *",
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\r");
+
+      await expect(promise).resolves.toBe("0 */5 * * * *");
+    });
+
+    it("should edit one field of a six-field expression", async () => {
+      const prompt = new CronPrompt({
+        message: "Cron",
+        initial: "0 */5 * * * *",
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("1"); // Edit seconds
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toBe("1 */5 * * * *");
+    });
+
+    it("should preserve untouched raw fields when another field is edited", async () => {
+      const prompt = new CronPrompt({
+        message: "Cron",
+        initial: "*/5 3 * * *",
+      });
+
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\t"); // Hour
+      await delay(10);
+      sendKey("4");
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toBe("*/5 4 * * *");
+    });
   });
 
   describe("MapPrompt", () => {
