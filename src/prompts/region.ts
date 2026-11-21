@@ -77,12 +77,14 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
             output += '  ' + renderedLine + '\n';
         }
 
-        // Region Description
+        // Region Description. An empty region list simply renders the map without a selection.
         const currentRegion = this.options.regions[this.cursorIndex];
-        if (currentRegion?.description) {
-            output += `\n${theme.main}❯ ${ANSI.BOLD}${currentRegion.id}${ANSI.RESET}: ${currentRegion.description}`;
-        } else {
-            output += `\n${theme.main}❯ ${ANSI.BOLD}${currentRegion.id}${ANSI.RESET}`;
+        if (currentRegion) {
+            if (currentRegion.description) {
+                output += `\n${theme.main}❯ ${ANSI.BOLD}${currentRegion.id}${ANSI.RESET}: ${currentRegion.description}`;
+            } else {
+                output += `\n${theme.main}❯ ${ANSI.BOLD}${currentRegion.id}${ANSI.RESET}`;
+            }
         }
 
         output += `\n${ANSI.DIM}(Arrows to navigate, Enter to select)${ANSI.RESET}`;
@@ -92,7 +94,13 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
 
     protected handleInput(char: string, _key: Buffer) {
         if (char === '\r' || char === '\n') {
-            this.submit(this.options.regions[this.cursorIndex].id);
+            const region = this.options.regions[this.cursorIndex];
+            if (!region) {
+                // No region can be selected; fail explicitly instead of resolving an invalid id.
+                this.cancel(new Error('No regions available to select'));
+                return;
+            }
+            this.submit(region.id);
             return;
         }
 
@@ -104,6 +112,8 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
 
     private navigate(direction: 'up' | 'down' | 'left' | 'right') {
         const current = this.options.regions[this.cursorIndex];
+        if (!current) return;
+
         let bestCandidate: MapRegion | null = null;
         let bestScore = Infinity;
 
@@ -164,7 +174,7 @@ export class RegionPrompt extends Prompt<string, RegionOptions> {
 
     protected handleMouse(event: MouseEvent) {
         // Cycle with scroll
-        if (event.action === 'scroll') {
+        if (event.action === 'scroll' && this.options.regions.length > 0) {
             if (event.scroll === 'up') {
                 this.cursorIndex = (this.cursorIndex - 1 + this.options.regions.length) % this.options.regions.length;
             } else {
