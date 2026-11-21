@@ -461,10 +461,11 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
         // End (Last Day of Month)
         if (char === '\x1b[F' || char === '\x1b[4~') {
-            const d = new Date(this.cursor);
-            d.setMonth(d.getMonth() + 1);
-            d.setDate(0);
-            this.moveCursor(d);
+            // Compute the last day directly so the day-of-month overflow that
+            // `setMonth(current + 1)` would cause on days 29-31 cannot move
+            // the cursor (and the view) into the following month.
+            const lastDay = new Date(this.cursor.getFullYear(), this.cursor.getMonth() + 1, 0);
+            this.moveCursor(lastDay);
             this.render(false);
             return;
         }

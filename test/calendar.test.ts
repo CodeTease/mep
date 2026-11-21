@@ -114,6 +114,93 @@ describe("CalendarPrompt", () => {
     });
   });
 
+  describe("month navigation", () => {
+    it("keeps End on Jan 31 instead of jumping to February", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 0, 31),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[F"); // End
+      await delay(10);
+
+      expect(renderedOutput()).toContain("January 2024");
+
+      sendKey("\r");
+      await expect(promise).resolves.toEqual(new Date(2024, 0, 31));
+    });
+
+    it("keeps End on Mar 31 instead of jumping to April", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 2, 31),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[F");
+      await delay(10);
+
+      expect(renderedOutput()).toContain("March 2024");
+
+      sendKey("\r");
+      await expect(promise).resolves.toEqual(new Date(2024, 2, 31));
+    });
+
+    it("keeps End within the month in range mode from Jan 31", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        mode: "range",
+        initial: new Date(2024, 0, 31),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\r"); // Anchor on Jan 31
+      await delay(10);
+      sendKey("\x1b[F"); // End -> stays on Jan 31
+      await delay(10);
+      sendKey("\r"); // Finish the range
+
+      await expect(promise).resolves.toEqual([
+        new Date(2024, 0, 31),
+        new Date(2024, 0, 31),
+      ]);
+    });
+
+    it("moves End to the last day from earlier in the month", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 0, 15),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[F");
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2024, 0, 31));
+    });
+
+    it("moves End to Feb 29 in a leap year", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 1, 1),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[F");
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2024, 1, 29));
+    });
+  });
+
   describe("min/max bounds", () => {
     it("clamps an initial date below min", async () => {
       const prompt = new CalendarPrompt({
