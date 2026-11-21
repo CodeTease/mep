@@ -199,6 +199,89 @@ describe("CalendarPrompt", () => {
 
       await expect(promise).resolves.toEqual(new Date(2024, 1, 29));
     });
+
+    it("clamps the day on PageDown from Jan 31", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 0, 31),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[6~"); // PageDown
+      await delay(10);
+
+      expect(renderedOutput()).toContain("February 2024");
+
+      sendKey("\r");
+      await expect(promise).resolves.toEqual(new Date(2024, 1, 29));
+    });
+
+    it("clamps the day on PageUp from Mar 31", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 2, 31),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[5~"); // PageUp
+      await delay(10);
+
+      expect(renderedOutput()).toContain("February 2024");
+
+      sendKey("\r");
+      await expect(promise).resolves.toEqual(new Date(2024, 1, 29));
+    });
+
+    it("clamps a leap day on Ctrl+Down", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 1, 29),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[1;5B"); // Ctrl+Down
+      await delay(10);
+
+      expect(renderedOutput()).toContain("February 2025");
+
+      sendKey("\r");
+      await expect(promise).resolves.toEqual(new Date(2025, 1, 28));
+    });
+
+    it("clamps a leap day on Ctrl+Up", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 1, 29),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[1;5A"); // Ctrl+Up
+      await delay(10);
+
+      expect(renderedOutput()).toContain("February 2023");
+
+      sendKey("\r");
+      await expect(promise).resolves.toEqual(new Date(2023, 1, 28));
+    });
+
+    it("keeps the day when paging through a month that contains it", async () => {
+      const prompt = new CalendarPrompt({
+        message: "Cal",
+        initial: new Date(2024, 0, 15),
+      });
+      const promise = prompt.run();
+      await delay(10);
+
+      sendKey("\x1b[6~"); // PageDown -> Feb 15
+      await delay(10);
+      sendKey("\r");
+
+      await expect(promise).resolves.toEqual(new Date(2024, 1, 15));
+    });
   });
 
   describe("min/max bounds", () => {

@@ -133,6 +133,34 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
         return new Date(year, month + 1, 0).getDate();
     }
 
+    /**
+     * Copies the cursor's time of day onto `date`, so day/month navigation
+     * only changes the calendar day and never the clock.
+     */
+    private withCursorTime(date: Date): Date {
+        date.setHours(
+            this.cursor.getHours(),
+            this.cursor.getMinutes(),
+            this.cursor.getSeconds(),
+            this.cursor.getMilliseconds(),
+        );
+        return date;
+    }
+
+    /**
+     * Returns a copy of the cursor moved by whole months (negative for
+     * backwards) with the day-of-month clamped to the target month. Building
+     * the date from explicit parts avoids `Date` overflow, which would skip a
+     * month from days 29-31 or make the view appear stuck.
+     */
+    private cursorPlusMonths(months: number): Date {
+        const target = new Date(this.cursor.getFullYear(), this.cursor.getMonth() + months, 1);
+        const year = target.getFullYear();
+        const month = target.getMonth();
+        const day = Math.min(this.cursor.getDate(), this.getDaysInMonth(year, month));
+        return this.withCursorTime(new Date(year, month, day));
+    }
+
     private generateMonthGrid(year: number, month: number): { date: Date; inMonth: boolean }[] {
         const days: { date: Date; inMonth: boolean }[] = [];
 
@@ -418,34 +446,26 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
 
         // PageUp (Month - 1)
         if (char === '\x1b[5~') {
-            const d = new Date(this.cursor);
-            d.setMonth(d.getMonth() - 1);
-            this.moveCursor(d);
+            this.moveCursor(this.cursorPlusMonths(-1));
             this.render(false);
             return;
         }
         // PageDown (Month + 1)
         if (char === '\x1b[6~') {
-            const d = new Date(this.cursor);
-            d.setMonth(d.getMonth() + 1);
-            this.moveCursor(d);
+            this.moveCursor(this.cursorPlusMonths(1));
             this.render(false);
             return;
         }
 
         // Ctrl+Up (Year - 1)
         if (char === '\x1b[1;5A') {
-            const d = new Date(this.cursor);
-            d.setFullYear(d.getFullYear() - 1);
-            this.moveCursor(d);
+            this.moveCursor(this.cursorPlusMonths(-12));
             this.render(false);
             return;
         }
         // Ctrl+Down (Year + 1)
         if (char === '\x1b[1;5B') {
-            const d = new Date(this.cursor);
-            d.setFullYear(d.getFullYear() + 1);
-            this.moveCursor(d);
+            this.moveCursor(this.cursorPlusMonths(12));
             this.render(false);
             return;
         }
@@ -465,7 +485,7 @@ export class CalendarPrompt extends Prompt<CalendarValue, ExtendedCalendarOption
             // `setMonth(current + 1)` would cause on days 29-31 cannot move
             // the cursor (and the view) into the following month.
             const lastDay = new Date(this.cursor.getFullYear(), this.cursor.getMonth() + 1, 0);
-            this.moveCursor(lastDay);
+            this.moveCursor(this.withCursorTime(lastDay));
             this.render(false);
             return;
         }
