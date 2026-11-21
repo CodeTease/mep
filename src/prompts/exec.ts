@@ -55,7 +55,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
             }, this.options.timeout);
         }
 
-        this.child.on('exit', (code) => {
+        this.child.on('close', (code, signal) => {
             if (this.status !== 'running') return;
 
             if (code === 0) {
@@ -71,6 +71,7 @@ export class ExecPrompt extends Prompt<void, ExecOptions> {
                 // Attach details
                 Object.assign(err, {
                     code,
+                    signal,
                     stdout: this.stdoutBuffer,
                     stderr: this.stderrBuffer,
                 });
