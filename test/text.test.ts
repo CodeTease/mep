@@ -82,6 +82,59 @@ describe("TextPrompt", () => {
     expect(result).toBe("Ac"); // "Ab" -> "A" -> "Ac"
   });
 
+  it("should remove an emoji as one grapheme on backspace", async () => {
+    const prompt = new TextPrompt({
+      message: "Name?",
+    });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    sendKey("😀");
+    sendKey("\x7f"); // Backspace
+    await delay(10);
+
+    sendKey("\r");
+    const result = await promise;
+    expect(result).toBe("");
+  });
+
+  it("should keep a masked emoji editable as one grapheme", async () => {
+    const prompt = new TextPrompt({
+      message: "Password?",
+      isPassword: true,
+    });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    sendKey("😀");
+    sendKey("\x7f"); // Backspace
+    await delay(10);
+
+    sendKey("\r");
+    const result = await promise;
+    expect(result).toBe("");
+  });
+
+  it("should keep a secret (empty mask) emoji editable as one grapheme", async () => {
+    const prompt = new TextPrompt({
+      message: "Secret?",
+      mask: "",
+    });
+
+    const promise = prompt.run();
+    await delay(10);
+
+    sendKey("😀");
+    sendKey("\x7f"); // Backspace
+    await delay(10);
+
+    sendKey("\r");
+    const result = await promise;
+    expect(result).toBe("");
+  });
+
   it("should handle left and right arrows", async () => {
     const prompt = new TextPrompt({
       message: "Name?",

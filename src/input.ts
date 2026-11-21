@@ -9,12 +9,14 @@ export class InputParser extends EventEmitter {
 
     /**
      * Feed data into the parser.
+     *
+     * Iterates by code point so a surrogate pair (for example an emoji) is
+     * emitted as one keypress instead of two lone surrogates.
      */
     public feed(data: Buffer) {
         const input = data.toString('utf-8');
 
-        for (let i = 0; i < input.length; i++) {
-            const char = input[i];
+        for (const char of input) {
             this.processChar(char);
         }
     }

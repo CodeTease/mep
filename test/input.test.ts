@@ -42,6 +42,29 @@ describe("InputParser", () => {
       expect(keyHandler).toHaveBeenNthCalledWith(2, "b", expect.any(Buffer));
       expect(keyHandler).toHaveBeenNthCalledWith(3, "c", expect.any(Buffer));
     });
+
+    it("should emit a non-BMP character as a single keypress", () => {
+      parser.feed(Buffer.from("😀"));
+      expect(keyHandler).toHaveBeenCalledTimes(1);
+      expect(keyHandler).toHaveBeenCalledWith("😀", expect.any(Buffer));
+    });
+
+    it("should keep surrogate pairs intact while emitting surrounding characters", () => {
+      parser.feed(Buffer.from("a😀b"));
+      expect(keyHandler).toHaveBeenCalledTimes(3);
+      expect(keyHandler).toHaveBeenNthCalledWith(1, "a", expect.any(Buffer));
+      expect(keyHandler).toHaveBeenNthCalledWith(2, "😀", expect.any(Buffer));
+      expect(keyHandler).toHaveBeenNthCalledWith(3, "b", expect.any(Buffer));
+    });
+
+    it("should not emit lone surrogates for emoji", () => {
+      parser.feed(Buffer.from("👨‍👩‍👧‍👦"));
+      for (const call of keyHandler.mock.calls) {
+        // Every emitted key must contain complete code points only.
+        expect(call[0]).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);
+        expect(call[0]).not.toMatch(/(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/);
+      }
+    });
   });
 
   describe("ANSI Sequences", () => {
