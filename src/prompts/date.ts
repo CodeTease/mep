@@ -162,9 +162,15 @@ export class DatePrompt extends Prompt<Date, DateOptions> {
             case 0:
                 d.setFullYear(d.getFullYear() + dir);
                 break;
-            case 1:
-                d.setMonth(d.getMonth() + dir);
+            case 1: {
+                // Clamp the day to the target month so adjusting from Jan 31
+                // lands on Feb 28/29 instead of rolling into March.
+                const targetMonth = d.getMonth() + dir;
+                const daysInTarget = new Date(d.getFullYear(), targetMonth + 1, 0).getDate();
+                d.setDate(Math.min(d.getDate(), daysInTarget));
+                d.setMonth(targetMonth);
                 break;
+            }
             case 2:
                 d.setDate(d.getDate() + dir);
                 break;
