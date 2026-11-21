@@ -65,7 +65,7 @@ const priceFilter = await MepCLI.range({
 
 ## Transfer
 
-The `transfer` prompt allows moving items between two lists (Source/Target).
+The `transfer` prompt allows moving items between two lists (Source/Target). `Tab` switches the active list, `Space` moves the highlighted item, `a` moves everything to the target and `r` moves everything back to the source.
 
 ```typescript
 const assigned = await MepCLI.transfer({
@@ -74,6 +74,8 @@ const assigned = await MepCLI.transfer({
   target: ["Dave"], // Already assigned
 });
 ```
+
+Either side may be empty. The cursor of each list is kept within its items, so `Space` always moves the highlighted item and does nothing while the active list is empty.
 
 ## Form
 

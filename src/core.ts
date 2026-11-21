@@ -439,6 +439,8 @@ export class MepCLI {
      *   source: ['Alice', 'Bob', 'Charlie'],
      *   target: ['Dave']
      * });
+     * Either side may be empty; the cursor always stays on a real item, so
+     * Space moves the highlighted item and is a no-op for an empty list.
      * @param options - Source and target lists.
      * @returns A promise resolving to `[sourceItems, targetItems]`.
      * @see {@link https://github.com/CodeTease/mep/blob/main/example.ts}

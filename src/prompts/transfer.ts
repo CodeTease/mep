@@ -41,9 +41,24 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
         return res + '...';
     }
 
+    /**
+     * Keeps a list cursor inside `[0, length - 1]`, or at 0 when the list is
+     * empty. An out-of-range cursor would otherwise make `splice` remove the
+     * wrong item, or none at all.
+     */
+    private clampCursor(cursor: number, length: number): number {
+        if (length === 0) return 0;
+        return Math.max(0, Math.min(cursor, length - 1));
+    }
+
     protected render(_firstRender: boolean) {
         const termWidth = process.stdout.columns || 80;
         const colWidth = Math.floor((termWidth - 6) / 2);
+
+        // Repair the cursors of both sides: items can be moved out of a list by
+        // a batch shortcut, leaving the cursor past the end (or at -1).
+        this.cursorLeft = this.clampCursor(this.cursorLeft, this.leftList.length);
+        this.cursorRight = this.clampCursor(this.cursorRight, this.rightList.length);
 
         // Adjust Scroll Top
         if (this.activeSide === 'left') {
@@ -133,6 +148,7 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                 this.rightList.push(...this.leftList);
                 this.leftList = [];
                 this.cursorLeft = 0;
+                this.cursorRight = this.clampCursor(this.cursorRight, this.rightList.length);
                 this.activeSide = 'right';
                 this.render(false);
             }
@@ -145,6 +161,7 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
                 this.leftList.push(...this.rightList);
                 this.rightList = [];
                 this.cursorRight = 0;
+                this.cursorLeft = this.clampCursor(this.cursorLeft, this.leftList.length);
                 this.activeSide = 'left';
                 this.render(false);
             }
@@ -153,9 +170,9 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
 
         if (this.isUp(char)) {
             if (this.activeSide === 'left') {
-                this.cursorLeft = Math.max(0, this.cursorLeft - 1);
+                this.cursorLeft = this.clampCursor(this.cursorLeft - 1, this.leftList.length);
             } else {
-                this.cursorRight = Math.max(0, this.cursorRight - 1);
+                this.cursorRight = this.clampCursor(this.cursorRight - 1, this.rightList.length);
             }
             this.render(false);
             return;
@@ -163,31 +180,30 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
 
         if (this.isDown(char)) {
             if (this.activeSide === 'left') {
-                this.cursorLeft = Math.min(this.leftList.length - 1, this.cursorLeft + 1);
+                this.cursorLeft = this.clampCursor(this.cursorLeft + 1, this.leftList.length);
             } else {
-                this.cursorRight = Math.min(this.rightList.length - 1, this.cursorRight + 1);
+                this.cursorRight = this.clampCursor(this.cursorRight + 1, this.rightList.length);
             }
             this.render(false);
             return;
         }
 
         if (char === ' ') {
-            // Move item
+            // Move item. The cursor is repaired first so an empty list or a
+            // stale position can never splice an unrelated entry.
             if (this.activeSide === 'left') {
+                this.cursorLeft = this.clampCursor(this.cursorLeft, this.leftList.length);
                 if (this.leftList.length > 0) {
                     const [item] = this.leftList.splice(this.cursorLeft, 1);
                     this.rightList.push(item);
-                    if (this.cursorLeft >= this.leftList.length) {
-                        this.cursorLeft = Math.max(0, this.leftList.length - 1);
-                    }
+                    this.cursorLeft = this.clampCursor(this.cursorLeft, this.leftList.length);
                 }
             } else {
+                this.cursorRight = this.clampCursor(this.cursorRight, this.rightList.length);
                 if (this.rightList.length > 0) {
                     const [item] = this.rightList.splice(this.cursorRight, 1);
                     this.leftList.push(item);
-                    if (this.cursorRight >= this.rightList.length) {
-                        this.cursorRight = Math.max(0, this.rightList.length - 1);
-                    }
+                    this.cursorRight = this.clampCursor(this.cursorRight, this.rightList.length);
                 }
             }
             this.render(false);
@@ -198,15 +214,15 @@ export class TransferPrompt<V> extends Prompt<[V[], V[]], TransferOptions<V>> {
         if (event.action === 'scroll') {
             if (event.scroll === 'up') {
                 if (this.activeSide === 'left') {
-                    this.cursorLeft = Math.max(0, this.cursorLeft - 1);
+                    this.cursorLeft = this.clampCursor(this.cursorLeft - 1, this.leftList.length);
                 } else {
-                    this.cursorRight = Math.max(0, this.cursorRight - 1);
+                    this.cursorRight = this.clampCursor(this.cursorRight - 1, this.rightList.length);
                 }
             } else {
                 if (this.activeSide === 'left') {
-                    this.cursorLeft = Math.min(this.leftList.length - 1, this.cursorLeft + 1);
+                    this.cursorLeft = this.clampCursor(this.cursorLeft + 1, this.leftList.length);
                 } else {
-                    this.cursorRight = Math.min(this.rightList.length - 1, this.cursorRight + 1);
+                    this.cursorRight = this.clampCursor(this.cursorRight + 1, this.rightList.length);
                 }
             }
             this.render(false);
